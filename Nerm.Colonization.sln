@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.8
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nerm.Colonization", "src\Nerm.Colonization.csproj", "{CCB42DBA-0CA5-4EAE-AADA-B574E816FD35}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{27CF42F2-488E-4A31-9927-011A311F9FAB}"
+	ProjectSection(SolutionItems) = preProject
+		buildRelease.bat = buildRelease.bat
+		ChangeLog.txt = ChangeLog.txt
+		deploy.bat = deploy.bat
+		ColonizationByNerm.version = ColonizationByNerm.version
+		jenkins.txt = jenkins.txt
+		License.txt = License.txt
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release files", "Release files", "{316BAE93-C0A3-4A70-877F-2089CE0DED4F}"
+	ProjectSection(SolutionItems) = preProject
+		GameData\IFILS\CCT.cfg = GameData\IFILS\CCT.cfg
+		GameData\IFILS\Resources\IFI_TechTree.cfg = GameData\IFILS\Resources\IFI_TechTree.cfg
+		GameData\IFILS\MM_Patches\ModuleManager_ADD_IFI.cfg = GameData\IFILS\MM_Patches\ModuleManager_ADD_IFI.cfg
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		CodeAnalysis|Any CPU = CodeAnalysis|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CCB42DBA-0CA5-4EAE-AADA-B574E816FD35}.CodeAnalysis|Any CPU.ActiveCfg = CodeAnalysis|Any CPU
+		{CCB42DBA-0CA5-4EAE-AADA-B574E816FD35}.CodeAnalysis|Any CPU.Build.0 = CodeAnalysis|Any CPU
+		{CCB42DBA-0CA5-4EAE-AADA-B574E816FD35}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCB42DBA-0CA5-4EAE-AADA-B574E816FD35}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCB42DBA-0CA5-4EAE-AADA-B574E816FD35}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCB42DBA-0CA5-4EAE-AADA-B574E816FD35}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3E73714A-CCD6-472C-A0D8-13EBBE72D2D5}
+	EndGlobalSection
+EndGlobal
