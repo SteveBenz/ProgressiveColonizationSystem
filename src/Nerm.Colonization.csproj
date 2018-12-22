@@ -59,12 +59,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddInSettings.cs" />
     <Compile Include="AssemblyVersion.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>AssemblyVersion.tt</DependentUpon>
     </Compile>
+    <Compile Include="ColonizationScenario.cs" />
     <Compile Include="DebugControls.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -85,11 +88,11 @@
 if $(ConfigurationName) == Debug (
   echo "$(Pdb2MdbExe)" "$(TargetPath)"
   "$(Pdb2MdbExe)" "$(TargetPath)"
-  mkdir "$(TargetDir)GameData\ColonizationByNerm\Plugins" 2>nul
-  copy "$(TargetPath)" "$(TargetDir)GameData\ColonizationByNerm\Plugins" >nul
-  copy "$(TargetPath).mdb" "$(TargetDir)GameData\ColonizationByNerm\Plugins" >nul
-  echo robocopy /e /mir /mt:8 /njh /njs /ndl /nc /ns /nfl /np "$(TargetDir)GameData\ColonizationByNerm" "$(KspInstallation)\GameData\ColonizationByNerm"
-  robocopy /e /mir /mt:8 /njh /njs /ndl /nc /ns /nfl  /np "$(TargetDir)GameData\ColonizationByNerm" "$(KspInstallation)\GameData\ColonizationByNerm"
+  mkdir "$(TargetDir)GameData\ColonizationByNerm\Plugins" 2&gt;nul
+  copy "$(TargetPath)" "$(TargetDir)GameData\ColonizationByNerm\Plugins" &gt;nul
+  copy "$(TargetPath).mdb" "$(TargetDir)GameData\ColonizationByNerm\Plugins" &gt;nul
+  echo robocopy /e /mir /mt:8 /njh /njs /ndl /nc /ns /nfl /np "$(TargetDir)GameData\ColonizationByNerm" "$(KspInstallationDir)\GameData\ColonizationByNerm"
+  robocopy /e /mir /mt:8 /njh /njs /ndl /nc /ns /nfl  /np "$(TargetDir)GameData\ColonizationByNerm" "$(KspInstallationDir)\GameData\ColonizationByNerm"
   if errorlevel 8 exit /b 1
   exit /b 0
 ) else (

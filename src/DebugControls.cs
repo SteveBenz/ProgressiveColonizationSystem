@@ -5,29 +5,21 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace IFILifeSupport
+namespace Nerm.Colonization
 {
     [KSPAddon(KSPAddon.Startup.FlightEditorAndKSC, true)]
     public class DebugControls
         : MonoBehaviour
     {
-        public static DebugControls Instance;
-
-        private bool isVisible = true;
-
         public const float WINDOW_WIDTH_DEFAULT = 100;
         public const float WINDOW_HEIGHT = 440;
-        public Rect windowPos = new Rect(180, Screen.height / 2 - WINDOW_HEIGHT / 2, WINDOW_WIDTH_DEFAULT, WINDOW_HEIGHT);
         public const float HorizontalBuffer = 3;
         public const float VerticalBuffer = 3;
         public const float VerticalSpacing = 2;
 
-        private bool[] settings = new bool[3];
-
         public void Start()
         {
             Debug.Log("DebugControls - Start/Stop");
-            Instance = this;
         }
 
         public void Awake()
@@ -38,39 +30,30 @@ namespace IFILifeSupport
 
         private void OnGUI()
         {
-            Debug.Log("DebugControls - OnGUI 1");
-
-            if (!this.isVisible)
+            if (!AddInSettings.DebugWindowIsVisible)
             {
                 Debug.Log("DebugControls - Has become invisible");
                 //return;
             }
 
-            Debug.Log("DebugControls - OnGUI 2");
             //windowPos = ClickThruBlocker.GUILayoutWindow(99977, windowPos, DebugModeDialog, "Debug modes");
-            windowPos = GUI.Window(GetInstanceID(), windowPos, DebugModeDialog, "Debug modes");
-            Debug.Log("DebugControls - OnGUI 3");
+            AddInSettings.DebugWindowExtent = GUI.Window(GetInstanceID(), AddInSettings.DebugWindowExtent, DebugModeDialog, "Debug modes");
         }
 
         private void DebugModeDialog(int windowId)
         {
-            Debug.Log($"DebugModeDialog {windowId} - Enter");
             int i = 0;
             GUILayout.BeginVertical();
             foreach (string blob in new string[] { "Fiddly bits", "Naughty bits", "Crispy bits" })
             {
                 GUILayout.BeginHorizontal();
-                if (GUILayout.Toggle(this.settings[i], new GUIContent(blob)))
-                {
-                    this.settings[i] = !this.settings[i];
-                }
+                AddInSettings.DebugToggles[i] = GUILayout.Toggle(AddInSettings.DebugToggles[i], new GUIContent(blob));
                 ++i;
                 GUILayout.EndHorizontal();
             }
             GUILayout.EndVertical();
 
             GUI.DragWindow();
-            Debug.Log($"DebugModeDialog {windowId} - Exit");
         }
 
         //private void DebugModeDialog(int windowId)
