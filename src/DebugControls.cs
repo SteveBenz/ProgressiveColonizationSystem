@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace Nerm.Colonization
 {
+    // LEARNINGS - OnGui is apparently defunct, https://forum.kerbalspaceprogram.com/index.php?/topic/151354-unity-ui-creation-tutorial/
+    //   is the new and improved.
+
     [KSPAddon(KSPAddon.Startup.FlightEditorAndKSC, true)]
     public class DebugControls
         : MonoBehaviour
