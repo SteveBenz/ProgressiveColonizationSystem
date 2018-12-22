@@ -20,22 +20,77 @@ namespace Nerm.Colonization
         public const float VerticalBuffer = 3;
         public const float VerticalSpacing = 2;
 
+        public static DebugControls Instance;
+
         public void Start()
         {
-            Debug.Log("DebugControls - Start/Stop");
+            Debug.Log("DebugControls - Start enter");
+            AttachToToolbar();
+            Debug.Log("DebugControls - Start exit");
+
+            Instance = this;
         }
 
-        public void Awake()
+        private void AttachToToolbar()
         {
-            Debug.Log("DebugControls - Awake/Start");
-            Debug.Log("DebugControls - Awake/Stop");
+            Texture2D texture2D;
+            if (GameDatabase.Instance.ExistsTexture("ColonizationByNerm/IFI_LS_GRN_38"))
+            {
+                Debug.Log("DebugControl - Using blank texture");
+                texture2D = new Texture2D(38, 38, TextureFormat.ARGB32, false);
+            }
+            else
+            {
+                texture2D = GameDatabase.Instance.GetTexture("ColonizationByNerm/IFI_LS_GRN_38", false);
+            }
+
+            ApplicationLauncher.Instance.AddModApplication(
+                OnToggleOn, OnToggleOff, OnHoverIn, OnHoverOut, OnEnable, OnDisable,
+                ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.SPH | ApplicationLauncher.AppScenes.VAB,
+                texture2D );
         }
 
-        private void OnGUI()
+        private void OnToggleOn()
+        {
+            Debug.Log("DebugControl - OnToggleOn");
+        }
+
+        private void OnToggleOff()
+        {
+            Debug.Log("DebugControl - OnToggleOff");
+        }
+
+        private void OnHoverIn()
+        {
+            Debug.Log("DebugControl - OnHoverIn");
+        }
+
+        private void OnHoverOut()
+        {
+            Debug.Log("DebugControl - OnHoverOut");
+        }
+
+        private void OnEnable()
+        {
+            Debug.Log("DebugControl - OnEnable");
+        }
+
+        private void OnDisable()
+        {
+            Debug.Log("DebugControl - OnDisable");
+        }
+
+
+        //public void Awake()
+        //{
+        //    Debug.Log("DebugControls - Awake/Start");
+        //    Debug.Log("DebugControls - Awake/Stop");
+        //}
+
+        public void OnGUI()
         {
             if (!AddInSettings.DebugWindowIsVisible)
             {
-                Debug.Log("DebugControls - Has become invisible");
                 //return;
             }
 
