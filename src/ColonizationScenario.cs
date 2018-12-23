@@ -29,6 +29,7 @@ namespace Nerm.Colonization
             string rectAsString = myNode.GetValue("DebugWindow");
 
             myNode.TryGetValue(nameof(AddInSettings.DebugWindowExtent), ref AddInSettings.DebugWindowExtent);
+            Debug.Log($"DebugWindowExtent loaded: {AddInSettings.DebugWindowExtent.x},{AddInSettings.DebugWindowExtent.y}");
             myNode.TryGetValue(nameof(AddInSettings.DebugWindowIsVisible), ref AddInSettings.DebugWindowIsVisible);
             for (int i = 0; i < AddInSettings.DebugToggles.Length; ++i)
             {
@@ -48,6 +49,7 @@ namespace Nerm.Colonization
                 myStuff.AddValue($"{nameof(AddInSettings.DebugToggles)}_{i}", AddInSettings.DebugToggles[i]);
             }
 
+            Debug.Log($"DebugWindowExtent saved: {AddInSettings.DebugWindowExtent.x},{AddInSettings.DebugWindowExtent.y}");
             node.AddNode(myStuff);
             base.OnSave(node);
             Debug.Log("ColonizationScenario.OnSave - succeeded");

@@ -20,12 +20,31 @@ namespace Nerm.Colonization
         public const float VerticalBuffer = 3;
         public const float VerticalSpacing = 2;
 
-        public static DebugControls Instance;
+        private static bool isToolbarUp = false;
+
+        public static DebugControls Instance = null;
 
         public void Start()
         {
             Debug.Log("DebugControls - Start enter");
-            AttachToToolbar();
+            if (!isToolbarUp)
+            {
+                Debug.Log("DebugControls - Initialized the toolbar");
+                // TODO: Statics are bad - surely there's a way to know we've been here before?
+                this.AttachToToolbar();
+
+                // The tutorial:
+                //  https://forum.kerbalspaceprogram.com/index.php?/topic/78231-application-launcher-and-mods/
+                // Says we should listen to this and recreate the toolbar in reaction to it...  Doesn't
+                // work (because our stuff is gone).  Maybe it'd be a good idea to, instead, set a flag
+                // so that the next call to Start will restore it.
+
+                //GameEvents.onGUIApplicationLauncherDestroyed.Add(() =>
+                //{
+                //    this.AttachToToolbar();
+                //});
+                isToolbarUp = true;
+            }
             Debug.Log("DebugControls - Start exit");
 
             Instance = this;
@@ -44,19 +63,22 @@ namespace Nerm.Colonization
                 texture2D = GameDatabase.Instance.GetTexture("ColonizationByNerm/IFI_LS_GRN_38", true);
             }
 
+            Debug.Assert(ApplicationLauncher.Ready, "ApplicationLauncher is not ready - can't add the toolbar button.  Is this possible, really?  If so maybe we could do it later?");
             ApplicationLauncher.Instance.AddModApplication(
-                OnToggleOn, OnToggleOff, OnHoverIn, OnHoverOut, OnEnable, OnDisable,
+                OnToggleOn, OnToggleOff, null, null, null, null,
                 ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.SPH | ApplicationLauncher.AppScenes.VAB,
                 texture2D );
         }
 
         private void OnToggleOn()
         {
+            AddInSettings.DebugWindowIsVisible = true;
             Debug.Log("DebugControl - OnToggleOn");
         }
 
         private void OnToggleOff()
         {
+            AddInSettings.DebugWindowIsVisible = false;
             Debug.Log("DebugControl - OnToggleOff");
         }
 
@@ -91,7 +113,7 @@ namespace Nerm.Colonization
         {
             if (!AddInSettings.DebugWindowIsVisible)
             {
-                //return;
+                return;
             }
 
             //windowPos = ClickThruBlocker.GUILayoutWindow(99977, windowPos, DebugModeDialog, "Debug modes");
