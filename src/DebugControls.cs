@@ -10,7 +10,7 @@ namespace Nerm.Colonization
     // LEARNINGS - OnGui is apparently defunct, https://forum.kerbalspaceprogram.com/index.php?/topic/151354-unity-ui-creation-tutorial/
     //   is the new and improved.
 
-    [KSPAddon(KSPAddon.Startup.FlightEditorAndKSC, true)]
+    [KSPAddon(KSPAddon.Startup.FlightEditorAndKSC, false)]
     public class DebugControls
         : MonoBehaviour
     {
@@ -41,7 +41,7 @@ namespace Nerm.Colonization
             }
             else
             {
-                texture2D = GameDatabase.Instance.GetTexture("ColonizationByNerm/IFI_LS_GRN_38", false);
+                texture2D = GameDatabase.Instance.GetTexture("ColonizationByNerm/IFI_LS_GRN_38", true);
             }
 
             ApplicationLauncher.Instance.AddModApplication(
