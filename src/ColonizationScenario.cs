@@ -18,11 +18,11 @@ namespace Nerm.Colonization
         public override void OnLoad(ConfigNode config)
         {
             base.OnLoad(config);
-            Debug.Log("ColonizationScenario.OnLoad - start");
+            //Debug.Log("ColonizationScenario.OnLoad - start");
             var myNode = config.GetNode("Nerm.Colonization");
             if (myNode == null)
             {
-                Debug.Log("ColonizationScenario.OnLoad - bailed because Nerm.Colonization node is missing");
+                //Debug.Log("ColonizationScenario.OnLoad - bailed because Nerm.Colonization node is missing");
                 return;
             }
 
@@ -35,12 +35,12 @@ namespace Nerm.Colonization
             {
                 myNode.TryGetValue($"{nameof(AddInSettings.DebugToggles)}_{i}", ref AddInSettings.DebugToggles[i]);
             }
-            Debug.Log("ColonizationScenario.OnLoad - succeeded");
+            //Debug.Log("ColonizationScenario.OnLoad - succeeded");
         }
 
         public override void OnSave(ConfigNode node)
         {
-            Debug.Log("ColonizationScenario.OnSave - start");
+            //Debug.Log("ColonizationScenario.OnSave - start");
             ConfigNode myStuff = new ConfigNode("Nerm.Colonization");
             myStuff.AddValue(nameof(AddInSettings.DebugWindowExtent), AddInSettings.DebugWindowExtent);
             myStuff.AddValue(nameof(AddInSettings.DebugWindowIsVisible), AddInSettings.DebugWindowIsVisible);
@@ -49,10 +49,10 @@ namespace Nerm.Colonization
                 myStuff.AddValue($"{nameof(AddInSettings.DebugToggles)}_{i}", AddInSettings.DebugToggles[i]);
             }
 
-            Debug.Log($"DebugWindowExtent saved: {AddInSettings.DebugWindowExtent.x},{AddInSettings.DebugWindowExtent.y}");
+            //Debug.Log($"DebugWindowExtent saved: {AddInSettings.DebugWindowExtent.x},{AddInSettings.DebugWindowExtent.y}");
             node.AddNode(myStuff);
             base.OnSave(node);
-            Debug.Log("ColonizationScenario.OnSave - succeeded");
+            //Debug.Log("ColonizationScenario.OnSave - succeeded");
         }
     }
 }

@@ -60,6 +60,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddInSettings.cs" />
+    <Compile Include="ColonizationResearchScenario.cs" />
+    <Compile Include="ISnackProducer.cs" />
+    <Compile Include="ModuleTieredAgroponics.cs" />
     <Compile Include="AssemblyVersion.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -72,6 +75,7 @@
     <Compile Include="LifeSupportStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SnackConsumption.cs" />
+    <Compile Include="TechTier.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="AssemblyVersion.tt">
