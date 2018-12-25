@@ -68,7 +68,7 @@ namespace Nerm.Colonization
             }
         }
 
-        public void KerbalHadASnack(ProtoCrewMember crew)
+        public void KerbalHadASnack(ProtoCrewMember crew, double lastMealTime)
         {
             if (this.knownKerbals.TryGetValue(crew.name, out LifeSupportStatus crewStatus))
             {
@@ -78,7 +78,7 @@ namespace Nerm.Colonization
                     KerbalRoster.SetExperienceTrait(crew, crewStatus.OldTrait);
                     ScreenMessages.PostScreenMessage($"{crew.name}'s tummy is full now.", 5f, ScreenMessageStyle.UPPER_CENTER);
                 }
-                crewStatus.LastMeal = Planetarium.GetUniversalTime();
+                crewStatus.LastMeal = lastMealTime;
                 crewStatus.IsGrouchy = false;
             }
             else

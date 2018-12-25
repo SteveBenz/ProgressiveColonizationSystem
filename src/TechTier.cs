@@ -13,4 +13,55 @@ namespace Nerm.Colonization
         Tier3 = 3,
         Tier4 = 4
     }
+
+    public static class TechTierExtensions
+    {
+        public static double AgroponicMaxDietRatio(this TechTier techTier)
+        {
+            // TODO: Make Configurable
+            switch(techTier)
+            {
+                case TechTier.Tier0:
+                default:
+                    return 0.2;
+                case TechTier.Tier1:
+                    return 0.4;
+                case TechTier.Tier2:
+                    return 0.55;
+                case TechTier.Tier3:
+                    return 0.7;
+                case TechTier.Tier4:
+                    return 0.95;
+            }
+        }
+
+        public static double AgricultureMaxDietRatio(this TechTier techTier)
+        {
+            // TODO: Make Configurable
+            switch (techTier)
+            {
+                case TechTier.Tier0:
+                default:
+                    return 0.6;
+                case TechTier.Tier1:
+                    return 0.85;
+                case TechTier.Tier2:
+                    return 0.95;
+                case TechTier.Tier3:
+                    return 0.98;
+                case TechTier.Tier4:
+                    return 1.0;
+            }
+        }
+
+        public static string FertilizerResourceName(this TechTier techTier)
+        {
+            return techTier == TechTier.Tier4 ? "Fertilizer" : $"LocalFertilizer-{techTier.ToString()}";
+        }
+
+        public static string SnacksResourceName(this TechTier techTier)
+        {
+            return techTier == TechTier.Tier4 ? "Snacks" : $"LocalSnacks-{techTier.ToString()}";
+        }
+    }
 }

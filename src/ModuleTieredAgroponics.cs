@@ -31,12 +31,27 @@ namespace Nerm.Colonization
                 : TechTier.Tier0);
         }
 
-        TechTier ISnackProducer.Tier => (TechTier)this.tier;
+        public TechTier Tier => (TechTier)this.tier;
 
         double ISnackProducer.Capacity => this.capacity;
 
         bool ISnackProducer.IsResearchEnabled => this.isSnackResearchActive;
 
         bool ISnackProducer.IsProductionEnabled => this.isSnackProductionActive;
+
+        double ISnackProducer.MaxConsumptionForProducedFood => this.Tier.AgroponicMaxDietRatio();
+
+        bool ISnackProducer.ContributeResearch(ColonizationResearchScenario target, double amount)
+        {
+            if (target.AgroponicsMaxTier == this.Tier && this.isSnackResearchActive)
+            {
+                target.ContributeAgroponicResearch(amount);
+                return target.AgroponicsMaxTier != this.Tier;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }
