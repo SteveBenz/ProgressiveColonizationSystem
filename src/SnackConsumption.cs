@@ -321,7 +321,8 @@ namespace Nerm.Colonization
                 if (producer.IsProductionEnabled)
                 {
                     ProducerData existing = productionPossibilities.FirstOrDefault(
-                        pp => pp.SourceTemplate.GetType() == producer.GetType());
+                        pp => pp.SourceTemplate.GetType() == producer.GetType()
+                           && pp.SourceTemplate.Tier == producer.Tier);
 
                     if (existing != null)
                     {
@@ -341,6 +342,7 @@ namespace Nerm.Colonization
                             if (availableResources.ContainsKey(tier.FertilizerResourceName()))
                             {
                                 fertilizerResource = tier.FertilizerResourceName();
+                                break;
                             }
                         }
 
