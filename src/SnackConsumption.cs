@@ -302,7 +302,7 @@ namespace Nerm.Colonization
                         double contributionInUnitsPerDay = producerData.SupplyFraction * numCrew;
                         agroponicsBreakthroughHappened |= producerData.SourceTemplate.ContributeResearch(
                             colonizationResearch,
-                            UnitsPerDayToUnitsPerSecond(Math.Min(contributionInUnitsPerDay, producerData.MaxResearchPerDay)));
+                            timePassedInSeconds*UnitsPerDayToUnitsPerSecond(Math.Min(contributionInUnitsPerDay, producerData.MaxResearchPerDay)));
                     }
                 }
             }

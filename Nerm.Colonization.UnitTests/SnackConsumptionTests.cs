@@ -114,6 +114,22 @@ namespace Nerm.Colonization.UnitTests
             Assert.AreEqual(20.0-3.0 /* working facilities */, consumptionPerSecond["Snacks"] * SecondsPerKerbanDay);
             Assert.AreEqual(3.0, consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay);
             Assert.AreEqual(1.0 /* previous test */ + 1.0 /* current test */, colonizationResearchScenario.ResearchProgress * SecondsPerKerbanDay);
+
+            // Now let's take that last test and give it a twist that they run out of fertilizer halfway
+            // through the second of time
+            available[TechTier.Tier4.FertilizerResourceName()] = 1.5 / SecondsPerKerbanDay;
+            SnackConsumption.CalculateSnackflow(
+                20 /* kerbals */, 1.0 /* seconds*/, agroponicModules, colonizationResearchScenario, available, out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond);
+            Assert.AreEqual(timePassedInSeconds, 0.5);
+            Assert.AreEqual(false, agroponicsBreakthroughHappened);
+            Assert.IsNotNull(consumptionPerSecond);
+            Assert.AreEqual(2, consumptionPerSecond.Count);
+            // Same rates as in previous test
+            Assert.AreEqual(20.0 - 3.0 /* working facilities */, consumptionPerSecond["Snacks"] * SecondsPerKerbanDay);
+            Assert.AreEqual(3.0, consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay);
+
+            // And half of the time goes to research
+            Assert.AreEqual(2.0 /* previous two tests */ + 0.5 /* current test */, colonizationResearchScenario.ResearchProgress * SecondsPerKerbanDay);
         }
     }
 }
