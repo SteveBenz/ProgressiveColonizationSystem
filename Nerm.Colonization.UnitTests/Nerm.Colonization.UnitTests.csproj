@@ -66,6 +66,7 @@
     <Compile Include="SnackConsumptionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StubColonizationResearchScenario.cs" />
+    <Compile Include="StubSnackProducer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

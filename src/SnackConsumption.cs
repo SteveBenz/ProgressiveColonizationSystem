@@ -266,9 +266,7 @@ namespace Nerm.Colonization
                 resourceConsumptionPerSecond = new Dictionary<string, double>();
                 foreach (ProducerData producerData in producers)
                 {
-                    // I'm not sure if ResourceRatio.Ratio is properly a unitless ratio ever, but in this
-                    // context it'll be amount consumed per second.  So recalibrate all the values to units/second.
-                    double contribution = UnitsPerDayToUnitsPerSecond(producerData.SupplyFraction * producerData.TotalProductionCapacity);
+                    double contribution = UnitsPerDayToUnitsPerSecond(producerData.SupplyFraction * numCrew);
                     if (resourceConsumptionPerSecond.TryGetValue(producerData.SourceResourceName, out double existingConsumption))
                     {
                         existingConsumption += contribution;
@@ -300,6 +298,7 @@ namespace Nerm.Colonization
                 {
                     if (producerData.SourceTemplate != null)
                     {
+                        double contribution = UnitsPerDayToUnitsPerSecond(producerData.SupplyFraction * numCrew);
                         agroponicsBreakthroughHappened |= producerData.SourceTemplate.ContributeResearch(
                             colonizationResearch,
                             timePassedInSeconds * producerData.SupplyFraction);
