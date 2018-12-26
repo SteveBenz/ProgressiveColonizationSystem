@@ -22,3 +22,4 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("3484df36-cb74-45a2-9997-66669fb1a22a")]
 
+[assembly: InternalsVisibleTo("Nerm.Colonization.UnitTests")]

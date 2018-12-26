@@ -63,5 +63,21 @@ namespace Nerm.Colonization
         {
             return techTier == TechTier.Tier4 ? "Snacks" : $"LocalSnacks-{techTier.ToString()}";
         }
+
+        private const double KerbalSecondsPerKerbalDay = 6.0 * 60.0 * 60.0;
+
+        // Should this be configurable?  Seems like a thing that would be good to start,
+        //  but once the values are made sensible, who really cares to do it?
+        private static readonly double[] agroponicsResearchTimesInKerbalSeconds = new double[]
+        {
+            1.0 * KerbalSecondsPerKerbalDay, // 1 / (5 kerbals in space * .2) = 1 year
+            10.0 * KerbalSecondsPerKerbalDay, // 10 / (10 kerbals in space * .4) = 2.5 years  <- waiting for duna/eve landers
+            40.0 * KerbalSecondsPerKerbalDay, // 40 / (15 kerbals in space * .55) = 5 years
+            100.0 * KerbalSecondsPerKerbalDay, // 100 / (20 kerbals in space * 0.7) = 7 years
+            double.MaxValue,
+        };
+
+        public static double KerbalSecondsToResearchNextAgroponicsTier(this TechTier techTier)
+            => agroponicsResearchTimesInKerbalSeconds[(int)techTier];
     }
 }

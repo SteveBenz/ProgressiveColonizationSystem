@@ -7,7 +7,7 @@ namespace Nerm.Colonization
 {
     [KSPScenario(ScenarioCreationOptions.AddToAllGames, GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.SPACECENTER, GameScenes.TRACKSTATION)]
     public class ColonizationResearchScenario
-        : ScenarioModule
+        : ScenarioModule, IColonizationResearchScenario
     {
         public static ColonizationResearchScenario Instance;
 
@@ -15,7 +15,6 @@ namespace Nerm.Colonization
         private double accumulatedAgroponicResearchProgressToNextTier;
 
         // Configurable?
-        private static readonly double[] KerbalYearsRequiredToGetToNextTier = new double[] { .1, 1, 10, 50, double.MaxValue };
 
         public ColonizationResearchScenario()
         {
@@ -26,19 +25,26 @@ namespace Nerm.Colonization
         public TechTier AgroponicsMaxTier { get; private set; }
 
         public double AgroponicsResearchProgress
-            => this.accumulatedAgroponicResearchProgressToNextTier / KerbalYearsRequiredToGetToNextTier[(int)AgroponicsMaxTier];
+            => this.accumulatedAgroponicResearchProgressToNextTier / AgroponicsMaxTier.KerbalSecondsToResearchNextAgroponicsTier();
 
         public void ContributeAgroponicResearch(double timespent)
         {
-            accumulatedAgroponicResearchProgressToNextTier += timespent;
-            if (AgroponicsResearchProgress > 1)
+            this.accumulatedAgroponicResearchProgressToNextTier += timespent;
+            if (this.accumulatedAgroponicResearchProgressToNextTier > AgroponicsMaxTier.KerbalSecondsToResearchNextAgroponicsTier())
             {
-                accumulatedAgroponicResearchProgressToNextTier = 0;
+                this.accumulatedAgroponicResearchProgressToNextTier = 0;
                 ++this.AgroponicsMaxTier;
             }
         }
 
         // TODO: Need a method to ask if a vessel, given its current SoI and state (landed, not landed)
         //   can contribute agroponic research.
+    }
+
+    // Test interface
+    public interface IColonizationResearchScenario
+    {
+        void ContributeAgroponicResearch(double timespent);
+        TechTier AgroponicsMaxTier { get; }
     }
 }

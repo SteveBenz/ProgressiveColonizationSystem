@@ -41,7 +41,7 @@ namespace Nerm.Colonization
 
         double ISnackProducer.MaxConsumptionForProducedFood => this.Tier.AgroponicMaxDietRatio();
 
-        bool ISnackProducer.ContributeResearch(ColonizationResearchScenario target, double amount)
+        bool ISnackProducer.ContributeResearch(IColonizationResearchScenario target, double amount)
         {
             if (target.AgroponicsMaxTier == this.Tier && this.isSnackResearchActive)
             {

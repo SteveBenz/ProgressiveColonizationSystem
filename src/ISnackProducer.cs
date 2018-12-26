@@ -23,6 +23,6 @@ namespace Nerm.Colonization
         /// </summary>
         /// <param name="amount">The amount of units of supplies manufactured.</param>
         /// <returns>True if there was a research breakthrough as a result of this.</returns>
-        bool ContributeResearch(ColonizationResearchScenario target, double amount);
+        bool ContributeResearch(IColonizationResearchScenario target, double amount);
     }
 }

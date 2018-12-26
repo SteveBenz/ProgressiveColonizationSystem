@@ -83,33 +83,40 @@ namespace Nerm.Colonization
         {
             var snackProducers = this.vessel.FindPartModulesImplementing<ISnackProducer>();
             // TODO: Make sure the Scientists have enough stars to match the tier.
-            int numDieticians = crew.Count(c => c.type == ProtoCrewMember.KerbalType.Crew && c.trait == "Scientist");
             var crewPart = vessel.parts.FirstOrDefault(p => p.CrewCapacity > 0);
             double remainingTime = deltaTime;
 
             while (remainingTime > ResourceUtilities.FLOAT_TOLERANCE)
             {
-
+                
                 SnackConsumption.CalculateSnackflow(
                     crew.Count,
-                    numDieticians,
                     deltaTime,
                     snackProducers.ToArray(),
                     ColonizationResearchScenario.Instance,
                     this.ResourceQuantities(),
                     out double elapsedTime,
                     out bool agroponicsBreakthrough,
-                    out ConversionRecipe consumption);
+                    out Dictionary<string,double> resourceConsumptionPerSecond);
 
                 if (elapsedTime == 0)
                 {
                     break;
                 }
 
-                if (consumption != null)
+                if (resourceConsumptionPerSecond != null)
                 {
+                    ConversionRecipe consumptionRecipe = new ConversionRecipe();
+                    consumptionRecipe.Inputs.AddRange(
+                        resourceConsumptionPerSecond.Select(pair => new ResourceRatio()
+                        {
+                            ResourceName = pair.Key,
+                            Ratio = pair.Value,
+                            DumpExcess = false,
+                            FlowMode = ResourceFlowMode.ALL_VESSEL
+                        }));
                     Debug.Assert(elapsedTime > 0);
-                    var consumptionResult = this.ResConverter.ProcessRecipe(elapsedTime, consumption, crewPart, null, 1f);
+                    var consumptionResult = this.ResConverter.ProcessRecipe(elapsedTime, consumptionRecipe, crewPart, null, 1f);
                     Debug.Assert(Math.Abs(consumptionResult.TimeFactor - elapsedTime) < ResourceUtilities.FLOAT_TOLERANCE,
                         "Nerm.Colonization.SnackConsumption.CalculateSnackFlow is busted - it somehow got the consumption recipe wrong.");
                 }
@@ -177,7 +184,6 @@ namespace Nerm.Colonization
         ///   to go around).
         /// </summary>
         /// <param name="numCrew">The number of mouths to feed.</param>
-        /// <param name="numDieticians">The number of kerbals who can participate in agroponic and agronomy research on the vessel.</param>
         /// <param name="fullTimespanInSeconds">The full time that has passed that we're looking to calculate for.</param>
         /// <param name="snackProducers">The mechanisms on the vessel that can produce snacks.</param>
         /// <param name="colonizationResearch">The research object (passed in for testability).</param>
@@ -186,14 +192,13 @@ namespace Nerm.Colonization
         /// <param name="consumptionFormula">Set to a formula for calculating the transformation of stuff.</param>
         internal static void CalculateSnackflow(
             int numCrew,
-            int numDieticians,
             double fullTimespanInSeconds,
             ISnackProducer[] snackProducers,
-            ColonizationResearchScenario colonizationResearch,
+            IColonizationResearchScenario colonizationResearch,
             Dictionary<string,double> availableResources,
             out double timePassedInSeconds,
             out bool agroponicsBreakthroughHappened,
-            out ConversionRecipe consumptionFormula
+            out Dictionary<string,double> resourceConsumptionPerSecond
             )
         {
             // The mechanic we're after writes up pretty simple - Kerbals will try to use renewable
@@ -252,39 +257,40 @@ namespace Nerm.Colonization
                 // We couldn't put together a production plan that will satisfy all of the Kerbals
                 // needs for any amount of time.  (The .999 is 1.0 with a generous precision error).
                 timePassedInSeconds = 0;
-                consumptionFormula = null;
+                resourceConsumptionPerSecond = null;
                 agroponicsBreakthroughHappened = false;
             }
             else
             {
                 // Get a weighted average of all the stuff we're gonna use with this plan.
-                // Note that ResourceRatio is a struct, which makes life interesting when it's in a collection.
-                Dictionary<string, ResourceRatio> inputs = new Dictionary<string, ResourceRatio>();
+                resourceConsumptionPerSecond = new Dictionary<string, double>();
                 foreach (ProducerData producerData in producers)
                 {
                     // I'm not sure if ResourceRatio.Ratio is properly a unitless ratio ever, but in this
                     // context it'll be amount consumed per second.  So recalibrate all the values to units/second.
                     double contribution = UnitsPerDayToUnitsPerSecond(producerData.SupplyFraction * producerData.TotalProductionCapacity);
-                    if (inputs.TryGetValue(producerData.SourceResourceName, out ResourceRatio resourceRatio))
+                    if (resourceConsumptionPerSecond.TryGetValue(producerData.SourceResourceName, out double existingConsumption))
                     {
-                        resourceRatio.Ratio += contribution;
-                        // It's a struct, so we're only affecting our copy so we have to set it again
-                        inputs[producerData.SourceResourceName] = resourceRatio;
+                        existingConsumption += contribution;
+                        resourceConsumptionPerSecond[producerData.SourceResourceName] = existingConsumption;
                     }
                     else
                     {
-                        resourceRatio = new ResourceRatio(producerData.SourceResourceName, contribution, false);
-                        inputs.Add(producerData.SourceResourceName, resourceRatio);
+                        resourceConsumptionPerSecond.Add(producerData.SourceResourceName, contribution);
                     }
                 }
 
-                // Okay, with that in our hands, we can calculate the runtime
+                // Okay, with that in our hands, we can calculate the runtime, which again is the maximum
+                // part of the input time we can run with the formula that we concocted.  So it's the
+                // maximum time unless we're limited by supplies or fertilizer on one of our segments.
                 timePassedInSeconds = fullTimespanInSeconds;
-                foreach (ResourceRatio resourceRatio in inputs.Values)
+                foreach (var pair in resourceConsumptionPerSecond)
                 {
-                    double availableAmount = availableResources[resourceRatio.ResourceName];
-                    double possibleRuntime = availableAmount / resourceRatio.Ratio /* consumption/second */;
-                    timePassedInSeconds = Math.Min(timePassedInSeconds, possibleRuntime);
+                    string resourceName = pair.Key;
+                    double consumedPerSecond = pair.Value;
+                    double availableAmount = availableResources[resourceName];
+                    double maxPossibleRuntime = availableAmount / consumedPerSecond;
+                    timePassedInSeconds = Math.Min(timePassedInSeconds, maxPossibleRuntime);
                 }
 
                 // Okay, based on the actual runtime, we can contribute it to the agroponics research
@@ -299,9 +305,6 @@ namespace Nerm.Colonization
                             timePassedInSeconds * producerData.SupplyFraction);
                     }
                 }
-
-                consumptionFormula = new ConversionRecipe();
-                consumptionFormula.Inputs.AddRange(inputs.Values);
             }
         }
 
