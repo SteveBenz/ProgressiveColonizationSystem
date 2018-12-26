@@ -12,24 +12,27 @@ namespace Nerm.Colonization
         public static ColonizationResearchScenario Instance;
 
         [KSPField(isPersistant = true)]
-        private double accumulatedAgroponicResearchProgressToNextTier;
-
-        // Configurable?
+        private float accumulatedAgroponicResearchProgressToNextTier = 0f;
+        [KSPField(isPersistant = true)]
+        private int agroponicsMaxTier = 0;
 
         public ColonizationResearchScenario()
         {
             Instance = this;
         }
 
-        [KSPField(isPersistant = true)]
-        public TechTier AgroponicsMaxTier { get; private set; }
+        public TechTier AgroponicsMaxTier
+        {
+            get => (TechTier)this.agroponicsMaxTier;
+            private set => this.agroponicsMaxTier = (int)value;
+        }
 
         public double AgroponicsResearchProgress
             => this.accumulatedAgroponicResearchProgressToNextTier / AgroponicsMaxTier.KerbalSecondsToResearchNextAgroponicsTier();
 
         public void ContributeAgroponicResearch(double timespent)
         {
-            this.accumulatedAgroponicResearchProgressToNextTier += timespent;
+            this.accumulatedAgroponicResearchProgressToNextTier += (float)timespent;
             if (this.accumulatedAgroponicResearchProgressToNextTier > AgroponicsMaxTier.KerbalSecondsToResearchNextAgroponicsTier())
             {
                 this.accumulatedAgroponicResearchProgressToNextTier = 0;
