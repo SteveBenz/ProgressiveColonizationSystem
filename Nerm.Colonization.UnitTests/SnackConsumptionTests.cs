@@ -84,6 +84,8 @@ namespace Nerm.Colonization.UnitTests
             Dictionary<string, double> available = new Dictionary<string, double>();
             available.Add(TechTier.Tier4.SnacksResourceName(), 1.0); // One days' worth of food
             available.Add(TechTier.Tier4.FertilizerResourceName(), 1.0); // And one days' worth of running the agroponics
+
+            // First we test when we have more than enough production
             SnackConsumption.CalculateSnackflow(
                 5 /* kerbals */, 1.0 /* seconds*/, agroponicModules, colonizationResearchScenario, available, out double timePassedInSeconds, out bool agroponicsBreakthroughHappened, out Dictionary<string, double> consumptionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
@@ -94,8 +96,24 @@ namespace Nerm.Colonization.UnitTests
             // they can produce 3 snacks per day, but our crew will only eat .2*5=1 of them.
             // So they're running at 1/3 capacity.
             Assert.AreEqual(5 * (1 - TechTier.Tier0.AgroponicMaxDietRatio()), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay);
-            // bug? actually used .6 fertilizer per day, which is
             Assert.AreEqual(5 * TechTier.Tier0.AgroponicMaxDietRatio(), consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay);
+            Assert.AreEqual(5 * TechTier.Tier0.AgroponicMaxDietRatio(), colonizationResearchScenario.ResearchProgress * SecondsPerKerbanDay);
+
+            // now we overwhelm the system with 20 kerbals - they'll be willing to eat (in total)
+            // 4 snacks per day, (20 * .2) but our systems can only produce 3 and can only garner
+            // research from 1 of the modules.
+            SnackConsumption.CalculateSnackflow(
+                20 /* kerbals */, 1.0 /* seconds*/, agroponicModules, colonizationResearchScenario, available, out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond);
+            Assert.AreEqual(timePassedInSeconds, 1.0);
+            Assert.AreEqual(false, agroponicsBreakthroughHappened);
+            Assert.IsNotNull(consumptionPerSecond);
+            Assert.AreEqual(2, consumptionPerSecond.Count);
+            // With 20 kerbals aboard, our 3 working agroponics farms are more than enough because
+            // they can produce 3 snacks per day, but our crew will only eat .2*5=1 of them.
+            // So they're running at 1/3 capacity.
+            Assert.AreEqual(20.0-3.0 /* working facilities */, consumptionPerSecond["Snacks"] * SecondsPerKerbanDay);
+            Assert.AreEqual(3.0, consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay);
+            Assert.AreEqual(1.0 /* previous test */ + 1.0 /* current test */, colonizationResearchScenario.ResearchProgress * SecondsPerKerbanDay);
         }
     }
 }

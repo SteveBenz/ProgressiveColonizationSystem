@@ -169,6 +169,7 @@ namespace Nerm.Colonization
             public ISnackProducer SourceTemplate;
             public double TotalProductionCapacity;
             public string SourceResourceName;
+            public double MaxResearchPerDay;
 
             public double SupplyFraction; // The fraction of the kerbals needs that this block is slated to take care of
         }
@@ -298,10 +299,10 @@ namespace Nerm.Colonization
                 {
                     if (producerData.SourceTemplate != null)
                     {
-                        double contribution = UnitsPerDayToUnitsPerSecond(producerData.SupplyFraction * numCrew);
+                        double contributionInUnitsPerDay = producerData.SupplyFraction * numCrew;
                         agroponicsBreakthroughHappened |= producerData.SourceTemplate.ContributeResearch(
                             colonizationResearch,
-                            timePassedInSeconds * producerData.SupplyFraction);
+                            UnitsPerDayToUnitsPerSecond(Math.Min(contributionInUnitsPerDay, producerData.MaxResearchPerDay)));
                     }
                 }
             }
@@ -326,6 +327,10 @@ namespace Nerm.Colonization
                     {
                         // Same kinda part as one we've already resolved -- add its capacity.
                         existing.TotalProductionCapacity += producer.Capacity;
+                        if (producer.IsResearchEnabled)
+                        {
+                            existing.MaxResearchPerDay += producer.Capacity;
+                        }
                     }
                     else
                     {
@@ -345,7 +350,8 @@ namespace Nerm.Colonization
                             {
                                 SourceTemplate = producer,
                                 SourceResourceName = fertilizerResource,
-                                TotalProductionCapacity = producer.Capacity
+                                TotalProductionCapacity = producer.Capacity,
+                                MaxResearchPerDay = (producer.IsResearchEnabled ? producer.Capacity : 0)
                             });
                         }
                     }
