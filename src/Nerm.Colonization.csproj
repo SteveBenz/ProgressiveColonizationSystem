@@ -75,11 +75,21 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SnackConsumption.cs" />
     <Compile Include="TechTier.cs" />
+    <Compile Include="ColonizationByNermAnimation.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="AssemblyVersion.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>AssemblyVersion.cs</LastGenOutput>
+    </Content>
+    <Content Include="GameData\ColonizationByNerm\Assets\Crinkle.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ColonizationByNerm\Assets\crinkleFoil_NRM.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ColonizationByNerm\Assets\FrostedGlass30.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ColonizationByNerm\Assets\Greenhouse.dds">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -106,6 +116,24 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ColonizationByNerm\Assets\miniPak_N_NRM.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ColonizationByNerm\Assets\MKV_Shared.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ColonizationByNerm\Assets\MKV_Shared.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ColonizationByNerm\Assets\MKV_Shared_GLOW.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ColonizationByNerm\Assets\MKV_Tex_02.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ColonizationByNerm\Assets\MKV_Tex_02_GLOW.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ColonizationByNerm\Assets\MKV_Tex_02_N_NRM.dds">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ColonizationByNerm\Assets\NomTank.dds">
@@ -204,9 +232,15 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="GameData\ColonizationByNerm\Assets\Recycler.mu">
+    <Content Include="GameData\ColonizationByNerm\Assets\Ranger_AgModule.mu">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
+    <Content Include="GameData\ColonizationByNerm\Assets\Recycler.mu">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ColonizationByNerm\Parts\Tonto_AgModule.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">
