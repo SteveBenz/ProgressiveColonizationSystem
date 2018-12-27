@@ -17,11 +17,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release files", "Release files", "{316BAE93-C0A3-4A70-877F-2089CE0DED4F}"
-	ProjectSection(SolutionItems) = preProject
-		GameData\IFILS\CCT.cfg = GameData\IFILS\CCT.cfg
-		GameData\IFILS\Resources\IFI_TechTree.cfg = GameData\IFILS\Resources\IFI_TechTree.cfg
-		GameData\IFILS\MM_Patches\ModuleManager_ADD_IFI.cfg = GameData\IFILS\MM_Patches\ModuleManager_ADD_IFI.cfg
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nerm.Colonization.UnitTests", "Nerm.Colonization.UnitTests\Nerm.Colonization.UnitTests.csproj", "{5C67783D-A409-4944-B5FE-B14445F43EB9}"
 EndProject
