@@ -27,6 +27,8 @@ namespace Nerm.Colonization
         // CrewDelta gets reset when lastActiveVessel no longer equals the current vessel.
         private Vessel lastActiveVessel;
 
+        private ApplicationLauncherButton toolbarButton;
+
         public override void OnAwake()
         {
             base.OnAwake();
@@ -36,6 +38,12 @@ namespace Nerm.Colonization
 
         private void AttachToToolbar()
         {
+            if (this.toolbarButton != null)
+            {
+                // defensive
+                return;
+            }
+
             Texture2D texture2D;
             if (GameDatabase.Instance.ExistsTexture("ColonizationByNerm/IFI_LS_GRN_38"))
             {
@@ -48,10 +56,22 @@ namespace Nerm.Colonization
             }
 
             Debug.Assert(ApplicationLauncher.Ready, "ApplicationLauncher is not ready - can't add the toolbar button.  Is this possible, really?  If so maybe we could do it later?");
-            ApplicationLauncher.Instance.AddModApplication(
+            this.toolbarButton = ApplicationLauncher.Instance.AddModApplication(
                 () => { isVisible = true; }, () => { isVisible = false; }, null, null, null, null,
                 ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.SPH | ApplicationLauncher.AppScenes.VAB,
                 texture2D);
+        }
+
+        private void OnDestroy()
+        {
+            if (this.toolbarButton != null)
+            {
+                if (ApplicationLauncher.Instance != null)
+                {
+                    ApplicationLauncher.Instance.RemoveModApplication(this.toolbarButton);
+                }
+                this.toolbarButton = null;
+            }
         }
 
         public void OnGUI()
