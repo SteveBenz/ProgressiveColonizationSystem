@@ -59,16 +59,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AddInSettings.cs" />
     <Compile Include="ColonizationResearchScenario.cs" />
     <Compile Include="ISnackProducer.cs" />
+    <Compile Include="LifeSupportStatusMonitor.cs" />
     <Compile Include="ModuleTieredAgroponics.cs" />
     <Compile Include="AssemblyVersion.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>AssemblyVersion.tt</DependentUpon>
     </Compile>
-    <Compile Include="ColonizationScenario.cs" />
     <Compile Include="DebugControls.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="LifeSupportScenario.cs" />

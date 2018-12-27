@@ -54,6 +54,25 @@ namespace Nerm.Colonization
             }
         }
 
+        public bool TryGetStatus(ProtoCrewMember crew, out double daysSinceMeal, out double daysToGrouchy, out bool isGrouchy)
+        {
+            double now = Planetarium.GetUniversalTime();
+            if (this.knownKerbals.TryGetValue(crew.name, out LifeSupportStatus lifeSupportStatus))
+            {
+                daysSinceMeal = now - lifeSupportStatus.LastMeal;
+                isGrouchy = lifeSupportStatus.IsGrouchy;
+                daysToGrouchy = now + timeBeforeKerbalStarves - lifeSupportStatus.LastMeal;
+                return true;
+            }
+            else
+            {
+                daysSinceMeal = 0;
+                daysToGrouchy = timeBeforeKerbalStarves;
+                isGrouchy = false;
+                return false;
+            }
+        }
+
         public void KerbalHasReachedHomeworld(ProtoCrewMember crew)
         {
             if (this.knownKerbals.TryGetValue(crew.name, out LifeSupportStatus crewStatus))
@@ -99,8 +118,8 @@ namespace Nerm.Colonization
             foreach (ConfigNode perKerbalNode in node.GetNodes())
             {
                 LifeSupportStatus status = new LifeSupportStatus();
+                status.KerbalName = perKerbalNode.name;
                 bool gotit = perKerbalNode.TryGetValue(nameof(status.IsGrouchy), ref status.IsGrouchy)
-                          && perKerbalNode.TryGetValue(nameof(status.KerbalName), ref status.KerbalName)
                           && perKerbalNode.TryGetValue(nameof(status.LastMeal), ref status.LastMeal)
                           && perKerbalNode.TryGetValue(nameof(status.OldTrait), ref status.OldTrait);
                 if (gotit && !newState.ContainsKey(status.KerbalName))
@@ -109,7 +128,7 @@ namespace Nerm.Colonization
                 }
                 else
                 {
-                    Debug.LogError($"Failed to add status for {status.KerbalName} {perKerbalNode.name}");
+                    Debug.LogError($"Failed to add status for {perKerbalNode.name}");
                     // Because we don't add it to the array, the kerbal will appear to be happy
                     // however, if the Kerbal was previously grumpy, the Tourist state will be permanent :(
                 }

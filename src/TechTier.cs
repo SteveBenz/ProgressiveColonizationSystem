@@ -16,6 +16,14 @@ namespace Nerm.Colonization
 
     public static class TechTierExtensions
     {
+        public static IEnumerable<TechTier> AllTiers
+        {
+            get
+            {
+                return Enum.GetValues(typeof(TechTier)).Cast<TechTier>();
+            }
+        }
+
         public static double AgroponicMaxDietRatio(this TechTier techTier)
         {
             // TODO: Make Configurable

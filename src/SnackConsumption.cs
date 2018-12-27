@@ -12,7 +12,6 @@ namespace Nerm.Colonization
         [KSPField(isPersistant = true)]
         public double LastUpdateTime;
 
-        // Assumes that the time things come back as fractions of a second.
         const float SupplyConsumptionPerSecondPerKerbal = 1f / (6f * 60f * 60f);
 
         protected IResourceBroker _resBroker;
@@ -92,7 +91,7 @@ namespace Nerm.Colonization
                 SnackConsumption.CalculateSnackflow(
                     crew.Count,
                     deltaTime,
-                    snackProducers.ToArray(),
+                    snackProducers,
                     ColonizationResearchScenario.Instance,
                     this.ResourceQuantities(),
                     out double elapsedTime,
@@ -145,7 +144,7 @@ namespace Nerm.Colonization
             }
         }
 
-        private Dictionary<string, double> ResourceQuantities()
+        internal Dictionary<string, double> ResourceQuantities()
         {
             Dictionary<string, double> quantities = new Dictionary<string, double>();
             foreach (var part in this.vessel.parts)
@@ -194,7 +193,7 @@ namespace Nerm.Colonization
         internal static void CalculateSnackflow(
             int numCrew,
             double fullTimespanInSeconds,
-            ISnackProducer[] snackProducers,
+            List<ISnackProducer> snackProducers,
             IColonizationResearchScenario colonizationResearch,
             Dictionary<string,double> availableResources,
             out double timePassedInSeconds,
@@ -308,7 +307,7 @@ namespace Nerm.Colonization
             }
         }
 
-        private static List<ProducerData> FindProducers(ISnackProducer[] snackProducers, Dictionary<string, double> availableResources)
+        private static List<ProducerData> FindProducers(List<ISnackProducer> snackProducers, Dictionary<string, double> availableResources)
         {
             // First run through the producers to find out who can contribute what
             List<ProducerData> productionPossibilities = new List<ProducerData>();
@@ -390,6 +389,8 @@ namespace Nerm.Colonization
         ///   Each agroponic thing can eat up to one fertilizer per day and create one supply per day.
         ///   One unit of fertilizer, however, might weigh a whole lot less than a unit of supplies.
         /// </summary>
-        private static double UnitsPerDayToUnitsPerSecond(double x) => x / (6.0 * 60.0 * 60.0);
+        public static double UnitsPerDayToUnitsPerSecond(double x) => x / (6.0 * 60.0 * 60.0);
+
+        public static double UnitsPerSecondToUnitsPerDay(double x) => x * (6.0 * 60.0 * 60.0);
     }
 }

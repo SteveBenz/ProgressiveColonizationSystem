@@ -40,6 +40,8 @@ namespace Nerm.Colonization
             }
         }
 
+        public double KerbalSecondsToGoUntilNextTier => AgroponicsMaxTier.KerbalSecondsToResearchNextAgroponicsTier() - this.accumulatedAgroponicResearchProgressToNextTier;
+
         // TODO: Need a method to ask if a vessel, given its current SoI and state (landed, not landed)
         //   can contribute agroponic research.
     }

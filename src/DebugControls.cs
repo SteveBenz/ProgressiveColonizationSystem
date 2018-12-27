@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-
+#if false
 namespace Nerm.Colonization
 {
     // LEARNINGS - OnGui is apparently defunct, https://forum.kerbalspaceprogram.com/index.php?/topic/151354-unity-ui-creation-tutorial/
@@ -160,3 +160,4 @@ namespace Nerm.Colonization
         //}
     }
 }
+#endif

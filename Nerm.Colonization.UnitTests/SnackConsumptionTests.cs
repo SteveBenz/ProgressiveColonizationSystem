@@ -22,7 +22,7 @@ namespace Nerm.Colonization.UnitTests
             Dictionary<string, double> available = new Dictionary<string, double>();
             available.Add(TechTier.Tier4.SnacksResourceName(), 1.0); // One days' worth
             SnackConsumption.CalculateSnackflow(
-                5 /* kerbals */, 1.0 /* seconds*/, new ISnackProducer[0], colonizationResearchScenario, available, out double timePassedInSeconds, out bool agroponicsBreakthroughHappened, out Dictionary<string, double> consumptionPerSecond);
+                5 /* kerbals */, 1.0 /* seconds*/, new List<ISnackProducer>(), colonizationResearchScenario, available, out double timePassedInSeconds, out bool agroponicsBreakthroughHappened, out Dictionary<string, double> consumptionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
             Assert.AreEqual(false, agroponicsBreakthroughHappened);
             Assert.IsNotNull(consumptionPerSecond);
@@ -32,7 +32,7 @@ namespace Nerm.Colonization.UnitTests
 
             // There's a days' worth of snacks, but 5 kerbals getting after it.
             SnackConsumption.CalculateSnackflow(
-                5 /* kerbals */, 1.0 * SecondsPerKerbanDay, new ISnackProducer[0], colonizationResearchScenario, available, out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond);
+                5 /* kerbals */, 1.0 * SecondsPerKerbanDay, new List<ISnackProducer>(), colonizationResearchScenario, available, out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond);
             Assert.AreEqual(timePassedInSeconds, SecondsPerKerbanDay / 5);
             Assert.AreEqual(false, agroponicsBreakthroughHappened);
             Assert.IsNotNull(consumptionPerSecond);
@@ -43,7 +43,7 @@ namespace Nerm.Colonization.UnitTests
             // Test no snacks at all
             available.Clear();
             SnackConsumption.CalculateSnackflow(
-                5 /* kerbals */, 1.0 * SecondsPerKerbanDay, new ISnackProducer[0], colonizationResearchScenario, available, out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond);
+                5 /* kerbals */, 1.0 * SecondsPerKerbanDay, new List<ISnackProducer>(), colonizationResearchScenario, available, out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 0.0);
             Assert.AreEqual(false, agroponicsBreakthroughHappened);
             Assert.IsNull(consumptionPerSecond);
@@ -58,7 +58,7 @@ namespace Nerm.Colonization.UnitTests
             // We have 3 modules on our vessel, but only crew enough to staff
             // two of them (for a net production of 3) and only one of them
             // has crew enough to do research.
-            var agroponicModules = new ISnackProducer[]
+            var agroponicModules = new List<ISnackProducer>()
             {
                 new StubSnackProducer(isAgroponics: true)
                 {
@@ -141,7 +141,7 @@ namespace Nerm.Colonization.UnitTests
         [TestMethod]
         public void SnackConsumption_FirstBaseSimulation()
         {
-            var enRouteModules = new ISnackProducer[]
+            var enRouteModules = new List<ISnackProducer>()
             {
                 // 20% of food capacity  1 module oversupplies our crew of 4
                 new StubSnackProducer(isAgroponics: true)
