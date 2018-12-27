@@ -18,8 +18,7 @@ namespace Nerm.Colonization
         [KSPField(isPersistant = true)]
         Rect extent = new Rect(100, 100, 800, 200);
 
-        [KSPField(isPersistant = true)]
-        bool isVisible;
+        bool isVisible = false;
 
         // If simulating + or - crewman, this becomes positive or negative.
         private int crewDelta = 0;
