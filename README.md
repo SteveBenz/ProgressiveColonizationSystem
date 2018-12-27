@@ -13,8 +13,8 @@ Development plan:
    #  (complete) The ability to create a station in kerban's SOI and rank up the "Tiers" of agriponics
    #  (complete) The ability for Kerbals to run out of supply and get grumpy (turn into Tourists)
    #  (complete) Grumpy Kerbals will get happy again upon return to Kerban
-   #  Need appropriate crew to do agroponics and research
-   #  Can't do research on Agriponics T3 in Kerbin's SoI
+   #  (sortakinda) Need appropriate crew to do agroponics and research
+   #  (complete) Can't do research on Agriponics T3 in Kerbin's SoI
 # Basic Progression - the ability to plan a mission to Duna
    #  Kerbals can do agriculture on the Mun or Minmus
       #  Adapt an Agriculture part from USI
@@ -24,7 +24,7 @@ Development plan:
 # Basic Progression - the execution of a mission to Duna
    #  Life support dialog works nicely in the editors - can estimate usage and ag production
    #  Tweak the mass and density of Fertilizer & Supplies
-   #  Agroponic and Ag modules consume some electricity
+   #  (complete)Agroponic and Ag modules consume some electricity
 # Release prep
    #  Integrate with Toolbar
    #  Integrate with ModuleManager
@@ -34,4 +34,5 @@ Development plan:
 # Advanced Progression - the ability to have extended missions on Duna
    #  Create the resource gathering mechanic
    #  Create shinies resource chain
+   #  Support USI kerbal types
 

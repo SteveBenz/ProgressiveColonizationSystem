@@ -87,5 +87,7 @@ namespace Nerm.Colonization
 
         public static double KerbalSecondsToResearchNextAgroponicsTier(this TechTier techTier)
             => agroponicsResearchTimesInKerbalSeconds[(int)techTier];
+
+        public static string DisplayName(this TechTier tier) => tier.ToString();
     }
 }

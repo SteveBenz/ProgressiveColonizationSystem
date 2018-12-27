@@ -120,6 +120,11 @@ namespace Nerm.Colonization
                         "Nerm.Colonization.SnackConsumption.CalculateSnackFlow is busted - it somehow got the consumption recipe wrong.");
                 }
 
+                if (agroponicsBreakthrough)
+                {
+                    ScreenMessages.PostScreenMessage($"Wewt!  The crew have choked down enough of these nasty agroponic snacks to unlock a new tier of equipement.  Turns out the secret was to add more Sri-Racha.", 10.0f);
+                }
+
                 remainingTime -= elapsedTime;
             }
 
