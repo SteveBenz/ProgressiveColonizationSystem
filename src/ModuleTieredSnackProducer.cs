@@ -16,10 +16,10 @@ namespace Nerm.Colonization
         public float capacity;
 
         [KSPField(guiActive = true, guiActiveEditor = false, guiName = "Research")]
-        private string researchStatus;
+        public string researchStatus;
 
         [KSPEvent(guiActive = false, guiActiveEditor = true, guiName = "Change Tier")]
-        private void ChangeTier()
+        public void ChangeTier()
         {
             tier = (tier + 1) % ((int)this.MaxTechTierResearched + 1);
         }
@@ -66,17 +66,15 @@ namespace Nerm.Colonization
             return true;
         }
 
-        public ModuleTieredSnackProducer()
-        {
-            // Default to the max tier for new parts - for old parts, it will be overwritten on load.
-            tier = (int)(ColonizationResearchScenario.Instance != null
-                ? this.MaxTechTierResearched
-                : TechTier.Tier0);
-        }
-
         public override void FixedUpdate()
         {
             base.FixedUpdate();
+
+            if (this.vessel == null)
+            {
+                // TODO: Maybe figure out if the vessel is in the editor instead?
+                return;
+            }
 
             if (this.CanDoProduction(out string reasonWhyNotMessage))
             {
@@ -92,11 +90,6 @@ namespace Nerm.Colonization
                     this.IsResearchEnabled = false;
                     this.researchStatus = reasonWhyNotMessage;
                 }
-            }
-            {
-                this.IsProductionEnabled = false;
-                this.IsResearchEnabled = false;
-                this.researchStatus = reasonWhyNotMessage;
             }
         }
 

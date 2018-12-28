@@ -46,7 +46,7 @@ namespace Nerm.Colonization
 
         protected override bool CanDoResearch(out string reasonWhyNotMessage)
         {
-            if (!CanDoResearch(out reasonWhyNotMessage))
+            if (!base.CanDoResearch(out reasonWhyNotMessage))
             {
                 return false;
             }

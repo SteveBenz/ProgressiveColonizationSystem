@@ -12,9 +12,19 @@ namespace Nerm.Colonization
         public static ColonizationResearchScenario Instance;
 
         [KSPField(isPersistant = true)]
-        private float accumulatedAgroponicResearchProgressToNextTier = 0f;
+        public float accumulatedAgroponicResearchProgressToNextTier = 0f;
         [KSPField(isPersistant = true)]
-        private int agroponicsMaxTier = 0;
+        public int agroponicsMaxTier = 0;
+
+        /// <summary>
+        ///   A '|' separated list of worlds where the player can do agriculture.
+        /// </summary>
+        /// <remarks>
+        ///   This is stored because it comes from the ProgressTracking scenario, which isn't
+        ///   loaded in the editor, which is the place we principally need this data.
+        /// </remarks>
+        [KSPField(isPersistant = true)]
+        public string validAgricultureBodies = "";
 
         Dictionary<string, TechProgress> bodyToAgricultureTechTierMap;
 
@@ -41,6 +51,7 @@ namespace Nerm.Colonization
                 ++this.AgroponicsMaxTier;
             }
         }
+
         public void ContributeAgricultureResearch(string bodyName, double timespent)
         {
             if (this.bodyToAgricultureTechTierMap.TryGetValue(bodyName, out TechProgress progress))
@@ -60,6 +71,8 @@ namespace Nerm.Colonization
             }
         }
 
+        public string[] ValidBodiesForAgriculture => this.validAgricultureBodies.Split(new char[] { '|' });
+
         public double KerbalSecondsToGoUntilNextAgroponicsTier => AgroponicsMaxTier.KerbalSecondsToResearchNextAgroponicsTier() - this.accumulatedAgroponicResearchProgressToNextTier;
 
         public TechTier GetAgricultureMaxTier(string bodyName)
@@ -77,6 +90,24 @@ namespace Nerm.Colonization
 
         public override void OnSave(ConfigNode node)
         {
+            // Update valid bodies if possible
+            if (ProgressTracking.Instance != null && ProgressTracking.Instance.celestialBodyNodes != null)
+            {
+                StringBuilder validBodies = new StringBuilder();
+                foreach (var cbn in ProgressTracking.Instance.celestialBodyNodes)
+                {
+                    if (cbn.returnFromSurface != null && cbn.returnFromSurface.IsComplete)
+                    {
+                        if (validBodies.Length != 0)
+                        {
+                            validBodies.Append('|');
+                        }
+                        validBodies.Append(cbn.Id);
+                    }
+                }
+                this.validAgricultureBodies = validBodies.ToString();
+            }
+
             base.OnSave(node);
             node.SetValue("agriculture", this.bodyToAgricultureTechTierMap);
         }
