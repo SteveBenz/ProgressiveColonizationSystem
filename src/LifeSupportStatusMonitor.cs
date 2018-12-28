@@ -228,7 +228,7 @@ namespace Nerm.Colonization
                     else if (researchSink.AgroponicResearch > 0)
                     {
                         double perDay = SnackConsumption.UnitsPerSecondToUnitsPerDay(researchSink.AgroponicResearch);
-                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of agroponics research per day.  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextTier:N} are needed to reach the next tier).");
+                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of agroponics research per day.  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextAgroponicsTier:N} are needed to reach the next tier).");
                     }
                     else if (snackProducers.Count > 0)
                     {
@@ -255,6 +255,9 @@ namespace Nerm.Colonization
             {
                 this.AgroponicResearch += timespent;
             }
+
+            public TechTier GetAgricultureMaxTier(string bodyName) { throw new NotImplementedException(); }
+            public void ContributeAgricultureResearch(string bodyName, double timespent) { throw new NotImplementedException(); }
         }
     }
 }

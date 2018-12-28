@@ -5,11 +5,11 @@ using System.Text;
 
 namespace Nerm.Colonization
 {
-    public class ModuleTieredAgroponics
+    public class ModuleTieredAgriculture
         : ModuleTieredSnackProducer
     {
         protected override TechTier MaxTechTierResearched =>
-            ColonizationResearchScenario.Instance?.AgroponicsMaxTier ?? TechTier.Tier0;
+            ColonizationResearchScenario.Instance?.GetAgricultureMaxTier(vessel.lastBody.name) ?? TechTier.Tier0;
 
         public override double MaxConsumptionForProducedFood => this.Tier.AgroponicMaxDietRatio();
 
@@ -23,24 +23,6 @@ namespace Nerm.Colonization
             else
             {
                 return false;
-            }
-        }
-
-        protected override bool CanDoProduction(out string reasonWhyNotMessage)
-        {
-            if (!base.CanDoProduction(out reasonWhyNotMessage))
-            {
-                return false;
-            }
-            else if (this.vessel.situation != Vessel.Situations.ORBITING)
-            {
-                reasonWhyNotMessage = "Not in a stable orbit";
-                return false;
-            }
-            else
-            {
-                reasonWhyNotMessage = null;
-                return true;
             }
         }
 

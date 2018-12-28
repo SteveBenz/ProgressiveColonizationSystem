@@ -16,6 +16,8 @@ namespace Nerm.Colonization
         [KSPField(isPersistant = true)]
         private int agroponicsMaxTier = 0;
 
+        Dictionary<string, TechProgress> bodyToAgricultureTechTierMap;
+
         public ColonizationResearchScenario()
         {
             Instance = this;
@@ -39,17 +41,53 @@ namespace Nerm.Colonization
                 ++this.AgroponicsMaxTier;
             }
         }
+        public void ContributeAgricultureResearch(string bodyName, double timespent)
+        {
+            if (this.bodyToAgricultureTechTierMap.TryGetValue(bodyName, out TechProgress progress))
+            {
+                progress.Progress += timespent;
+            }
+            else
+            {
+                progress = new TechProgress() { Tier = TechTier.Tier0, Progress = timespent };
+                this.bodyToAgricultureTechTierMap.Add(bodyName, progress);
+            }
 
-        public double KerbalSecondsToGoUntilNextTier => AgroponicsMaxTier.KerbalSecondsToResearchNextAgroponicsTier() - this.accumulatedAgroponicResearchProgressToNextTier;
+            if (progress.Progress > progress.Tier.KerbalSecondsToResearchNextAgricultureTier())
+            {
+                progress.Progress = 0;
+                ++progress.Tier;
+            }
+        }
 
-        // TODO: Need a method to ask if a vessel, given its current SoI and state (landed, not landed)
-        //   can contribute agroponic research.
+        public double KerbalSecondsToGoUntilNextAgroponicsTier => AgroponicsMaxTier.KerbalSecondsToResearchNextAgroponicsTier() - this.accumulatedAgroponicResearchProgressToNextTier;
+
+        public TechTier GetAgricultureMaxTier(string bodyName)
+        {
+            this.bodyToAgricultureTechTierMap.TryGetValue(bodyName, out TechProgress progress);
+            return progress?.Tier ?? TechTier.Tier0;
+        }
+
+        public override void OnLoad(ConfigNode node)
+        {
+            base.OnLoad(node);
+            this.bodyToAgricultureTechTierMap = new Dictionary<string, TechProgress>();
+            node.TryGetValue("agriculture", ref this.bodyToAgricultureTechTierMap);
+        }
+
+        public override void OnSave(ConfigNode node)
+        {
+            base.OnSave(node);
+            node.SetValue("agriculture", this.bodyToAgricultureTechTierMap);
+        }
     }
 
     // Test interface
     public interface IColonizationResearchScenario
     {
-        void ContributeAgroponicResearch(double timespent);
         TechTier AgroponicsMaxTier { get; }
+        TechTier GetAgricultureMaxTier(string bodyName);
+        void ContributeAgroponicResearch(double timespent);
+        void ContributeAgricultureResearch(string bodyName, double timespent);
     }
 }

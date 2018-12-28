@@ -26,6 +26,34 @@ namespace Nerm.Colonization
 
         protected abstract TechTier MaxTechTierResearched { get; }
 
+        protected virtual bool CanDoProduction(out string reasonWhyNotMessage)
+        {
+            if (!this.IsActivated)
+            {
+                reasonWhyNotMessage = "Disabled - module is off";
+                return false;
+            }
+
+            if (!this.IsPowered)
+            {
+                reasonWhyNotMessage = "Disabled - module lacks power";
+                return false;
+            }
+
+            if (!IsCrewed())
+            {
+                reasonWhyNotMessage = "Disabled - no qualified crew";
+                if (this.IsActivated)
+                {
+                    ScreenMessages.PostScreenMessage($"{this.name} is shutting down because there is no qualified crew (need a scientist with at least as many stars as the tier level)", 10.0f);
+                }
+                this.StopResourceConverter();
+            }
+
+            reasonWhyNotMessage = null;
+            return true;
+        }
+
         protected virtual bool CanDoResearch(out string reasonWhyNotMessage)
         {
             if (this.tier < (int)this.MaxTechTierResearched)
@@ -50,40 +78,23 @@ namespace Nerm.Colonization
         {
             base.FixedUpdate();
 
-            if (!this.IsActivated)
+            if (this.CanDoProduction(out string reasonWhyNotMessage))
+            {
+                this.IsProductionEnabled = true;
+
+                if (this.CanDoResearch(out reasonWhyNotMessage))
+                {
+                    this.IsResearchEnabled = true;
+                    this.researchStatus = "Active";
+                }
+                else
+                {
+                    this.IsResearchEnabled = false;
+                    this.researchStatus = reasonWhyNotMessage;
+                }
+            }
             {
                 this.IsProductionEnabled = false;
-                this.IsResearchEnabled = false;
-                this.researchStatus = "Disabled - module is off";
-                return;
-            }
-
-            if (!this.IsPowered)
-            {
-                this.IsProductionEnabled = false;
-                this.IsResearchEnabled = false;
-                this.researchStatus = "Disabled - module lacks power";
-                return;
-            }
-
-            if (!IsCrewed())
-            {
-                this.IsProductionEnabled = false;
-                this.IsResearchEnabled = false;
-                this.researchStatus = "Disabled - no qualified crew";
-                ScreenMessages.PostScreenMessage($"{this.name} is shutting down because there is no qualified crew (need a scientist with at least as many stars as the tier level)", 10.0f);
-                this.StopResourceConverter();
-            }
-
-            this.IsProductionEnabled = true;
-
-            if (this.CanDoResearch(out string reasonWhyNotMessage))
-            {
-                this.IsResearchEnabled = true;
-                this.researchStatus = "Active";
-            }
-            else
-            {
                 this.IsResearchEnabled = false;
                 this.researchStatus = reasonWhyNotMessage;
             }

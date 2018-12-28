@@ -27,5 +27,8 @@ namespace Nerm.Colonization.UnitTests
                 ResearchProgress = 0;
             }
         }
+
+        public TechTier GetAgricultureMaxTier(string bodyName) { throw new NotImplementedException(); }
+        public void ContributeAgricultureResearch(string bodyName, double timespent) { throw new NotImplementedException(); }
     }
 }

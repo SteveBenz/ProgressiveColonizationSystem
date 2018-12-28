@@ -9,33 +9,36 @@ namespace Nerm.Colonization
 {
     public static class Extensions
     {
-        //private static readonly Regex RectConverter = new Regex(
-        //    @"\[(?<x>d+),(?<y>d+),(?<width>d+),(?<height>d+)",
-        //    RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        public static bool TryGetValue(this ConfigNode node, string name, ref Dictionary<string,TechProgress> map)
+        {
+            ConfigNode agNodes = node.GetNode(name);
+            if (agNodes == null)
+            {
+                return false;
+            }
 
-        //static bool TryGetValue(this ConfigNode _this, string name, out Rect rect)
-        //{
-        //    string asString = _this.GetValue(name);
-        //    if (string.IsNullOrEmpty(asString))
-        //    {
-        //        rect = new Rect();
-        //        return false;
-        //    }
+            foreach (ConfigNode childNode in agNodes.GetNodes())
+            {
+                TechTier tierAtBody = TechTier.Tier0;
+                double progress = 0;
+                if (childNode.TryGetEnum<TechTier>("tier", ref tierAtBody, TechTier.Tier0)
+                  && childNode.TryGetValue("progress", ref progress))
+                {
+                    map[childNode.name] = new TechProgress { Progress = Math.Max(0, progress), Tier = tierAtBody };
+                }
+            }
+            return true;
+        }
 
-        //    Match result = RectConverter.Match(asString);
-        //    if (!result.Success)
-        //    {
-        //        rect = new Rect();
-        //        return false;
-        //    }
-
-        //    rect = new Rect(
-        //        int.Parse(result.Groups["x"].Value),
-        //        int.Parse(result.Groups["y"].Value),
-        //        int.Parse(result.Groups["width"].Value),
-        //        int.Parse(result.Groups["height"].Value));
-        //    return true;
-        //}
-
+        public static void SetValue(this ConfigNode node, string name, Dictionary<string, TechProgress> map)
+        {
+            ConfigNode agNode = node.AddNode("agriculture");
+            foreach (KeyValuePair<string, TechProgress> pair in map)
+            {
+                ConfigNode bodyNode = agNode.AddNode(pair.Key);
+                bodyNode.SetValue("tier", pair.Value.Tier.ToString());
+                bodyNode.SetValue("tier", pair.Value.Progress);
+            }
+        }
     }
 }
