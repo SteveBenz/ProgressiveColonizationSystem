@@ -39,5 +39,7 @@ namespace Nerm.Colonization.UnitTests
                 return false;
             }
         }
+
+        public bool CanStockpileProduce => !this.isAgroponics;
     }
 }

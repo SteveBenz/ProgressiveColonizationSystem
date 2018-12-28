@@ -62,6 +62,7 @@
     <Compile Include="ColonizationResearchScenario.cs" />
     <Compile Include="ISnackProducer.cs" />
     <Compile Include="LifeSupportStatusMonitor.cs" />
+    <Compile Include="ModuleTieredSnackProducer.cs" />
     <Compile Include="ModuleTieredAgroponics.cs" />
     <Compile Include="AssemblyVersion.cs">
       <AutoGen>True</AutoGen>
