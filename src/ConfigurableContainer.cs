@@ -6,16 +6,21 @@ using UnityEngine;
 
 namespace Nerm.Colonization
 {
-
     public class ModuleTieredContainer
         : PartModule
     {
+        [KSPField]
+        public string resource;
+
+        [KSPField]
+        public float maxAmount;
+
         public ModuleTieredContainer()
         {
             Debug.Log("In ModuleTieredContainer constructor.");
         }
 
-        [KSPEvent(active = true, guiActiveEditor = true, guiName = "Change Tier", unfocusedRange = 10f)]
+        [KSPEvent(active = true, guiActiveEditor = true, externalToEVAOnly = true, guiName = "Change Tier", unfocusedRange = 10f)]
         public void NextTier()
         {
             Debug.Assert(this.part.Resources.Count == 1, $"{nameof(ModuleTieredContainer)} is only expecting a single resource type");
@@ -47,11 +52,23 @@ namespace Nerm.Colonization
 
             var node = new ConfigNode("RESOURCE");
             node.AddValue("name", newResourceName);
-            node.AddValue("amount", 0);
-            node.AddValue("maxAmount", x.maxAmount);
+            node.AddValue("amount", HighLogic.LoadedSceneIsEditor ? x.amount : 0);
+            node.AddValue("maxAmount", this.maxAmount);
             var current_resource = part.Resources.Add(node);
             if (part.Events != null) part.SendEvent("resource_changed");
-            //this.part.SetupResources();
+            this.part.SetupResources();
+        }
+
+        public override void OnInitialize()
+        {
+            if (this.part.Resources.Count == 0)
+            {
+                var node = new ConfigNode("RESOURCE");
+                node.AddValue("name", this.resource);
+                node.AddValue("amount", this.maxAmount);
+                node.AddValue("maxAmount", this.maxAmount);
+                this.part.Resources.Add(node);
+            }
         }
     }
 }
