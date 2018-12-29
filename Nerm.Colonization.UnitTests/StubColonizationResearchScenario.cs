@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Nerm.Colonization.UnitTests
 {
@@ -14,21 +10,27 @@ namespace Nerm.Colonization.UnitTests
             this.AgroponicsMaxTier = currentTier;
         }
 
-        public double ResearchProgress { get; set; }
+        public double AgroponicResearchProgress { get; set; }
+
+        public double AgricultureResearchProgress { get; set; }
 
         public TechTier AgroponicsMaxTier { get; private set; }
 
         public void ContributeAgroponicResearch(double timespent)
         {
-            ResearchProgress += timespent;
-            if (this.AgroponicsMaxTier.KerbalSecondsToResearchNextAgroponicsTier() < ResearchProgress)
+            AgroponicResearchProgress += timespent;
+            if (this.AgroponicsMaxTier.KerbalSecondsToResearchNextAgroponicsTier() < AgroponicResearchProgress)
             {
                 ++AgroponicsMaxTier;
-                ResearchProgress = 0;
+                AgroponicResearchProgress = 0;
             }
         }
 
-        public TechTier GetAgricultureMaxTier(string bodyName) { throw new NotImplementedException(); }
-        public void ContributeAgricultureResearch(string bodyName, double timespent) { throw new NotImplementedException(); }
+        public TechTier GetAgricultureMaxTier(string bodyName) => this.AgroponicsMaxTier;
+        public void ContributeAgricultureResearch(string bodyName, double timespent)
+        {
+            Assert.AreEqual("test", bodyName);
+            AgricultureResearchProgress += timespent;
+        }
     }
 }

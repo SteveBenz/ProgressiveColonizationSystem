@@ -46,8 +46,8 @@ namespace Nerm.Colonization
         {
             if (this.IsResearchEnabled)
             {
-                target.ContributeAgroponicResearch(amount);
-                return target.AgroponicsMaxTier != this.Tier;
+                target.ContributeAgricultureResearch(this.body, amount);
+                return target.GetAgricultureMaxTier(this.body) != this.Tier;
             }
             else
             {

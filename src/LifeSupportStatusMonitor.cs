@@ -155,7 +155,8 @@ namespace Nerm.Colonization
                 ResearchSink researchSink = new ResearchSink();
                 SnackConsumption.CalculateSnackflow(
                     crewCount + crewDelta, 1, snackProducers, researchSink, resources,
-                    out double timePassed, out bool _, out Dictionary<string, double> resourcesConsumed);
+                    out double timePassed, out bool _, out Dictionary<string, double> resourcesConsumed,
+                    out Dictionary<string, double> resourcesProduced);
                 if (timePassed == 0)
                 {
                     GUILayout.BeginHorizontal();
@@ -219,6 +220,20 @@ namespace Nerm.Colonization
                         GUILayout.BeginHorizontal();
                         GUILayout.Label($"{perDay:N1} {resourceName} per day ({daysLeft:N1} days left)");
                         GUILayout.EndHorizontal();
+                    }
+
+                    if (resourcesProduced != null && resourcesProduced.Count > 0)
+                    {
+                        GUILayout.BeginHorizontal();
+                        GUILayout.Label("The crew is also producing:");
+                        foreach (var resourceName in resourcesProduced.Keys.OrderBy(n => n))
+                        {
+                            double perDay = SnackConsumption.UnitsPerSecondToUnitsPerDay(resourcesProduced[resourceName]);
+                            double daysLeft = resources[resourceName] / perDay;
+                            GUILayout.BeginHorizontal();
+                            GUILayout.Label($"{perDay:N1} {resourceName} per day");
+                            GUILayout.EndHorizontal();
+                        }
                     }
 
                     if (ColonizationResearchScenario.Instance.AgroponicsMaxTier == TechTier.Tier4)

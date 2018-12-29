@@ -96,24 +96,39 @@ namespace Nerm.Colonization
                     this.ResourceQuantities(),
                     out double elapsedTime,
                     out bool agroponicsBreakthrough,
-                    out Dictionary<string,double> resourceConsumptionPerSecond);
+                    out Dictionary<string,double> resourceConsumptionPerSecond,
+                    out Dictionary<string,double> resourceProductionPerSecond);
 
                 if (elapsedTime == 0)
                 {
                     break;
                 }
 
-                if (resourceConsumptionPerSecond != null)
+                if (resourceConsumptionPerSecond != null || resourceProductionPerSecond != null)
                 {
                     ConversionRecipe consumptionRecipe = new ConversionRecipe();
-                    consumptionRecipe.Inputs.AddRange(
-                        resourceConsumptionPerSecond.Select(pair => new ResourceRatio()
-                        {
-                            ResourceName = pair.Key,
-                            Ratio = pair.Value,
-                            DumpExcess = false,
-                            FlowMode = ResourceFlowMode.ALL_VESSEL
-                        }));
+                    if (resourceConsumptionPerSecond != null)
+                    {
+                        consumptionRecipe.Inputs.AddRange(
+                            resourceConsumptionPerSecond.Select(pair => new ResourceRatio()
+                            {
+                                ResourceName = pair.Key,
+                                Ratio = pair.Value,
+                                DumpExcess = false,
+                                FlowMode = ResourceFlowMode.ALL_VESSEL
+                            }));
+                    }
+                    if (resourceProductionPerSecond != null)
+                    {
+                        consumptionRecipe.Outputs.AddRange(
+                            resourceProductionPerSecond.Select(pair => new ResourceRatio()
+                            {
+                                ResourceName = pair.Key,
+                                Ratio = pair.Value,
+                                DumpExcess = true,
+                                FlowMode = ResourceFlowMode.ALL_VESSEL
+                            }));
+                    }
                     Debug.Assert(elapsedTime > 0);
                     var consumptionResult = this.ResConverter.ProcessRecipe(elapsedTime, consumptionRecipe, crewPart, null, 1f);
                     Debug.Assert(Math.Abs(consumptionResult.TimeFactor - elapsedTime) < ResourceUtilities.FLOAT_TOLERANCE,
@@ -193,7 +208,7 @@ namespace Nerm.Colonization
         /// <param name="snackProducers">The mechanisms on the vessel that can produce snacks.</param>
         /// <param name="colonizationResearch">The research object (passed in for testability).</param>
         /// <param name="timePassedInSeconds">Set to the amount of <paramref name="fullTimespanInSeconds"/> that we've managed to calculate for.</param>
-        /// <param name="agroponicsBreakthroughHappened">Set to true if the agronomy tier was eclipsed in the timespan.</param>
+        /// <param name="breakthroughHappened">Set to true if the agronomy tier was eclipsed in the timespan.</param>
         /// <param name="consumptionFormula">Set to a formula for calculating the transformation of stuff.</param>
         internal static void CalculateSnackflow(
             int numCrew,
@@ -202,8 +217,9 @@ namespace Nerm.Colonization
             IColonizationResearchScenario colonizationResearch,
             Dictionary<string,double> availableResources,
             out double timePassedInSeconds,
-            out bool agroponicsBreakthroughHappened,
-            out Dictionary<string,double> resourceConsumptionPerSecond
+            out bool breakthroughHappened,
+            out Dictionary<string,double> resourceConsumptionPerSecond,
+            out Dictionary<string,double> resourceProductionPerSecond
             )
         {
             // The mechanic we're after writes up pretty simple - Kerbals will try to use renewable
@@ -263,7 +279,8 @@ namespace Nerm.Colonization
                 // needs for any amount of time.  (The .999 is 1.0 with a generous precision error).
                 timePassedInSeconds = 0;
                 resourceConsumptionPerSecond = null;
-                agroponicsBreakthroughHappened = false;
+                resourceProductionPerSecond = null;
+                breakthroughHappened = false;
             }
             else
             {
@@ -271,7 +288,10 @@ namespace Nerm.Colonization
                 resourceConsumptionPerSecond = new Dictionary<string, double>();
                 foreach (ProducerData producerData in producers)
                 {
-                    double contribution = UnitsPerDayToUnitsPerSecond(producerData.SupplyFraction * numCrew);
+                    double contribution = UnitsPerDayToUnitsPerSecond(
+                        producerData.SourceTemplate != null && producerData.SourceTemplate.CanStockpileProduce
+                        ? producerData.TotalProductionCapacity
+                        : producerData.SupplyFraction * numCrew);
                     if (resourceConsumptionPerSecond.TryGetValue(producerData.SourceResourceName, out double existingConsumption))
                     {
                         existingConsumption += contribution;
@@ -296,15 +316,29 @@ namespace Nerm.Colonization
                     timePassedInSeconds = Math.Min(timePassedInSeconds, maxPossibleRuntime);
                 }
 
-                // Okay, based on the actual runtime, we can contribute it to the agroponics research
-                // and see if a breakthrough happened.
-                agroponicsBreakthroughHappened = false;
+                // Okay, based on the actual runtime, we can calculate how much we can stockpile,
+                // contribute research, and finally see if the tiers changed.
+                breakthroughHappened = false;
+                resourceProductionPerSecond = new Dictionary<string, double>();
                 foreach (ProducerData producerData in producers)
                 {
                     if (producerData.SourceTemplate != null)
                     {
-                        double contributionInUnitsPerDay = producerData.SupplyFraction * numCrew;
-                        agroponicsBreakthroughHappened |= producerData.SourceTemplate.ContributeResearch(
+                        double contributionInUnitsPerDay;
+                        if (producerData.SourceTemplate.CanStockpileProduce)
+                        {
+                            contributionInUnitsPerDay = producerData.TotalProductionCapacity;
+                            double alreadyThere = 0;
+                            resourceProductionPerSecond.TryGetValue(producerData.SourceTemplate.Tier.SnacksResourceName(), out alreadyThere);
+                            resourceProductionPerSecond[producerData.SourceTemplate.Tier.SnacksResourceName()]
+                                = alreadyThere + UnitsPerDayToUnitsPerSecond(producerData.TotalProductionCapacity - numCrew * producerData.SupplyFraction);
+                        }
+                        else
+                        {
+                            contributionInUnitsPerDay = producerData.SupplyFraction * numCrew;
+                        }
+
+                        breakthroughHappened |= producerData.SourceTemplate.ContributeResearch(
                             colonizationResearch,
                             timePassedInSeconds*UnitsPerDayToUnitsPerSecond(Math.Min(contributionInUnitsPerDay, producerData.MaxResearchPerDay)));
                     }

@@ -22,17 +22,22 @@ namespace Nerm.Colonization.UnitTests
             Dictionary<string, double> available = new Dictionary<string, double>();
             available.Add(TechTier.Tier4.SnacksResourceName(), 1.0); // One days' worth
             SnackConsumption.CalculateSnackflow(
-                5 /* kerbals */, 1.0 /* seconds*/, new List<ISnackProducer>(), colonizationResearchScenario, available, out double timePassedInSeconds, out bool agroponicsBreakthroughHappened, out Dictionary<string, double> consumptionPerSecond);
+                5 /* kerbals */, 1.0 /* seconds*/, new List<ISnackProducer>(), colonizationResearchScenario, available,
+                out double timePassedInSeconds, out bool agroponicsBreakthroughHappened,
+                out Dictionary<string, double> consumptionPerSecond, out Dictionary<string, double> productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
             Assert.AreEqual(false, agroponicsBreakthroughHappened);
             Assert.IsNotNull(consumptionPerSecond);
             Assert.AreEqual(1, consumptionPerSecond.Count);
             Assert.AreEqual("Snacks", consumptionPerSecond.First().Key);
             Assert.AreEqual(5 / SecondsPerKerbanDay, consumptionPerSecond.First().Value);
+            Assert.AreEqual(0, productionPerSecond.Count);
 
             // There's a days' worth of snacks, but 5 kerbals getting after it.
             SnackConsumption.CalculateSnackflow(
-                5 /* kerbals */, 1.0 * SecondsPerKerbanDay, new List<ISnackProducer>(), colonizationResearchScenario, available, out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond);
+                5 /* kerbals */, 1.0 * SecondsPerKerbanDay, new List<ISnackProducer>(), colonizationResearchScenario,
+                available, out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond,
+                out productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, SecondsPerKerbanDay / 5);
             Assert.AreEqual(false, agroponicsBreakthroughHappened);
             Assert.IsNotNull(consumptionPerSecond);
@@ -43,10 +48,13 @@ namespace Nerm.Colonization.UnitTests
             // Test no snacks at all
             available.Clear();
             SnackConsumption.CalculateSnackflow(
-                5 /* kerbals */, 1.0 * SecondsPerKerbanDay, new List<ISnackProducer>(), colonizationResearchScenario, available, out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond);
+                5 /* kerbals */, 1.0 * SecondsPerKerbanDay, new List<ISnackProducer>(), colonizationResearchScenario,
+                available, out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond,
+                out productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 0.0);
             Assert.AreEqual(false, agroponicsBreakthroughHappened);
             Assert.IsNull(consumptionPerSecond);
+            Assert.IsNull(productionPerSecond);
         }
 
         /// <summary>
@@ -60,21 +68,21 @@ namespace Nerm.Colonization.UnitTests
             // has crew enough to do research.
             var agroponicModules = new List<ISnackProducer>()
             {
-                new StubSnackProducer(isAgroponics: true)
+                new StubHydroponic
                 {
                     Tier = TechTier.Tier0,
                     Capacity = 1,
                     IsProductionEnabled = true,
                     IsResearchEnabled = true
                 },
-                new StubSnackProducer(isAgroponics: true)
+                new StubHydroponic
                 {
                     Tier = TechTier.Tier0,
                     Capacity = 2,
                     IsProductionEnabled = true,
                     IsResearchEnabled = false
                 },
-                new StubSnackProducer(isAgroponics: true)
+                new StubHydroponic
                 {
                     Tier = TechTier.Tier0,
                     Capacity = 2,
@@ -89,7 +97,9 @@ namespace Nerm.Colonization.UnitTests
 
             // First we test when we have more than enough production
             SnackConsumption.CalculateSnackflow(
-                5 /* kerbals */, 1.0 /* seconds*/, agroponicModules, colonizationResearchScenario, available, out double timePassedInSeconds, out bool agroponicsBreakthroughHappened, out Dictionary<string, double> consumptionPerSecond);
+                5 /* kerbals */, 1.0 /* seconds*/, agroponicModules, colonizationResearchScenario, available,
+                out double timePassedInSeconds, out bool agroponicsBreakthroughHappened,
+                out Dictionary<string, double> consumptionPerSecond, out Dictionary<string,double> productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
             Assert.AreEqual(false, agroponicsBreakthroughHappened);
             Assert.IsNotNull(consumptionPerSecond);
@@ -99,13 +109,16 @@ namespace Nerm.Colonization.UnitTests
             // So they're running at 1/3 capacity.
             Assert.AreEqual(5 * (1 - TechTier.Tier0.AgroponicMaxDietRatio()), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay);
             Assert.AreEqual(5 * TechTier.Tier0.AgroponicMaxDietRatio(), consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay);
-            Assert.AreEqual(5 * TechTier.Tier0.AgroponicMaxDietRatio(), colonizationResearchScenario.ResearchProgress * SecondsPerKerbanDay);
+            Assert.AreEqual(5 * TechTier.Tier0.AgroponicMaxDietRatio(), colonizationResearchScenario.AgroponicResearchProgress * SecondsPerKerbanDay);
+            Assert.AreEqual(0, productionPerSecond.Count);
 
             // now we overwhelm the system with 20 kerbals - they'll be willing to eat (in total)
             // 4 snacks per day, (20 * .2) but our systems can only produce 3 and can only garner
             // research from 1 of the modules.
             SnackConsumption.CalculateSnackflow(
-                20 /* kerbals */, 1.0 /* seconds*/, agroponicModules, colonizationResearchScenario, available, out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond);
+                20 /* kerbals */, 1.0 /* seconds*/, agroponicModules, colonizationResearchScenario, available,
+                out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond,
+                out productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
             Assert.AreEqual(false, agroponicsBreakthroughHappened);
             Assert.IsNotNull(consumptionPerSecond);
@@ -115,13 +128,15 @@ namespace Nerm.Colonization.UnitTests
             // So they're running at 1/3 capacity.
             Assert.AreEqual(20.0-3.0 /* working facilities */, consumptionPerSecond["Snacks"] * SecondsPerKerbanDay);
             Assert.AreEqual(3.0, consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay);
-            Assert.AreEqual(1.0 /* previous test */ + 1.0 /* current test */, colonizationResearchScenario.ResearchProgress * SecondsPerKerbanDay);
+            Assert.AreEqual(1.0 /* previous test */ + 1.0 /* current test */, colonizationResearchScenario.AgroponicResearchProgress * SecondsPerKerbanDay);
 
             // Now let's take that last test and give it a twist that they run out of fertilizer halfway
             // through the second of time
             available[TechTier.Tier4.FertilizerResourceName()] = 1.5 / SecondsPerKerbanDay;
             SnackConsumption.CalculateSnackflow(
-                20 /* kerbals */, 1.0 /* seconds*/, agroponicModules, colonizationResearchScenario, available, out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond);
+                20 /* kerbals */, 1.0 /* seconds*/, agroponicModules, colonizationResearchScenario, available,
+                out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond,
+                out productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 0.5);
             Assert.AreEqual(false, agroponicsBreakthroughHappened);
             Assert.IsNotNull(consumptionPerSecond);
@@ -131,9 +146,43 @@ namespace Nerm.Colonization.UnitTests
             Assert.AreEqual(3.0, consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay);
 
             // And half of the time goes to research
-            Assert.AreEqual(2.0 /* previous two tests */ + 0.5 /* current test */, colonizationResearchScenario.ResearchProgress * SecondsPerKerbanDay);
+            Assert.AreEqual(2.0 /* previous two tests */ + 0.5 /* current test */, colonizationResearchScenario.AgroponicResearchProgress * SecondsPerKerbanDay);
         }
 
+        /// <summary>
+        ///   Validates that initial agriculture production works with delivered fertilizer.
+        /// </summary>
+        [TestMethod]
+        public void SnackConsumption_Tier0Agriculture()
+        {
+            var landedModules = new List<ISnackProducer>()
+            {
+                // 60% of food capacity  1 module oversupplies our crew of 4 and gives us excess to much on the wayhome
+                new StubFarm
+                {
+                    Tier = TechTier.Tier0, // An agroponics lab that can work with the junky fertilizer we get from Duna
+                    Capacity = 10,
+                    IsProductionEnabled = true,
+                    IsResearchEnabled = true
+                },
+            };
+            var colonizationResearchScenario = new StubColonizationResearchScenario(TechTier.Tier0);
+            Dictionary<string, double> available = new Dictionary<string, double>();
+
+            // Kerbal->Duna scenario - plenty of maxtier stuff
+            available[TechTier.Tier4.FertilizerResourceName()] = 1.0;
+            available[TechTier.Tier4.SnacksResourceName()] = 1.0;
+            SnackConsumption.CalculateSnackflow(
+                4 /* kerbals */, 1.0 /* seconds*/, landedModules, colonizationResearchScenario, available,
+                out double timePassedInSeconds, out bool breakthroughHappened,
+                out Dictionary<string, double> consumptionPerSecond, out Dictionary<string, double> productionPerSecond);
+            Assert.AreEqual(timePassedInSeconds, 1.0);
+            Assert.AreEqual(false, breakthroughHappened);
+            Assert.AreEqual(4 * (1 - TechTier.Tier0.AgricultureMaxDietRatio()), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(10.0, consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(10.0, colonizationResearchScenario.AgricultureResearchProgress * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(10.0 - 4 * TechTier.Tier0.AgricultureMaxDietRatio(), productionPerSecond["Snacks-Tier0"] * SecondsPerKerbanDay, TestTolerance);
+        }
 
         /// <summary>
         ///   Validates a Duna-return mission with some local agriculture on-board
@@ -144,7 +193,7 @@ namespace Nerm.Colonization.UnitTests
             var enRouteModules = new List<ISnackProducer>()
             {
                 // 20% of food capacity  1 module oversupplies our crew of 4
-                new StubSnackProducer(isAgroponics: true)
+                new StubHydroponic
                 {
                     Tier = TechTier.Tier0, // An agroponics lab that can work with the junky fertilizer we get from Duna
                     Capacity = 1,
@@ -152,7 +201,7 @@ namespace Nerm.Colonization.UnitTests
                     IsResearchEnabled = false
                 },
                 // 55%-20% = 35% of production capacity comes from this - we need two to be over
-                new StubSnackProducer(isAgroponics: true)
+                new StubHydroponic
                 {
                     Tier = TechTier.Tier2,
                     Capacity = 2,
@@ -167,12 +216,14 @@ namespace Nerm.Colonization.UnitTests
             available[TechTier.Tier4.FertilizerResourceName()] = 1.0;
             available[TechTier.Tier4.SnacksResourceName()] = 1.0;
             SnackConsumption.CalculateSnackflow(
-                4 /* kerbals */, 1.0 /* seconds*/, enRouteModules, colonizationResearchScenario, available, out double timePassedInSeconds, out bool agroponicsBreakthroughHappened, out Dictionary<string, double> consumptionPerSecond);
+                4 /* kerbals */, 1.0 /* seconds*/, enRouteModules, colonizationResearchScenario, available,
+                out double timePassedInSeconds, out bool agroponicsBreakthroughHappened,
+                out Dictionary<string, double> consumptionPerSecond, out Dictionary<string, double> productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
             Assert.AreEqual(false, agroponicsBreakthroughHappened);
             Assert.AreEqual(4 * (1 - TechTier.Tier2.AgroponicMaxDietRatio()), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(4 * TechTier.Tier2.AgroponicMaxDietRatio(), consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay, TestTolerance);
-            Assert.AreEqual(4 * (TechTier.Tier2.AgroponicMaxDietRatio() - TechTier.Tier0.AgroponicMaxDietRatio()), colonizationResearchScenario.ResearchProgress * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(4 * (TechTier.Tier2.AgroponicMaxDietRatio() - TechTier.Tier0.AgroponicMaxDietRatio()), colonizationResearchScenario.AgroponicResearchProgress * SecondsPerKerbanDay, TestTolerance);
 
             // TODO: When ag production is added, add the at-Duna test.
 
@@ -180,10 +231,11 @@ namespace Nerm.Colonization.UnitTests
             available[TechTier.Tier0.FertilizerResourceName()] = 1.0;
             available[TechTier.Tier0.SnacksResourceName()] = 1.0;
             // Just about ready to tick over the research counter
-            colonizationResearchScenario.ResearchProgress = TechTier.Tier2.KerbalSecondsToResearchNextAgroponicsTier() - 0.000001;
+            colonizationResearchScenario.AgroponicResearchProgress = TechTier.Tier2.KerbalSecondsToResearchNextAgroponicsTier() - 0.000001;
             SnackConsumption.CalculateSnackflow(
                 4 /* kerbals */, 1.0 /* seconds*/, enRouteModules, colonizationResearchScenario, available,
-                out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond);
+                out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond,
+                out productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
             Assert.AreEqual(true, agroponicsBreakthroughHappened);
             // We're burning T0 fertilizer in the T0 agro lab
@@ -199,14 +251,15 @@ namespace Nerm.Colonization.UnitTests
             Assert.AreEqual(4 * (1 - TechTier.Tier0.AgricultureMaxDietRatio()),
                             consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
 
-            Assert.AreEqual(0.0, colonizationResearchScenario.ResearchProgress); // Progress is reset
+            Assert.AreEqual(0.0, colonizationResearchScenario.AgroponicResearchProgress); // Progress is reset
             Assert.AreEqual(TechTier.Tier3, colonizationResearchScenario.AgroponicsMaxTier); // Next tier is up
 
             // And we run out of our KSP-provided fertilizer
             available.Remove("Fertilizer");
             SnackConsumption.CalculateSnackflow(
                 4 /* kerbals */, 1.0 /* seconds*/, enRouteModules, colonizationResearchScenario, available,
-                out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond);
+                out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond,
+                out productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
             Assert.AreEqual(false, agroponicsBreakthroughHappened);
             // We're burning T0 fertilizer in the T0 agro lab
@@ -219,7 +272,7 @@ namespace Nerm.Colonization.UnitTests
             Assert.AreEqual(4 * (1 - TechTier.Tier0.AgricultureMaxDietRatio()),
                             consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
 
-            Assert.AreEqual(0.0, colonizationResearchScenario.ResearchProgress); // no gear for next tier (and no T2 progress anyway)
+            Assert.AreEqual(0.0, colonizationResearchScenario.AgroponicResearchProgress); // no gear for next tier (and no T2 progress anyway)
         }
     }
 }
