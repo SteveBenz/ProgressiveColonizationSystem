@@ -90,6 +90,12 @@ namespace Nerm.Colonization
                     this.researchStatus = reasonWhyNotMessage;
                 }
             }
+            else
+            {
+                this.IsProductionEnabled = false;
+                this.IsResearchEnabled = false;
+                this.researchStatus = reasonWhyNotMessage;
+            }
         }
 
         protected virtual bool IsCrewed()
