@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ColonizationResearchScenario.cs" />
+    <Compile Include="ConfigurableContainer.cs" />
     <Compile Include="ISnackProducer.cs" />
     <Compile Include="LifeSupportStatusMonitor.cs" />
     <Compile Include="ModuleTieredAgriculture.cs" />

@@ -70,9 +70,8 @@ namespace Nerm.Colonization
         {
             base.FixedUpdate();
 
-            if (this.vessel == null)
+            if (!HighLogic.LoadedSceneIsFlight)
             {
-                // TODO: Maybe figure out if the vessel is in the editor instead?
                 return;
             }
 

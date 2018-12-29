@@ -64,12 +64,12 @@ namespace Nerm.Colonization
 
         public static string FertilizerResourceName(this TechTier techTier)
         {
-            return techTier == TechTier.Tier4 ? "Fertilizer" : $"LocalFertilizer-{techTier.ToString()}";
+            return techTier == TechTier.Tier4 ? "Fertilizer" : $"Fertilizer-{techTier.ToString()}";
         }
 
         public static string SnacksResourceName(this TechTier techTier)
         {
-            return techTier == TechTier.Tier4 ? "Snacks" : $"LocalSnacks-{techTier.ToString()}";
+            return techTier == TechTier.Tier4 ? "Snacks" : $"Snacks-{techTier.ToString()}";
         }
 
         private const double KerbalDaysPerKerbalYear = 426.0;
