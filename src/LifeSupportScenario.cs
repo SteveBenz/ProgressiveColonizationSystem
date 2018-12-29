@@ -115,11 +115,11 @@ namespace Nerm.Colonization
         {
             base.OnLoad(node);
             Dictionary<string, LifeSupportStatus> newState = new Dictionary<string, LifeSupportStatus>();
-            foreach (ConfigNode perKerbalNode in node.GetNodes())
+            foreach (ConfigNode perKerbalNode in node.GetNodes("Kerbals"))
             {
                 LifeSupportStatus status = new LifeSupportStatus();
-                status.KerbalName = perKerbalNode.name;
-                bool gotit = perKerbalNode.TryGetValue(nameof(status.IsGrouchy), ref status.IsGrouchy)
+                bool gotit = perKerbalNode.TryGetValue(nameof(status.KerbalName), ref status.KerbalName)
+                          && perKerbalNode.TryGetValue(nameof(status.IsGrouchy), ref status.IsGrouchy)
                           && perKerbalNode.TryGetValue(nameof(status.LastMeal), ref status.LastMeal)
                           && perKerbalNode.TryGetValue(nameof(status.OldTrait), ref status.OldTrait);
                 if (gotit && !newState.ContainsKey(status.KerbalName))
@@ -128,7 +128,7 @@ namespace Nerm.Colonization
                 }
                 else
                 {
-                    Debug.LogError($"Failed to add status for {perKerbalNode.name}");
+                    Debug.LogError($"Failed to find status for {perKerbalNode.name}");
                     // Because we don't add it to the array, the kerbal will appear to be happy
                     // however, if the Kerbal was previously grumpy, the Tourist state will be permanent :(
                 }
@@ -143,7 +143,8 @@ namespace Nerm.Colonization
 
             foreach (LifeSupportStatus status in this.knownKerbals.Values)
             {
-                ConfigNode childNode = new ConfigNode(status.KerbalName);
+                ConfigNode childNode = new ConfigNode("Kerbals");
+                childNode.AddValue(nameof(status.KerbalName), status.KerbalName);
                 childNode.AddValue(nameof(status.IsGrouchy), status.IsGrouchy);
                 childNode.AddValue(nameof(status.LastMeal), status.LastMeal);
                 childNode.AddValue(nameof(status.OldTrait), status.OldTrait ?? "");

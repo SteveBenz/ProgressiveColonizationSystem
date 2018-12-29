@@ -37,8 +37,8 @@ namespace Nerm.Colonization
             foreach (KeyValuePair<string, TechProgress> pair in map)
             {
                 ConfigNode bodyNode = agNode.AddNode(pair.Key);
-                bodyNode.SetValue("tier", pair.Value.Tier.ToString());
-                bodyNode.SetValue("tier", pair.Value.Progress);
+                bodyNode.AddValue("tier", pair.Value.Tier.ToString());
+                bodyNode.AddValue("progress", pair.Value.Progress);
             }
         }
 

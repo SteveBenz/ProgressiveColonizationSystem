@@ -16,9 +16,10 @@ namespace Nerm.Colonization
         : ScenarioModule
     {
         [KSPField(isPersistant = true)]
-        Rect extent = new Rect(100, 100, 800, 200);
+        public Rect extent = new Rect(100, 100, 800, 300);
 
-        bool isVisible = false;
+        [KSPField(isPersistant = true)]
+        public bool isVisible = false;
 
         // If simulating + or - crewman, this becomes positive or negative.
         private int crewDelta = 0;
@@ -226,6 +227,7 @@ namespace Nerm.Colonization
                     {
                         GUILayout.BeginHorizontal();
                         GUILayout.Label("The crew is also producing:");
+                        GUILayout.EndHorizontal();
                         foreach (var resourceName in resourcesProduced.Keys.OrderBy(n => n))
                         {
                             double perDay = SnackConsumption.UnitsPerSecondToUnitsPerDay(resourcesProduced[resourceName]);
@@ -242,13 +244,35 @@ namespace Nerm.Colonization
                     }
                     else if (researchSink.AgroponicResearch > 0)
                     {
+                        GUILayout.BeginHorizontal();
                         double perDay = SnackConsumption.UnitsPerSecondToUnitsPerDay(researchSink.AgroponicResearch);
                         GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of agroponics research per day.  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextAgroponicsTier:N} are needed to reach the next tier).");
+                        GUILayout.EndHorizontal();
                     }
                     else if (snackProducers.Count > 0)
                     {
                         GUILayout.BeginHorizontal();
                         GUILayout.Label("This vessel is not contributing agroponic research.");
+                        GUILayout.EndHorizontal();
+                    }
+
+                    string landedOnBody = FlightGlobals.ActiveVessel?.situation == Vessel.Situations.LANDED
+                        ? FlightGlobals.ActiveVessel.mainBody.name : null;
+                    if (landedOnBody == null || ColonizationResearchScenario.Instance.GetAgricultureMaxTier(landedOnBody) == TechTier.Tier4)
+                    {
+                        // No point in talking about research anymore.
+                    }
+                    else if (researchSink.AgricultureResearch > 0)
+                    {
+                        GUILayout.BeginHorizontal();
+                        double perDay = SnackConsumption.UnitsPerSecondToUnitsPerDay(researchSink.AgricultureResearch);
+                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of agriculture research per day (for {landedOnBody}).  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextAgroponicsTier:N} are needed to reach the next tier).");
+                        GUILayout.EndHorizontal();
+                    }
+                    else if (snackProducers.Count > 0)
+                    {
+                        GUILayout.BeginHorizontal();
+                        GUILayout.Label("This vessel is not contributing agriculture research.");
                         GUILayout.EndHorizontal();
                     }
                     // TODO: <IN VAB>
@@ -261,18 +285,21 @@ namespace Nerm.Colonization
         private class ResearchSink
             : IColonizationResearchScenario
         {
+            public double AgricultureResearch { get; private set; }
+
             public double AgroponicResearch { get; private set; }
 
             TechTier IColonizationResearchScenario.AgroponicsMaxTier =>
                 ColonizationResearchScenario.Instance?.AgroponicsMaxTier ?? TechTier.Tier4;
 
             void IColonizationResearchScenario.ContributeAgroponicResearch(double timespent)
-            {
-                this.AgroponicResearch += timespent;
-            }
+                => this.AgroponicResearch += timespent;
 
-            public TechTier GetAgricultureMaxTier(string bodyName) { throw new NotImplementedException(); }
-            public void ContributeAgricultureResearch(string bodyName, double timespent) { throw new NotImplementedException(); }
+            public TechTier GetAgricultureMaxTier(string bodyName)
+                => ColonizationResearchScenario.Instance?.GetAgricultureMaxTier(bodyName) ?? TechTier.Tier4;
+
+            public void ContributeAgricultureResearch(string bodyName, double timespent)
+                => this.AgricultureResearch += timespent;
         }
     }
 }

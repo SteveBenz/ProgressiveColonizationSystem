@@ -8,6 +8,10 @@ namespace Nerm.Colonization
     public class ModuleTieredAgriculture
         : ModuleTieredSnackProducer
     {
+        [KSPField(guiActive = true, isPersistant = true, guiName = "Stockpile extra food")]
+        [UI_Toggle]
+        public bool isStockpiling = true;
+
         [KSPField(advancedTweakable = false, category = "Nermables", guiActive = true, guiName = "Target Body", isPersistant = true, guiActiveEditor = true)]
         public string body = "<not set>";
 
@@ -57,7 +61,7 @@ namespace Nerm.Colonization
 
         protected override bool CanDoProduction(out string reasonWhyNotMessage)
         {
-            if (this.vessel.situation != Vessel.Situations.LANDED || this.body != this.vessel.lastBody.name)
+            if (this.vessel.situation != Vessel.Situations.LANDED || this.body != this.vessel.mainBody.name)
             {
                 reasonWhyNotMessage = $"Not landed on {this.body}";
                 return false;
@@ -68,5 +72,7 @@ namespace Nerm.Colonization
                 return true;
             }
         }
+
+        public override bool CanStockpileProduce => this.isStockpiling;
     }
 }

@@ -43,11 +43,6 @@ namespace Nerm.Colonization
             if (!IsCrewed())
             {
                 reasonWhyNotMessage = "Disabled - no qualified crew";
-                if (this.IsActivated)
-                {
-                    ScreenMessages.PostScreenMessage($"{this.name} is shutting down because there is no qualified crew (need a scientist with at least as many stars as the tier level)", 10.0f);
-                }
-                this.StopResourceConverter();
             }
 
             reasonWhyNotMessage = null;
@@ -92,6 +87,11 @@ namespace Nerm.Colonization
             }
             else
             {
+                if (this.IsActivated)
+                {
+                    ScreenMessages.PostScreenMessage($"{this.name} is shutting down:  {reasonWhyNotMessage}", 10.0f);
+                    this.StopResourceConverter();
+                }
                 this.IsProductionEnabled = false;
                 this.IsResearchEnabled = false;
                 this.researchStatus = reasonWhyNotMessage;
@@ -141,7 +141,7 @@ namespace Nerm.Colonization
 
         public abstract double MaxConsumptionForProducedFood { get; }
 
-        public bool CanStockpileProduce { get; }
+        public abstract bool CanStockpileProduce { get; }
 
         public abstract bool ContributeResearch(IColonizationResearchScenario target, double amount);
     }

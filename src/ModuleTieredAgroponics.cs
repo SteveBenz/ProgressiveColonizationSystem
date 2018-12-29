@@ -60,5 +60,7 @@ namespace Nerm.Colonization
                 return true;
             }
         }
+
+        public override bool CanStockpileProduce => false;
     }
 }
