@@ -15,6 +15,8 @@ namespace Nerm.Colonization
         [KSPField]
         public float maxAmount;
 
+        UIPartActionWindow tweakableUI;
+
         public ModuleTieredContainer()
         {
             Debug.Log("In ModuleTieredContainer constructor.");
@@ -56,7 +58,19 @@ namespace Nerm.Colonization
             node.AddValue("maxAmount", this.maxAmount);
             var current_resource = part.Resources.Add(node);
             if (part.Events != null) part.SendEvent("resource_changed");
-            this.part.SetupResources();
+
+            if (tweakableUI == null)
+            {
+                tweakableUI = this.part.FindActionWindow();
+            }
+            if (tweakableUI != null)
+            {
+                tweakableUI.displayDirty = true;
+            }
+            else
+            {
+                Debug.LogWarning("no UI to refresh");
+            }
         }
 
         public override void OnInitialize()
