@@ -6,7 +6,7 @@ using System.Text;
 namespace Nerm.Colonization
 {
 	public abstract class TieredResourceCoverter
-		: ModuleResourceConverter
+		: ModuleResourceConverter, IProducer
 	{
 		[KSPField(advancedTweakable = false, category = "Nermables", guiActive = true, guiName = "Tier", isPersistant = true, guiActiveEditor = true)]
 		public int tier;
@@ -14,8 +14,14 @@ namespace Nerm.Colonization
 		[KSPEvent(guiActive = false, guiActiveEditor = true, guiName = "Change Tier")]
 		public void ChangeTier()
 		{
-			tier = (tier + 1) % ((int)this.MaxTechTierResearched + 1);
+			this.tier = (this.tier + 1) % ((int)this.MaxTechTierResearched + 1);
 		}
+
+		[KSPField]
+		public string output;
+
+		[KSPField]
+		public float capacity;
 
 		[KSPField(guiActive = true, guiActiveEditor = false, guiName = "Research")]
 		public string researchStatus;
@@ -123,6 +129,24 @@ namespace Nerm.Colonization
 		public bool IsProductionEnabled { get; private set; }
 
 		public abstract bool CanStockpileProduce { get; }
+
+		public double Capacity => this.capacity;
+
+		public string ProductResourceName
+		{
+			get
+			{
+				switch(this.output)
+				{
+					case "Fertilizer":
+						return this.Tier.FertilizerResourceName();
+					case "Snacks":
+						return this.Tier.SnacksResourceName();
+					default:
+						throw new InvalidOperationException($"Part {this.part.name} set 'output' to an invalid value: {this.output}");
+				}
+			}
+		}
 
 		public abstract bool ContributeResearch(IColonizationResearchScenario target, double amount);
 	}

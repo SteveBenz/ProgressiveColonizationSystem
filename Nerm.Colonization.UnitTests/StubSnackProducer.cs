@@ -6,17 +6,18 @@ using System.Threading.Tasks;
 
 namespace Nerm.Colonization.UnitTests
 {
-    public class StubHydroponic
-        : ISnackProducer
+	public class StubSnackProducer
+	{
+		public TechTier Tier { get; set; }
+		public double Capacity { get; set; }
+		public bool IsResearchEnabled { get; set; }
+		public bool IsProductionEnabled { get; set; }
+		public string ProductResourceName => "Snacks";
+	}
+
+	public class StubHydroponic
+        : StubSnackProducer, ISnackProducer
     {
-        public TechTier Tier { get; set; }
-
-        public double Capacity { get; set; }
-
-        public bool IsResearchEnabled { get; set; }
-
-        public bool IsProductionEnabled { get; set; }
-
         public double MaxConsumptionForProducedFood => Tier.AgroponicMaxDietRatio();
 
         public bool ContributeResearch(IColonizationResearchScenario target, double amount)
@@ -34,19 +35,11 @@ namespace Nerm.Colonization.UnitTests
         }
 
         public bool CanStockpileProduce => false;
-    }
+	}
 
     public class StubFarm
-    : ISnackProducer
-    {
-        public TechTier Tier { get; set; }
-
-        public double Capacity { get; set; }
-
-        public bool IsResearchEnabled { get; set; }
-
-        public bool IsProductionEnabled { get; set; }
-
+		: StubSnackProducer, ISnackProducer
+	{
         public double MaxConsumptionForProducedFood => Tier.AgricultureMaxDietRatio();
 
         public bool ContributeResearch(IColonizationResearchScenario target, double amount)
@@ -64,5 +57,5 @@ namespace Nerm.Colonization.UnitTests
         }
 
         public bool CanStockpileProduce => true;
-    }
+	}
 }

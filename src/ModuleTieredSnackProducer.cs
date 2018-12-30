@@ -9,13 +9,8 @@ namespace Nerm.Colonization
         : TieredResourceCoverter,
           ISnackProducer
     {
-        [KSPField]
-        public float capacity;
-
 		protected override string RequiredCrewTrait => "Scientist";
 
         public abstract double MaxConsumptionForProducedFood { get; }
-
-		public double Capacity => this.capacity;
 	}
 }
