@@ -102,6 +102,12 @@ namespace Nerm.Colonization
         public static double KerbalSecondsToResearchNextAgricultureTier(this TechTier techTier)
             => agricultureResearchTimesInKerbalSeconds[(int)techTier];
 
-        public static string DisplayName(this TechTier tier) => tier.ToString();
+		public static double KerbalSecondsToResearchNextProductionTier(this TechTier techTier)
+			=> agricultureResearchTimesInKerbalSeconds[(int)techTier];
+
+		public static double KerbalSecondsToResearchNextScanningTier(this TechTier techTier)
+			=> agricultureResearchTimesInKerbalSeconds[(int)techTier];
+
+		public static string DisplayName(this TechTier tier) => tier.ToString();
     }
 }

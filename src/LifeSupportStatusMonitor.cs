@@ -289,10 +289,14 @@ namespace Nerm.Colonization
 
             public double AgroponicResearch { get; private set; }
 
-            TechTier IColonizationResearchScenario.AgroponicsMaxTier =>
+			public double ProductionResearch { get; private set; }
+
+			public double ScanningResearch { get; private set; }
+
+			public TechTier AgroponicsMaxTier =>
                 ColonizationResearchScenario.Instance?.AgroponicsMaxTier ?? TechTier.Tier4;
 
-            void IColonizationResearchScenario.ContributeAgroponicResearch(double timespent)
+            public void ContributeAgroponicResearch(double timespent)
                 => this.AgroponicResearch += timespent;
 
             public TechTier GetAgricultureMaxTier(string bodyName)
@@ -300,6 +304,12 @@ namespace Nerm.Colonization
 
             public void ContributeAgricultureResearch(string bodyName, double timespent)
                 => this.AgricultureResearch += timespent;
-        }
-    }
+
+			public void ContributeProductionResearch(string bodyName, double timespent)
+				=> this.ProductionResearch += timespent;
+
+			public void ContributeScanningResearch(string bodyName, double timespent)
+				=> this.ScanningResearch += timespent;
+		}
+	}
 }

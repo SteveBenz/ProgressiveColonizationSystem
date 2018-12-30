@@ -12,9 +12,13 @@ namespace Nerm.Colonization.UnitTests
 
         public double AgroponicResearchProgress { get; set; }
 
-        public double AgricultureResearchProgress { get; set; }
+		public double AgricultureResearchProgress { get; set; }
 
-        public TechTier AgroponicsMaxTier { get; private set; }
+		public double ProductionResearchProgress { get; set; }
+
+		public double ScanningResearchProgress { get; set; }
+
+		public TechTier AgroponicsMaxTier { get; private set; }
 
         public void ContributeAgroponicResearch(double timespent)
         {
@@ -32,5 +36,17 @@ namespace Nerm.Colonization.UnitTests
             Assert.AreEqual("test", bodyName);
             AgricultureResearchProgress += timespent;
         }
-    }
+
+		public void ContributeProductionResearch(string bodyName, double timespent)
+		{
+			Assert.AreEqual("test", bodyName);
+			ProductionResearchProgress += timespent;
+		}
+
+		public void ContributeScanningResearch(string bodyName, double timespent)
+		{
+			Assert.AreEqual("test", bodyName);
+			ScanningResearchProgress += timespent;
+		}
+	}
 }

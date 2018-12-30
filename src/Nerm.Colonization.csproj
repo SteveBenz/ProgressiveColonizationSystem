@@ -64,6 +64,7 @@
     <Compile Include="ISnackProducer.cs" />
     <Compile Include="LifeSupportStatusMonitor.cs" />
     <Compile Include="ModuleTieredAgriculture.cs" />
+    <Compile Include="ModuleTieredFactory.cs" />
     <Compile Include="ModuleTieredSnackProducer.cs" />
     <Compile Include="ModuleTieredAgroponics.cs" />
     <Compile Include="AssemblyVersion.cs">
@@ -80,6 +81,7 @@
     <Compile Include="TechProgress.cs" />
     <Compile Include="TechTier.cs" />
     <Compile Include="ColonizationByNermAnimation.cs" />
+    <Compile Include="TieredResourceCoverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="AssemblyVersion.tt">
@@ -153,6 +155,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ColonizationByNerm\Assets\Recycler_GLOW.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ColonizationByNerm\Parts\Processor_Large.dds">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ColonizationByNerm\Textures\IFI_LS_GRN_24.png">
@@ -243,6 +248,14 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ColonizationByNerm\Parts\Tonto_AgModule.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GameData\ColonizationByNerm\Parts\BigFertilizerFactory.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ColonizationByNerm\Parts\BigFertilizerFactory.mu">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

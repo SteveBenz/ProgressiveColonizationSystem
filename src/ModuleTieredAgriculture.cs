@@ -21,13 +21,13 @@ namespace Nerm.Colonization
             var validBodies = ColonizationResearchScenario.Instance.ValidBodiesForAgriculture.ToList();
             validBodies.Sort();
 
-            if (body == null && validBodies.Count == 0)
+            if (string.IsNullOrEmpty(body) && validBodies.Count == 0)
             {
                 // Shouldn't be possible without cheating...  Unless this is sandbox
                 return;
             }
 
-            if (body == null)
+            if (string.IsNullOrEmpty(body))
             {
                 body = validBodies[0];
             }
