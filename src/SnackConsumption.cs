@@ -554,8 +554,6 @@ namespace Nerm.Colonization
 			return productionPossibilities;
 		}
 
-        private static readonly List<string> ResourcePreference = new List<string>() { "Snacks", "Fertilizer" };
-
         private static void SortProducerList(List<ProducerData> producers)
         {
             // For all consumption scenarios, we want our list sorted in a particular way
@@ -585,8 +583,17 @@ namespace Nerm.Colonization
                         // we're stockpiling both snacks and fertilizer.  This choice means that if we've only
                         // got a little bit of excess fertilizer capacity, it'll go towards making extra snacks
                         // rather than stacking up the fertilizer.
-                        return ResourcePreference.IndexOf(left.SourceTemplate.ProductResourceName)
-                               .CompareTo(ResourcePreference.IndexOf(right.SourceTemplate.SourceResourceName));
+                        bool leftIsSnacks = left.SourceTemplate.ProductResourceName == Snacks.AgriculturalSnackResourceBaseName
+                                         || left.SourceTemplate.ProductResourceName == Snacks.AgroponicSnackResourceBaseName;
+                        if (leftIsSnacks)
+                        {
+                            bool rightIsSnacks = right.SourceTemplate.ProductResourceName == Snacks.AgriculturalSnackResourceBaseName
+                                              || right.SourceTemplate.ProductResourceName == Snacks.AgroponicSnackResourceBaseName;
+                            return rightIsSnacks ? 0 : -1;
+                        }
+
+                        // Okay, for the rest, it's alphabetical order, because we don't have any known preference.
+                        return left.SourceTemplate.ProductResourceName.CompareTo(right.SourceTemplate.ProductResourceName);
                     }
                 }
             });
