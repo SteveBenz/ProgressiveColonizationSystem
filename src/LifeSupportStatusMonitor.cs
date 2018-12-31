@@ -102,28 +102,33 @@ namespace Nerm.Colonization
 
             GUILayout.BeginHorizontal();
 
-            Dictionary<string, double> resources = activeSnackConsumption.ResourceQuantities();
-            List<ISnackProducer> snackProducers = activeSnackConsumption.Vessel.FindPartModulesImplementing<ISnackProducer>();
+            activeSnackConsumption.ResourceQuantities(out var availableResources, out var availableStorage);
+            List<IProducer> snackProducers = activeSnackConsumption.Vessel.FindPartModulesImplementing<IProducer>();
             int crewCount = activeSnackConsumption.Vessel.GetCrewCount();
 
             // If there are no top-tier supplies, no producers, and no crew
             if (crewCount == 0
              && snackProducers.Count == 0
-             && !activeSnackConsumption.ResourceQuantities().ContainsKey(TechTier.Tier4.SnacksResourceName()))
+             && !availableResources.ContainsKey(Snacks.AgriculturalSnackResourceBaseName))
             {
                 GUILayout.Label("Oy!  Robots don't eat!");
                 // "This ship apparently ate all its crew"
             }
             else
             {
-                DrawDialog(activeSnackConsumption, resources, snackProducers, crewCount);
+                DrawDialog(activeSnackConsumption, availableResources, availableStorage, snackProducers, crewCount);
             }
             GUILayout.EndVertical();
 
             GUI.DragWindow();
         }
 
-        private void DrawDialog(SnackConsumption activeSnackConsumption, Dictionary<string, double> resources, List<ISnackProducer> snackProducers, int crewCount)
+        private void DrawDialog(
+            SnackConsumption activeSnackConsumption,
+            Dictionary<string, double> resources,
+            Dictionary<string, double> storage,
+            List<IProducer> snackProducers,
+            int crewCount)
         {
             GUILayout.BeginVertical();
             GUILayout.Space(15);
@@ -155,7 +160,7 @@ namespace Nerm.Colonization
             {
                 ResearchSink researchSink = new ResearchSink();
                 SnackConsumption.CalculateSnackflow(
-                    crewCount + crewDelta, 1, snackProducers, researchSink, resources,
+                    crewCount + crewDelta, 1, snackProducers, researchSink, resources, storage,
                     out double timePassed, out bool _, out Dictionary<string, double> resourcesConsumed,
                     out Dictionary<string, double> resourcesProduced);
                 if (timePassed == 0)

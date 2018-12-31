@@ -6,11 +6,10 @@ using System.Text;
 namespace Nerm.Colonization
 {
     public abstract class ModuleTieredSnackProducer
-        : TieredResourceCoverter,
-          ISnackProducer
+        : TieredResourceCoverter
     {
 		protected override string RequiredCrewTrait => "Scientist";
 
-        public abstract double MaxConsumptionForProducedFood { get; }
-	}
+        public override string SourceResourceName => "Fertilizer";
+    }
 }

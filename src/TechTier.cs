@@ -64,12 +64,12 @@ namespace Nerm.Colonization
 
         public static string FertilizerResourceName(this TechTier techTier)
         {
-            return techTier == TechTier.Tier4 ? "Fertilizer" : $"Fertilizer-{techTier.ToString()}";
+            return techTier.GetTieredResourceName("Fertilizer");
         }
 
         public static string SnacksResourceName(this TechTier techTier)
         {
-            return techTier == TechTier.Tier4 ? "Snacks" : $"Snacks-{techTier.ToString()}";
+            return techTier.GetTieredResourceName("Snacks");
         }
 
         private const double KerbalDaysPerKerbalYear = 426.0;
@@ -109,5 +109,39 @@ namespace Nerm.Colonization
 			=> agricultureResearchTimesInKerbalSeconds[(int)techTier];
 
 		public static string DisplayName(this TechTier tier) => tier.ToString();
-    }
+
+		public static string GetTieredResourceName(this TechTier techTier, string name)
+		{
+			int dashIndex = name.IndexOf('-');
+			string baseName = dashIndex < 0 ? name : name.Substring(0, dashIndex);
+			return techTier == TechTier.Tier4 ? baseName : $"{baseName}-{techTier.ToString()}";
+		}
+
+		public static bool TryParseTieredResourceName(string tieredResourceName, out string tier4Name, out TechTier tier)
+		{
+			int dashIndex = tieredResourceName.IndexOf('-');
+			if (dashIndex < 0)
+			{
+				tier4Name = tieredResourceName;
+				tier = TechTier.Tier4;
+				return true;
+			}
+			else
+			{
+				try
+				{
+					// Oh, but we do pine ever so much for .Net 4.6...
+					tier = (TechTier)Enum.Parse(typeof(TechTier), tieredResourceName.Substring(dashIndex + 1));
+					tier4Name = tieredResourceName.Substring(0, dashIndex);
+					return true;
+				}
+				catch (Exception)
+				{
+					tier4Name = null;
+					tier = TechTier.Tier0;
+					return false;
+				}
+			}
+		}
+	}
 }

@@ -6,21 +6,26 @@ using System.Threading.Tasks;
 
 namespace Nerm.Colonization.UnitTests
 {
-	public class StubSnackProducer
+	public abstract class StubSnackProducer
+        : IProducer
 	{
 		public TechTier Tier { get; set; }
-		public double Capacity { get; set; }
+		public double ProductionRate { get; set; }
 		public bool IsResearchEnabled { get; set; }
 		public bool IsProductionEnabled { get; set; }
-		public string ProductResourceName => "Snacks";
-	}
+		public abstract string ProductResourceName { get; }
+
+        public abstract bool CanStockpileProduce { get; }
+
+        public string SourceResourceName => "Fertilizer";
+
+        public abstract bool ContributeResearch(IColonizationResearchScenario target, double amount);
+    }
 
 	public class StubHydroponic
-        : StubSnackProducer, ISnackProducer
+        : StubSnackProducer
     {
-        public double MaxConsumptionForProducedFood => Tier.AgroponicMaxDietRatio();
-
-        public bool ContributeResearch(IColonizationResearchScenario target, double amount)
+        public override bool ContributeResearch(IColonizationResearchScenario target, double amount)
         {
             // Copied from the real class.  Yuk.  Gotta get a better mock framework.
             if (target.AgroponicsMaxTier == this.Tier && this.IsResearchEnabled)
@@ -34,15 +39,15 @@ namespace Nerm.Colonization.UnitTests
             }
         }
 
-        public bool CanStockpileProduce => false;
-	}
+        public override bool CanStockpileProduce => false;
+
+        public override string ProductResourceName => Snacks.AgroponicSnackResourceBaseName;
+    }
 
     public class StubFarm
-		: StubSnackProducer, ISnackProducer
+		: StubSnackProducer
 	{
-        public double MaxConsumptionForProducedFood => Tier.AgricultureMaxDietRatio();
-
-        public bool ContributeResearch(IColonizationResearchScenario target, double amount)
+        public override bool ContributeResearch(IColonizationResearchScenario target, double amount)
         {
             // Copied from the real class.  Yuk.  Gotta get a better mock framework.
             if (target.GetAgricultureMaxTier("test") == this.Tier && this.IsResearchEnabled)
@@ -56,6 +61,8 @@ namespace Nerm.Colonization.UnitTests
             }
         }
 
-        public bool CanStockpileProduce => true;
-	}
+        public override bool CanStockpileProduce => true;
+
+        public override string ProductResourceName => Snacks.AgriculturalSnackResourceBaseName;
+    }
 }

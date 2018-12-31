@@ -44,8 +44,6 @@ namespace Nerm.Colonization
         protected override TechTier MaxTechTierResearched =>
             ColonizationResearchScenario.Instance.GetAgricultureMaxTier(this.body);
 
-        public override double MaxConsumptionForProducedFood => this.Tier.AgricultureMaxDietRatio();
-
         public override bool ContributeResearch(IColonizationResearchScenario target, double amount)
         {
             if (this.IsResearchEnabled)

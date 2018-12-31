@@ -28,8 +28,12 @@ namespace Nerm.Colonization
 			}
 		}
 
-		#region TODO: Copy/pasted -- seems like there's a way to flag these fields and such
-		[KSPField(advancedTweakable = false, category = "Nermables", guiActive = true, guiName = "Target Body", isPersistant = true, guiActiveEditor = true)]
+
+        // TODO: Make this run to the supply resource
+        public override string SourceResourceName => null;
+
+        #region TODO: Copy/pasted -- Maybe a Body-specific TieredResourceCoverter needs to happen
+        [KSPField(advancedTweakable = false, category = "Nermables", guiActive = true, guiName = "Target Body", isPersistant = true, guiActiveEditor = true)]
 		public string body = "<not set>";
 
 		[KSPEvent(guiActive = false, guiActiveEditor = true, guiName = "Change Body")]

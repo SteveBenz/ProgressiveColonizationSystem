@@ -8,7 +8,7 @@ namespace Nerm.Colonization
     internal interface IProducer
     {
         TechTier Tier { get; }
-        double Capacity { get; }
+        double ProductionRate { get; }
         bool IsResearchEnabled { get; }
         bool IsProductionEnabled { get; }
 
@@ -27,5 +27,10 @@ namespace Nerm.Colonization
         bool CanStockpileProduce { get; }
 
 		string ProductResourceName { get; }
+
+        /// <summary>
+        ///   If this producer needs to make 
+        /// </summary>
+        string SourceResourceName { get; }
     }
 }

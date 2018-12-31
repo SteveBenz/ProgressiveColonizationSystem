@@ -130,24 +130,16 @@ namespace Nerm.Colonization
 
 		public abstract bool CanStockpileProduce { get; }
 
-		public double Capacity => this.capacity;
+		public double ProductionRate => this.capacity;
 
-		public string ProductResourceName
-		{
-			get
-			{
-				switch(this.output)
-				{
-					case "Fertilizer":
-						return this.Tier.FertilizerResourceName();
-					case "Snacks":
-						return this.Tier.SnacksResourceName();
-					default:
-						throw new InvalidOperationException($"Part {this.part.name} set 'output' to an invalid value: {this.output}");
-				}
-			}
-		}
+		/// <summary>
+		///   The maximum-tier version of the product that this producer can produce.  The actual
+		///   resource name would need to have <see cref="Tier"/> mixed into the name.
+		/// </summary>
+		public string ProductResourceName => this.output;
 
-		public abstract bool ContributeResearch(IColonizationResearchScenario target, double amount);
+        public abstract string SourceResourceName { get; }
+
+        public abstract bool ContributeResearch(IColonizationResearchScenario target, double amount);
 	}
 }

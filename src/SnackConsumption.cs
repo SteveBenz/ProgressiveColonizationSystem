@@ -80,20 +80,21 @@ namespace Nerm.Colonization
         /// <returns>The amount of <paramref name="deltaTime"/> in which food was supplied.</returns>
         private void ProduceAndConsumeSnacks(List<ProtoCrewMember> crew, double deltaTime)
         {
-            var snackProducers = this.vessel.FindPartModulesImplementing<ISnackProducer>();
+            var snackProducers = this.vessel.FindPartModulesImplementing<IProducer>();
+			this.ResourceQuantities(out var availableResources, out var availableStorage);
             // TODO: Make sure the Scientists have enough stars to match the tier.
             var crewPart = vessel.parts.FirstOrDefault(p => p.CrewCapacity > 0);
             double remainingTime = deltaTime;
 
             while (remainingTime > ResourceUtilities.FLOAT_TOLERANCE)
             {
-                
                 SnackConsumption.CalculateSnackflow(
                     crew.Count,
                     deltaTime,
                     snackProducers,
                     ColonizationResearchScenario.Instance,
-                    this.ResourceQuantities(),
+                    availableResources,
+					availableStorage,
                     out double elapsedTime,
                     out bool agroponicsBreakthrough,
                     out Dictionary<string,double> resourceConsumptionPerSecond,
@@ -164,34 +165,176 @@ namespace Nerm.Colonization
             }
         }
 
-        internal Dictionary<string, double> ResourceQuantities()
+        internal void ResourceQuantities(out Dictionary<string, double> availableResources, out Dictionary<string,double> availableStorage)
         {
-            Dictionary<string, double> quantities = new Dictionary<string, double>();
-            foreach (var part in this.vessel.parts)
+			availableResources = new Dictionary<string, double>();
+			availableStorage = new Dictionary<string, double>();
+			foreach (var part in this.vessel.parts)
             {
                 foreach (var resource in part.Resources)
                 {
                     if (resource.amount > 0)
                     {
-                        quantities.TryGetValue(resource.resourceName, out double amount);
-                        quantities[resource.resourceName] = amount + resource.amount;
+						availableResources.TryGetValue(resource.resourceName, out double amount);
+						availableResources[resource.resourceName] = amount + resource.amount;
                     }
+					if (resource.maxAmount > resource.amount)
+					{
+						availableStorage.TryGetValue(resource.resourceName, out double amount);
+						availableStorage[resource.resourceName] = amount + resource.maxAmount - resource.amount;
+					}
+				}
+            }
+        }
+
+		private class StorageProducer
+			: IProducer
+		{
+			public StorageProducer(string baseName, TechTier tier, double amount)
+			{
+				this.ProductResourceName = baseName;
+				this.Tier = tier;
+			}
+
+			public TechTier Tier { get; }
+
+            public double ProductionRate => double.MaxValue;
+
+			public bool IsResearchEnabled => false;
+
+			public bool IsProductionEnabled => true;
+
+			public bool CanStockpileProduce => false;
+
+			public string ProductResourceName { get; }
+
+            public string SourceResourceName => null;
+
+            public bool ContributeResearch(IColonizationResearchScenario target, double amount)
+				=> throw new NotImplementedException();
+
+            // Not part of IProducer
+
+            public double Amount { get; }
+		}
+
+		private class ProducerData
+        {
+			/// <summary>
+			///   An exemplar of the type of producer.  (That is, if you have 5 parts that all have
+			///   a module of the same type and they're configured for the same tier, then you only
+			///   get one ProducerData row for all 5 of them.)
+			/// </summary>
+            public IProducer SourceTemplate;
+
+            public double TotalProductionCapacity;
+            public double ProductionContributingToResearch;
+
+			/// <summary>
+			///   True if we are stockpiling the resource that this produces
+			/// </summary>
+			public bool IsStockpiling;
+
+			public List<ProducerData> Suppliers = new List<ProducerData>();
+
+			public double AllottedCapacity;
+            public double WastedCapacity; // Amount that can't be used because of a lack of supply
+
+            /// <summary>
+            ///   Attempts to allocate enough production resources to satisfy the requirement
+            /// </summary>
+            /// <param name="resourceName">The Tier-4 name of the resource to produce</param>
+            /// <param name="tier">The Tier which must be produced - this routine does not substitute Tier4 for Tier1.</param>
+            /// <param name="amountPerDay">The required amount in units per day</param>
+            /// <returns>The amount that this production tree can actually produce in a day</returns>
+            public double TryToProduce(double amountPerDay)
+            {
+                if (this.WastedCapacity > 0)
+                {
+                    // No point in trying - this producer's maxed out.
+                    return 0;
+                }
+
+                double capacityLimitedRequest = Math.Min(this.TotalProductionCapacity - this.AllottedCapacity, amountPerDay);
+                if (this.SourceTemplate.SourceResourceName == null)
+                {
+                    this.AllottedCapacity += capacityLimitedRequest;
+                    return capacityLimitedRequest;
+                }
+                else
+                {
+                    double sourcesObtainedSoFar = 0;
+                    foreach (ProducerData supplier in this.Suppliers)
+                    {
+                        sourcesObtainedSoFar += supplier.TryToProduce(capacityLimitedRequest - sourcesObtainedSoFar);
+                        if (sourcesObtainedSoFar - double.Epsilon > capacityLimitedRequest)
+                        {
+                            // We got all we asked for
+                            this.AllottedCapacity += capacityLimitedRequest;
+                            return capacityLimitedRequest;
+                        }
+                    }
+
+                    // We can't completely fulfil the request.
+                    this.AllottedCapacity += sourcesObtainedSoFar;
+                    this.WastedCapacity = this.TotalProductionCapacity - this.AllottedCapacity;
+                    return sourcesObtainedSoFar;
+                }
+            }
+        }
+
+        private class FoodProducer
+        {
+            public double MaxDietRatio;
+            public ProducerData ProductionChain;
+        }
+
+        private static List<FoodProducer> GetFoodProducers(List<ProducerData> producers)
+        {
+            List<FoodProducer> foodProducers = new List<FoodProducer>();
+            foreach (ProducerData producer in producers)
+            {
+                if (producer.SourceTemplate is StorageProducer)
+                {
+                    // Ignore it
+                }
+                else if (producer.SourceTemplate.ProductResourceName == Snacks.AgriculturalSnackResourceBaseName)
+                {
+                    foodProducers.Add(new FoodProducer { ProductionChain = producer, MaxDietRatio = Snacks.AgricultureMaxDietRatio(producer.SourceTemplate.Tier) });
+                }
+                else if (producer.SourceTemplate.ProductResourceName == Snacks.AgroponicSnackResourceBaseName)
+                {
+                    foodProducers.Add(new FoodProducer { ProductionChain = producer, MaxDietRatio = Snacks.AgricultureMaxDietRatio(producer.SourceTemplate.Tier) });
+                }
+            }
+            foodProducers.Sort((left, right) => left.MaxDietRatio.CompareTo(right.MaxDietRatio));
+            return foodProducers;
+        }
+
+
+        private static List<FoodProducer> GetFoodStorage(List<ProducerData> producers)
+        {
+            List<FoodProducer> foodProducers = new List<FoodProducer>();
+            foreach (ProducerData producer in producers)
+            {
+                if (!(producer.SourceTemplate is StorageProducer))
+                {
+                    // Ignore it
+                }
+                else if (producer.SourceTemplate.ProductResourceName == Snacks.AgriculturalSnackResourceBaseName)
+                {
+                    foodProducers.Add(new FoodProducer { ProductionChain = producer, MaxDietRatio = Snacks.AgricultureMaxDietRatio(producer.SourceTemplate.Tier) });
+                }
+                else if (producer.SourceTemplate.ProductResourceName == Snacks.AgroponicSnackResourceBaseName)
+                {
+                    foodProducers.Add(new FoodProducer { ProductionChain = producer, MaxDietRatio = Snacks.AgricultureMaxDietRatio(producer.SourceTemplate.Tier) });
                 }
             }
 
-            return quantities;
+            foodProducers.Sort((left, right) => left.MaxDietRatio.CompareTo(right.MaxDietRatio));
+            return foodProducers;
         }
 
-        private class ProducerData
-        {
-            // Sum up all of the snack producers of the same 
-            public ISnackProducer SourceTemplate;
-            public double TotalProductionCapacity;
-            public string SourceResourceName;
-            public double MaxResearchPerDay;
-
-            public double SupplyFraction; // The fraction of the kerbals needs that this block is slated to take care of
-        }
 
         /// <summary>
         ///   Calculates the consumption of snacks, using the production capacity available
@@ -205,18 +348,29 @@ namespace Nerm.Colonization
         /// </summary>
         /// <param name="numCrew">The number of mouths to feed.</param>
         /// <param name="fullTimespanInSeconds">The full time that has passed that we're looking to calculate for.</param>
-        /// <param name="snackProducers">The mechanisms on the vessel that can produce snacks.</param>
+        /// <param name="producers">The mechanisms on the vessel that can produce tiered stuff.</param>
         /// <param name="colonizationResearch">The research object (passed in for testability).</param>
         /// <param name="timePassedInSeconds">Set to the amount of <paramref name="fullTimespanInSeconds"/> that we've managed to calculate for.</param>
         /// <param name="breakthroughHappened">Set to true if the agronomy tier was eclipsed in the timespan.</param>
         /// <param name="consumptionFormula">Set to a formula for calculating the transformation of stuff.</param>
+        /// <remarks>
+        ///   Simplifying production chain assumptions:
+        ///   <list type="bullet">
+        ///     <item>Producers that require a source item require at most one of them.</item>
+        ///     <item>Producers produce at exactly the same rate as they consume.</item>
+        ///     <item>All producers require fed kerbals to operate, regardless of whether they have
+        ///           directly to do with food or not.</item>
+        ///   </list>
+        ///   These simplifying assumptions not only make the game easier to code, but easier to play as well.
+        /// </remarks>
         internal static void CalculateSnackflow(
             int numCrew,
             double fullTimespanInSeconds,
-            List<ISnackProducer> snackProducers,
+            List<IProducer> producers2,
             IColonizationResearchScenario colonizationResearch,
-            Dictionary<string,double> availableResources,
-            out double timePassedInSeconds,
+			Dictionary<string, double> availableResources,
+			Dictionary<string, double> availableStorage,
+			out double timePassedInSeconds,
             out bool breakthroughHappened,
             out Dictionary<string,double> resourceConsumptionPerSecond,
             out Dictionary<string,double> resourceProductionPerSecond
@@ -226,178 +380,244 @@ namespace Nerm.Colonization
             // resources first, then they start in on the on-board stocks, taking as much of the low-tier
             // stuff as they can.  Implementing that is tricky...
 
+            // <--cacheable start
+            //  The stuff from here to 'cacheable end' could be stored - we'd just have to check to
+            //  see that 'availableResources.Keys' and 'availableStorage.Keys' are the same.
+
             // First just get a handle on what stuff we could produce.
-            List<ProducerData> producers = FindProducers(snackProducers, availableResources);
-            // Put it in order of increasing desirability
-            producers.Sort((left, right) => left.SourceTemplate.MaxConsumptionForProducedFood.CompareTo(right.SourceTemplate.MaxConsumptionForProducedFood));
+            List<ProducerData> producerInfos = FindProducers(producers2, availableResources, availableStorage);
+            MatchProducersWithSourceProducers(producerInfos);
 
-            // Now see what amount of the kerbals needs can be fulfilled with each.
-            double fractionSatisfiedByProduction = 0;
-            foreach (ProducerData producerData in producers)
+            List<FoodProducer> snackProducers = GetFoodProducers(producerInfos);
+            double amountFulFilled = 0;
+            foreach(FoodProducer foodProducer in snackProducers)
             {
-                // This producer can satisfy either...
-                producerData.SupplyFraction = Math.Min(
-                    // ...the maximum amount the kerbals will be willing to eat or...
-                    producerData.SourceTemplate.MaxConsumptionForProducedFood - fractionSatisfiedByProduction,
-                    // ...the amount that the thing can produce
-                    (double)producerData.TotalProductionCapacity / (double)numCrew
-                );
-                // ...whichever is smaller.
-
-                fractionSatisfiedByProduction += producerData.SupplyFraction;
-            }
-
-            // Now raid the ships' stores - again in least-desirable to most
-            double fractionSatisfied = fractionSatisfiedByProduction;
-            for (TechTier tier = TechTier.Tier0; tier <= TechTier.Tier4; ++tier)
-            {
-                string resourceName = tier.SnacksResourceName();
-                double maxDietRatio = tier.AgricultureMaxDietRatio();
-                // If we have it and can eat it...
-                if (availableResources.ContainsKey(resourceName) && fractionSatisfied < maxDietRatio)
+                if (foodProducer.MaxDietRatio > amountFulFilled)
                 {
-                    // ...Stick it onto our production plan
-                    producers.Add(new ProducerData() {
-                        SourceResourceName = resourceName,
-                        SourceTemplate = null,
-                        TotalProductionCapacity = numCrew,
-                        SupplyFraction = maxDietRatio - fractionSatisfied
-                    });
-                    fractionSatisfied = maxDietRatio;
+                    amountFulFilled += foodProducer.ProductionChain.TryToProduce(foodProducer.MaxDietRatio - amountFulFilled);
                 }
-
-                // Note that this isn't be optimum - suppose we have all tiers of food on
-                // board and a mid-tier agroponic module that can only supply 80% of the ship's
-                // capacity - we could use the low-tier food for some of that 80% and still be
-                // within the rules, but with this algorithm, it'll insist on high quality fare
-                // for all of that 80%.
+            }
+            
+            if (amountFulFilled < .999)
+            {
+                List<FoodProducer> snackStorage = GetFoodStorage(producerInfos);
+                foreach (FoodProducer foodProducer in snackProducers)
+                {
+                    if (foodProducer.MaxDietRatio > amountFulFilled)
+                    {
+                        amountFulFilled += foodProducer.ProductionChain.TryToProduce(foodProducer.MaxDietRatio - amountFulFilled);
+                    }
+                }
             }
 
-            if (fractionSatisfied < 0.999)
+            if (amountFulFilled + double.Epsilon < .999)
             {
                 // We couldn't put together a production plan that will satisfy all of the Kerbals
-                // needs for any amount of time.  (The .999 is 1.0 with a generous precision error).
+                // needs for any amount of time.
                 timePassedInSeconds = 0;
                 resourceConsumptionPerSecond = null;
                 resourceProductionPerSecond = null;
                 breakthroughHappened = false;
+                return;
             }
-            else
+
+            resourceProductionPerSecond = new Dictionary<string, double>();
+            // Okay, now we know what the minimum plan is that will keep our kerbals fed.
+            // Augment that with stockpiling
+            foreach (ProducerData producerData in producerInfos)
             {
-                // Get a weighted average of all the stuff we're gonna use with this plan.
-                resourceConsumptionPerSecond = new Dictionary<string, double>();
-                foreach (ProducerData producerData in producers)
+                string resourceName = producerData.SourceTemplate.Tier.GetTieredResourceName(producerData.SourceTemplate.ProductResourceName);
+                if (producerData.IsStockpiling && availableStorage.ContainsKey(resourceName))
                 {
-                    double contribution = UnitsPerDayToUnitsPerSecond(
-                        producerData.SourceTemplate != null && producerData.SourceTemplate.CanStockpileProduce
-                        ? producerData.TotalProductionCapacity
-                        : producerData.SupplyFraction * numCrew);
-                    if (resourceConsumptionPerSecond.TryGetValue(producerData.SourceResourceName, out double existingConsumption))
+                    double stockpiledPerDay = producerData.TryToProduce(double.MaxValue);
+                    double stockpiledPerSecond = UnitsPerDayToUnitsPerSecond(stockpiledPerDay);
+                    if (resourceProductionPerSecond.ContainsKey(resourceName))
                     {
-                        existingConsumption += contribution;
-                        resourceConsumptionPerSecond[producerData.SourceResourceName] = existingConsumption;
+                        resourceProductionPerSecond[resourceName] = resourceProductionPerSecond[resourceName] + stockpiledPerSecond;
                     }
                     else
                     {
-                        resourceConsumptionPerSecond.Add(producerData.SourceResourceName, contribution);
+                        resourceProductionPerSecond.Add(resourceName, stockpiledPerSecond);
                     }
                 }
+            }
+            // <<-- end cacheable
 
-                // Okay, with that in our hands, we can calculate the runtime, which again is the maximum
-                // part of the input time we can run with the formula that we concocted.  So it's the
-                // maximum time unless we're limited by supplies or fertilizer on one of our segments.
-                timePassedInSeconds = fullTimespanInSeconds;
-                foreach (var pair in resourceConsumptionPerSecond)
+            // Figure out how much time we can run with this production plan before the stores run out
+            timePassedInSeconds = fullTimespanInSeconds;
+            resourceConsumptionPerSecond = new Dictionary<string, double>();
+            foreach (ProducerData producerData in producerInfos)
+            {
+                if (producerData.SourceTemplate is StorageProducer storage)
                 {
-                    string resourceName = pair.Key;
-                    double consumedPerSecond = pair.Value;
-                    double availableAmount = availableResources[resourceName];
-                    double maxPossibleRuntime = availableAmount / consumedPerSecond;
-                    timePassedInSeconds = Math.Min(timePassedInSeconds, maxPossibleRuntime);
+                    // producerData.AllottedCapacity  is the amount consumed per day under our plan
+                    // storage.Amount  is what we have on-hand
+                    double amountUsedPerSecond = UnitsPerDayToUnitsPerSecond(producerData.AllottedCapacity);
+                    double secondsToEmpty = (storage.Amount / amountUsedPerSecond);
+                    timePassedInSeconds = Math.Min(timePassedInSeconds, secondsToEmpty);
+                    resourceConsumptionPerSecond.Add(storage.Tier.GetTieredResourceName(storage.ProductResourceName), amountUsedPerSecond);
                 }
+            }
 
-                // Okay, based on the actual runtime, we can calculate how much we can stockpile,
-                // contribute research, and finally see if the tiers changed.
-                breakthroughHappened = false;
-                resourceProductionPerSecond = new Dictionary<string, double>();
-                foreach (ProducerData producerData in producers)
+            // ...or before the storage space is packed
+            foreach (var pair in resourceProductionPerSecond)
+            {
+                string resourceName = pair.Key;
+                double amountStockpiledPerDay = pair.Value;
+                double secondsToFilled = UnitsPerDayToUnitsPerSecond(availableStorage[resourceName]);
+                timePassedInSeconds = Math.Min(timePassedInSeconds, secondsToFilled);
+            }
+
+            // Okay, finally now we can apply the work done towards research
+            breakthroughHappened = false;
+            foreach (ProducerData producerData in producerInfos)
+            {
+                if (producerData.ProductionContributingToResearch > 0)
                 {
-                    if (producerData.SourceTemplate != null)
-                    {
-                        double contributionInUnitsPerDay;
-                        if (producerData.SourceTemplate.CanStockpileProduce)
-                        {
-                            contributionInUnitsPerDay = producerData.TotalProductionCapacity;
-                            double alreadyThere = 0;
-                            resourceProductionPerSecond.TryGetValue(producerData.SourceTemplate.Tier.SnacksResourceName(), out alreadyThere);
-                            resourceProductionPerSecond[producerData.SourceTemplate.Tier.SnacksResourceName()]
-                                = alreadyThere + UnitsPerDayToUnitsPerSecond(producerData.TotalProductionCapacity - numCrew * producerData.SupplyFraction);
-                        }
-                        else
-                        {
-                            contributionInUnitsPerDay = producerData.SupplyFraction * numCrew;
-                        }
-
-                        breakthroughHappened |= producerData.SourceTemplate.ContributeResearch(
-                            colonizationResearch,
-                            timePassedInSeconds*UnitsPerDayToUnitsPerSecond(Math.Min(contributionInUnitsPerDay, producerData.MaxResearchPerDay)));
-                    }
+                    // If we have some doodads with research associated with it and some not, then
+                    // what we want to do is make sure that the labs with research turned on do
+                    // all the work they can.
+                    double contributionInUnitsPerDay = Math.Min(producerData.AllottedCapacity, producerData.ProductionContributingToResearch);
+                    breakthroughHappened |= producerData.SourceTemplate.ContributeResearch(
+                        colonizationResearch,
+                        timePassedInSeconds*UnitsPerDayToUnitsPerSecond(contributionInUnitsPerDay));
                 }
             }
         }
 
-        private static List<ProducerData> FindProducers(List<ISnackProducer> snackProducers, Dictionary<string, double> availableResources)
+        private static List<ProducerData> FindProducers(
+			List<IProducer> producers,
+			Dictionary<string, double> availableResources,
+			Dictionary<string, double> availableStorage)
         {
             // First run through the producers to find out who can contribute what
             List<ProducerData> productionPossibilities = new List<ProducerData>();
-            foreach (ISnackProducer producer in snackProducers)
+            foreach (IProducer producer in producers)
             {
-                // We don't check if the dieticians are qualified here - we assume they are.  The part
-                //   itself should be responsible for ensuring that and setting IsProductionEnabled
-                //   appropriately.  That way there can be UI showing that the part is not functioning
-                //   on the part itself.
                 if (producer.IsProductionEnabled)
                 {
-                    ProducerData existing = productionPossibilities.FirstOrDefault(
+                    ProducerData data = productionPossibilities.FirstOrDefault(
                         pp => pp.SourceTemplate.GetType() == producer.GetType()
-                           && pp.SourceTemplate.Tier == producer.Tier);
+                           && pp.SourceTemplate.Tier == producer.Tier
+                           && pp.SourceTemplate.ProductResourceName == producer.ProductResourceName);
 
-                    if (existing != null)
+                    if (data == null)
                     {
-                        // Same kinda part as one we've already resolved -- add its capacity.
-                        existing.TotalProductionCapacity += producer.Capacity;
-                        if (producer.IsResearchEnabled)
+                        data = new ProducerData
                         {
-                            existing.MaxResearchPerDay += producer.Capacity;
-                        }
+                            SourceTemplate = producer,
+                        };
+                        productionPossibilities.Add(data);
+                    }
+
+                    data.TotalProductionCapacity += producer.ProductionRate;
+                    if (producer.IsResearchEnabled)
+                    {
+                        data.ProductionContributingToResearch += producer.ProductionRate;
+                    }
+                    data.IsStockpiling = data.IsStockpiling ||
+                        (producer.CanStockpileProduce && availableStorage.ContainsKey(
+                            producer.Tier.GetTieredResourceName(producer.ProductResourceName)));
+                }
+            }
+
+			foreach (var pair in availableResources)
+			{
+                string storedResource = pair.Key;
+                double amount = pair.Value;
+                // TODO: Come up with a better way to filter it down to the resources that we care about.
+                if ( (storedResource.StartsWith("Fertilizer")
+					|| storedResource.StartsWith("Snacks")
+                    || storedResource.StartsWith("Raw Stuff"))
+                    && TechTierExtensions.TryParseTieredResourceName(storedResource, out string tier4Name, out TechTier tier))
+                {
+                    ProducerData resourceProducer = new ProducerData
+                    {
+                        SourceTemplate = new StorageProducer(tier4Name, tier, amount),
+                        IsStockpiling = false,
+                        ProductionContributingToResearch = 0,
+                        TotalProductionCapacity = amount,
+                    };
+                    productionPossibilities.Add(resourceProducer);
+                }
+            }
+
+			return productionPossibilities;
+		}
+
+        private static readonly List<string> ResourcePreference = new List<string>() { "Snacks", "Fertilizer" };
+
+        private static void SortProducerList(List<ProducerData> producers)
+        {
+            // For all consumption scenarios, we want our list sorted in a particular way
+            producers.Sort((left, right) =>
+            {
+                // First, we always sort Storage to the bottom - we prefer to consume produced stuff before
+                //  any stashed stuff
+                if ((left.SourceTemplate is StorageProducer) && !(right.SourceTemplate is StorageProducer))
+                {
+                    return 1;
+                }
+                else if (!(left.SourceTemplate is StorageProducer) && (right.SourceTemplate is StorageProducer))
+                {
+                    return -1;
+                }
+                // We try to use low-tier if we can, and high-tier if we must
+                else
+                {
+                    int tierComparison = right.SourceTemplate.Tier.CompareTo(left.SourceTemplate.Tier);
+                    if (tierComparison != 0)
+                    {
+                        return tierComparison;
                     }
                     else
                     {
-                        // Hunt for the best fertilizer match
-                        string fertilizerResource = null;
-                        for (TechTier tier = producer.Tier; tier <= TechTier.Tier4; ++tier)
-                        {
-                            if (availableResources.ContainsKey(tier.FertilizerResourceName()))
-                            {
-                                fertilizerResource = tier.FertilizerResourceName();
-                                break;
-                            }
-                        }
+                        // And finally sort Snacks before Fertilizer -- this only influences the case where
+                        // we're stockpiling both snacks and fertilizer.  This choice means that if we've only
+                        // got a little bit of excess fertilizer capacity, it'll go towards making extra snacks
+                        // rather than stacking up the fertilizer.
+                        return ResourcePreference.IndexOf(left.SourceTemplate.ProductResourceName)
+                               .CompareTo(ResourcePreference.IndexOf(right.SourceTemplate.SourceResourceName));
+                    }
+                }
+            });
 
-                        if (fertilizerResource != null)
-                        {
-                            productionPossibilities.Add(new ProducerData()
-                            {
-                                SourceTemplate = producer,
-                                SourceResourceName = fertilizerResource,
-                                TotalProductionCapacity = producer.Capacity,
-                                MaxResearchPerDay = (producer.IsResearchEnabled ? producer.Capacity : 0)
-                            });
-                        }
+        }
+
+        private static void MatchProducersWithSourceProducers(List<ProducerData> producers)
+        {
+            List<ProducerData> producersWithNoSupply = new List<ProducerData>();
+            foreach (ProducerData producer in producers)
+            {
+                if (producer.SourceTemplate.SourceResourceName != null)
+                {
+                    producer.Suppliers = producers
+                        // We can use anything that produces our kind of thing at our tier and up
+                        .Where(potentialSupplier => potentialSupplier.SourceTemplate.ProductResourceName == producer.SourceTemplate.SourceResourceName
+                                                 && potentialSupplier.SourceTemplate.Tier >= producer.SourceTemplate.Tier)
+                        .ToList();
+
+                    if (producer.Suppliers.Count == 0)
+                    {
+                        producersWithNoSupply.Add(producer);
                     }
                 }
             }
-            return productionPossibilities;
+
+            // Clean out all the producers that can't contribute because there's no source
+            while (producersWithNoSupply.Count > 0)
+            {
+                foreach (ProducerData deadProducer in producersWithNoSupply)
+                {
+                    producers.RemoveAll(p => p == deadProducer);
+                    foreach (ProducerData producer in producers)
+                    {
+                        producer.Suppliers.RemoveAll(p => p == deadProducer);
+                    }
+                }
+
+                producersWithNoSupply = producers.Where(p => p.SourceTemplate.SourceResourceName != null && p.Suppliers.Count == 0).ToList();
+            }
         }
 
         private bool IsAtHome => vessel.mainBody == FlightGlobals.GetHomeBody() && vessel.altitude < 10000;

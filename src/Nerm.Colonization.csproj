@@ -62,7 +62,6 @@
     <Compile Include="ColonizationResearchScenario.cs" />
     <Compile Include="ConfigurableContainer.cs" />
     <Compile Include="IProducer.cs" />
-    <Compile Include="ISnackProducer.cs" />
     <Compile Include="LifeSupportStatusMonitor.cs" />
     <Compile Include="ModuleTieredAgriculture.cs" />
     <Compile Include="ModuleTieredFactory.cs" />
@@ -79,6 +78,7 @@
     <Compile Include="LifeSupportStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SnackConsumption.cs" />
+    <Compile Include="Snacks.cs" />
     <Compile Include="TechProgress.cs" />
     <Compile Include="TechTier.cs" />
     <Compile Include="ColonizationByNermAnimation.cs" />
