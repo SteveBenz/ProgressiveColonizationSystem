@@ -194,6 +194,7 @@ namespace Nerm.Colonization
 			{
 				this.ProductResourceName = baseName;
 				this.Tier = tier;
+                this.Amount = amount;
 			}
 
 			public TechTier Tier { get; }
@@ -218,7 +219,10 @@ namespace Nerm.Colonization
             public double Amount { get; }
 		}
 
-		private class ProducerData
+        public const double AcceptableError = 0.001;
+
+
+        private class ProducerData
         {
 			/// <summary>
 			///   An exemplar of the type of producer.  (That is, if you have 5 parts that all have
@@ -267,7 +271,7 @@ namespace Nerm.Colonization
                     foreach (ProducerData supplier in this.Suppliers)
                     {
                         sourcesObtainedSoFar += supplier.TryToProduce(capacityLimitedRequest - sourcesObtainedSoFar);
-                        if (sourcesObtainedSoFar - double.Epsilon > capacityLimitedRequest)
+                        if (sourcesObtainedSoFar >= capacityLimitedRequest - AcceptableError)
                         {
                             // We got all we asked for
                             this.AllottedCapacity += capacityLimitedRequest;
@@ -304,7 +308,7 @@ namespace Nerm.Colonization
                 }
                 else if (producer.SourceTemplate.ProductResourceName == Snacks.AgroponicSnackResourceBaseName)
                 {
-                    foodProducers.Add(new FoodProducer { ProductionChain = producer, MaxDietRatio = Snacks.AgricultureMaxDietRatio(producer.SourceTemplate.Tier) });
+                    foodProducers.Add(new FoodProducer { ProductionChain = producer, MaxDietRatio = Snacks.AgroponicMaxDietRatio(producer.SourceTemplate.Tier) });
                 }
             }
             foodProducers.Sort((left, right) => left.MaxDietRatio.CompareTo(right.MaxDietRatio));
@@ -389,28 +393,32 @@ namespace Nerm.Colonization
             MatchProducersWithSourceProducers(producerInfos);
 
             List<FoodProducer> snackProducers = GetFoodProducers(producerInfos);
-            double amountFulFilled = 0;
+            double ratioFulfilled = 0;
             foreach(FoodProducer foodProducer in snackProducers)
             {
-                if (foodProducer.MaxDietRatio > amountFulFilled)
+                if (foodProducer.MaxDietRatio > ratioFulfilled)
                 {
-                    amountFulFilled += foodProducer.ProductionChain.TryToProduce(foodProducer.MaxDietRatio - amountFulFilled);
+                    double amountAskedFor = numCrew * (foodProducer.MaxDietRatio - ratioFulfilled);
+                    double amountReceived = foodProducer.ProductionChain.TryToProduce(amountAskedFor);
+                    ratioFulfilled += amountReceived / numCrew;
                 }
             }
             
-            if (amountFulFilled < .999)
+            if (ratioFulfilled < (1 - AcceptableError))
             {
                 List<FoodProducer> snackStorage = GetFoodStorage(producerInfos);
-                foreach (FoodProducer foodProducer in snackProducers)
+                foreach (FoodProducer foodProducer in snackStorage)
                 {
-                    if (foodProducer.MaxDietRatio > amountFulFilled)
+                    if (foodProducer.MaxDietRatio > ratioFulfilled)
                     {
-                        amountFulFilled += foodProducer.ProductionChain.TryToProduce(foodProducer.MaxDietRatio - amountFulFilled);
+                        double amountAskedFor = numCrew * (foodProducer.MaxDietRatio - ratioFulfilled);
+                        double amountReceived = foodProducer.ProductionChain.TryToProduce(amountAskedFor);
+                        ratioFulfilled += amountReceived / numCrew;
                     }
                 }
             }
 
-            if (amountFulFilled + double.Epsilon < .999)
+            if (ratioFulfilled < (1 - AcceptableError))
             {
                 // We couldn't put together a production plan that will satisfy all of the Kerbals
                 // needs for any amount of time.
@@ -536,7 +544,7 @@ namespace Nerm.Colonization
                         SourceTemplate = new StorageProducer(tier4Name, tier, amount),
                         IsStockpiling = false,
                         ProductionContributingToResearch = 0,
-                        TotalProductionCapacity = amount,
+                        TotalProductionCapacity = double.MaxValue,
                     };
                     productionPossibilities.Add(resourceProducer);
                 }

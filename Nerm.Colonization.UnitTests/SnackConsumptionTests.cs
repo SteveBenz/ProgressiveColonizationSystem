@@ -10,7 +10,7 @@ namespace Nerm.Colonization.UnitTests
     {
         public const double SecondsPerKerbanDay = 6.0 * 60.0 * 60.0;
 
-        public const double TestTolerance = 0.001;
+        public const double TestTolerance = SnackConsumption.AcceptableError;
 
         /// <summary>
         ///   Validates the basic case where we have some supplies on board from Kerban.
@@ -171,6 +171,7 @@ namespace Nerm.Colonization.UnitTests
             var colonizationResearchScenario = new StubColonizationResearchScenario(TechTier.Tier0);
             Dictionary<string, double> available = new Dictionary<string, double>();
             Dictionary<string, double> storage = new Dictionary<string, double>();
+            storage.Add(TechTier.Tier0.GetTieredResourceName(Snacks.AgriculturalSnackResourceBaseName), double.MaxValue);
 
             // Kerbal->Duna scenario - plenty of maxtier stuff
             available[TechTier.Tier4.FertilizerResourceName()] = 1.0;
