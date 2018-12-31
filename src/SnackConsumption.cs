@@ -390,6 +390,7 @@ namespace Nerm.Colonization
 
             // First just get a handle on what stuff we could produce.
             List<ProducerData> producerInfos = FindProducers(producers2, availableResources, availableStorage);
+            SortProducerList(producerInfos);
             MatchProducersWithSourceProducers(producerInfos);
 
             List<FoodProducer> snackProducers = GetFoodProducers(producerInfos);
@@ -573,7 +574,7 @@ namespace Nerm.Colonization
                 // We try to use low-tier if we can, and high-tier if we must
                 else
                 {
-                    int tierComparison = right.SourceTemplate.Tier.CompareTo(left.SourceTemplate.Tier);
+                    int tierComparison = left.SourceTemplate.Tier.CompareTo(right.SourceTemplate.Tier);
                     if (tierComparison != 0)
                     {
                         return tierComparison;
