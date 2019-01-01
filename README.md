@@ -21,7 +21,7 @@ Development plan:
       #  (complete) Extend the research model to Agriculture & update the editor to show it
       #  (complete) Can set target body in Editors for an agriculture part
    #  (complete) Can change resource types for canisters
-   #  Create a part that generates T0 Fertilizer from nothing but being landed.
+   #  (complete) Can manufacture T0 fertilizer
 # Basic Progression - the execution of a mission to Duna
    #  Life support dialog works nicely in the editors - can estimate usage and ag production
    #  Tweak the mass and density of Fertilizer & Supplies

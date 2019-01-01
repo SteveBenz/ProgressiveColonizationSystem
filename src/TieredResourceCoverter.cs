@@ -8,6 +8,8 @@ namespace Nerm.Colonization
 	public abstract class TieredResourceCoverter
 		: ModuleResourceConverter, IProducer
 	{
+        private double firstNoPowerIndicator = -1.0;
+
 		[KSPField(advancedTweakable = false, category = "Nermables", guiActive = true, guiName = "Tier", isPersistant = true, guiActiveEditor = true)]
 		public int tier;
 
@@ -119,8 +121,38 @@ namespace Nerm.Colonization
 
 		protected abstract string RequiredCrewTrait { get; }
 
-		// Not really sure, but it looks like lastTimeFactor is between 0 and 1
-		private bool IsPowered => this.lastTimeFactor > .5;
+        /// <summary>
+        ///   Returns true if the part has electrical power
+        /// </summary>
+		private bool IsPowered
+        {
+            get
+            {
+                // I don't see a good way to determine if a converter is running stably.
+                //  lastTimeFactor seems to be the amount of the last recipe that it was able
+                //  to successfully convert, which ought to be it, but lastTimeFactor is zero
+                //  for several iterations after unpacking the vessel.  This code attempts to
+                //  compensate for that by waiting at least 10 seconds before declaring itself
+                //  unpowered.
+                if (this.lastTimeFactor == 0)
+                {
+                    if (this.firstNoPowerIndicator < 0)
+                    {
+                        this.firstNoPowerIndicator = Planetarium.GetUniversalTime();
+                        return true;
+                    }
+                    else
+                    {
+                        return Planetarium.GetUniversalTime() - this.firstNoPowerIndicator < 10.0;
+                    }
+                }
+                else
+                {
+                    this.firstNoPowerIndicator = -1;
+                    return true;
+                }
+            }
+        }
 
 		public TechTier Tier => (TechTier)this.tier;
 
