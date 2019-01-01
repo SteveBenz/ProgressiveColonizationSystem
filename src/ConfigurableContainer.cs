@@ -4,68 +4,46 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
+// Much code taken from:  https://github.com/Fengist/MPFuelSwitch/blob/master/MPFuelSwitch/MPFuelSwitch.cs
+
 namespace Nerm.Colonization
 {
     public class ModuleTieredContainer
         : PartModule
     {
+        /// <summary>
+        ///   This is the resource name for Tier4
+        /// </summary>
         [KSPField]
         public string resource;
 
         [KSPField]
         public float maxAmount;
 
-        UIPartActionWindow tweakableUI;
+        [KSPField]
+        public TechTier tier = TechTier.Tier4;
 
-        public ModuleTieredContainer()
-        {
-            Debug.Log("In ModuleTieredContainer constructor.");
-        }
+        private UIPartActionWindow tweakableUI = null;
 
         [KSPEvent(active = true, guiActiveEditor = true, externalToEVAOnly = true, guiName = "Change Tier", unfocusedRange = 10f)]
         public void NextTier()
         {
-            Debug.Assert(this.part.Resources.Count == 1, $"{nameof(ModuleTieredContainer)} is only expecting a single resource type");
-            string inputResourceName = this.part.Resources[0].resourceName;
-            string newResourceName = null;
-            foreach (TechTier techTier in TechTierExtensions.AllTiers)
+            tier = (TechTier)((1 + (int)this.tier) % (1 + (int)TechTier.Tier4));
+            setupTankInPart(this.part, true);
+
+            SetDisplayDirty();
+        }
+
+        private void SetDisplayDirty()
+        {
+            if (this.tweakableUI == null)
             {
-                TechTier nextTier = (TechTier)((1+(int)techTier) % (1 + (int)TechTier.Tier4));
-                if (inputResourceName == techTier.SnacksResourceName())
-                {
-                    newResourceName = nextTier.SnacksResourceName();
-                }
-                else if (inputResourceName == techTier.FertilizerResourceName())
-                {
-                    newResourceName = nextTier.FertilizerResourceName();
-                }
+                this.tweakableUI = this.part.FindActionWindow();
             }
 
-            if (newResourceName == null)
+            if (this.tweakableUI != null)
             {
-                Debug.LogError($"{this.part.name} is not configured correctly - it can only work for containers with tiered resources");
-                return;
-            }
-
-            var x = this.part.Resources[0];
-            var z = this.part.Resources.Remove(x);
-            if (part.Events != null) part.SendEvent("resource_changed");
-            // var y = this.part.Resources.Add(newResourceName, 0, x.maxAmount, x.flowState, x.isTweakable, x.hideFlow, x.isVisible, x.flowMode);
-
-            var node = new ConfigNode("RESOURCE");
-            node.AddValue("name", newResourceName);
-            node.AddValue("amount", HighLogic.LoadedSceneIsEditor ? x.amount : 0);
-            node.AddValue("maxAmount", this.maxAmount);
-            var current_resource = part.Resources.Add(node);
-            if (part.Events != null) part.SendEvent("resource_changed");
-
-            if (tweakableUI == null)
-            {
-                tweakableUI = this.part.FindActionWindow();
-            }
-            if (tweakableUI != null)
-            {
-                tweakableUI.displayDirty = true;
+                this.tweakableUI.displayDirty = true;
             }
             else
             {
@@ -75,14 +53,28 @@ namespace Nerm.Colonization
 
         public override void OnInitialize()
         {
-            if (this.part.Resources.Count == 0)
+            base.OnInitialize();
+            setupTankInPart(this.part, false);
+        }
+
+        private void setupTankInPart(Part currentPart, bool calledByPlayer)
+        {
+            currentPart.Resources.dict = new DictionaryValueList<int, PartResource>();
+
+            ConfigNode newResourceNode = new ConfigNode("RESOURCE");
+            newResourceNode.AddValue("name", this.tier.GetTieredResourceName(this.resource));
+            newResourceNode.AddValue("maxAmount", this.maxAmount);
+
+            if (calledByPlayer && !HighLogic.LoadedSceneIsEditor)
             {
-                var node = new ConfigNode("RESOURCE");
-                node.AddValue("name", this.resource);
-                node.AddValue("amount", this.maxAmount);
-                node.AddValue("maxAmount", this.maxAmount);
-                this.part.Resources.Add(node);
+                newResourceNode.AddValue("amount", 0.0f);
             }
+            else
+            {
+                newResourceNode.AddValue("amount", this.maxAmount);
+            }
+
+            currentPart.AddResource(newResourceNode);
         }
     }
 }
