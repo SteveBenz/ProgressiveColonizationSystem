@@ -158,6 +158,8 @@ namespace Nerm.Colonization
 
             base.OnSave(node);
             node.SetValue("agriculture", this.bodyToAgricultureTechTierMap);
+            node.SetValue("production", this.bodyToProductionTechTierMap);
+            node.SetValue("scanning", this.bodyToScanningTechTierMap);
         }
     }
 

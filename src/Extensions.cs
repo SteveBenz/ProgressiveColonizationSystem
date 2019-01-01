@@ -33,7 +33,7 @@ namespace Nerm.Colonization
 
         public static void SetValue(this ConfigNode node, string name, Dictionary<string, TechProgress> map)
         {
-            ConfigNode agNode = node.AddNode("agriculture");
+            ConfigNode agNode = node.AddNode(name);
             foreach (KeyValuePair<string, TechProgress> pair in map)
             {
                 ConfigNode bodyNode = agNode.AddNode(pair.Key);
