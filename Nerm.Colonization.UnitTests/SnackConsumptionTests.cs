@@ -204,7 +204,7 @@ namespace Nerm.Colonization.UnitTests
             Assert.AreEqual(20.0, colonizationResearchScenario.AgricultureResearchProgress * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(15.0, colonizationResearchScenario.ProductionResearchProgress * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(20.0 - 4 * TechTier.Tier0.AgricultureMaxDietRatio(), productionPerSecond["Snacks-Tier0"] * SecondsPerKerbanDay, TestTolerance);
-            Assert.AreEqual(0, productionPerSecond["Fertilizer-Tier0"] * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(1, productionPerSecond.Count); // Only producing snacks
 
             // Okay, now let's say we run out of that sweet sweet Tier4 fertilizer - it should max out the snack production
             colonizationResearchScenario.Reset();
@@ -219,7 +219,7 @@ namespace Nerm.Colonization.UnitTests
             Assert.AreEqual(15.0, colonizationResearchScenario.AgricultureResearchProgress * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(15.0, colonizationResearchScenario.ProductionResearchProgress * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(15.0 - 4 * TechTier.Tier0.AgricultureMaxDietRatio(), productionPerSecond["Snacks-Tier0"] * SecondsPerKerbanDay, TestTolerance);
-            Assert.AreEqual(0, productionPerSecond["Fertilizer-Tier0"] * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(1, productionPerSecond.Count); // Only producing snacks
 
             // Let's say we fill up the snacks storage midway through:
             colonizationResearchScenario.Reset();
@@ -236,7 +236,7 @@ namespace Nerm.Colonization.UnitTests
             Assert.AreEqual(15.0, colonizationResearchScenario.AgricultureResearchProgress * SecondsPerKerbanDay / expectedTimePassed, TestTolerance);
             Assert.AreEqual(15.0, colonizationResearchScenario.ProductionResearchProgress * SecondsPerKerbanDay / expectedTimePassed, TestTolerance);
             Assert.AreEqual(15.0 - 4 * TechTier.Tier0.AgricultureMaxDietRatio(), productionPerSecond["Snacks-Tier0"] * SecondsPerKerbanDay, TestTolerance);
-            Assert.AreEqual(0, productionPerSecond["Fertilizer-Tier0"] * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(1, productionPerSecond.Count); // Only producing snacks
 
             // Snacks storage is filled - limiting production and hence research progress
             colonizationResearchScenario.Reset();

@@ -173,12 +173,12 @@ namespace Nerm.Colonization
             {
                 foreach (var resource in part.Resources)
                 {
-                    if (resource.amount > 0)
+                    if (resource.flowState && resource.amount > 0)
                     {
 						availableResources.TryGetValue(resource.resourceName, out double amount);
 						availableResources[resource.resourceName] = amount + resource.amount;
                     }
-					if (resource.maxAmount > resource.amount)
+					if (resource.flowState && resource.maxAmount > resource.amount)
 					{
 						availableStorage.TryGetValue(resource.resourceName, out double amount);
 						availableStorage[resource.resourceName] = amount + resource.maxAmount - resource.amount;
@@ -440,13 +440,16 @@ namespace Nerm.Colonization
                 {
                     double stockpiledPerDay = producerData.TryToProduce(double.MaxValue);
                     double stockpiledPerSecond = UnitsPerDayToUnitsPerSecond(stockpiledPerDay);
-                    if (resourceProductionPerSecond.ContainsKey(resourceName))
+                    if (stockpiledPerSecond > 0.0)
                     {
-                        resourceProductionPerSecond[resourceName] = resourceProductionPerSecond[resourceName] + stockpiledPerSecond;
-                    }
-                    else
-                    {
-                        resourceProductionPerSecond.Add(resourceName, stockpiledPerSecond);
+                        if (resourceProductionPerSecond.ContainsKey(resourceName))
+                        {
+                            resourceProductionPerSecond[resourceName] = resourceProductionPerSecond[resourceName] + stockpiledPerSecond;
+                        }
+                        else
+                        {
+                            resourceProductionPerSecond.Add(resourceName, stockpiledPerSecond);
+                        }
                     }
                 }
             }
