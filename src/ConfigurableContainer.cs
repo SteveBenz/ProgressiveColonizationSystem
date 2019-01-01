@@ -25,11 +25,11 @@ namespace Nerm.Colonization
 
         private UIPartActionWindow tweakableUI = null;
 
-        [KSPEvent(active = true, guiActiveEditor = true, externalToEVAOnly = true, guiName = "Change Tier", unfocusedRange = 10f)]
+        [KSPEvent(active = true, guiActiveEditor = true, guiActive = true, externalToEVAOnly = true, guiName = "Change Tier", unfocusedRange = 10f)]
         public void NextTier()
         {
             tier = (TechTier)((1 + (int)this.tier) % (1 + (int)TechTier.Tier4));
-            assignResourcesToPart(false);
+            assignResourcesToPart();
         }
 
         private void SetDisplayDirty()
@@ -54,40 +54,33 @@ namespace Nerm.Colonization
             base.OnInitialize();
             if (this.part.Resources.Count == 0)
             {
-                assignResourcesToPart(false);
+                assignResourcesToPart();
             }
         }
 
-        private void assignResourcesToPart(bool calledByPlayer)
+        private void assignResourcesToPart()
         {
             // destroying a resource messes up the gui in editor, but not in flight.
-            setupTankInPart(part, calledByPlayer);
+            setupTankInPart(part);
             if (HighLogic.LoadedSceneIsEditor)
             {
                 for (int s = 0; s < part.symmetryCounterparts.Count; s++)
                 {
-                    setupTankInPart(part.symmetryCounterparts[s], calledByPlayer);
+                    setupTankInPart(part.symmetryCounterparts[s]);
                 }
             }
             SetDisplayDirty();
         }
 
-        private void setupTankInPart(Part currentPart, bool calledByPlayer)
+        private void setupTankInPart(Part currentPart)
         {
+            double oldAmount = (currentPart.Resources.Count > 0) ? currentPart.Resources[0].amount : -1;
             currentPart.Resources.dict = new DictionaryValueList<int, PartResource>();
 
             ConfigNode newResourceNode = new ConfigNode("RESOURCE");
             newResourceNode.AddValue("name", this.tier.GetTieredResourceName(this.resource));
             newResourceNode.AddValue("maxAmount", this.maxAmount);
-
-            if (calledByPlayer && !HighLogic.LoadedSceneIsEditor)
-            {
-                newResourceNode.AddValue("amount", 0.0f);
-            }
-            else
-            {
-                newResourceNode.AddValue("amount", this.maxAmount);
-            }
+            newResourceNode.AddValue("amount", HighLogic.LoadedSceneIsEditor ? (oldAmount < 0 ? this.maxAmount : (float)oldAmount) : 0.0f);
 
             currentPart.AddResource(newResourceNode);
         }
