@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Nerm.Colonization.UnitTests
 {
@@ -31,6 +32,9 @@ namespace Nerm.Colonization.UnitTests
         }
 
         public TechTier GetAgricultureMaxTier(string bodyName) => this.AgroponicsMaxTier;
+
+        public TechTier GetProductionMaxTier(string bodyName) => this.AgroponicsMaxTier;
+
         public void ContributeAgricultureResearch(string bodyName, double timespent)
         {
             Assert.AreEqual("test", bodyName);
@@ -48,5 +52,12 @@ namespace Nerm.Colonization.UnitTests
 			Assert.AreEqual("test", bodyName);
 			ScanningResearchProgress += timespent;
 		}
-	}
+
+        internal void Reset()
+        {
+            AgricultureResearchProgress = 0;
+            AgroponicResearchProgress = 0;
+            ProductionResearchProgress = 0;
+        }
+    }
 }

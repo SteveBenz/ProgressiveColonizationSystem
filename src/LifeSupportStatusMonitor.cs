@@ -307,6 +307,9 @@ namespace Nerm.Colonization
             public TechTier GetAgricultureMaxTier(string bodyName)
                 => ColonizationResearchScenario.Instance?.GetAgricultureMaxTier(bodyName) ?? TechTier.Tier4;
 
+            public TechTier GetProductionMaxTier(string bodyName)
+                => ColonizationResearchScenario.Instance?.GetProductionMaxTier(bodyName) ?? TechTier.Tier4;
+
             public void ContributeAgricultureResearch(string bodyName, double timespent)
                 => this.AgricultureResearch += timespent;
 

@@ -15,7 +15,7 @@ namespace Nerm.Colonization.UnitTests
 		public bool IsProductionEnabled { get; set; }
 		public abstract string ProductResourceName { get; }
 
-        public abstract bool CanStockpileProduce { get; }
+        public bool CanStockpileProduce { get; set; }
 
         public string SourceResourceName => "Fertilizer";
 
@@ -25,6 +25,11 @@ namespace Nerm.Colonization.UnitTests
 	public class StubHydroponic
         : StubSnackProducer
     {
+        public StubHydroponic()
+        {
+            this.CanStockpileProduce = false;
+        }
+
         public override bool ContributeResearch(IColonizationResearchScenario target, double amount)
         {
             // Copied from the real class.  Yuk.  Gotta get a better mock framework.
@@ -39,14 +44,17 @@ namespace Nerm.Colonization.UnitTests
             }
         }
 
-        public override bool CanStockpileProduce => false;
-
         public override string ProductResourceName => Snacks.AgroponicSnackResourceBaseName;
     }
 
     public class StubFarm
 		: StubSnackProducer
 	{
+        public StubFarm()
+        {
+            this.CanStockpileProduce = true;
+        }
+
         public override bool ContributeResearch(IColonizationResearchScenario target, double amount)
         {
             // Copied from the real class.  Yuk.  Gotta get a better mock framework.
@@ -60,8 +68,6 @@ namespace Nerm.Colonization.UnitTests
                 return false;
             }
         }
-
-        public override bool CanStockpileProduce => true;
 
         public override string ProductResourceName => Snacks.AgriculturalSnackResourceBaseName;
     }

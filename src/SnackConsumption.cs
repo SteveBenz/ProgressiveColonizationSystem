@@ -472,8 +472,8 @@ namespace Nerm.Colonization
             foreach (var pair in resourceProductionPerSecond)
             {
                 string resourceName = pair.Key;
-                double amountStockpiledPerDay = pair.Value;
-                double secondsToFilled = UnitsPerDayToUnitsPerSecond(availableStorage[resourceName]);
+                double amountStockpiledPerSecond = pair.Value;
+                double secondsToFilled = availableStorage[resourceName] / amountStockpiledPerSecond;
                 timePassedInSeconds = Math.Min(timePassedInSeconds, secondsToFilled);
             }
 
@@ -569,9 +569,9 @@ namespace Nerm.Colonization
                 {
                     return -1;
                 }
-                // We try to use low-tier if we can, and high-tier if we must
                 else
                 {
+                    // Sort by tier next - low-tier first.
                     int tierComparison = left.SourceTemplate.Tier.CompareTo(right.SourceTemplate.Tier);
                     if (tierComparison != 0)
                     {
@@ -585,11 +585,19 @@ namespace Nerm.Colonization
                         // rather than stacking up the fertilizer.
                         bool leftIsSnacks = left.SourceTemplate.ProductResourceName == Snacks.AgriculturalSnackResourceBaseName
                                          || left.SourceTemplate.ProductResourceName == Snacks.AgroponicSnackResourceBaseName;
-                        if (leftIsSnacks)
+                        bool rightIsSnacks = right.SourceTemplate.ProductResourceName == Snacks.AgriculturalSnackResourceBaseName
+                                            || right.SourceTemplate.ProductResourceName == Snacks.AgroponicSnackResourceBaseName;
+                        if (leftIsSnacks && rightIsSnacks)
                         {
-                            bool rightIsSnacks = right.SourceTemplate.ProductResourceName == Snacks.AgriculturalSnackResourceBaseName
-                                              || right.SourceTemplate.ProductResourceName == Snacks.AgroponicSnackResourceBaseName;
-                            return rightIsSnacks ? 0 : -1;
+                            return 0;
+                        }
+                        else if (leftIsSnacks && !rightIsSnacks)
+                        {
+                            return -1;
+                        }
+                        else if (!leftIsSnacks && rightIsSnacks)
+                        {
+                            return 1;
                         }
 
                         // Okay, for the rest, it's alphabetical order, because we don't have any known preference.

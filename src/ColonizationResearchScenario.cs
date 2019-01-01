@@ -152,6 +152,7 @@ namespace Nerm.Colonization
     {
         TechTier AgroponicsMaxTier { get; }
         TechTier GetAgricultureMaxTier(string bodyName);
+        TechTier GetProductionMaxTier(string bodyName);
         void ContributeAgroponicResearch(double timespent);
 		void ContributeAgricultureResearch(string bodyName, double timespent);
 		void ContributeProductionResearch(string bodyName, double timespent);
