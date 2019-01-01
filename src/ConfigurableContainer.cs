@@ -29,9 +29,7 @@ namespace Nerm.Colonization
         public void NextTier()
         {
             tier = (TechTier)((1 + (int)this.tier) % (1 + (int)TechTier.Tier4));
-            setupTankInPart(this.part, true);
-
-            SetDisplayDirty();
+            assignResourcesToPart(false);
         }
 
         private void SetDisplayDirty()
@@ -54,7 +52,24 @@ namespace Nerm.Colonization
         public override void OnInitialize()
         {
             base.OnInitialize();
-            setupTankInPart(this.part, false);
+            if (this.part.Resources.Count == 0)
+            {
+                assignResourcesToPart(false);
+            }
+        }
+
+        private void assignResourcesToPart(bool calledByPlayer)
+        {
+            // destroying a resource messes up the gui in editor, but not in flight.
+            setupTankInPart(part, calledByPlayer);
+            if (HighLogic.LoadedSceneIsEditor)
+            {
+                for (int s = 0; s < part.symmetryCounterparts.Count; s++)
+                {
+                    setupTankInPart(part.symmetryCounterparts[s], calledByPlayer);
+                }
+            }
+            SetDisplayDirty();
         }
 
         private void setupTankInPart(Part currentPart, bool calledByPlayer)
