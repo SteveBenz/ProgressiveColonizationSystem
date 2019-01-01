@@ -65,7 +65,7 @@
     <Compile Include="LifeSupportStatusMonitor.cs" />
     <Compile Include="ModuleTieredAgriculture.cs" />
     <Compile Include="ModuleTieredFactory.cs" />
-    <Compile Include="ModuleTieredSnackProducer.cs" />
+    <Compile Include="BodySpecificTieredResourceConverter.cs" />
     <Compile Include="ModuleTieredAgroponics.cs" />
     <Compile Include="AssemblyVersion.cs">
       <AutoGen>True</AutoGen>

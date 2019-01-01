@@ -6,7 +6,7 @@ using System.Text;
 namespace Nerm.Colonization
 {
     public class ModuleTieredAgroponics
-        : ModuleTieredSnackProducer
+        : TieredResourceCoverter
     {
         protected override TechTier MaxTechTierResearched =>
             ColonizationResearchScenario.Instance?.AgroponicsMaxTier ?? TechTier.Tier0;
@@ -23,6 +23,11 @@ namespace Nerm.Colonization
                 return false;
             }
         }
+
+        protected override string RequiredCrewTrait => "Scientist";
+
+        public override string SourceResourceName => "Fertilizer";
+
 
         protected override bool CanDoProduction(out string reasonWhyNotMessage)
         {

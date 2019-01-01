@@ -263,23 +263,34 @@ namespace Nerm.Colonization
 
                     string landedOnBody = FlightGlobals.ActiveVessel?.situation == Vessel.Situations.LANDED
                         ? FlightGlobals.ActiveVessel.mainBody.name : null;
-                    if (landedOnBody == null || ColonizationResearchScenario.Instance.GetAgricultureMaxTier(landedOnBody) == TechTier.Tier4)
-                    {
-                        // No point in talking about research anymore.
-                    }
-                    else if (researchSink.AgricultureResearch > 0)
+                    if (researchSink.AgricultureResearch > 0)
                     {
                         GUILayout.BeginHorizontal();
                         double perDay = SnackConsumption.UnitsPerSecondToUnitsPerDay(researchSink.AgricultureResearch);
-                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of agriculture research per day (for {landedOnBody}).  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextAgricultureTier(landedOnBody): N} are needed to reach the next tier).");
+                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of agriculture research per day (for {landedOnBody}).  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextAgricultureTier(landedOnBody):N} are needed to reach the next tier).");
                         GUILayout.EndHorizontal();
                     }
-                    else if (snackProducers.Count > 0)
+                    else
                     {
                         GUILayout.BeginHorizontal();
-                        GUILayout.Label("This vessel is not contributing agriculture research.");
+                        GUILayout.Label($"This vessel is not contributing to agriculture research");
                         GUILayout.EndHorizontal();
                     }
+
+                    if (researchSink.ProductionResearch > 0)
+                    {
+                        GUILayout.BeginHorizontal();
+                        double perDay = SnackConsumption.UnitsPerSecondToUnitsPerDay(researchSink.ProductionResearch);
+                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of production research per day (for {landedOnBody}).  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextProductionTier(landedOnBody):N} are needed to reach the next tier).");
+                        GUILayout.EndHorizontal();
+                    }
+                    else
+                    {
+                        GUILayout.BeginHorizontal();
+                        GUILayout.Label($"This vessel is not contributing to production research");
+                        GUILayout.EndHorizontal();
+                    }
+
                     // TODO: <IN VAB>
                     // Balance supply load for a trip duration of:
                     // [---------------------------*------------] kerbal days
