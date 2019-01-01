@@ -34,7 +34,8 @@ Development plan:
    #  Create shinies resource chain
    #  Support USI kerbal types
 # Play Nice With Others
-   #  Integrate with Toolbar
+   #  Integrate with Toolbar?
    #  Integrate with ModuleManager
-   #  Integrate with Community Resource Kit
+   #  Integrate with Community Resource Kit?
+   #  Integrate with Community Categories?
    #  Either reskin the stolen parts or depend on their sources and re-configure them

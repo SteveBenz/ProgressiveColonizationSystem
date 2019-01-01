@@ -107,6 +107,9 @@
     <Content Include="GameData\ColonizationByNerm\Assets\Greenhouse_Glow.dds">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="GameData\ColonizationByNerm\Assets\ksp_s_processorSmall_diff.dds">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="GameData\ColonizationByNerm\Assets\MiniLab.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -158,7 +161,7 @@
     <Content Include="GameData\ColonizationByNerm\Assets\Recycler_GLOW.dds">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\Processor_Large.dds">
+    <Content Include="GameData\ColonizationByNerm\Assets\Processor_Large.dds">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ColonizationByNerm\Textures\IFI_LS_GRN_24.png">
@@ -256,7 +259,15 @@
     <Content Include="GameData\ColonizationByNerm\Parts\BigFertilizerFactory.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\BigFertilizerFactory.mu">
+    <Content Include="GameData\ColonizationByNerm\Assets\BigFertilizerFactory.mu">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GameData\ColonizationByNerm\Assets\SmallFertilizerFactory.mu">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ColonizationByNerm\Parts\SmallFertilizerFactory.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
