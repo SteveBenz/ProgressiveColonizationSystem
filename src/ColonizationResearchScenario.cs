@@ -93,7 +93,14 @@ namespace Nerm.Colonization
 
         public double KerbalSecondsToGoUntilNextAgroponicsTier => AgroponicsMaxTier.KerbalSecondsToResearchNextAgroponicsTier() - this.accumulatedAgroponicResearchProgressToNextTier;
 
-		public TechTier GetAgricultureMaxTier(string bodyName)
+        public double KerbalSecondsToGoUntilNextAgricultureTier(string bodyName)
+        {
+            this.bodyToAgricultureTechTierMap.TryGetValue(bodyName, out TechProgress progress);
+            return progress == null ? TechTier.Tier0.KerbalSecondsToResearchNextAgricultureTier()
+                   : progress.Tier.KerbalSecondsToResearchNextAgricultureTier() - progress.Progress;
+        }
+
+        public TechTier GetAgricultureMaxTier(string bodyName)
 		{
 			this.bodyToAgricultureTechTierMap.TryGetValue(bodyName, out TechProgress progress);
 			return progress?.Tier ?? TechTier.Tier0;

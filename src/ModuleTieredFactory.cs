@@ -15,6 +15,12 @@ namespace Nerm.Colonization
 
 		protected override string RequiredCrewTrait => "Engineer";
 
+        /// <summary>
+        ///   The name of the input resource (as a Tier4 resource)
+        /// </summary>
+        [KSPField]
+        public string input;
+
 		public override bool ContributeResearch(IColonizationResearchScenario target, double amount)
 		{
 			if (this.IsResearchEnabled)
@@ -28,9 +34,7 @@ namespace Nerm.Colonization
 			}
 		}
 
-
-        // TODO: Make this run to the supply resource
-        public override string SourceResourceName => null;
+        public override string SourceResourceName => this.input == "" ? null : this.input;
 
         #region TODO: Copy/pasted -- Maybe a Body-specific TieredResourceCoverter needs to happen
         [KSPField(advancedTweakable = false, category = "Nermables", guiActive = true, guiName = "Target Body", isPersistant = true, guiActiveEditor = true)]
@@ -62,7 +66,5 @@ namespace Nerm.Colonization
 			this.tier = (int)this.MaxTechTierResearched;
 		}
 		#endregion
-
-
 	}
 }

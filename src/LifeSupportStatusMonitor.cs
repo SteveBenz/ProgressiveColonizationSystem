@@ -271,7 +271,7 @@ namespace Nerm.Colonization
                     {
                         GUILayout.BeginHorizontal();
                         double perDay = SnackConsumption.UnitsPerSecondToUnitsPerDay(researchSink.AgricultureResearch);
-                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of agriculture research per day (for {landedOnBody}).  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextAgroponicsTier:N} are needed to reach the next tier).");
+                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of agriculture research per day (for {landedOnBody}).  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextAgricultureTier(landedOnBody): N} are needed to reach the next tier).");
                         GUILayout.EndHorizontal();
                     }
                     else if (snackProducers.Count > 0)
