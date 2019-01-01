@@ -465,9 +465,12 @@ namespace Nerm.Colonization
                     // producerData.AllottedCapacity  is the amount consumed per day under our plan
                     // storage.Amount  is what we have on-hand
                     double amountUsedPerSecond = UnitsPerDayToUnitsPerSecond(producerData.AllottedCapacity);
-                    double secondsToEmpty = (storage.Amount / amountUsedPerSecond);
-                    timePassedInSeconds = Math.Min(timePassedInSeconds, secondsToEmpty);
-                    resourceConsumptionPerSecond.Add(storage.Tier.GetTieredResourceName(storage.ProductResourceName), amountUsedPerSecond);
+                    if (amountUsedPerSecond > 0)
+                    {
+                        double secondsToEmpty = (storage.Amount / amountUsedPerSecond);
+                        timePassedInSeconds = Math.Min(timePassedInSeconds, secondsToEmpty);
+                        resourceConsumptionPerSecond.Add(storage.Tier.GetTieredResourceName(storage.ProductResourceName), amountUsedPerSecond);
+                    }
                 }
             }
 
