@@ -237,6 +237,20 @@ namespace Nerm.Colonization.UnitTests
             Assert.AreEqual(15.0, colonizationResearchScenario.ProductionResearchProgress * SecondsPerKerbanDay / expectedTimePassed, TestTolerance);
             Assert.AreEqual(15.0 - 4 * TechTier.Tier0.AgricultureMaxDietRatio(), productionPerSecond["Snacks-Tier0"] * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(0, productionPerSecond["Fertilizer-Tier0"] * SecondsPerKerbanDay, TestTolerance);
+
+            // Snacks storage is filled - limiting production and hence research progress
+            colonizationResearchScenario.Reset();
+            storageSpace.Remove("Snacks-Tier0");
+            storageSpace.Remove(TechTier.Tier0.FertilizerResourceName());
+            SnackConsumption.CalculateSnackflow(
+                4 /* kerbals */, 1.0 /* seconds*/, landedModules, colonizationResearchScenario, inStorage, storageSpace,
+                out timePassedInSeconds, out breakthroughHappened,
+                out consumptionPerSecond, out productionPerSecond);
+            Assert.AreEqual(1.0, timePassedInSeconds);
+            Assert.AreEqual(4 * (1 - TechTier.Tier0.AgricultureMaxDietRatio()), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(4 * TechTier.Tier0.AgricultureMaxDietRatio(), colonizationResearchScenario.AgricultureResearchProgress * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(4 * TechTier.Tier0.AgricultureMaxDietRatio(), colonizationResearchScenario.ProductionResearchProgress * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(0, productionPerSecond.Count);
         }
 
         /// <summary>
