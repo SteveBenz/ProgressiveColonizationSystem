@@ -520,20 +520,6 @@ namespace USITools
                 part.DragCubes.ForceUpdate(true, true);
         }
 
-        public override string GetInfo()
-        {
-            if (String.IsNullOrEmpty(ResourceCosts))
-                return "";
-
-            var output = new StringBuilder("Resource Cost:\n\n");
-            var resources = ResourceCosts.Split(',');
-            for (int i = 0; i < resources.Length; i += 2)
-            {
-                output.Append(string.Format("{0} {1}\n", double.Parse(resources[i + 1]), resources[i]));
-            }
-            return output.ToString();
-        }
-
         public string[] GetDragCubeNames()
         {
             return new string[] { "A", "B" };

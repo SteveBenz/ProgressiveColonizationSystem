@@ -44,10 +44,10 @@ namespace Nerm.Colonization
         {
             StringBuilder info = new StringBuilder();
 
-            info.AppendLine($"Capacity: {this.capacity}");
+            info.AppendLine($"{GreenInfo("Capacity:")} {this.capacity}");
             if (!string.IsNullOrEmpty(this.input))
             {
-                info.AppendLine($"Input: {this.input}");
+                info.AppendLine($"{GreenInfo("Input:")} {this.input}");
             }
 
             return info.ToString();

@@ -173,5 +173,10 @@ namespace Nerm.Colonization
         public abstract string SourceResourceName { get; }
 
         public abstract bool ContributeResearch(IColonizationResearchScenario target, double amount);
-	}
+
+        public static string GreenInfo(string info)
+        {
+            return $"<color=#99FF00>{info}</color>";
+        }
+    }
 }

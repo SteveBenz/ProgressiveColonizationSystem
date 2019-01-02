@@ -37,8 +37,9 @@ namespace Nerm.Colonization
         public override string GetInfo()
         {
             StringBuilder info = new StringBuilder();
-            info.AppendLine($"Capacity: {this.capacity} kerbal-days");
-            info.AppendLine($"Quality:");
+
+            info.AppendLine($"{GreenInfo("Capacity:")} {this.capacity} kerbal-days");
+            info.AppendLine($"{GreenInfo("Quality:")}");
             foreach (TechTier tier in TechTierExtensions.AllTiers)
             {
                 info.AppendLine($" {tier.ToString()}: {(int)(tier.AgricultureMaxDietRatio() * 100)}%");
