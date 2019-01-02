@@ -45,14 +45,14 @@ namespace Nerm.Colonization
             }
 
             Texture2D texture2D;
-            if (GameDatabase.Instance.ExistsTexture("ColonizationByNerm/IFI_LS_GRN_38"))
+            if (!GameDatabase.Instance.ExistsTexture("ColonizationByNerm/Textures/IFI_LS_GRN_38"))
             {
                 Debug.Log("DebugControl - Using blank texture");
                 texture2D = new Texture2D(38, 38, TextureFormat.ARGB32, false);
             }
             else
             {
-                texture2D = GameDatabase.Instance.GetTexture("ColonizationByNerm/IFI_LS_GRN_38", true);
+                texture2D = GameDatabase.Instance.GetTexture("ColonizationByNerm/Textures/IFI_LS_GRN_38", true);
             }
 
             Debug.Assert(ApplicationLauncher.Ready, "ApplicationLauncher is not ready - can't add the toolbar button.  Is this possible, really?  If so maybe we could do it later?");
