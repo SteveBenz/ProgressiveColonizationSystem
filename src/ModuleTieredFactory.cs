@@ -39,5 +39,18 @@ namespace Nerm.Colonization
 		}
 
         public override string SourceResourceName => this.input == "" ? null : this.input;
-	}
+
+        public override string GetInfo()
+        {
+            StringBuilder info = new StringBuilder();
+
+            info.AppendLine($"Capacity: {this.capacity}");
+            if (!string.IsNullOrEmpty(this.input))
+            {
+                info.AppendLine($"Input: {this.input}");
+            }
+
+            return info.ToString();
+        }
+    }
 }

@@ -77,7 +77,18 @@ namespace Nerm.Colonization
 				&& this.vessel.distanceToSun < homeworldDistanceFromSun * 1.1;
 		}
 
+        public override string GetInfo()
+        {
+            StringBuilder info = new StringBuilder();
+            info.AppendLine($"Capacity: {this.capacity} kerbal-days");
+            info.AppendLine($"Quality:");
+            foreach (TechTier tier in TechTierExtensions.AllTiers)
+            {
+                info.AppendLine($" {tier.ToString()}: {(int)(tier.AgroponicMaxDietRatio() * 100)}%");
+            }
+            return info.ToString();
+        }
 
-		public override bool CanStockpileProduce => false;
+        public override bool CanStockpileProduce => false;
     }
 }
