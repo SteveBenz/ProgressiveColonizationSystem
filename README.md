@@ -23,8 +23,7 @@ Development plan:
    #  (complete) Can change resource types for canisters
    #  (complete) Can manufacture T0 fertilizer
 # Basic Progression - the execution of a mission to Duna
-   #  Life support dialog works nicely in the editors - can estimate usage and ag production
-   #  Editors can show good data to guide the construction of ships (see GetInfo())
+   #  (complete) Editors can show good data to guide the construction of ships (see GetInfo())
    #  Tweak the mass and density of Fertilizer & Supplies
    #  (complete)Agroponic and Ag modules consume some electricity
 # Release prep
@@ -38,10 +37,15 @@ Development plan:
       #  Figure out how to make magic spots and waypoints to them
       #  Make the Tier-1+ drill require being at a magic spot to work
    #  Create shinies resource chain
+      #  Create shinies factory
+      #  Create shinies containers that don't let you fill them at the KSP -- idea: Mun/Minmus shinies peak at T1, Duna/Ike/Gilly at T2, Dres/Eloo/Moho at T5
    #  Support USI kerbal types
+   #  Life support dialog works nicely in the editors - can estimate usage and ag production
+   #  Make the GetInfo()'s show the electric utilization
 # Play Nice With Others
    #  Integrate with Toolbar?
    #  Integrate with ModuleManager
    #  Integrate with Community Resource Kit?
    #  Integrate with Community Categories?
    #  Either reskin the stolen parts or depend on their sources and re-configure them
+   #  Write PDF help
