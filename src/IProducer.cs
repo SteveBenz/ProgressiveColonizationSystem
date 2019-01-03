@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Nerm.Colonization
 {
-    internal interface IProducer
+    public interface IProducer
     {
         TechTier Tier { get; }
         double ProductionRate { get; }

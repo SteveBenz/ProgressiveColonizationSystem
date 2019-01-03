@@ -6,23 +6,23 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Nerm.Colonization.UnitTests
 {
     [TestClass]
-    public class SnackConsumptionTests
+    public class TieredProductionTests
     {
         public const double SecondsPerKerbanDay = 6.0 * 60.0 * 60.0;
 
-        public const double TestTolerance = SnackConsumption.AcceptableError;
+        public const double TestTolerance = TieredProduction.AcceptableError;
 
         /// <summary>
         ///   Validates the basic case where we have some supplies on board from Kerban.
         /// </summary>
         [TestMethod]
-        public void SnackConsumption_AllSuppliesFromKerban()
+        public void TieredProduction_AllSuppliesFromKerban()
         {
             var colonizationResearchScenario = new StubColonizationResearchScenario(TechTier.Tier0);
             Dictionary<string, double> available = new Dictionary<string, double>();
             available.Add(TechTier.Tier4.SnacksResourceName(), 1.0); // One days' worth
             Dictionary<string, double> noStorage = new Dictionary<string, double>();
-            SnackConsumption.CalculateSnackflow(
+            TieredProduction.CalculateResourceUtilization(
                 5 /* kerbals */, 1.0 /* seconds*/, new List<IProducer>(), colonizationResearchScenario, available, noStorage,
                 out double timePassedInSeconds, out bool agroponicsBreakthroughHappened,
                 out Dictionary<string, double> consumptionPerSecond, out Dictionary<string, double> productionPerSecond);
@@ -35,7 +35,7 @@ namespace Nerm.Colonization.UnitTests
             Assert.AreEqual(0, productionPerSecond.Count);
 
             // There's a days' worth of snacks, but 5 kerbals getting after it.
-            SnackConsumption.CalculateSnackflow(
+            TieredProduction.CalculateResourceUtilization(
                 5 /* kerbals */, 1.0 * SecondsPerKerbanDay, new List<IProducer>(), colonizationResearchScenario,
                 available, noStorage, out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond,
                 out productionPerSecond);
@@ -48,7 +48,7 @@ namespace Nerm.Colonization.UnitTests
 
             // Test no snacks at all
             available.Clear();
-            SnackConsumption.CalculateSnackflow(
+            TieredProduction.CalculateResourceUtilization(
                 5 /* kerbals */, 1.0 * SecondsPerKerbanDay, new List<IProducer>(), colonizationResearchScenario,
                 available, noStorage, out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond,
                 out productionPerSecond);
@@ -62,7 +62,7 @@ namespace Nerm.Colonization.UnitTests
         ///   Validates initial case with a few agroponics modules
         /// </summary>
         [TestMethod]
-        public void SnackConsumption_SimpleAgroponics()
+        public void TieredProduction_SimpleAgroponics()
         {
             // We have 3 modules on our vessel, but only crew enough to staff
             // two of them (for a net production of 3) and only one of them
@@ -98,7 +98,7 @@ namespace Nerm.Colonization.UnitTests
             Dictionary<string, double> noStorage = new Dictionary<string, double>();
 
             // First we test when we have more than enough production
-            SnackConsumption.CalculateSnackflow(
+            TieredProduction.CalculateResourceUtilization(
                 5 /* kerbals */, 1.0 /* seconds*/, agroponicModules, colonizationResearchScenario, available, noStorage,
                 out double timePassedInSeconds, out bool agroponicsBreakthroughHappened,
                 out Dictionary<string, double> consumptionPerSecond, out Dictionary<string,double> productionPerSecond);
@@ -117,7 +117,7 @@ namespace Nerm.Colonization.UnitTests
             // now we overwhelm the system with 20 kerbals - they'll be willing to eat (in total)
             // 4 snacks per day, (20 * .2) but our systems can only produce 3 and can only garner
             // research from 1 of the modules.
-            SnackConsumption.CalculateSnackflow(
+            TieredProduction.CalculateResourceUtilization(
                 20 /* kerbals */, 1.0 /* seconds*/, agroponicModules, colonizationResearchScenario, available, noStorage,
                 out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond,
                 out productionPerSecond);
@@ -135,7 +135,7 @@ namespace Nerm.Colonization.UnitTests
             // Now let's take that last test and give it a twist that they run out of fertilizer halfway
             // through the second of time
             available[TechTier.Tier4.FertilizerResourceName()] = 1.5 / SecondsPerKerbanDay;
-            SnackConsumption.CalculateSnackflow(
+            TieredProduction.CalculateResourceUtilization(
                 20 /* kerbals */, 1.0 /* seconds*/, agroponicModules, colonizationResearchScenario, available, noStorage,
                 out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond,
                 out productionPerSecond);
@@ -155,7 +155,7 @@ namespace Nerm.Colonization.UnitTests
         ///   Validates that initial agriculture production works with delivered fertilizer.
         /// </summary>
         [TestMethod]
-        public void SnackConsumption_Tier0Agriculture()
+        public void TieredProduction_Tier0Agriculture()
         {
             // Just landed - for grins this validates that it can pull some fertilizer down from storage since
             // our production won't be enough.
@@ -194,7 +194,7 @@ namespace Nerm.Colonization.UnitTests
             storageSpace.Add(TechTier.Tier0.GetTieredResourceName(Snacks.AgriculturalSnackResourceBaseName), double.MaxValue);
             storageSpace.Add(TechTier.Tier0.GetTieredResourceName("Fertilizer"), double.MaxValue);
 
-            SnackConsumption.CalculateSnackflow(
+            TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, landedModules, colonizationResearchScenario, inStorage, storageSpace,
                 out double timePassedInSeconds, out bool breakthroughHappened,
                 out Dictionary<string, double> consumptionPerSecond, out Dictionary<string, double> productionPerSecond);
@@ -210,7 +210,7 @@ namespace Nerm.Colonization.UnitTests
             colonizationResearchScenario.Reset();
             inStorage.Remove(TechTier.Tier4.FertilizerResourceName());
 
-            SnackConsumption.CalculateSnackflow(
+            TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, landedModules, colonizationResearchScenario, inStorage, storageSpace,
                 out timePassedInSeconds, out breakthroughHappened,
                 out consumptionPerSecond, out productionPerSecond);
@@ -227,7 +227,7 @@ namespace Nerm.Colonization.UnitTests
             const double expectedTimePassed = 0.25;
             storageSpace["Snacks-Tier0"] = (15.0 - 4 * TechTier.Tier0.AgricultureMaxDietRatio()) * expectedTimePassed / SecondsPerKerbanDay;
 
-            SnackConsumption.CalculateSnackflow(
+            TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, landedModules, colonizationResearchScenario, inStorage, storageSpace,
                 out timePassedInSeconds, out breakthroughHappened,
                 out consumptionPerSecond, out productionPerSecond);
@@ -242,7 +242,7 @@ namespace Nerm.Colonization.UnitTests
             colonizationResearchScenario.Reset();
             storageSpace.Remove("Snacks-Tier0");
             storageSpace.Remove(TechTier.Tier0.FertilizerResourceName());
-            SnackConsumption.CalculateSnackflow(
+            TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, landedModules, colonizationResearchScenario, inStorage, storageSpace,
                 out timePassedInSeconds, out breakthroughHappened,
                 out consumptionPerSecond, out productionPerSecond);
@@ -257,7 +257,7 @@ namespace Nerm.Colonization.UnitTests
         ///   Validates a Duna-return mission with some local agriculture on-board
         /// </summary>
         [TestMethod]
-        public void SnackConsumption_FirstBaseSimulation()
+        public void TieredProduction_FirstBaseSimulation()
         {
             var enRouteModules = new List<IProducer>()
             {
@@ -285,7 +285,7 @@ namespace Nerm.Colonization.UnitTests
             // Kerbal->Duna scenario - plenty of maxtier stuff
             available[TechTier.Tier4.FertilizerResourceName()] = 1.0;
             available[TechTier.Tier4.SnacksResourceName()] = 1.0;
-            SnackConsumption.CalculateSnackflow(
+            TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, enRouteModules, colonizationResearchScenario, available, noStorage,
                 out double timePassedInSeconds, out bool agroponicsBreakthroughHappened,
                 out Dictionary<string, double> consumptionPerSecond, out Dictionary<string, double> productionPerSecond);
@@ -302,7 +302,7 @@ namespace Nerm.Colonization.UnitTests
             available[TechTier.Tier0.SnacksResourceName()] = 1.0;
             // Just about ready to tick over the research counter
             colonizationResearchScenario.AgroponicResearchProgress = TechTier.Tier2.KerbalSecondsToResearchNextAgroponicsTier() - 0.000001;
-            SnackConsumption.CalculateSnackflow(
+            TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, enRouteModules, colonizationResearchScenario, available, noStorage,
                 out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond,
                 out productionPerSecond);
@@ -326,7 +326,7 @@ namespace Nerm.Colonization.UnitTests
 
             // And we run out of our KSP-provided fertilizer
             available.Remove("Fertilizer");
-            SnackConsumption.CalculateSnackflow(
+            TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, enRouteModules, colonizationResearchScenario, available, noStorage,
                 out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond,
                 out productionPerSecond);

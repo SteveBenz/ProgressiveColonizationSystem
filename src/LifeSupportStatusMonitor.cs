@@ -159,7 +159,7 @@ namespace Nerm.Colonization
             else
             {
                 ResearchSink researchSink = new ResearchSink();
-                SnackConsumption.CalculateSnackflow(
+                TieredProduction.CalculateResourceUtilization(
                     crewCount + crewDelta, 1, snackProducers, researchSink, resources, storage,
                     out double timePassed, out bool _, out Dictionary<string, double> resourcesConsumed,
                     out Dictionary<string, double> resourcesProduced);
@@ -221,7 +221,7 @@ namespace Nerm.Colonization
 
                     foreach (var resourceName in resourcesConsumed.Keys.OrderBy(n => n))
                     {
-                        double perDay = SnackConsumption.UnitsPerSecondToUnitsPerDay(resourcesConsumed[resourceName]);
+                        double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(resourcesConsumed[resourceName]);
                         double daysLeft = resources[resourceName] / perDay;
                         GUILayout.BeginHorizontal();
                         GUILayout.Label($"{perDay:N1} {resourceName} per day ({daysLeft:N1} days left)");
@@ -235,7 +235,7 @@ namespace Nerm.Colonization
                         GUILayout.EndHorizontal();
                         foreach (var resourceName in resourcesProduced.Keys.OrderBy(n => n))
                         {
-                            double perDay = SnackConsumption.UnitsPerSecondToUnitsPerDay(resourcesProduced[resourceName]);
+                            double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(resourcesProduced[resourceName]);
                             double daysLeft = resources[resourceName] / perDay;
                             GUILayout.BeginHorizontal();
                             GUILayout.Label($"{perDay:N1} {resourceName} per day");
@@ -250,7 +250,7 @@ namespace Nerm.Colonization
                     else if (researchSink.AgroponicResearch > 0)
                     {
                         GUILayout.BeginHorizontal();
-                        double perDay = SnackConsumption.UnitsPerSecondToUnitsPerDay(researchSink.AgroponicResearch);
+                        double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(researchSink.AgroponicResearch);
                         GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of agroponics research per day.  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextAgroponicsTier:N} are needed to reach the next tier).");
                         GUILayout.EndHorizontal();
                     }
@@ -261,13 +261,12 @@ namespace Nerm.Colonization
                         GUILayout.EndHorizontal();
                     }
 
-                    string landedOnBody = FlightGlobals.ActiveVessel?.situation == Vessel.Situations.LANDED
-                        ? FlightGlobals.ActiveVessel.mainBody.name : null;
-                    if (researchSink.AgricultureResearch > 0)
+                    string mainBody = FlightGlobals.ActiveVessel?.mainBody?.name;
+                    if (researchSink.AgricultureResearch > 0 && mainBody != null)
                     {
                         GUILayout.BeginHorizontal();
-                        double perDay = SnackConsumption.UnitsPerSecondToUnitsPerDay(researchSink.AgricultureResearch);
-                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of agriculture research per day (for {landedOnBody}).  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextAgricultureTier(landedOnBody):N} are needed to reach the next tier).");
+                        double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(researchSink.AgricultureResearch);
+                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of agriculture research per day (for {mainBody}).  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextAgricultureTier(mainBody):N} are needed to reach the next tier).");
                         GUILayout.EndHorizontal();
                     }
                     else
@@ -277,17 +276,31 @@ namespace Nerm.Colonization
                         GUILayout.EndHorizontal();
                     }
 
-                    if (researchSink.ProductionResearch > 0)
+                    if (researchSink.ProductionResearch > 0 && mainBody != null)
                     {
                         GUILayout.BeginHorizontal();
-                        double perDay = SnackConsumption.UnitsPerSecondToUnitsPerDay(researchSink.ProductionResearch);
-                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of production research per day (for {landedOnBody}).  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextProductionTier(landedOnBody):N} are needed to reach the next tier).");
+                        double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(researchSink.ProductionResearch);
+                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of production research per day (for {mainBody}).  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextProductionTier(mainBody):N} are needed to reach the next tier).");
                         GUILayout.EndHorizontal();
                     }
                     else
                     {
                         GUILayout.BeginHorizontal();
                         GUILayout.Label($"This vessel is not contributing to production research");
+                        GUILayout.EndHorizontal();
+                    }
+
+                    if (researchSink.ScanningResearch > 0 && mainBody != null)
+                    {
+                        GUILayout.BeginHorizontal();
+                        double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(researchSink.ScanningResearch);
+                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of production research per day (for {mainBody}).  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextScanningTier(mainBody):N} are needed to reach the next tier).");
+                        GUILayout.EndHorizontal();
+                    }
+                    else
+                    {
+                        GUILayout.BeginHorizontal();
+                        GUILayout.Label($"This vessel is not contributing to scanning research");
                         GUILayout.EndHorizontal();
                     }
 
@@ -312,8 +325,11 @@ namespace Nerm.Colonization
 			public TechTier AgroponicsMaxTier =>
                 ColonizationResearchScenario.Instance?.AgroponicsMaxTier ?? TechTier.Tier4;
 
-            public void ContributeAgroponicResearch(double timespent)
-                => this.AgroponicResearch += timespent;
+            public bool ContributeAgroponicResearch(double timespent)
+            {
+                this.AgroponicResearch += timespent;
+                return false;
+            }
 
             public TechTier GetAgricultureMaxTier(string bodyName)
                 => ColonizationResearchScenario.Instance?.GetAgricultureMaxTier(bodyName) ?? TechTier.Tier4;
@@ -321,14 +337,23 @@ namespace Nerm.Colonization
             public TechTier GetProductionMaxTier(string bodyName)
                 => ColonizationResearchScenario.Instance?.GetProductionMaxTier(bodyName) ?? TechTier.Tier4;
 
-            public void ContributeAgricultureResearch(string bodyName, double timespent)
-                => this.AgricultureResearch += timespent;
+            public bool ContributeAgricultureResearch(string bodyName, double timespent)
+            {
+                this.AgricultureResearch += timespent;
+                return false;
+            }
 
-			public void ContributeProductionResearch(string bodyName, double timespent)
-				=> this.ProductionResearch += timespent;
+			public bool ContributeProductionResearch(string bodyName, double timespent)
+            {
+                this.ProductionResearch += timespent;
+                return false;
+            }
 
-			public void ContributeScanningResearch(string bodyName, double timespent)
-				=> this.ScanningResearch += timespent;
+			public bool ContributeScanningResearch(string bodyName, double timespent)
+            {
+                this.ScanningResearch += timespent;
+                return false;
+            }
 		}
 	}
 }

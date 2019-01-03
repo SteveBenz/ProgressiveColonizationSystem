@@ -64,6 +64,7 @@
     <Compile Include="IProducer.cs" />
     <Compile Include="LifeSupportStatusMonitor.cs" />
     <Compile Include="ModuleTieredAgriculture.cs" />
+    <Compile Include="ModuleTieredScannerHub.cs" />
     <Compile Include="ModuleTieredFactory.cs" />
     <Compile Include="BodySpecificTieredResourceConverter.cs" />
     <Compile Include="ModuleTieredAgroponics.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="TechProgress.cs" />
     <Compile Include="TechTier.cs" />
     <Compile Include="ColonizationByNermAnimation.cs" />
+    <Compile Include="TieredProduction.cs" />
     <Compile Include="TieredResourceCoverter.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -281,6 +283,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ColonizationByNerm\Parts\StuffScrounger\TriBitDrill.mu">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GameData\ColonizationByNerm\Parts\ScannerHub.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

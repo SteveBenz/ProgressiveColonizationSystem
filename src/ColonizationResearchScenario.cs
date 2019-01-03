@@ -44,32 +44,31 @@ namespace Nerm.Colonization
         public double AgroponicsResearchProgress
             => this.accumulatedAgroponicResearchProgressToNextTier / AgroponicsMaxTier.KerbalSecondsToResearchNextAgroponicsTier();
 
-        public void ContributeAgroponicResearch(double timespent)
+        public bool ContributeAgroponicResearch(double timespent)
         {
             this.accumulatedAgroponicResearchProgressToNextTier += (float)timespent;
             if (this.accumulatedAgroponicResearchProgressToNextTier > AgroponicsMaxTier.KerbalSecondsToResearchNextAgroponicsTier())
             {
                 this.accumulatedAgroponicResearchProgressToNextTier = 0;
                 ++this.AgroponicsMaxTier;
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
-		public void ContributeAgricultureResearch(string bodyName, double timespent)
-		{
-			ContributeResearch(this.bodyToAgricultureTechTierMap, bodyName, timespent, tier => tier.KerbalSecondsToResearchNextAgricultureTier());
-		}
+		public bool ContributeAgricultureResearch(string bodyName, double timespent)
+			=> ContributeResearch(this.bodyToAgricultureTechTierMap, bodyName, timespent, tier => tier.KerbalSecondsToResearchNextAgricultureTier());
 
-		public void ContributeProductionResearch(string bodyName, double timespent)
-		{
-			ContributeResearch(this.bodyToProductionTechTierMap, bodyName, timespent, tier => tier.KerbalSecondsToResearchNextProductionTier());
-		}
+		public bool ContributeProductionResearch(string bodyName, double timespent)
+			=> ContributeResearch(this.bodyToProductionTechTierMap, bodyName, timespent, tier => tier.KerbalSecondsToResearchNextProductionTier());
 
-		public void ContributeScanningResearch(string bodyName, double timespent)
-		{
-			ContributeResearch(this.bodyToScanningTechTierMap, bodyName, timespent, tier => tier.KerbalSecondsToResearchNextScanningTier());
-		}
+		public bool ContributeScanningResearch(string bodyName, double timespent)
+			=> ContributeResearch(this.bodyToScanningTechTierMap, bodyName, timespent, tier => tier.KerbalSecondsToResearchNextScanningTier());
 
-		public static void ContributeResearch(Dictionary<string, TechProgress> progressMap, string bodyName, double timespent, Func<TechTier,double> getTargetAmount)
+		public static bool ContributeResearch(Dictionary<string, TechProgress> progressMap, string bodyName, double timespent, Func<TechTier,double> getTargetAmount)
 		{
 			if (progressMap.TryGetValue(bodyName, out TechProgress progress))
 			{
@@ -85,7 +84,12 @@ namespace Nerm.Colonization
 			{
 				progress.Progress = 0;
 				++progress.Tier;
+                return true;
 			}
+            else
+            {
+                return false;
+            }
 		}
 
 		public string[] ValidBodiesForAgriculture =>
@@ -105,6 +109,13 @@ namespace Nerm.Colonization
             this.bodyToProductionTechTierMap.TryGetValue(bodyName, out TechProgress progress);
             return progress == null ? TechTier.Tier0.KerbalSecondsToResearchNextProductionTier()
                    : progress.Tier.KerbalSecondsToResearchNextProductionTier() - progress.Progress;
+        }
+
+        public double KerbalSecondsToGoUntilNextScanningTier(string bodyName)
+        {
+            this.bodyToScanningTechTierMap.TryGetValue(bodyName, out TechProgress progress);
+            return progress == null ? TechTier.Tier0.KerbalSecondsToResearchNextScanningTier()
+                   : progress.Tier.KerbalSecondsToResearchNextScanningTier() - progress.Progress;
         }
 
         public TechTier GetAgricultureMaxTier(string bodyName)
@@ -169,9 +180,9 @@ namespace Nerm.Colonization
         TechTier AgroponicsMaxTier { get; }
         TechTier GetAgricultureMaxTier(string bodyName);
         TechTier GetProductionMaxTier(string bodyName);
-        void ContributeAgroponicResearch(double timespent);
-		void ContributeAgricultureResearch(string bodyName, double timespent);
-		void ContributeProductionResearch(string bodyName, double timespent);
-		void ContributeScanningResearch(string bodyName, double timespent);
+        bool ContributeAgroponicResearch(double timespent);
+        bool ContributeAgricultureResearch(string bodyName, double timespent);
+        bool ContributeProductionResearch(string bodyName, double timespent);
+        bool ContributeScanningResearch(string bodyName, double timespent);
 	}
 }

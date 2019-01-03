@@ -21,13 +21,18 @@ namespace Nerm.Colonization.UnitTests
 
 		public TechTier AgroponicsMaxTier { get; private set; }
 
-        public void ContributeAgroponicResearch(double timespent)
+        public bool ContributeAgroponicResearch(double timespent)
         {
             AgroponicResearchProgress += timespent;
             if (this.AgroponicsMaxTier.KerbalSecondsToResearchNextAgroponicsTier() < AgroponicResearchProgress)
             {
                 ++AgroponicsMaxTier;
                 AgroponicResearchProgress = 0;
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
@@ -35,22 +40,25 @@ namespace Nerm.Colonization.UnitTests
 
         public TechTier GetProductionMaxTier(string bodyName) => this.AgroponicsMaxTier;
 
-        public void ContributeAgricultureResearch(string bodyName, double timespent)
+        public bool ContributeAgricultureResearch(string bodyName, double timespent)
         {
             Assert.AreEqual("test", bodyName);
             AgricultureResearchProgress += timespent;
+            return false;
         }
 
-		public void ContributeProductionResearch(string bodyName, double timespent)
+		public bool ContributeProductionResearch(string bodyName, double timespent)
 		{
 			Assert.AreEqual("test", bodyName);
 			ProductionResearchProgress += timespent;
-		}
+            return false;
+        }
 
-		public void ContributeScanningResearch(string bodyName, double timespent)
+        public bool ContributeScanningResearch(string bodyName, double timespent)
 		{
 			Assert.AreEqual("test", bodyName);
 			ScanningResearchProgress += timespent;
+            return false;
 		}
 
         internal void Reset()
