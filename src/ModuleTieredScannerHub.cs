@@ -21,7 +21,7 @@ namespace Nerm.Colonization
         protected override TechTier MaxTechTierResearched
             => ColonizationResearchScenario.Instance == null ? TechTier.Tier0 : ColonizationResearchScenario.Instance.GetScanningMaxTier(this.body);
 
-        protected override string RequiredCrewTrait => "Scientist";
+        protected override string RequiredCrewTrait => "Pilot";
 
         public override bool ContributeResearch(IColonizationResearchScenario target, double amount)
             => target.ContributeScanningResearch(this.body, amount);

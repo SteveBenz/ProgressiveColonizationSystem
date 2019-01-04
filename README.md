@@ -32,7 +32,7 @@ Development plan:
    1.  Create the resource gathering mechanic
        1.  Create a configurable part for storing Stuff
        2.  Create a KSP Resource for Tiered Stuff resource
-       3.  Create a scanning lab (using skin from infrared telescope?)
+       3.  (complete)Create a scanning lab (using skin from infrared telescope?)
        4.  Figure out how to make magic spots and waypoints to them
        5.  Make the Tier-1+ drill require being at a magic spot to work
    2.  Create shinies resource chain
