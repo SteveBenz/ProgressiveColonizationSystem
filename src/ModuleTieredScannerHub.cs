@@ -26,9 +26,13 @@ namespace Nerm.Colonization
         public override bool ContributeResearch(IColonizationResearchScenario target, double amount)
             => target.ContributeScanningResearch(this.body, amount);
 
-        protected override bool CanDoProduction(out string reasonWhyNotMessage)
+        protected override bool CanDoProduction(ModuleResourceConverter resourceConverter, out string reasonWhyNotMessage)
         {
-            if (this.vessel.situation != Vessel.Situations.ORBITING || this.body != this.vessel.mainBody.name)
+            if (!base.CanDoProduction(resourceConverter, out reasonWhyNotMessage))
+            {
+                return false;
+            }
+            else if (this.vessel.situation != Vessel.Situations.ORBITING || this.body != this.vessel.mainBody.name)
             {
                 reasonWhyNotMessage = $"Not orbiting {this.body}";
                 return false;

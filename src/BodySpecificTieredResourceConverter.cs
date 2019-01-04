@@ -37,9 +37,13 @@ namespace Nerm.Colonization
             this.tier = (int)this.MaxTechTierResearched;
         }
 
-        protected override bool CanDoProduction(out string reasonWhyNotMessage)
+        protected override bool CanDoProduction(ModuleResourceConverter resourceConverter, out string reasonWhyNotMessage)
         {
-            if (this.vessel.situation != Vessel.Situations.LANDED || this.body != this.vessel.mainBody.name)
+            if (!base.CanDoProduction(resourceConverter, out reasonWhyNotMessage))
+            {
+                return false;
+            }
+            else if (this.vessel.situation != Vessel.Situations.LANDED || this.body != this.vessel.mainBody.name)
             {
                 reasonWhyNotMessage = $"Not landed on {this.body}";
                 return false;

@@ -29,9 +29,9 @@ namespace Nerm.Colonization
         public override string SourceResourceName => "Fertilizer";
 
 
-        protected override bool CanDoProduction(out string reasonWhyNotMessage)
+        protected override bool CanDoProduction(ModuleResourceConverter resourceConverter, out string reasonWhyNotMessage)
         {
-            if (!base.CanDoProduction(out reasonWhyNotMessage))
+            if (!base.CanDoProduction(resourceConverter, out reasonWhyNotMessage))
             {
                 return false;
             }

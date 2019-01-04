@@ -59,6 +59,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CbnCrewRequirement.cs" />
     <Compile Include="ColonizationResearchScenario.cs" />
     <Compile Include="ModuleTieredContainer.cs" />
     <Compile Include="IProducer.cs" />
@@ -176,7 +177,7 @@
     <Content Include="GameData\ColonizationByNerm\Localization\en-us.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\Tank_125.cfg">
+    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Snacks_125.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ColonizationByNerm\Resources.cfg">
@@ -211,31 +212,31 @@
     <Content Include="GameData\ColonizationByNerm\Assets\Tank_375.mu">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\Fert_125.cfg">
+    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Fertilizer_125.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\Fert_250.cfg">
+    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Fertilizer_250.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\Fert_375.cfg">
+    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Fertilizer_375.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\Greenhouse_Cupola.cfg">
+    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Hydroponics_Cupola.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\Greenhouse_Inline.cfg">
+    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Hydroponics_Inline.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\MiniPak_Supplies.cfg">
+    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Snacks_MiniPak.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\MiniPak_Fertilizer.cfg">
+    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Fertilizer_MiniPak.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\Tank_250.cfg">
+    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Snacks_250.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\Tank_375.cfg">
+    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Snacks_375.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -246,27 +247,27 @@
     <Content Include="GameData\ColonizationByNerm\Assets\Recycler.mu">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\Tonto_AgModule.cfg">
+    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Farm_Medium.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="GameData\ColonizationByNerm\Parts\BigFertilizerFactory.cfg">
+    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Factory_Fertilizer_250.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="GameData\ColonizationByNerm\Parts\SmallFertilizerFactory.cfg">
+    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Factory_Fertilizer_125.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="GameData\ColonizationByNerm\Parts\StuffScrounger.cfg">
+    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Digger_Radial2.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="GameData\ColonizationByNerm\Parts\ScannerHub.cfg">
+    <Content Include="GameData\ColonizationByNerm\Parts\CBN_ScannerHub.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

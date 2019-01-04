@@ -12,8 +12,6 @@ namespace Nerm.Colonization
         [KSPField(isPersistant = true)]
         public double LastUpdateTime;
 
-        private List<ModuleTieredScannerHub> scannerHubs = null;
-
         protected IResourceBroker _resBroker;
         public IResourceBroker ResBroker
         {

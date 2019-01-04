@@ -6,7 +6,7 @@ using System.Text;
 namespace Nerm.Colonization
 {
 	public abstract class TieredResourceCoverter
-		: ModuleResourceConverter, IProducer
+		: PartModule, IProducer
 	{
         private double firstNoPowerIndicator = -1.0;
 
@@ -30,15 +30,15 @@ namespace Nerm.Colonization
 
 		protected abstract TechTier MaxTechTierResearched { get; }
 
-		protected virtual bool CanDoProduction(out string reasonWhyNotMessage)
+		protected virtual bool CanDoProduction(ModuleResourceConverter resourceConverter, out string reasonWhyNotMessage)
 		{
-			if (!this.IsActivated)
+			if (!resourceConverter.isActiveAndEnabled)
 			{
 				reasonWhyNotMessage = "Disabled - module is off";
 				return false;
 			}
 
-			if (!this.IsPowered)
+			if (!this.IsPowered(resourceConverter))
 			{
 				reasonWhyNotMessage = "Disabled - module lacks power";
 				return false;
@@ -65,16 +65,16 @@ namespace Nerm.Colonization
 			return true;
 		}
 
-		public override void FixedUpdate()
-		{
-			base.FixedUpdate();
-
+        public void FixedUpdate()
+        {
 			if (!HighLogic.LoadedSceneIsFlight)
 			{
 				return;
 			}
 
-			if (this.CanDoProduction(out string reasonWhyNotMessage))
+            ModuleResourceConverter resourceConverter = this.GetComponent<ModuleResourceConverter>();
+
+            if (this.CanDoProduction(resourceConverter, out string reasonWhyNotMessage))
 			{
 				this.IsProductionEnabled = true;
 
@@ -91,11 +91,11 @@ namespace Nerm.Colonization
 			}
 			else
 			{
-				if (this.IsActivated)
-				{
-					ScreenMessages.PostScreenMessage($"{this.name} is shutting down:  {reasonWhyNotMessage}", 10.0f);
-					this.StopResourceConverter();
-				}
+				//if (resourceConverter != null && resourceConverter.IsActivated)
+				//{
+					//ScreenMessages.PostScreenMessage($"{this.name} is shutting down:  {reasonWhyNotMessage}", 10.0f);
+                    //resourceConverter.StopResourceConverter();
+				//}
 				this.IsProductionEnabled = false;
 				this.IsResearchEnabled = false;
 				this.researchStatus = reasonWhyNotMessage;
@@ -124,33 +124,36 @@ namespace Nerm.Colonization
         /// <summary>
         ///   Returns true if the part has electrical power
         /// </summary>
-		private bool IsPowered
+		private bool IsPowered(ModuleResourceConverter resourceConverter)
         {
-            get
+            if (resourceConverter == null)
             {
-                // I don't see a good way to determine if a converter is running stably.
-                //  lastTimeFactor seems to be the amount of the last recipe that it was able
-                //  to successfully convert, which ought to be it, but lastTimeFactor is zero
-                //  for several iterations after unpacking the vessel.  This code attempts to
-                //  compensate for that by waiting at least 10 seconds before declaring itself
-                //  unpowered.
-                if (this.lastTimeFactor == 0)
+                // This module doesn't have a power requirement
+                return true;
+            }
+
+            // I don't see a good way to determine if a converter is running stably.
+            //  lastTimeFactor seems to be the amount of the last recipe that it was able
+            //  to successfully convert, which ought to be it, but lastTimeFactor is zero
+            //  for several iterations after unpacking the vessel.  This code attempts to
+            //  compensate for that by waiting at least 10 seconds before declaring itself
+            //  unpowered.
+            if (resourceConverter.lastTimeFactor == 0)
+            {
+                if (this.firstNoPowerIndicator < 0)
                 {
-                    if (this.firstNoPowerIndicator < 0)
-                    {
-                        this.firstNoPowerIndicator = Planetarium.GetUniversalTime();
-                        return true;
-                    }
-                    else
-                    {
-                        return Planetarium.GetUniversalTime() - this.firstNoPowerIndicator < 10.0;
-                    }
+                    this.firstNoPowerIndicator = Planetarium.GetUniversalTime();
+                    return true;
                 }
                 else
                 {
-                    this.firstNoPowerIndicator = -1;
-                    return true;
+                    return Planetarium.GetUniversalTime() - this.firstNoPowerIndicator < 10.0;
                 }
+            }
+            else
+            {
+                this.firstNoPowerIndicator = -1;
+                return true;
             }
         }
 
