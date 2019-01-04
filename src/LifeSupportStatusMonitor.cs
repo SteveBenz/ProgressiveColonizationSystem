@@ -294,7 +294,7 @@ namespace Nerm.Colonization
                     {
                         GUILayout.BeginHorizontal();
                         double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(researchSink.ScanningResearch);
-                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of production research per day (for {mainBody}).  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextScanningTier(mainBody):N} are needed to reach the next tier).");
+                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of scanning research per day (for {mainBody}).  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextScanningTier(mainBody):N} are needed to reach the next tier).");
                         GUILayout.EndHorizontal();
                     }
                     else
