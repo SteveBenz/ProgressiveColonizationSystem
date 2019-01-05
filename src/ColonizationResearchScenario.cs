@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Nerm.Colonization
 {
-    [KSPScenario(ScenarioCreationOptions.AddToAllGames, GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.SPACECENTER, GameScenes.TRACKSTATION)]
+    [KSPScenario(ScenarioCreationOptions.AddToAllGames, GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.SPACECENTER, GameScenes.TRACKSTATION, GameScenes.LOADING, GameScenes.LOADINGBUFFER)]
     public class ColonizationResearchScenario
         : ScenarioModule, IColonizationResearchScenario
     {
@@ -27,6 +27,11 @@ namespace Nerm.Colonization
             new TieredResource("Stuff", null, true, false),
             new TieredResource("ScanningData", null, false, true)
         };
+
+        public static TieredResource GetTieredResourceByName(string name)
+        {
+            return AllTieredResources.First(tr => tr.BaseName == name);
+        }
 
         public TieredResource TryGetTieredResourceByName(string name)
         {

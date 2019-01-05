@@ -194,10 +194,9 @@ namespace Nerm.Colonization
         {
             get
             {
-                if (this.inputAsTieredResource == null && string.IsNullOrEmpty(this.input))
+                if (this.inputAsTieredResource == null && !string.IsNullOrEmpty(this.input))
                 {
-                    this.inputAsTieredResource = ColonizationResearchScenario.Instance.TryGetTieredResourceByName(this.input);
-                    Debug.Assert(this.inputAsTieredResource != null, "Part is not configured correctly - input not set to a tiered resource name");
+                    this.inputAsTieredResource = ColonizationResearchScenario.GetTieredResourceByName(this.input);
                 }
                 return this.inputAsTieredResource;
             }
@@ -207,10 +206,9 @@ namespace Nerm.Colonization
         {
             get
             {
-                if (this.outputAsTieredResource == null && string.IsNullOrEmpty(this.output))
+                if (this.outputAsTieredResource == null && !string.IsNullOrEmpty(this.output))
                 {
-                    this.outputAsTieredResource = ColonizationResearchScenario.Instance.TryGetTieredResourceByName(this.output);
-                    Debug.Assert(this.outputAsTieredResource != null, "Part is not configured correctly - output not set to a tiered resource name");
+                    this.outputAsTieredResource = ColonizationResearchScenario.GetTieredResourceByName(this.output);
                 }
                 return this.outputAsTieredResource;
             }
@@ -222,14 +220,14 @@ namespace Nerm.Colonization
 
             if (this.Input != null)
             {
-                info.AppendLine($"{GreenInfo("Input:")} {this.Input.TieredName(this.Tier)}");
+                info.AppendLine($"{GreenInfo("Input:")} {this.Input.BaseName}");
             }
 
             info.AppendLine($"{GreenInfo("Capacity:")} {this.capacity} {this.Output.CapacityUnits}");
 
             if (this.Output.CanBeStored)
             {
-                info.AppendLine($"{GreenInfo("Output:")} {this.Output.TieredName(this.Tier)}");
+                info.AppendLine($"{GreenInfo("Output:")} {this.Output.BaseName}");
             }
 
             if (this.Output is EdibleResource edible)
