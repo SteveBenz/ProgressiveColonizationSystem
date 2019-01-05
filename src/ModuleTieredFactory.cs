@@ -17,14 +17,6 @@ namespace Nerm.Colonization
 		protected override TechTier MaxTechTierResearched
 			=> ColonizationResearchScenario.Instance.GetProductionMaxTier(this.body);
 
-		protected override string RequiredCrewTrait => "Engineer";
-
-        /// <summary>
-        ///   The name of the input resource (as a Tier4 resource)
-        /// </summary>
-        [KSPField]
-        public string input;
-
 		public override bool ContributeResearch(IColonizationResearchScenario target, double amount)
 		{
 			if (this.IsResearchEnabled)
@@ -38,8 +30,6 @@ namespace Nerm.Colonization
 			}
 		}
 
-        public override string SourceResourceName => this.input == "" ? null : this.input;
-
         public override string GetInfo()
         {
             StringBuilder info = new StringBuilder();
@@ -48,6 +38,10 @@ namespace Nerm.Colonization
             if (!string.IsNullOrEmpty(this.input))
             {
                 info.AppendLine($"{GreenInfo("Input:")} {this.input}");
+            }
+            if (!string.IsNullOrEmpty(this.output))
+            {
+                info.AppendLine($"{GreenInfo("Output:")} {this.output}");
             }
 
             return info.ToString();

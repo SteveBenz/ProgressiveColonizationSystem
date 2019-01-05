@@ -8,10 +8,6 @@ namespace Nerm.Colonization
     public class ModuleTieredAgriculture
         : BodySpecificTieredResourceConverter
     {
-        protected override string RequiredCrewTrait => "Scientist";
-
-        public override string SourceResourceName => "Fertilizer";
-
         [KSPField(guiActive = true, isPersistant = true, guiName = "Stockpile extra food")]
         [UI_Toggle]
         public bool isStockpiling = true;

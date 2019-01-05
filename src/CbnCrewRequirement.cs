@@ -45,7 +45,7 @@ namespace Nerm.Colonization
                         {
                             info.Append(", ");
                         }
-                        info.Append(this.DescribeKerbal((int)tier - specialistStarBonus, trait));
+                        info.Append(this.DescribeKerbal(1 + (int)tier - specialistStarBonus, trait));
                         any = true;
                     }
                 }
@@ -53,9 +53,9 @@ namespace Nerm.Colonization
                 {
                     if (any)
                     {
-                        info.Append(", or a ");
+                        info.Append(" or a ");
                     }
-                    info.Append(this.DescribeKerbal((int)tier, this.generalistTrait));
+                    info.Append(this.DescribeKerbal(1 + (int)tier, this.generalistTrait));
                 }
                 info.AppendLine();
             }

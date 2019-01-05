@@ -16,12 +16,8 @@ namespace Nerm.Colonization
 
         public override bool CanStockpileProduce => true;
 
-        public override string SourceResourceName => null;
-
         protected override TechTier MaxTechTierResearched
             => ColonizationResearchScenario.Instance == null ? TechTier.Tier0 : ColonizationResearchScenario.Instance.GetScanningMaxTier(this.body);
-
-        protected override string RequiredCrewTrait => "Pilot";
 
         public override bool ContributeResearch(IColonizationResearchScenario target, double amount)
             => target.ContributeScanningResearch(this.body, amount);

@@ -24,11 +24,6 @@ namespace Nerm.Colonization
             }
         }
 
-        protected override string RequiredCrewTrait => "Scientist";
-
-        public override string SourceResourceName => "Fertilizer";
-
-
         protected override bool CanDoProduction(ModuleResourceConverter resourceConverter, out string reasonWhyNotMessage)
         {
             if (!base.CanDoProduction(resourceConverter, out reasonWhyNotMessage))

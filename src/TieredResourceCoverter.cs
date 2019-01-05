@@ -19,10 +19,19 @@ namespace Nerm.Colonization
 			this.tier = (this.tier + 1) % ((int)this.MaxTechTierResearched + 1);
 		}
 
-		[KSPField]
-		public string output;
+        /// <summary>
+        ///   The name of the output resource (as a Tier4 resource)
+        /// </summary>
+        [KSPField]
+        public string output;
 
-		[KSPField]
+        /// <summary>
+        ///   The name of the input resource (as a Tier4 resource)
+        /// </summary>
+        [KSPField]
+        public string input;
+
+        [KSPField]
 		public float capacity;
 
 		[KSPField(guiActive = true, guiActiveEditor = false, guiName = "Research")]
@@ -109,17 +118,14 @@ namespace Nerm.Colonization
 				return false;
 			}
 
-			if (this.vessel.GetVesselCrew() == null)
+			if (this.vessel.GetCrewCount() == 0)
 			{
 				return false;
 			}
 
-			// We might want to make this check more elaborate someday - to encourage bigger crews
-			// amont other things.
-			return this.vessel.GetVesselCrew().Any(crew => crew.trait == RequiredCrewTrait && crew.experienceLevel >= this.tier);
+            var crewRequirement = this.GetComponent<CbnCrewRequirement>();
+            return crewRequirement == null || crewRequirement.TryAssignCrew();
 		}
-
-		protected abstract string RequiredCrewTrait { get; }
 
         /// <summary>
         ///   Returns true if the part has electrical power
@@ -173,7 +179,7 @@ namespace Nerm.Colonization
 		/// </summary>
 		public string ProductResourceName => this.output;
 
-        public abstract string SourceResourceName { get; }
+        public string SourceResourceName => this.input;
 
         public abstract bool ContributeResearch(IColonizationResearchScenario target, double amount);
 

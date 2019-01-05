@@ -29,7 +29,7 @@ namespace Nerm.Colonization
 		string ProductResourceName { get; }
 
         /// <summary>
-        ///   If this producer needs to make 
+        ///   If this producer needs something to make what it's making, this is set to what it needs.
         /// </summary>
         string SourceResourceName { get; }
     }
