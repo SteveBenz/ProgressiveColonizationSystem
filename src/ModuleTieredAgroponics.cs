@@ -71,19 +71,5 @@ namespace Nerm.Colonization
 			return this.vessel.distanceToSun > homeworldDistanceFromSun * .9
 				&& this.vessel.distanceToSun < homeworldDistanceFromSun * 1.1;
 		}
-
-        public override string GetInfo()
-        {
-            StringBuilder info = new StringBuilder();
-            info.AppendLine($"{GreenInfo("Capacity:")} {this.capacity} kerbal-days");
-            info.AppendLine(GreenInfo("Quality:"));
-            foreach (TechTier tier in TechTierExtensions.AllTiers)
-            {
-                info.AppendLine($" {tier.ToString()}: {(int)(tier.AgroponicMaxDietRatio() * 100)}%");
-            }
-            return info.ToString();
-        }
-
-        public override bool CanStockpileProduce => false;
     }
 }

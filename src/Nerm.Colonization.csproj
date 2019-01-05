@@ -61,6 +61,8 @@
   <ItemGroup>
     <Compile Include="CbnCrewRequirement.cs" />
     <Compile Include="ColonizationResearchScenario.cs" />
+    <Compile Include="TieredResource.cs" />
+    <Compile Include="EdibleResource.cs" />
     <Compile Include="ModuleTieredContainer.cs" />
     <Compile Include="IProducer.cs" />
     <Compile Include="LifeSupportStatusMonitor.cs" />
@@ -79,7 +81,6 @@
     <Compile Include="LifeSupportStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SnackConsumption.cs" />
-    <Compile Include="Snacks.cs" />
     <Compile Include="TechProgress.cs" />
     <Compile Include="TechTier.cs" />
     <Compile Include="ColonizationByNermAnimation.cs" />

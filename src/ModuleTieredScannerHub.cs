@@ -7,15 +7,6 @@ namespace Nerm.Colonization
 	public class ModuleTieredScannerHub
 		: BodySpecificTieredResourceConverter
     {
-        public const string ScannerDataMetaResourceBaseName = "ScannerData";
-
-        public ModuleTieredScannerHub()
-        {
-            this.output = ScannerDataMetaResourceBaseName;
-        }
-
-        public override bool CanStockpileProduce => true;
-
         protected override TechTier MaxTechTierResearched
             => ColonizationResearchScenario.Instance == null ? TechTier.Tier0 : ColonizationResearchScenario.Instance.GetScanningMaxTier(this.body);
 

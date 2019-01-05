@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace Nerm.Colonization
 {
@@ -169,8 +170,6 @@ namespace Nerm.Colonization
 
 		public bool IsProductionEnabled { get; private set; }
 
-		public abstract bool CanStockpileProduce { get; }
-
 		public double ProductionRate => this.capacity;
 
 		/// <summary>
@@ -186,6 +185,63 @@ namespace Nerm.Colonization
         public static string GreenInfo(string info)
         {
             return $"<color=#99FF00>{info}</color>";
+        }
+
+        private TieredResource inputAsTieredResource;
+        private TieredResource outputAsTieredResource;
+
+        public TieredResource Input
+        {
+            get
+            {
+                if (this.inputAsTieredResource == null && string.IsNullOrEmpty(this.input))
+                {
+                    this.inputAsTieredResource = ColonizationResearchScenario.Instance.TryGetTieredResourceByName(this.input);
+                    Debug.Assert(this.inputAsTieredResource != null, "Part is not configured correctly - input not set to a tiered resource name");
+                }
+                return this.inputAsTieredResource;
+            }
+        }
+
+        public TieredResource Output
+        {
+            get
+            {
+                if (this.outputAsTieredResource == null && string.IsNullOrEmpty(this.output))
+                {
+                    this.outputAsTieredResource = ColonizationResearchScenario.Instance.TryGetTieredResourceByName(this.output);
+                    Debug.Assert(this.outputAsTieredResource != null, "Part is not configured correctly - output not set to a tiered resource name");
+                }
+                return this.outputAsTieredResource;
+            }
+        }
+
+        public override string GetInfo()
+        {
+            StringBuilder info = new StringBuilder();
+
+            if (this.Input != null)
+            {
+                info.AppendLine($"{GreenInfo("Input:")} {this.Input.TieredName(this.Tier)}");
+            }
+
+            info.AppendLine($"{GreenInfo("Capacity:")} {this.capacity} {this.Output.CapacityUnits}");
+
+            if (this.Output.CanBeStored)
+            {
+                info.AppendLine($"{GreenInfo("Output:")} {this.Output.TieredName(this.Tier)}");
+            }
+
+            if (this.Output is EdibleResource edible)
+            {
+                info.AppendLine($"{GreenInfo("Quality:")}");
+                foreach (TechTier tier in TechTierExtensions.AllTiers)
+                {
+                    info.AppendLine($" {tier.ToString()}: {(int)(edible.GetPercentOfDietByTier(tier) * 100)}%");
+                }
+            }
+
+            return info.ToString();
         }
     }
 }

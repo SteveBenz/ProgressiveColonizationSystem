@@ -63,7 +63,7 @@ namespace Nerm.Colonization
             //  see that 'availableResources.Keys' and 'availableStorage.Keys' are the same.
 
             // First just get a handle on what stuff we could produce.
-            List<ProducerData> producerInfos = FindProducers(producers2, availableResources, availableStorage);
+            List<ProducerData> producerInfos = FindProducers(producers2, colonizationResearch, availableResources, availableStorage);
             SortProducerList(producerInfos);
             MatchProducersWithSourceProducers(producerInfos);
 
@@ -109,8 +109,8 @@ namespace Nerm.Colonization
             // Augment that with stockpiling
             foreach (ProducerData producerData in producerInfos)
             {
-                string resourceName = producerData.SourceTemplate.Tier.GetTieredResourceName(producerData.SourceTemplate.ProductResourceName);
-                if (producerData.IsStockpiling && availableStorage.ContainsKey(resourceName))
+                string resourceName = producerData.SourceTemplate.Output.TieredName(producerData.SourceTemplate.Tier);
+                if (availableStorage.ContainsKey(resourceName))
                 {
                     double stockpiledPerDay = producerData.TryToProduce(double.MaxValue);
                     double stockpiledPerSecond = UnitsPerDayToUnitsPerSecond(stockpiledPerDay);
@@ -126,7 +126,7 @@ namespace Nerm.Colonization
                         }
                     }
                 }
-                else if (producerData.IsStockpiling && producerData.SourceTemplate.ProductResourceName == ModuleTieredScannerHub.ScannerDataMetaResourceBaseName)
+                else if (producerData.SourceTemplate.Output.ExcessProductionCountsTowardsResearch)
                 {
                     // Just run the machine
                     producerData.TryToProduce(double.MaxValue);
@@ -148,7 +148,7 @@ namespace Nerm.Colonization
                     {
                         double secondsToEmpty = (storage.Amount / amountUsedPerSecond);
                         timePassedInSeconds = Math.Min(timePassedInSeconds, secondsToEmpty);
-                        resourceConsumptionPerSecond.Add(storage.Tier.GetTieredResourceName(storage.ProductResourceName), amountUsedPerSecond);
+                        resourceConsumptionPerSecond.Add(storage.Output.TieredName(storage.Tier), amountUsedPerSecond);
                     }
                 }
             }
@@ -184,9 +184,9 @@ namespace Nerm.Colonization
         private class StorageProducer
             : IProducer
         {
-            public StorageProducer(string baseName, TechTier tier, double amount)
+            public StorageProducer(TieredResource resource, TechTier tier, double amount)
             {
-                this.ProductResourceName = baseName;
+                this.Output = resource;
                 this.Tier = tier;
                 this.Amount = amount;
             }
@@ -201,9 +201,9 @@ namespace Nerm.Colonization
 
             public bool CanStockpileProduce => false;
 
-            public string ProductResourceName { get; }
+            public TieredResource Input => null;
 
-            public string SourceResourceName => null;
+            public TieredResource Output { get; }
 
             public bool ContributeResearch(IColonizationResearchScenario target, double amount)
                 => throw new NotImplementedException();
@@ -251,7 +251,7 @@ namespace Nerm.Colonization
                 }
 
                 double capacityLimitedRequest = Math.Min(this.TotalProductionCapacity - this.AllottedCapacity, amountPerDay);
-                if (this.SourceTemplate.SourceResourceName == null)
+                if (this.SourceTemplate.Input == null)
                 {
                     this.AllottedCapacity += capacityLimitedRequest;
                     return capacityLimitedRequest;
@@ -285,53 +285,24 @@ namespace Nerm.Colonization
         }
 
         private static List<FoodProducer> GetFoodProducers(List<ProducerData> producers)
-        {
-            List<FoodProducer> foodProducers = new List<FoodProducer>();
-            foreach (ProducerData producer in producers)
-            {
-                if (producer.SourceTemplate is StorageProducer)
-                {
-                    // Ignore it
-                }
-                else if (producer.SourceTemplate.ProductResourceName == Snacks.AgriculturalSnackResourceBaseName)
-                {
-                    foodProducers.Add(new FoodProducer { ProductionChain = producer, MaxDietRatio = Snacks.AgricultureMaxDietRatio(producer.SourceTemplate.Tier) });
-                }
-                else if (producer.SourceTemplate.ProductResourceName == Snacks.AgroponicSnackResourceBaseName)
-                {
-                    foodProducers.Add(new FoodProducer { ProductionChain = producer, MaxDietRatio = Snacks.AgroponicMaxDietRatio(producer.SourceTemplate.Tier) });
-                }
-            }
-            foodProducers.Sort((left, right) => left.MaxDietRatio.CompareTo(right.MaxDietRatio));
-            return foodProducers;
-        }
-
+            => producers
+               .Where(producer => !(producer.SourceTemplate is StorageProducer))
+               .Where(producer => producer.SourceTemplate.Output is EdibleResource)
+               .Select(producer => new FoodProducer { ProductionChain = producer, MaxDietRatio = ((EdibleResource)(producer.SourceTemplate.Output)).GetPercentOfDietByTier(producer.SourceTemplate.Tier) })
+               .OrderBy(p => p.MaxDietRatio)
+               .ToList();
 
         private static List<FoodProducer> GetFoodStorage(List<ProducerData> producers)
-        {
-            List<FoodProducer> foodProducers = new List<FoodProducer>();
-            foreach (ProducerData producer in producers)
-            {
-                if (!(producer.SourceTemplate is StorageProducer))
-                {
-                    // Ignore it
-                }
-                else if (producer.SourceTemplate.ProductResourceName == Snacks.AgriculturalSnackResourceBaseName)
-                {
-                    foodProducers.Add(new FoodProducer { ProductionChain = producer, MaxDietRatio = Snacks.AgricultureMaxDietRatio(producer.SourceTemplate.Tier) });
-                }
-                else if (producer.SourceTemplate.ProductResourceName == Snacks.AgroponicSnackResourceBaseName)
-                {
-                    foodProducers.Add(new FoodProducer { ProductionChain = producer, MaxDietRatio = Snacks.AgricultureMaxDietRatio(producer.SourceTemplate.Tier) });
-                }
-            }
-
-            foodProducers.Sort((left, right) => left.MaxDietRatio.CompareTo(right.MaxDietRatio));
-            return foodProducers;
-        }
+            => producers
+               .Where(producer => producer.SourceTemplate is StorageProducer)
+               .Where(producer => producer.SourceTemplate.Output is EdibleResource)
+               .Select(producer => new FoodProducer { ProductionChain = producer, MaxDietRatio = ((EdibleResource)(producer.SourceTemplate.Output)).GetPercentOfDietByTier(producer.SourceTemplate.Tier) })
+               .OrderBy(p => p.MaxDietRatio)
+               .ToList();
 
         private static List<ProducerData> FindProducers(
             List<IProducer> producers,
+            IColonizationResearchScenario colonizationScenario,
             Dictionary<string, double> availableResources,
             Dictionary<string, double> availableStorage)
         {
@@ -344,7 +315,7 @@ namespace Nerm.Colonization
                     ProducerData data = productionPossibilities.FirstOrDefault(
                         pp => pp.SourceTemplate.GetType() == producer.GetType()
                            && pp.SourceTemplate.Tier == producer.Tier
-                           && pp.SourceTemplate.ProductResourceName == producer.ProductResourceName);
+                           && pp.SourceTemplate.Output == producer.Output);
 
                     if (data == null)
                     {
@@ -360,10 +331,8 @@ namespace Nerm.Colonization
                     {
                         data.ProductionContributingToResearch += producer.ProductionRate;
                     }
-                    data.IsStockpiling |=
-                        (producer.CanStockpileProduce
-                      && (availableStorage.ContainsKey(producer.Tier.GetTieredResourceName(producer.ProductResourceName))
-                       || producer.ProductResourceName == ModuleTieredScannerHub.ScannerDataMetaResourceBaseName));
+                    data.IsStockpiling |= availableStorage.ContainsKey(producer.Output.TieredName(producer.Tier));
+                    data.IsStockpiling |= producer.Output.ExcessProductionCountsTowardsResearch;
                 }
             }
 
@@ -372,14 +341,13 @@ namespace Nerm.Colonization
                 string storedResource = pair.Key;
                 double amount = pair.Value;
                 // TODO: Come up with a better way to filter it down to the resources that we care about.
-                if ((storedResource.StartsWith("Fertilizer")
-                    || storedResource.StartsWith("Snacks")
-                    || storedResource.StartsWith("Raw Stuff"))
-                    && TechTierExtensions.TryParseTieredResourceName(storedResource, out string tier4Name, out TechTier tier))
+
+
+                if (colonizationScenario.TryParseTieredResourceName(storedResource, out TieredResource resource, out TechTier tier))
                 {
                     ProducerData resourceProducer = new ProducerData
                     {
-                        SourceTemplate = new StorageProducer(tier4Name, tier, amount),
+                        SourceTemplate = new StorageProducer(resource, tier, amount),
                         IsStockpiling = false,
                         ProductionContributingToResearch = 0,
                         TotalProductionCapacity = double.MaxValue,
@@ -420,10 +388,8 @@ namespace Nerm.Colonization
                         // we're stockpiling both snacks and fertilizer.  This choice means that if we've only
                         // got a little bit of excess fertilizer capacity, it'll go towards making extra snacks
                         // rather than stacking up the fertilizer.
-                        bool leftIsSnacks = left.SourceTemplate.ProductResourceName == Snacks.AgriculturalSnackResourceBaseName
-                                         || left.SourceTemplate.ProductResourceName == Snacks.AgroponicSnackResourceBaseName;
-                        bool rightIsSnacks = right.SourceTemplate.ProductResourceName == Snacks.AgriculturalSnackResourceBaseName
-                                            || right.SourceTemplate.ProductResourceName == Snacks.AgroponicSnackResourceBaseName;
+                        bool leftIsSnacks = left.SourceTemplate.Output is EdibleResource;
+                        bool rightIsSnacks = right.SourceTemplate.Output is EdibleResource;
                         if (leftIsSnacks && rightIsSnacks)
                         {
                             return 0;
@@ -438,7 +404,7 @@ namespace Nerm.Colonization
                         }
 
                         // Okay, for the rest, it's alphabetical order, because we don't have any known preference.
-                        return left.SourceTemplate.ProductResourceName.CompareTo(right.SourceTemplate.ProductResourceName);
+                        return left.SourceTemplate.Output.BaseName.CompareTo(right.SourceTemplate.Output.BaseName);
                     }
                 }
             });
@@ -450,11 +416,11 @@ namespace Nerm.Colonization
             List<ProducerData> producersWithNoSupply = new List<ProducerData>();
             foreach (ProducerData producer in producers)
             {
-                if (producer.SourceTemplate.SourceResourceName != null)
+                if (producer.SourceTemplate.Input != null)
                 {
                     producer.Suppliers = producers
                         // We can use anything that produces our kind of thing at our tier and up
-                        .Where(potentialSupplier => potentialSupplier.SourceTemplate.ProductResourceName == producer.SourceTemplate.SourceResourceName
+                        .Where(potentialSupplier => potentialSupplier.SourceTemplate.Output == producer.SourceTemplate.Input
                                                  && potentialSupplier.SourceTemplate.Tier >= producer.SourceTemplate.Tier)
                         .ToList();
 
@@ -477,7 +443,7 @@ namespace Nerm.Colonization
                     }
                 }
 
-                producersWithNoSupply = producers.Where(p => p.SourceTemplate.SourceResourceName != null && p.Suppliers.Count == 0).ToList();
+                producersWithNoSupply = producers.Where(p => p.SourceTemplate.Input != null && p.Suppliers.Count == 0).ToList();
             }
         }
     }

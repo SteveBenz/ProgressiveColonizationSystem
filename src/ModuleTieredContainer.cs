@@ -77,8 +77,11 @@ namespace Nerm.Colonization
             double oldAmount = (currentPart.Resources.Count > 0) ? currentPart.Resources[0].amount : -1;
             currentPart.Resources.dict = new DictionaryValueList<int, PartResource>();
 
+            TieredResource tieredResource = ColonizationResearchScenario.Instance.TryGetTieredResourceByName(this.resource);
+            Debug.Assert(tieredResource != null, "Tank is not configured correctly - resource is not a tiered resource");
+
             ConfigNode newResourceNode = new ConfigNode("RESOURCE");
-            newResourceNode.AddValue("name", this.tier.GetTieredResourceName(this.resource));
+            newResourceNode.AddValue("name", tieredResource.TieredName(this.tier));
             newResourceNode.AddValue("maxAmount", this.maxAmount);
             newResourceNode.AddValue("amount", HighLogic.LoadedSceneIsEditor ? (oldAmount < 0 ? this.maxAmount : (float)oldAmount) : 0.0f);
 

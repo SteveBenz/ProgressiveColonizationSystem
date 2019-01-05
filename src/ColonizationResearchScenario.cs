@@ -16,6 +16,51 @@ namespace Nerm.Colonization
         [KSPField(isPersistant = true)]
         public int agroponicsMaxTier = 0;
 
+
+        static TieredResource[] AllTieredResources =
+        {
+            new EdibleResource("HydroponicSnacks", false, false, .2, .4, .55, .7, .95),
+            new EdibleResource("Snacks", true, false, .6, .85, .95, .98, 1.0),
+            new EdibleResource("Snacks", true, false, .6, .85, .95, .98, 1.0),
+            new TieredResource("Fertilizer", "Kerbal-Days", true, false),
+            new TieredResource("Shinies", "Bling-per-day", true, false),
+            new TieredResource("Stuff", null, true, false),
+            new TieredResource("ScanningData", null, false, true)
+        };
+
+        public TieredResource TryGetTieredResourceByName(string name)
+        {
+            return AllTieredResources.FirstOrDefault(tr => tr.BaseName == name);
+        }
+
+        public bool TryParseTieredResourceName(string tieredResourceName, out TieredResource resource, out TechTier tier)
+        {
+            int dashIndex = tieredResourceName.IndexOf('-');
+            if (dashIndex < 0)
+            {
+                resource = TryGetTieredResourceByName(tieredResourceName);
+                tier = TechTier.Tier4;
+                return resource != null;
+            }
+            else
+            {
+                try
+                {
+                    // Oh, but we do pine ever so much for .Net 4.6...
+                    tier = (TechTier)Enum.Parse(typeof(TechTier), tieredResourceName.Substring(dashIndex + 1));
+                    var tier4Name = tieredResourceName.Substring(0, dashIndex);
+                    resource = TryGetTieredResourceByName(tier4Name);
+                    return resource != null;
+                }
+                catch (Exception)
+                {
+                    resource = null;
+                    tier = TechTier.Tier0;
+                    return false;
+                }
+            }
+        }
+
         /// <summary>
         ///   A '|' separated list of worlds where the player can do agriculture.
         /// </summary>
@@ -26,9 +71,9 @@ namespace Nerm.Colonization
         [KSPField(isPersistant = true)]
         public string validProductionBodies = "";
 
-		Dictionary<string, TechProgress> bodyToAgricultureTechTierMap;
-		Dictionary<string, TechProgress> bodyToProductionTechTierMap;
-		Dictionary<string, TechProgress> bodyToScanningTechTierMap;
+		private Dictionary<string, TechProgress> bodyToAgricultureTechTierMap;
+        private Dictionary<string, TechProgress> bodyToProductionTechTierMap;
+        private Dictionary<string, TechProgress> bodyToScanningTechTierMap;
 
 		public ColonizationResearchScenario()
         {
@@ -184,5 +229,7 @@ namespace Nerm.Colonization
         bool ContributeAgricultureResearch(string bodyName, double timespent);
         bool ContributeProductionResearch(string bodyName, double timespent);
         bool ContributeScanningResearch(string bodyName, double timespent);
-	}
+
+        bool TryParseTieredResourceName(string tieredResourceName, out TieredResource resource, out TechTier tier);
+    }
 }

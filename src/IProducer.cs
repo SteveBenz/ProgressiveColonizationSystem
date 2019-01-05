@@ -19,18 +19,11 @@ namespace Nerm.Colonization
         /// <returns>True if there was a research breakthrough as a result of this.</returns>
         bool ContributeResearch(IColonizationResearchScenario target, double amount);
 
-        /// <summary>
-        ///   If true, the output can be stored in the ship, if false, it means that it can only
-        ///   produce stuff that the kerbals eat immediately.  (Or rather, what we're really trying
-        ///   to do is say that this is a zero-sum thing - it can only produce as much as the kerbals poop.)
-        /// </summary>
-        bool CanStockpileProduce { get; }
-
-		string ProductResourceName { get; }
+		TieredResource Output { get; }
 
         /// <summary>
         ///   If this producer needs something to make what it's making, this is set to what it needs.
         /// </summary>
-        string SourceResourceName { get; }
+        TieredResource Input { get; }
     }
 }

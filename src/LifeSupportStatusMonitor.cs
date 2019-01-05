@@ -109,7 +109,7 @@ namespace Nerm.Colonization
             // If there are no top-tier supplies, no producers, and no crew
             if (crewCount == 0
              && snackProducers.Count == 0
-             && !availableResources.ContainsKey(Snacks.AgriculturalSnackResourceBaseName))
+             && !availableResources.ContainsKey("Snacks"))
             {
                 GUILayout.Label("Oy!  Robots don't eat!");
                 // "This ship apparently ate all its crew"
@@ -354,6 +354,9 @@ namespace Nerm.Colonization
                 this.ScanningResearch += timespent;
                 return false;
             }
-		}
+
+            public bool TryParseTieredResourceName(string tieredResourceName, out TieredResource resource, out TechTier tier)
+                => ColonizationResearchScenario.Instance.TryParseTieredResourceName(tieredResourceName, out resource, out tier);
+        }
 	}
 }

@@ -8,10 +8,6 @@ namespace Nerm.Colonization
     public class ModuleTieredAgriculture
         : BodySpecificTieredResourceConverter
     {
-        [KSPField(guiActive = true, isPersistant = true, guiName = "Stockpile extra food")]
-        [UI_Toggle]
-        public bool isStockpiling = true;
-
         protected override TechTier MaxTechTierResearched =>
             ColonizationResearchScenario.Instance.GetAgricultureMaxTier(this.body);
 
@@ -26,21 +22,6 @@ namespace Nerm.Colonization
             {
                 return false;
             }
-        }
-
-        public override bool CanStockpileProduce => this.isStockpiling;
-
-        public override string GetInfo()
-        {
-            StringBuilder info = new StringBuilder();
-
-            info.AppendLine($"{GreenInfo("Capacity:")} {this.capacity} kerbal-days");
-            info.AppendLine($"{GreenInfo("Quality:")}");
-            foreach (TechTier tier in TechTierExtensions.AllTiers)
-            {
-                info.AppendLine($" {tier.ToString()}: {(int)(tier.AgricultureMaxDietRatio() * 100)}%");
-            }
-            return info.ToString();
         }
     }
 }

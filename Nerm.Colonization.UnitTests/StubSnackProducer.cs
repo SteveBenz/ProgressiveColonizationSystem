@@ -13,12 +13,9 @@ namespace Nerm.Colonization.UnitTests
 		public double ProductionRate { get; set; }
 		public bool IsResearchEnabled { get; set; }
 		public bool IsProductionEnabled { get; set; }
-		public abstract string ProductResourceName { get; }
-
         public bool CanStockpileProduce { get; set; }
-
-        public string SourceResourceName => "Fertilizer";
-
+        public abstract TieredResource Output { get; }
+        public TieredResource Input => StubColonizationResearchScenario.GetTieredResourceByName("Fertilizer");
         public abstract bool ContributeResearch(IColonizationResearchScenario target, double amount);
     }
 
@@ -44,7 +41,7 @@ namespace Nerm.Colonization.UnitTests
             }
         }
 
-        public override string ProductResourceName => Snacks.AgroponicSnackResourceBaseName;
+        public override TieredResource Output => StubColonizationResearchScenario.GetTieredResourceByName("HydroponicSnacks");
     }
 
     public class StubFarm
@@ -69,6 +66,6 @@ namespace Nerm.Colonization.UnitTests
             }
         }
 
-        public override string ProductResourceName => Snacks.AgriculturalSnackResourceBaseName;
+        public override TieredResource Output => StubColonizationResearchScenario.GetTieredResourceByName("Snacks");
     }
 }

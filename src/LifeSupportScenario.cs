@@ -13,7 +13,7 @@ namespace Nerm.Colonization
     ///   This class maintains what we know about individual kerbals (and persists what it knows
     ///   in the save file).
     /// </summary>
-    [KSPScenario(ScenarioCreationOptions.AddToAllGames, GameScenes.FLIGHT)]
+    [KSPScenario(ScenarioCreationOptions.AddToAllGames, GameScenes.FLIGHT, GameScenes.EDITOR)]
     public class LifeSupportScenario
         : ScenarioModule
     {
@@ -110,6 +110,7 @@ namespace Nerm.Colonization
                 });
             }
         }
+
 
         public override void OnLoad(ConfigNode node)
         {

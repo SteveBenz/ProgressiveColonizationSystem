@@ -9,13 +9,13 @@ namespace Nerm.Colonization.UnitTests
 	public class StubFertilizerProducer
         : IProducer
 	{
+
 		public TechTier Tier { get; set; }
 		public double ProductionRate { get; set; }
 		public bool IsResearchEnabled { get; set; }
 		public bool IsProductionEnabled { get; set; }
-        public string ProductResourceName => "Fertilizer";
-        public bool CanStockpileProduce { get; set; } = true;
-        public string SourceResourceName { get; set; } = null;
+        public TieredResource Output => StubColonizationResearchScenario.GetTieredResourceByName("Fertilizer");
+        public TieredResource Input => null;
         public bool ContributeResearch(IColonizationResearchScenario target, double amount)
         {
             // Copied from the real class.  Yuk.  Gotta get a better mock framework.
