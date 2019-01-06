@@ -66,14 +66,14 @@ namespace Nerm.Colonization
             }
 
             if (this.Output.ProductionRestriction == ProductionRestriction.LandedOnBody
-             && this.vessel.situation != Vessel.Situations.LANDED || this.body != this.vessel.mainBody.name)
+             && (this.vessel.situation != Vessel.Situations.LANDED || this.body != this.vessel.mainBody.name))
             {
                 reasonWhyNotMessage = $"Not landed on {this.body}";
                 return false;
             }
 
             if (this.Output.ProductionRestriction == ProductionRestriction.OrbitOfBody
-             && this.vessel.situation != Vessel.Situations.ORBITING || this.body != this.vessel.mainBody.name)
+             && (this.vessel.situation != Vessel.Situations.ORBITING || this.body != this.vessel.mainBody.name))
             {
                 reasonWhyNotMessage = $"Not landed on {this.body}";
                 return false;
@@ -91,7 +91,7 @@ namespace Nerm.Colonization
                 return false;
             }
 
-            if (this.Output.ResearchCategory.CanDoResearch(this.vessel, this.Tier, out reasonWhyNotMessage))
+            if (!this.Output.ResearchCategory.CanDoResearch(this.vessel, this.Tier, out reasonWhyNotMessage))
             {
                 return false;
             }

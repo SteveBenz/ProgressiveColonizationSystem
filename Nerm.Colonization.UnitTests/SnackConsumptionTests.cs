@@ -300,8 +300,6 @@ namespace Nerm.Colonization.UnitTests
             Assert.AreEqual(4 * Tier2AgroponicMaxDietRatio, consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(4 * (Tier2AgroponicMaxDietRatio - Tier0AgroponicMaxDietRatio), colonizationResearchScenario.AgroponicResearchProgress * SecondsPerKerbanDay, TestTolerance);
 
-            // TODO: When ag production is added, add the at-Duna test.
-
             // Duna return scenario - still got the max-tier stuff, but added some local stuff
             available["Fertilizer-Tier0"] = 1.0;
             available["Snacks-Tier0"] = 1.0;

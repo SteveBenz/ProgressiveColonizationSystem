@@ -51,12 +51,14 @@ namespace Nerm.Colonization
                     if (IsVeryEasyWorld(vessel))
                     {
                         reasonWhyNot = $"{this.DisplayName} research is limited to {TechTier.Tier2.DisplayName()} on the moons of the home world";
+                        return false;
                     }
                     break;
                 case TechTier.Tier3:
                     if (!IsFarOut(vessel))
                     {
                         reasonWhyNot = $"{this.DisplayName} research is limited to {TechTier.Tier3.DisplayName()} on easy worlds";
+                        return false;
                     }
                     break;
                 case TechTier.Tier4:
@@ -79,12 +81,14 @@ namespace Nerm.Colonization
                     if (IsNearKerbin(vessel))
                     {
                         reasonWhyNot = $"{this.DisplayName} progression is limited to {TechTier.Tier2.DisplayName()} near {FlightGlobals.GetHomeBody().name}";
+                        return false;
                     }
                     break;
                 case TechTier.Tier3:
                     if (!IsFarOut(vessel))
                     {
                         reasonWhyNot = $"{this.DisplayName} progression is limited to {TechTier.Tier3.DisplayName()} anywhere remotely near {FlightGlobals.GetHomeBody().name}";
+                        return false;
                     }
                     break;
                 case TechTier.Tier4:
