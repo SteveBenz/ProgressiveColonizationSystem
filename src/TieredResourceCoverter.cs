@@ -23,6 +23,31 @@ namespace Nerm.Colonization
             this.tier = (this.tier + 1) % ((int)this.MaxTechTierResearched + 1);
         }
 
+        [KSPEvent(guiActive = false, guiActiveEditor = true, guiName = "Change Body")]
+        public void ChangeBody()
+        {
+            var validBodies = ColonizationResearchScenario.Instance.UnlockedBodies.ToList();
+            validBodies.Sort();
+
+            if (string.IsNullOrEmpty(body) && validBodies.Count == 0)
+            {
+                // Shouldn't be possible without cheating...  Unless this is sandbox
+                return;
+            }
+
+            if (string.IsNullOrEmpty(body))
+            {
+                body = validBodies[0];
+            }
+            else
+            {
+                int i = validBodies.IndexOf(this.body);
+                i = (i + 1) % validBodies.Count;
+                body = validBodies[i];
+            }
+
+            this.tier = (int)ColonizationResearchScenario.Instance.GetMaxUnlockedTier(this.Output, this.body);
+        }
         /// <summary>
         ///   The name of the output resource (as a Tier4 resource)
         /// </summary>
@@ -44,6 +69,17 @@ namespace Nerm.Colonization
         protected virtual TechTier MaxTechTierResearched
             => ColonizationResearchScenario.Instance.GetMaxUnlockedTier(this.Output, this.body);
 
+
+        public override void OnAwake()
+        {
+            if (this.Output.ProductionRestriction == ProductionRestriction.Orbit)
+            {
+                Events["ChangeBody"].guiActive = false;
+                Events["ChangeBody"].guiActiveEditor = false;
+                Fields["body"].guiActive = false;
+                Fields["body"].guiActiveEditor = false;
+            }
+        }
 
         protected virtual bool CanDoProduction(ModuleResourceConverter resourceConverter, out string reasonWhyNotMessage)
         {
