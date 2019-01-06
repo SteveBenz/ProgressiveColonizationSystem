@@ -66,20 +66,10 @@ namespace Nerm.Colonization
         [KSPField(guiActive = true, guiActiveEditor = false, guiName = "Research")]
         public string researchStatus;
 
+        private bool isInitialized = false;
+
         protected virtual TechTier MaxTechTierResearched
             => ColonizationResearchScenario.Instance.GetMaxUnlockedTier(this.Output, this.body);
-
-
-        public override void OnAwake()
-        {
-            if (this.Output.ProductionRestriction == ProductionRestriction.Orbit)
-            {
-                Events["ChangeBody"].guiActive = false;
-                Events["ChangeBody"].guiActiveEditor = false;
-                Fields["body"].guiActive = false;
-                Fields["body"].guiActiveEditor = false;
-            }
-        }
 
         protected virtual bool CanDoProduction(ModuleResourceConverter resourceConverter, out string reasonWhyNotMessage)
         {
@@ -138,6 +128,14 @@ namespace Nerm.Colonization
 
         public void FixedUpdate()
         {
+            // somehow, if this is called from OnAwake, like it sensibly should be, it breaks
+            // the part so that FixedUpdate never gets called.
+            if (!isInitialized)
+            {
+                isInitialized = true;
+                initializeEventsAndFields();
+            }
+
             if (!HighLogic.LoadedSceneIsFlight)
             {
                 return;
@@ -296,18 +294,15 @@ namespace Nerm.Colonization
             return info.ToString();
         }
 
-        protected bool IsNearKerbin()
+        private void initializeEventsAndFields()
         {
-            // There are more stylish ways to do this.  It's also a bit problematic for the player
-            // because if they ignore a craft on its way back from some faroff world until it
-            // reaches kerbin's SOI, then they'll lose all that tasty research.
-            //
-            // A fix would be to look at the vessel's orbit as well, and, if it just carries the
-            // vessel out of the SOI, count that.
-            double homeworldDistanceFromSun = FlightGlobals.GetHomeBody().orbit.altitude;
-            return this.vessel.distanceToSun > homeworldDistanceFromSun * .9
-                && this.vessel.distanceToSun < homeworldDistanceFromSun * 1.1;
+            if (this.Output.ProductionRestriction == ProductionRestriction.Orbit)
+            {
+                Events["ChangeBody"].guiActive = false;
+                Events["ChangeBody"].guiActiveEditor = false;
+                Fields["body"].guiActive = false;
+                Fields["body"].guiActiveEditor = false;
+            }
         }
-
     }
 }
