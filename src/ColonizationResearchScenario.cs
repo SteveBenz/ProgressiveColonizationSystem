@@ -225,8 +225,8 @@ namespace Nerm.Colonization
             if (this.categoryToBodyToProgressMap.TryGetValue(hydroponicResearchCategory, out var hydroponicProgress)
               && hydroponicProgress.TryGetValue("", out TechProgress techProgress))
             {
-                node.SetValue("agroponicsMaxTier", (int)techProgress.Tier);
-                node.SetValue("accumulatedAgroponicResearchProgressToNextTier", techProgress.ProgressInKerbalSeconds);
+                node.AddValue("agroponicsMaxTier", (int)techProgress.Tier);
+                node.AddValue("accumulatedAgroponicResearchProgressToNextTier", techProgress.ProgressInKerbalSeconds);
             }
         }
     }
