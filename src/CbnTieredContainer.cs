@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Nerm.Colonization
 {
-    public class ModuleTieredContainer
+    public class CbnTieredContainer
         : PartModule
     {
         /// <summary>

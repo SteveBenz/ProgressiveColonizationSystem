@@ -64,14 +64,10 @@
     <Compile Include="ResearchCategory.cs" />
     <Compile Include="TieredResource.cs" />
     <Compile Include="EdibleResource.cs" />
-    <Compile Include="ModuleTieredContainer.cs" />
+    <Compile Include="CbnTieredContainer.cs" />
     <Compile Include="IProducer.cs" />
     <Compile Include="LifeSupportStatusMonitor.cs" />
-    <Compile Include="ModuleTieredAgriculture.cs" />
-    <Compile Include="ModuleTieredScannerHub.cs" />
-    <Compile Include="ModuleTieredFactory.cs" />
     <Compile Include="BodySpecificTieredResourceConverter.cs" />
-    <Compile Include="ModuleTieredAgroponics.cs" />
     <Compile Include="AssemblyVersion.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -86,7 +82,7 @@
     <Compile Include="TechTier.cs" />
     <Compile Include="ColonizationByNermAnimation.cs" />
     <Compile Include="TieredProduction.cs" />
-    <Compile Include="TieredResourceCoverter.cs" />
+    <Compile Include="CbnTieredResourceCoverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="AssemblyVersion.tt">
@@ -230,9 +226,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Snacks_MiniPak.cfg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Fertilizer_MiniPak.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Snacks_250.cfg">

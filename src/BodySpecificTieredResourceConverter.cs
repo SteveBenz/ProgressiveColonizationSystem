@@ -6,7 +6,7 @@ using System.Text;
 namespace Nerm.Colonization
 {
     public abstract class BodySpecificTieredResourceConverter
-        : TieredResourceCoverter
+        : CbnTieredResourceConverter
     {
     }
 }

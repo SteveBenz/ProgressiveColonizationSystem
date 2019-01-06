@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Nerm.Colonization
 {
-    public abstract class TieredResourceCoverter
+    public class CbnTieredResourceConverter
         : PartModule, IProducer
     {
         private double firstNoPowerIndicator = -1.0;

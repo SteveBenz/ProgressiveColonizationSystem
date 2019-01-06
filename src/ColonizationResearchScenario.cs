@@ -168,22 +168,21 @@ namespace Nerm.Colonization
                 new KeyValuePair<string, ResearchCategory>("shinies", shiniesResearchCategory),
             })
             {
-                var map = new Dictionary<string, TechProgress>();
-                if (node.TryGetValue(pair.Key, ref map))
+                ConfigNode childNode = null;
+                if (node.TryGetNode(pair.Key, ref childNode) && TryCreateFromNode(childNode, out Dictionary<string, TechProgress> map))
                 {
                     this.categoryToBodyToProgressMap.Add(pair.Value, map);
                 }
             }
 
-            int agroponicsTier = 0;
-            double progressInKerbalSeconds = 0;
-            node.TryGetValue("agroponicsMaxTier", ref agroponicsTier);
-            node.TryGetValue("accumulatedAgroponicResearchProgressToNextTier", ref progressInKerbalSeconds);
-            categoryToBodyToProgressMap.Add(hydroponicResearchCategory,
-                new Dictionary<string, TechProgress>() {
-                    { "", new TechProgress() {
-                        Tier = (TechTier)agroponicsTier,
-                        ProgressInKerbalSeconds = progressInKerbalSeconds } } });
+            ConfigNode hydroponicsNode = null;
+
+            if (node.TryGetNode("hydroponics", ref hydroponicsNode) && TryCreateFromNode(hydroponicsNode, out TechProgress hydroponicsProgress))
+            {
+                this.categoryToBodyToProgressMap.Add(
+                    hydroponicResearchCategory,
+                    new Dictionary<string, TechProgress>() { { "", hydroponicsProgress } });
+            }
         }
 
         public override void OnSave(ConfigNode node)
@@ -218,16 +217,70 @@ namespace Nerm.Colonization
             {
                 if (this.categoryToBodyToProgressMap.TryGetValue(pair.Value, out var stringToProgressMap))
                 {
-                    node.SetValue(pair.Key, stringToProgressMap);
+                    node.AddNode(pair.Key, ToNode(stringToProgressMap));
                 }
             }
 
             if (this.categoryToBodyToProgressMap.TryGetValue(hydroponicResearchCategory, out var hydroponicProgress)
-              && hydroponicProgress.TryGetValue("", out TechProgress techProgress))
+             && hydroponicProgress.TryGetValue("", out TechProgress techProgress))
             {
-                node.AddValue("agroponicsMaxTier", (int)techProgress.Tier);
-                node.AddValue("accumulatedAgroponicResearchProgressToNextTier", techProgress.ProgressInKerbalSeconds);
+                node.AddNode("hydroponics", ToNode(techProgress));
             }
+        }
+
+        private static ConfigNode ToNode(Dictionary<string, TechProgress> map)
+        {
+            ConfigNode agNode = new ConfigNode();
+            foreach (KeyValuePair<string, TechProgress> pair in map)
+            {
+                agNode.AddNode(pair.Key, ToNode(pair.Value));
+            }
+            return agNode;
+        }
+
+        private static ConfigNode ToNode(TechProgress progress)
+        {
+            ConfigNode bodyNode = new ConfigNode();
+            bodyNode.AddValue("tier", progress.Tier.ToString());
+            bodyNode.AddValue("progress", progress.ProgressInKerbalSeconds);
+            return bodyNode;
+        }
+
+        private static bool TryCreateFromNode(ConfigNode node, out TechProgress progress)
+        {
+            TechTier tierAtBody = TechTier.Tier0;
+            double progressToNext = 0;
+            if (!node.TryGetEnum<TechTier>("tier", ref tierAtBody, TechTier.Tier0)
+             || !node.TryGetValue("progress", ref progressToNext))
+            {
+                progress = null;
+                return false;
+            }
+
+            progress = new TechProgress()
+            {
+                ProgressInKerbalSeconds = progressToNext,
+                Tier = tierAtBody
+            };
+            return true;
+        }
+
+        private static bool TryCreateFromNode(ConfigNode node, out Dictionary<string, TechProgress> map)
+        {
+            map = null;
+            foreach (ConfigNode childNode in node.GetNodes())
+            {
+                TechProgress progress;
+                if (TryCreateFromNode(childNode, out progress))
+                {
+                    if (map == null)
+                    {
+                        map = new Dictionary<string, TechProgress>();
+                    }
+                    map[childNode.name] = progress;
+                }
+            }
+            return map != null;
         }
     }
 

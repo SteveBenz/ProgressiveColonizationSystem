@@ -29,9 +29,9 @@ namespace Nerm.Colonization
         public override string GetInfo()
         {
             StringBuilder info = new StringBuilder();
-            info.AppendLine(TieredResourceCoverter.GreenInfo("Required Crew:"));
+            info.AppendLine(CbnTieredResourceConverter.GreenInfo("Required Crew:"));
             info.AppendLine($"Staffing Level: {this.requiredCrew}");
-            info.AppendLine(TieredResourceCoverter.GreenInfo("Traits:"));
+            info.AppendLine(CbnTieredResourceConverter.GreenInfo("Traits:"));
             foreach (TechTier tier in TechTierExtensions.AllTiers)
             {
                 info.Append($"{tier}: ");

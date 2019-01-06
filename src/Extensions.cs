@@ -10,38 +10,6 @@ namespace Nerm.Colonization
 {
     public static class Extensions
     {
-        public static bool TryGetValue(this ConfigNode node, string name, ref Dictionary<string,TechProgress> map)
-        {
-            ConfigNode agNodes = node.GetNode(name);
-            if (agNodes == null)
-            {
-                return false;
-            }
-
-            foreach (ConfigNode childNode in agNodes.GetNodes())
-            {
-                TechTier tierAtBody = TechTier.Tier0;
-                double progress = 0;
-                if (childNode.TryGetEnum<TechTier>("tier", ref tierAtBody, TechTier.Tier0)
-                  && childNode.TryGetValue("progress", ref progress))
-                {
-                    map[childNode.name] = new TechProgress { ProgressInKerbalSeconds = Math.Max(0, progress), Tier = tierAtBody };
-                }
-            }
-            return true;
-        }
-
-        public static void SetValue(this ConfigNode node, string name, Dictionary<string, TechProgress> map)
-        {
-            ConfigNode agNode = node.AddNode(name);
-            foreach (KeyValuePair<string, TechProgress> pair in map)
-            {
-                ConfigNode bodyNode = agNode.AddNode(pair.Key);
-                bodyNode.AddValue("tier", pair.Value.Tier.ToString());
-                bodyNode.AddValue("progress", pair.Value.ProgressInKerbalSeconds);
-            }
-        }
-
         private static FieldInfo windowListField;
 
         /// <summary>
