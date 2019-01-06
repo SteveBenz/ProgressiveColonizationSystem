@@ -18,16 +18,7 @@ namespace Nerm.Colonization.UnitTests
         public TieredResource Input => null;
         public bool ContributeResearch(IColonizationResearchScenario target, double amount)
         {
-            // Copied from the real class.  Yuk.  Gotta get a better mock framework.
-            if (target.GetProductionMaxTier("test") == this.Tier && this.IsResearchEnabled)
-            {
-                target.ContributeProductionResearch("test", amount);
-                return target.GetProductionMaxTier("test") != this.Tier;
-            }
-            else
-            {
-                return false;
-            }
+            return target.ContributeResearch(this.Output, "test", amount);
         }
     }
 }

@@ -5,27 +5,28 @@ using System.Text;
 
 namespace Nerm.Colonization
 {
-    [KSPScenario(ScenarioCreationOptions.AddToAllGames, GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.SPACECENTER, GameScenes.TRACKSTATION, GameScenes.LOADING, GameScenes.LOADINGBUFFER)]
+    [KSPScenario(ScenarioCreationOptions.AddToAllGames, GameScenes.EDITOR, GameScenes.FLIGHT, GameScenes.SPACECENTER, GameScenes.TRACKSTATION)]
     public class ColonizationResearchScenario
         : ScenarioModule, IColonizationResearchScenario
     {
         public static ColonizationResearchScenario Instance;
 
-        [KSPField(isPersistant = true)]
-        public float accumulatedAgroponicResearchProgressToNextTier = 0f;
-        [KSPField(isPersistant = true)]
-        public int agroponicsMaxTier = 0;
+        private Dictionary<ResearchCategory, Dictionary<string, TechProgress>> categoryToBodyToProgressMap;
 
+        private static ResearchCategory hydroponicResearchCategory = new HydroponicResearchCategory();
+        private static ResearchCategory farmingResearchCategory = new FarmingResearchCategory();
+        private static ResearchCategory productionResearchCategory = new ProductionResearchCategory();
+        private static ResearchCategory scanningResearchCategory = new ScanningResearchCategory();
+        private static ResearchCategory shiniesResearchCategory = new ShiniesResearchCategory();
 
-        static TieredResource[] AllTieredResources =
+        private static TieredResource[] AllTieredResources =
         {
-            new EdibleResource("HydroponicSnacks", false, false, .2, .4, .55, .7, .95),
-            new EdibleResource("Snacks", true, false, .6, .85, .95, .98, 1.0),
-            new EdibleResource("Snacks", true, false, .6, .85, .95, .98, 1.0),
-            new TieredResource("Fertilizer", "Kerbal-Days", true, false),
-            new TieredResource("Shinies", "Bling-per-day", true, false),
-            new TieredResource("Stuff", null, true, false),
-            new TieredResource("ScanningData", null, false, true)
+            new EdibleResource("HydroponicSnacks", ProductionRestriction.Orbit, hydroponicResearchCategory, false, false, .2, .4, .55, .7, .95),
+            new EdibleResource("Snacks", ProductionRestriction.Orbit, farmingResearchCategory, true, false, .6, .85, .95, .98, 1.0),
+            new TieredResource("Fertilizer", "Kerbal-Days", ProductionRestriction.LandedOnBody, productionResearchCategory, true, false),
+            new TieredResource("Shinies", "Bling-per-day", ProductionRestriction.LandedOnBody, shiniesResearchCategory, true, false),
+            new TieredResource("Stuff", null, ProductionRestriction.LandedOnBody, productionResearchCategory, true, false),
+            new TieredResource("ScanningData", "Kerbal-Days", ProductionRestriction.OrbitOfBody, scanningResearchCategory, false, true)
         };
 
         public static TieredResource GetTieredResourceByName(string name)
@@ -67,40 +68,43 @@ namespace Nerm.Colonization
         }
 
         /// <summary>
-        ///   A '|' separated list of worlds where the player can do agriculture.
+        ///   A '|' separated list of worlds where the player can do agriculture&c.
         /// </summary>
         /// <remarks>
         ///   This is stored because it comes from the ProgressTracking scenario, which isn't
         ///   loaded in the editor, which is the place we principally need this data.
         /// </remarks>
         [KSPField(isPersistant = true)]
-        public string validProductionBodies = "";
-
-		private Dictionary<string, TechProgress> bodyToAgricultureTechTierMap;
-        private Dictionary<string, TechProgress> bodyToProductionTechTierMap;
-        private Dictionary<string, TechProgress> bodyToScanningTechTierMap;
+        public string unlockedBodies = "";
 
 		public ColonizationResearchScenario()
         {
             Instance = this;
         }
 
-        public TechTier AgroponicsMaxTier
-        {
-            get => (TechTier)this.agroponicsMaxTier;
-            private set => this.agroponicsMaxTier = (int)value;
-        }
+        public string[] UnlockedBodies =>
+            string.IsNullOrEmpty(this.unlockedBodies) ? new string[0] : this.unlockedBodies.Split(new char[] { '|' });
 
-        public double AgroponicsResearchProgress
-            => this.accumulatedAgroponicResearchProgressToNextTier / AgroponicsMaxTier.KerbalSecondsToResearchNextAgroponicsTier();
-
-        public bool ContributeAgroponicResearch(double timespent)
+        public bool ContributeResearch(TieredResource source, string atBody, double timespentInKerbalSeconds)
         {
-            this.accumulatedAgroponicResearchProgressToNextTier += (float)timespent;
-            if (this.accumulatedAgroponicResearchProgressToNextTier > AgroponicsMaxTier.KerbalSecondsToResearchNextAgroponicsTier())
+            if (!this.categoryToBodyToProgressMap.TryGetValue(source.ResearchCategory, out Dictionary<string, TechProgress> bodyToProgressMap))
             {
-                this.accumulatedAgroponicResearchProgressToNextTier = 0;
-                ++this.AgroponicsMaxTier;
+                bodyToProgressMap = new Dictionary<string, TechProgress>();
+                this.categoryToBodyToProgressMap.Add(source.ResearchCategory, bodyToProgressMap);
+            }
+
+            string bodyName = source.ProductionRestriction == ProductionRestriction.Orbit ? "" : atBody;
+            if (!bodyToProgressMap.TryGetValue(bodyName, out TechProgress progress))
+            {
+                progress = new TechProgress() { ProgressInKerbalSeconds = 0, Tier = TechTier.Tier0 };
+                bodyToProgressMap.Add(bodyName, progress);
+            }
+
+            progress.ProgressInKerbalSeconds += timespentInKerbalSeconds;
+            if (progress.ProgressInKerbalSeconds > KerbalYearsToKerbalSeconds(source.ResearchCategory.KerbalYearsToNextTier(progress.Tier)))
+            {
+                progress.ProgressInKerbalSeconds = 0;
+                ++progress.Tier;
                 return true;
             }
             else
@@ -109,95 +113,80 @@ namespace Nerm.Colonization
             }
         }
 
-		public bool ContributeAgricultureResearch(string bodyName, double timespent)
-			=> ContributeResearch(this.bodyToAgricultureTechTierMap, bodyName, timespent, tier => tier.KerbalSecondsToResearchNextAgricultureTier());
+        public static double KerbalYearsToKerbalSeconds(double years) => years * 426.0 * 6.0 * 60.0 * 60.0;
+        public static double KerbalSecondsToKerbalDays(double seconds) => seconds / (6.0 * 60.0 * 60.0);
 
-		public bool ContributeProductionResearch(string bodyName, double timespent)
-			=> ContributeResearch(this.bodyToProductionTechTierMap, bodyName, timespent, tier => tier.KerbalSecondsToResearchNextProductionTier());
+        public string GetBreakthroughMessage(TieredResource resource, TechTier newTier)
+        {
+            return resource.ResearchCategory.BreakthroughMessage(newTier);
+        }
 
-		public bool ContributeScanningResearch(string bodyName, double timespent)
-			=> ContributeResearch(this.bodyToScanningTechTierMap, bodyName, timespent, tier => tier.KerbalSecondsToResearchNextScanningTier());
-
-		public static bool ContributeResearch(Dictionary<string, TechProgress> progressMap, string bodyName, double timespent, Func<TechTier,double> getTargetAmount)
-		{
-			if (progressMap.TryGetValue(bodyName, out TechProgress progress))
-			{
-				progress.Progress += timespent;
-			}
-			else
-			{
-				progress = new TechProgress() { Tier = TechTier.Tier0, Progress = timespent };
-				progressMap.Add(bodyName, progress);
-			}
-
-			if (progress.Progress > getTargetAmount(progress.Tier))
-			{
-				progress.Progress = 0;
-				++progress.Tier;
-                return true;
-			}
-            else
+        public TechTier GetMaxUnlockedTier(TieredResource forResource, string atBody)
+        {
+            if (!this.categoryToBodyToProgressMap.TryGetValue(forResource.ResearchCategory, out Dictionary<string, TechProgress> bodyToProgressMap))
             {
-                return false;
+                return TechTier.Tier0;
             }
-		}
 
-		public string[] ValidBodiesForAgriculture =>
-			string.IsNullOrEmpty(this.validProductionBodies) ? new string[0] : this.validProductionBodies.Split(new char[] { '|' });
+            string bodyName = forResource.ProductionRestriction == ProductionRestriction.Orbit ? "" : atBody;
+            if (!bodyToProgressMap.TryGetValue(bodyName, out TechProgress progress))
+            {
+                return TechTier.Tier0;
+            }
 
-        public double KerbalSecondsToGoUntilNextAgroponicsTier => AgroponicsMaxTier.KerbalSecondsToResearchNextAgroponicsTier() - this.accumulatedAgroponicResearchProgressToNextTier;
-
-        public double KerbalSecondsToGoUntilNextAgricultureTier(string bodyName)
-        {
-            this.bodyToAgricultureTechTierMap.TryGetValue(bodyName, out TechProgress progress);
-            return progress == null ? TechTier.Tier0.KerbalSecondsToResearchNextAgricultureTier()
-                   : progress.Tier.KerbalSecondsToResearchNextAgricultureTier() - progress.Progress;
+            return progress.Tier;
         }
 
-        public double KerbalSecondsToGoUntilNextProductionTier(string bodyName)
+        public double GetKerbalDaysUntilNextTier(TieredResource forResource, string atBody)
         {
-            this.bodyToProductionTechTierMap.TryGetValue(bodyName, out TechProgress progress);
-            return progress == null ? TechTier.Tier0.KerbalSecondsToResearchNextProductionTier()
-                   : progress.Tier.KerbalSecondsToResearchNextProductionTier() - progress.Progress;
+            double kerbalSecondsSoFar = 0;
+            TechTier currentTier = TechTier.Tier0;
+            if (this.categoryToBodyToProgressMap.TryGetValue(forResource.ResearchCategory, out Dictionary<string, TechProgress> bodyToProgressMap))
+            {
+                string bodyName = forResource.ProductionRestriction == ProductionRestriction.Orbit ? "" : atBody;
+                if (bodyToProgressMap.TryGetValue(bodyName, out TechProgress progress))
+                {
+                    currentTier = progress.Tier;
+                    kerbalSecondsSoFar = progress.ProgressInKerbalSeconds;
+                }
+            }
+
+            double kerbalSecondsToGo = KerbalYearsToKerbalSeconds(forResource.ResearchCategory.KerbalYearsToNextTier(currentTier));
+            return KerbalSecondsToKerbalDays(kerbalSecondsToGo);
         }
-
-        public double KerbalSecondsToGoUntilNextScanningTier(string bodyName)
-        {
-            this.bodyToScanningTechTierMap.TryGetValue(bodyName, out TechProgress progress);
-            return progress == null ? TechTier.Tier0.KerbalSecondsToResearchNextScanningTier()
-                   : progress.Tier.KerbalSecondsToResearchNextScanningTier() - progress.Progress;
-        }
-
-        public TechTier GetAgricultureMaxTier(string bodyName)
-		{
-			this.bodyToAgricultureTechTierMap.TryGetValue(bodyName, out TechProgress progress);
-			return progress?.Tier ?? TechTier.Tier0;
-		}
-
-		public TechTier GetProductionMaxTier(string bodyName)
-		{
-			this.bodyToProductionTechTierMap.TryGetValue(bodyName, out TechProgress progress);
-			return progress?.Tier ?? TechTier.Tier0;
-		}
-
-		public TechTier GetScanningMaxTier(string bodyName)
-		{
-			this.bodyToScanningTechTierMap.TryGetValue(bodyName, out TechProgress progress);
-			return progress?.Tier ?? TechTier.Tier0;
-		}
-
-		public override void OnLoad(ConfigNode node)
+        
+        public override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
-			this.bodyToAgricultureTechTierMap = new Dictionary<string, TechProgress>();
-			node.TryGetValue("agriculture", ref this.bodyToAgricultureTechTierMap);
-			this.bodyToProductionTechTierMap = new Dictionary<string, TechProgress>();
-			node.TryGetValue("production", ref this.bodyToProductionTechTierMap);
-			this.bodyToScanningTechTierMap = new Dictionary<string, TechProgress>();
-			node.TryGetValue("scanning", ref this.bodyToScanningTechTierMap);
-		}
 
-		public override void OnSave(ConfigNode node)
+            this.categoryToBodyToProgressMap = new Dictionary<ResearchCategory, Dictionary<string, TechProgress>>();
+            foreach (var pair in new KeyValuePair<string, ResearchCategory>[]
+            {
+                new KeyValuePair<string, ResearchCategory>("agriculture", farmingResearchCategory),
+                new KeyValuePair<string, ResearchCategory>("production", productionResearchCategory),
+                new KeyValuePair<string, ResearchCategory>("scanning", scanningResearchCategory),
+                new KeyValuePair<string, ResearchCategory>("shinies", shiniesResearchCategory),
+            })
+            {
+                var map = new Dictionary<string, TechProgress>();
+                if (node.TryGetValue(pair.Key, ref map))
+                {
+                    this.categoryToBodyToProgressMap.Add(pair.Value, map);
+                }
+            }
+
+            int agroponicsTier = 0;
+            double progressInKerbalSeconds = 0;
+            node.TryGetValue("agroponicsMaxTier", ref agroponicsTier);
+            node.TryGetValue("accumulatedAgroponicResearchProgressToNextTier", ref progressInKerbalSeconds);
+            categoryToBodyToProgressMap.Add(hydroponicResearchCategory,
+                new Dictionary<string, TechProgress>() {
+                    { "", new TechProgress() {
+                        Tier = (TechTier)agroponicsTier,
+                        ProgressInKerbalSeconds = progressInKerbalSeconds } } });
+        }
+
+        public override void OnSave(ConfigNode node)
         {
             // Update valid bodies if possible
             if (ProgressTracking.Instance != null && ProgressTracking.Instance.celestialBodyNodes != null)
@@ -214,27 +203,39 @@ namespace Nerm.Colonization
                         validBodies.Append(cbn.Id);
                     }
                 }
-                this.validProductionBodies = validBodies.ToString();
+                this.unlockedBodies = validBodies.ToString();
             }
 
             base.OnSave(node);
-            node.SetValue("agriculture", this.bodyToAgricultureTechTierMap);
-            node.SetValue("production", this.bodyToProductionTechTierMap);
-            node.SetValue("scanning", this.bodyToScanningTechTierMap);
+
+            foreach (var pair in new KeyValuePair<string, ResearchCategory>[]
+            {
+                new KeyValuePair<string, ResearchCategory>("agriculture", farmingResearchCategory),
+                new KeyValuePair<string, ResearchCategory>("production", productionResearchCategory),
+                new KeyValuePair<string, ResearchCategory>("scanning", scanningResearchCategory),
+                new KeyValuePair<string, ResearchCategory>("shinies", shiniesResearchCategory),
+            })
+            {
+                if (this.categoryToBodyToProgressMap.TryGetValue(pair.Value, out var stringToProgressMap))
+                {
+                    node.SetValue(pair.Key, stringToProgressMap);
+                }
+            }
+
+            if (this.categoryToBodyToProgressMap.TryGetValue(hydroponicResearchCategory, out var hydroponicProgress)
+              && hydroponicProgress.TryGetValue("", out TechProgress techProgress))
+            {
+                node.SetValue("agroponicsMaxTier", (int)techProgress.Tier);
+                node.SetValue("accumulatedAgroponicResearchProgressToNextTier", techProgress.ProgressInKerbalSeconds);
+            }
         }
     }
 
     // Test interface
     public interface IColonizationResearchScenario
     {
-        TechTier AgroponicsMaxTier { get; }
-        TechTier GetAgricultureMaxTier(string bodyName);
-        TechTier GetProductionMaxTier(string bodyName);
-        bool ContributeAgroponicResearch(double timespent);
-        bool ContributeAgricultureResearch(string bodyName, double timespent);
-        bool ContributeProductionResearch(string bodyName, double timespent);
-        bool ContributeScanningResearch(string bodyName, double timespent);
-
+        bool ContributeResearch(TieredResource source, string atBody, double timespentInKerbalSeconds);
+        TechTier GetMaxUnlockedTier(TieredResource forResource, string atBody);
         bool TryParseTieredResourceName(string tieredResourceName, out TieredResource resource, out TechTier tier);
     }
 }

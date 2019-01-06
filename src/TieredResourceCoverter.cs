@@ -6,19 +6,22 @@ using UnityEngine;
 
 namespace Nerm.Colonization
 {
-	public abstract class TieredResourceCoverter
-		: PartModule, IProducer
-	{
+    public abstract class TieredResourceCoverter
+        : PartModule, IProducer
+    {
         private double firstNoPowerIndicator = -1.0;
 
-		[KSPField(advancedTweakable = false, category = "Nermables", guiActive = true, guiName = "Tier", isPersistant = true, guiActiveEditor = true)]
-		public int tier;
+        [KSPField(advancedTweakable = false, category = "Nermables", guiActive = true, guiName = "Tier", isPersistant = true, guiActiveEditor = true)]
+        public int tier;
 
-		[KSPEvent(guiActive = false, guiActiveEditor = true, guiName = "Change Tier")]
-		public void ChangeTier()
-		{
-			this.tier = (this.tier + 1) % ((int)this.MaxTechTierResearched + 1);
-		}
+        [KSPField(advancedTweakable = false, category = "Nermables", guiActive = true, guiName = "Target Body", isPersistant = true, guiActiveEditor = true)]
+        public string body = "<not set>";
+
+        [KSPEvent(guiActive = false, guiActiveEditor = true, guiName = "Change Tier")]
+        public void ChangeTier()
+        {
+            this.tier = (this.tier + 1) % ((int)this.MaxTechTierResearched + 1);
+        }
 
         /// <summary>
         ///   The name of the output resource (as a Tier4 resource)
@@ -33,100 +36,122 @@ namespace Nerm.Colonization
         public string input;
 
         [KSPField]
-		public float capacity;
+        public float capacity;
 
-		[KSPField(guiActive = true, guiActiveEditor = false, guiName = "Research")]
-		public string researchStatus;
+        [KSPField(guiActive = true, guiActiveEditor = false, guiName = "Research")]
+        public string researchStatus;
 
-		protected abstract TechTier MaxTechTierResearched { get; }
+        protected virtual TechTier MaxTechTierResearched
+            => ColonizationResearchScenario.Instance.GetMaxUnlockedTier(this.Output, this.body);
 
-		protected virtual bool CanDoProduction(ModuleResourceConverter resourceConverter, out string reasonWhyNotMessage)
-		{
-			if (!resourceConverter.isActiveAndEnabled)
-			{
-				reasonWhyNotMessage = "Disabled - module is off";
-				return false;
-			}
 
-			if (!this.IsPowered(resourceConverter))
-			{
-				reasonWhyNotMessage = "Disabled - module lacks power";
-				return false;
-			}
+        protected virtual bool CanDoProduction(ModuleResourceConverter resourceConverter, out string reasonWhyNotMessage)
+        {
+            if (!resourceConverter.IsActivated)
+            {
+                reasonWhyNotMessage = "Disabled - module is off";
+                return false;
+            }
 
-			if (!IsCrewed())
-			{
-				reasonWhyNotMessage = "Disabled - no qualified crew";
-			}
+            if (!this.IsPowered(resourceConverter))
+            {
+                reasonWhyNotMessage = "Disabled - module lacks power";
+                return false;
+            }
 
-			reasonWhyNotMessage = null;
-			return true;
-		}
+            if (!IsCrewed())
+            {
+                reasonWhyNotMessage = "Disabled - no qualified crew";
+                return false;
+            }
 
-		protected virtual bool CanDoResearch(out string reasonWhyNotMessage)
-		{
-			if (this.tier < (int)this.MaxTechTierResearched)
-			{
-				reasonWhyNotMessage = $"Disabled - Not cutting edge gear";
-				return false;
-			}
+            if (this.Output.ProductionRestriction == ProductionRestriction.LandedOnBody
+             && this.vessel.situation != Vessel.Situations.LANDED || this.body != this.vessel.mainBody.name)
+            {
+                reasonWhyNotMessage = $"Not landed on {this.body}";
+                return false;
+            }
 
-			reasonWhyNotMessage = null;
-			return true;
-		}
+            if (this.Output.ProductionRestriction == ProductionRestriction.OrbitOfBody
+             && this.vessel.situation != Vessel.Situations.ORBITING || this.body != this.vessel.mainBody.name)
+            {
+                reasonWhyNotMessage = $"Not landed on {this.body}";
+                return false;
+            }
+
+            reasonWhyNotMessage = null;
+            return true;
+        }
+
+        private bool CanDoResearch(out string reasonWhyNotMessage)
+        {
+            if (this.tier < (int)this.MaxTechTierResearched)
+            {
+                reasonWhyNotMessage = $"Disabled - Not cutting edge gear";
+                return false;
+            }
+
+            if (this.Output.ResearchCategory.CanDoResearch(this.vessel, this.Tier, out reasonWhyNotMessage))
+            {
+                return false;
+            }
+
+            reasonWhyNotMessage = null;
+            return true;
+        }
 
         public void FixedUpdate()
         {
-			if (!HighLogic.LoadedSceneIsFlight)
-			{
-				return;
-			}
+            if (!HighLogic.LoadedSceneIsFlight)
+            {
+                return;
+            }
 
             ModuleResourceConverter resourceConverter = this.GetComponent<ModuleResourceConverter>();
 
             if (this.CanDoProduction(resourceConverter, out string reasonWhyNotMessage))
-			{
-				this.IsProductionEnabled = true;
+            {
+                this.IsProductionEnabled = true;
 
-				if (this.CanDoResearch(out reasonWhyNotMessage))
-				{
-					this.IsResearchEnabled = true;
-					this.researchStatus = "Active";
-				}
-				else
-				{
-					this.IsResearchEnabled = false;
-					this.researchStatus = reasonWhyNotMessage;
-				}
-			}
-			else
-			{
-				//if (resourceConverter != null && resourceConverter.IsActivated)
-				//{
-					//ScreenMessages.PostScreenMessage($"{this.name} is shutting down:  {reasonWhyNotMessage}", 10.0f);
-                    //resourceConverter.StopResourceConverter();
-				//}
-				this.IsProductionEnabled = false;
-				this.IsResearchEnabled = false;
-				this.researchStatus = reasonWhyNotMessage;
-			}
-		}
+                if (this.CanDoResearch(out reasonWhyNotMessage))
+                {
+                    this.IsResearchEnabled = true;
+                    this.researchStatus = "Active";
+                }
+                else
+                {
+                    this.IsResearchEnabled = false;
+                    this.researchStatus = reasonWhyNotMessage;
+                }
+            }
+            else
+            {
+                //if (resourceConverter != null && resourceConverter.IsActivated)
+                //{
+                //ScreenMessages.PostScreenMessage($"{this.name} is shutting down:  {reasonWhyNotMessage}", 10.0f);
+                //resourceConverter.StopResourceConverter();
+                //}
+                this.IsProductionEnabled = false;
+                this.IsResearchEnabled = false;
+                this.researchStatus = reasonWhyNotMessage;
+            }
+        }
 
-		protected virtual bool IsCrewed()
-		{
-			if (this.vessel == null)
-			{
-				return false;
-			}
+        protected virtual bool IsCrewed()
+        {
+            if (this.vessel == null)
+            {
+                return false;
+            }
 
-			if (this.vessel.GetCrewCount() == 0)
-			{
-				return false;
-			}
+            if (this.vessel.GetCrewCount() == 0)
+            {
+                return false;
+            }
 
             var crewRequirement = this.GetComponent<CbnCrewRequirement>();
             return crewRequirement == null || crewRequirement.TryAssignCrew();
-		}
+        }
 
         /// <summary>
         ///   Returns true if the part has electrical power
@@ -164,23 +189,16 @@ namespace Nerm.Colonization
             }
         }
 
-		public TechTier Tier => (TechTier)this.tier;
+        public TechTier Tier => (TechTier)this.tier;
 
-		public bool IsResearchEnabled { get; private set; }
+        public bool IsResearchEnabled { get; private set; }
 
-		public bool IsProductionEnabled { get; private set; }
+        public bool IsProductionEnabled { get; private set; }
 
-		public double ProductionRate => this.capacity;
+        public double ProductionRate => this.capacity;
 
-		/// <summary>
-		///   The maximum-tier version of the product that this producer can produce.  The actual
-		///   resource name would need to have <see cref="Tier"/> mixed into the name.
-		/// </summary>
-		public string ProductResourceName => this.output;
-
-        public string SourceResourceName => this.input;
-
-        public abstract bool ContributeResearch(IColonizationResearchScenario target, double amount);
+        public virtual bool ContributeResearch(IColonizationResearchScenario target, double amount)
+            => target.ContributeResearch(this.Output, this.body, amount);
 
         public static string GreenInfo(string info)
         {
@@ -241,5 +259,19 @@ namespace Nerm.Colonization
 
             return info.ToString();
         }
+
+        protected bool IsNearKerbin()
+        {
+            // There are more stylish ways to do this.  It's also a bit problematic for the player
+            // because if they ignore a craft on its way back from some faroff world until it
+            // reaches kerbin's SOI, then they'll lose all that tasty research.
+            //
+            // A fix would be to look at the vessel's orbit as well, and, if it just carries the
+            // vessel out of the SOI, count that.
+            double homeworldDistanceFromSun = FlightGlobals.GetHomeBody().orbit.altitude;
+            return this.vessel.distanceToSun > homeworldDistanceFromSun * .9
+                && this.vessel.distanceToSun < homeworldDistanceFromSun * 1.1;
+        }
+
     }
 }

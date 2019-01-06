@@ -16,29 +16,16 @@ namespace Nerm.Colonization.UnitTests
         public bool CanStockpileProduce { get; set; }
         public abstract TieredResource Output { get; }
         public TieredResource Input => StubColonizationResearchScenario.GetTieredResourceByName("Fertilizer");
-        public abstract bool ContributeResearch(IColonizationResearchScenario target, double amount);
+        public bool ContributeResearch(IColonizationResearchScenario target, double amount)
+            => target.ContributeResearch(this.Output, "test", amount);
     }
 
-	public class StubHydroponic
+    public class StubHydroponic
         : StubSnackProducer
     {
         public StubHydroponic()
         {
             this.CanStockpileProduce = false;
-        }
-
-        public override bool ContributeResearch(IColonizationResearchScenario target, double amount)
-        {
-            // Copied from the real class.  Yuk.  Gotta get a better mock framework.
-            if (target.AgroponicsMaxTier == this.Tier && this.IsResearchEnabled)
-            {
-                target.ContributeAgroponicResearch(amount);
-                return target.AgroponicsMaxTier != this.Tier;
-            }
-            else
-            {
-                return false;
-            }
         }
 
         public override TieredResource Output => StubColonizationResearchScenario.GetTieredResourceByName("HydroponicSnacks");
@@ -50,20 +37,6 @@ namespace Nerm.Colonization.UnitTests
         public StubFarm()
         {
             this.CanStockpileProduce = true;
-        }
-
-        public override bool ContributeResearch(IColonizationResearchScenario target, double amount)
-        {
-            // Copied from the real class.  Yuk.  Gotta get a better mock framework.
-            if (target.GetAgricultureMaxTier("test") == this.Tier && this.IsResearchEnabled)
-            {
-                target.ContributeAgricultureResearch("test", amount);
-                return target.GetAgricultureMaxTier("test") != this.Tier;
-            }
-            else
-            {
-                return false;
-            }
         }
 
         public override TieredResource Output => StubColonizationResearchScenario.GetTieredResourceByName("Snacks");

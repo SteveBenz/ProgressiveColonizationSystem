@@ -306,7 +306,8 @@ namespace Nerm.Colonization.UnitTests
             available["Fertilizer-Tier0"] = 1.0;
             available["Snacks-Tier0"] = 1.0;
             // Just about ready to tick over the research counter
-            colonizationResearchScenario.AgroponicResearchProgress = TechTier.Tier2.KerbalSecondsToResearchNextAgroponicsTier() - 0.000001;
+            colonizationResearchScenario.AgroponicResearchProgress =
+                ColonizationResearchScenario.KerbalYearsToKerbalSeconds(StubColonizationResearchScenario.hydroponicResearchCategory.KerbalYearsToNextTier(TechTier.Tier2)) - 0.00001;
             TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, enRouteModules, colonizationResearchScenario, available, noStorage,
                 out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond,

@@ -11,8 +11,18 @@ namespace Nerm.Colonization
         private double maxPercentTier3;
         private double maxPercentTier4;
 
-        public EdibleResource(string name, bool canBeStored, bool unstoredExcessCanGoToResearch, double maxPercentTier0, double maxPercentTier1, double maxPercentTier2, double maxPercentTier3, double maxPercentTier4)
-            : base(name, "Kerbal-Days", canBeStored, unstoredExcessCanGoToResearch)
+        public EdibleResource(
+            string name,
+            ProductionRestriction productionRestriction,
+            ResearchCategory researchCategory,
+            bool canBeStored,
+            bool unstoredExcessCanGoToResearch,
+            double maxPercentTier0,
+            double maxPercentTier1,
+            double maxPercentTier2,
+            double maxPercentTier3,
+            double maxPercentTier4)
+            : base(name, "Kerbal-Days", productionRestriction, researchCategory, canBeStored, unstoredExcessCanGoToResearch)
         {
             this.maxPercentTier0 = maxPercentTier0;
             this.maxPercentTier1 = maxPercentTier1;

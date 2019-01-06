@@ -25,7 +25,7 @@ namespace Nerm.Colonization
                 if (childNode.TryGetEnum<TechTier>("tier", ref tierAtBody, TechTier.Tier0)
                   && childNode.TryGetValue("progress", ref progress))
                 {
-                    map[childNode.name] = new TechProgress { Progress = Math.Max(0, progress), Tier = tierAtBody };
+                    map[childNode.name] = new TechProgress { ProgressInKerbalSeconds = Math.Max(0, progress), Tier = tierAtBody };
                 }
             }
             return true;
@@ -38,7 +38,7 @@ namespace Nerm.Colonization
             {
                 ConfigNode bodyNode = agNode.AddNode(pair.Key);
                 bodyNode.AddValue("tier", pair.Value.Tier.ToString());
-                bodyNode.AddValue("progress", pair.Value.Progress);
+                bodyNode.AddValue("progress", pair.Value.ProgressInKerbalSeconds);
             }
         }
 

@@ -243,64 +243,10 @@ namespace Nerm.Colonization
                         }
                     }
 
-                    if (ColonizationResearchScenario.Instance.AgroponicsMaxTier == TechTier.Tier4)
-                    {
-                        // No point in talking about research anymore.
-                    }
-                    else if (researchSink.AgroponicResearch > 0)
+                    foreach (var pair in researchSink.Data)
                     {
                         GUILayout.BeginHorizontal();
-                        double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(researchSink.AgroponicResearch);
-                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of agroponics research per day.  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextAgroponicsTier:N} are needed to reach the next tier).");
-                        GUILayout.EndHorizontal();
-                    }
-                    else if (snackProducers.Count > 0)
-                    {
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label("This vessel is not contributing agroponic research.");
-                        GUILayout.EndHorizontal();
-                    }
-
-                    string mainBody = FlightGlobals.ActiveVessel?.mainBody?.name;
-                    if (researchSink.AgricultureResearch > 0 && mainBody != null)
-                    {
-                        GUILayout.BeginHorizontal();
-                        double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(researchSink.AgricultureResearch);
-                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of agriculture research per day (for {mainBody}).  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextAgricultureTier(mainBody):N} are needed to reach the next tier).");
-                        GUILayout.EndHorizontal();
-                    }
-                    else
-                    {
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label($"This vessel is not contributing to agriculture research");
-                        GUILayout.EndHorizontal();
-                    }
-
-                    if (researchSink.ProductionResearch > 0 && mainBody != null)
-                    {
-                        GUILayout.BeginHorizontal();
-                        double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(researchSink.ProductionResearch);
-                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of production research per day (for {mainBody}).  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextProductionTier(mainBody):N} are needed to reach the next tier).");
-                        GUILayout.EndHorizontal();
-                    }
-                    else
-                    {
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label($"This vessel is not contributing to production research");
-                        GUILayout.EndHorizontal();
-                    }
-
-                    if (researchSink.ScanningResearch > 0 && mainBody != null)
-                    {
-                        GUILayout.BeginHorizontal();
-                        double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(researchSink.ScanningResearch);
-                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {perDay:N1} units of scanning research per day (for {mainBody}).  ({ColonizationResearchScenario.Instance.KerbalSecondsToGoUntilNextScanningTier(mainBody):N} are needed to reach the next tier).");
-                        GUILayout.EndHorizontal();
-                    }
-                    else
-                    {
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label($"This vessel is not contributing to scanning research");
+                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {pair.Value.KerbalDaysContributedPerDay:N1} units of {pair.Key.DisplayName} research per day.  ({pair.Value.KerbalDaysUntilNextTier:N} are needed to reach the next tier).");
                         GUILayout.EndHorizontal();
                     }
 
@@ -311,52 +257,36 @@ namespace Nerm.Colonization
             }
         }
 
+        private class ResearchData
+        {
+            public double KerbalDaysContributedPerDay;
+            public double KerbalDaysUntilNextTier;
+        }
+
+
         private class ResearchSink
             : IColonizationResearchScenario
         {
-            public double AgricultureResearch { get; private set; }
+            public Dictionary<ResearchCategory, ResearchData> Data { get; } = new Dictionary<ResearchCategory, ResearchData>();
 
-            public double AgroponicResearch { get; private set; }
-
-			public double ProductionResearch { get; private set; }
-
-			public double ScanningResearch { get; private set; }
-
-			public TechTier AgroponicsMaxTier =>
-                ColonizationResearchScenario.Instance?.AgroponicsMaxTier ?? TechTier.Tier4;
-
-            public bool ContributeAgroponicResearch(double timespent)
+            bool IColonizationResearchScenario.ContributeResearch(TieredResource source, string atBody, double timespentInKerbalSeconds)
             {
-                this.AgroponicResearch += timespent;
+                if (!this.Data.TryGetValue(source.ResearchCategory, out ResearchData data))
+                {
+                    data = new ResearchData();
+                    this.Data.Add(source.ResearchCategory, data);
+                    data.KerbalDaysUntilNextTier = ColonizationResearchScenario.Instance.GetKerbalDaysUntilNextTier(source, atBody);
+                }
+
+                data.KerbalDaysContributedPerDay = TieredProduction.UnitsPerSecondToUnitsPerDay(timespentInKerbalSeconds);
                 return false;
             }
 
-            public TechTier GetAgricultureMaxTier(string bodyName)
-                => ColonizationResearchScenario.Instance?.GetAgricultureMaxTier(bodyName) ?? TechTier.Tier4;
+            TechTier IColonizationResearchScenario.GetMaxUnlockedTier(TieredResource forResource, string atBody)
+                => ColonizationResearchScenario.Instance.GetMaxUnlockedTier(forResource, atBody);
 
-            public TechTier GetProductionMaxTier(string bodyName)
-                => ColonizationResearchScenario.Instance?.GetProductionMaxTier(bodyName) ?? TechTier.Tier4;
-
-            public bool ContributeAgricultureResearch(string bodyName, double timespent)
-            {
-                this.AgricultureResearch += timespent;
-                return false;
-            }
-
-			public bool ContributeProductionResearch(string bodyName, double timespent)
-            {
-                this.ProductionResearch += timespent;
-                return false;
-            }
-
-			public bool ContributeScanningResearch(string bodyName, double timespent)
-            {
-                this.ScanningResearch += timespent;
-                return false;
-            }
-
-            public bool TryParseTieredResourceName(string tieredResourceName, out TieredResource resource, out TechTier tier)
+            bool IColonizationResearchScenario.TryParseTieredResourceName(string tieredResourceName, out TieredResource resource, out TechTier tier)
                 => ColonizationResearchScenario.Instance.TryParseTieredResourceName(tieredResourceName, out resource, out tier);
         }
-	}
+    }
 }

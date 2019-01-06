@@ -110,7 +110,7 @@ namespace Nerm.Colonization
             foreach (ProducerData producerData in producerInfos)
             {
                 string resourceName = producerData.SourceTemplate.Output.TieredName(producerData.SourceTemplate.Tier);
-                if (availableStorage.ContainsKey(resourceName))
+                if (availableStorage.ContainsKey(resourceName) && !(producerData.SourceTemplate is StorageProducer))
                 {
                     double stockpiledPerDay = producerData.TryToProduce(double.MaxValue);
                     double stockpiledPerSecond = UnitsPerDayToUnitsPerSecond(stockpiledPerDay);

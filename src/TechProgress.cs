@@ -15,6 +15,6 @@ namespace Nerm.Colonization
         /// <summary>
         ///   The current progress towards advancing to the next level
         /// </summary>
-        public double Progress;
+        public double ProgressInKerbalSeconds;
     }
 }

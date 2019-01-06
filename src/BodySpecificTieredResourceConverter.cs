@@ -8,13 +8,11 @@ namespace Nerm.Colonization
     public abstract class BodySpecificTieredResourceConverter
         : TieredResourceCoverter
     {
-        [KSPField(advancedTweakable = false, category = "Nermables", guiActive = true, guiName = "Target Body", isPersistant = true, guiActiveEditor = true)]
-        public string body = "<not set>";
 
         [KSPEvent(guiActive = false, guiActiveEditor = true, guiName = "Change Body")]
         public void ChangeBody()
         {
-            var validBodies = ColonizationResearchScenario.Instance.ValidBodiesForAgriculture.ToList();
+            var validBodies = ColonizationResearchScenario.Instance.UnlockedBodies.ToList();
             validBodies.Sort();
 
             if (string.IsNullOrEmpty(body) && validBodies.Count == 0)
@@ -34,25 +32,7 @@ namespace Nerm.Colonization
                 body = validBodies[i];
             }
 
-            this.tier = (int)this.MaxTechTierResearched;
-        }
-
-        protected override bool CanDoProduction(ModuleResourceConverter resourceConverter, out string reasonWhyNotMessage)
-        {
-            if (!base.CanDoProduction(resourceConverter, out reasonWhyNotMessage))
-            {
-                return false;
-            }
-            else if (this.vessel.situation != Vessel.Situations.LANDED || this.body != this.vessel.mainBody.name)
-            {
-                reasonWhyNotMessage = $"Not landed on {this.body}";
-                return false;
-            }
-            else
-            {
-                reasonWhyNotMessage = null;
-                return true;
-            }
+            this.tier = (int)ColonizationResearchScenario.Instance.GetMaxUnlockedTier(this.Output, this.body);
         }
     }
 }
