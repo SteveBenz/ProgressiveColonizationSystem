@@ -22,7 +22,7 @@ namespace Nerm.Colonization
         private static TieredResource[] AllTieredResources =
         {
             new EdibleResource("HydroponicSnacks", ProductionRestriction.Orbit, hydroponicResearchCategory, false, false, .2, .4, .55, .7, .95),
-            new EdibleResource("Snacks", ProductionRestriction.Orbit, farmingResearchCategory, true, false, .6, .85, .95, .98, 1.0),
+            new EdibleResource("Snacks", ProductionRestriction.LandedOnBody, farmingResearchCategory, true, false, .6, .85, .95, .98, 1.0),
             new TieredResource("Fertilizer", "Kerbal-Days", ProductionRestriction.LandedOnBody, productionResearchCategory, true, false),
             new TieredResource("Shinies", "Bling-per-day", ProductionRestriction.LandedOnBody, shiniesResearchCategory, true, false),
             new TieredResource("Stuff", null, ProductionRestriction.LandedOnBody, productionResearchCategory, true, false),
