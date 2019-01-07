@@ -101,7 +101,7 @@ namespace Nerm.Colonization
             if (this.Output.ProductionRestriction == ProductionRestriction.OrbitOfBody
              && (this.vessel.situation != Vessel.Situations.ORBITING || this.body != this.vessel.mainBody.name))
             {
-                reasonWhyNotMessage = $"Not landed on {this.body}";
+                reasonWhyNotMessage = $"Not orbiting {this.body}";
                 return false;
             }
 
