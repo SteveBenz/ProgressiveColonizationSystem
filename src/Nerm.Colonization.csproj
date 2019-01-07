@@ -158,9 +158,6 @@
     <Content Include="GameData\ColonizationByNerm\Assets\Recycler_GLOW.dds">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="GameData\ColonizationByNerm\Textures\IFI_LS_GRN_24.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="GameData\ColonizationByNerm\Textures\IFI_LS_GRN_38.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

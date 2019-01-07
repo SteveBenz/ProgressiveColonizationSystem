@@ -29,6 +29,8 @@ namespace Nerm.Colonization
 
         private ApplicationLauncherButton toolbarButton;
 
+        private bool toolbarStateMatchedToIsVisible;
+
         public override void OnAwake()
         {
             base.OnAwake();
@@ -57,9 +59,14 @@ namespace Nerm.Colonization
 
             Debug.Assert(ApplicationLauncher.Ready, "ApplicationLauncher is not ready - can't add the toolbar button.  Is this possible, really?  If so maybe we could do it later?");
             this.toolbarButton = ApplicationLauncher.Instance.AddModApplication(
-                () => { isVisible = true; }, () => { isVisible = false; }, null, null, null, null,
+                () => {
+                    isVisible = true;
+                }, () => {
+                    isVisible = false;
+                }, null, null, null, null,
                 ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.SPH | ApplicationLauncher.AppScenes.VAB,
                 texture2D);
+            toolbarStateMatchedToIsVisible = false;
         }
 
         private void OnDestroy()
@@ -76,6 +83,12 @@ namespace Nerm.Colonization
 
         public void OnGUI()
         {
+            if (!this.toolbarStateMatchedToIsVisible)
+            {
+                this.toolbarButton.toggleButton.Value = this.isVisible;
+                this.toolbarStateMatchedToIsVisible = true;
+            }
+
             if (!this.isVisible)
             {
                 return;
