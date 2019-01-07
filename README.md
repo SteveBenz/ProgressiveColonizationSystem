@@ -25,26 +25,34 @@ Development plan:
    1.  (complete) Editors can show good data to guide the construction of ships (see GetInfo())
    2.  Tweak the mass and density of Fertilizer & Supplies
    3.  (complete)Agroponic and Ag modules consume some electricity
+   4.  Actually enforce the crew counts, types & stars (see 2.v)
+   5.  Make the reporting of when you make a tier breakthrough more informative and fun
+   6.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
 5. Release prep
    1.  Figure out how to Release
    2.  Release to CKAN
 6. Advanced Progression - the ability to have extended missions on Duna
    1.  Create the resource gathering mechanic
        1.  Create a configurable part for storing Stuff
-       2.  Create a KSP Resource for Tiered Stuff resource
+       2.  (complete)Create a KSP Resource for Tiered Stuff resource
        3.  (complete)Create a scanning lab (using skin from infrared telescope?)
        4.  Figure out how to make magic spots and waypoints to them
        5.  Make the Tier-1+ drill require being at a magic spot to work
+       6.  Actually require that a scanner of the appriate tier be in orbit
+       7.  Make the scanner require a network of scanner satelites
    2.  Create shinies resource chain
        1.  Create shinies factory
        2.  Create shinies containers that don't let you fill them at the KSP -- idea: Mun/Minmus shinies peak at T1, Duna/Ike/Gilly at T2, Dres/Eloo/Moho at T5
+       3.  Make the shinies boost your rep
    3.  Support USI kerbal types
    4.  Life support dialog works nicely in the editors - can estimate usage and ag production
-   5.  Make the GetInfo()'s show the electric utilization
+   5.  (complete) Make the GetInfo()'s show the electric utilization
 7. Play Nice With Others
-   1.  Integrate with Toolbar?
+   1.  (cut - sticking with the game one) Integrate with Toolbar?
    2.  Integrate with ModuleManager
    3.  Integrate with Community Resource Kit?
    4.  Integrate with Community Categories?
-   5.  Either reskin the stolen parts or depend on their sources and re-configure them
-   6.  Write PDF help
+   5.  Integrate with Kerbal Alarm Clock?
+   6.  Integrate with the other base parts mod whose name I forget?
+   7.  Either reskin the stolen parts or depend on their sources and re-configure them
+   8.  Write PDF help
