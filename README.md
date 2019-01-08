@@ -56,3 +56,8 @@ Development plan:
    6.  Integrate with the other base parts mod whose name I forget?
    7.  Either reskin the stolen parts or depend on their sources and re-configure them
    8.  Write PDF help
+
+Known Issues:
+   1.  If you create a brand new vessel and add a Snack or Fertilizer container to it as the first part, it initially won't
+       show any supplies in it.  Clicking "Next Tier" fixes it.  (Looks to me like a bug in KSP - forum thread:
+       https://forum.kerbalspaceprogram.com/index.php?/topic/181234-partmoduleoninitialized-not-being-called-on-first-part/)'
