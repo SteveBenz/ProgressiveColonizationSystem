@@ -41,9 +41,11 @@ Development plan:
        6.  Actually require that a scanner of the appriate tier be in orbit
        7.  Make the scanner require a network of scanner satelites
    2.  Create shinies resource chain
-       1.  Create shinies factory
-       2.  Create shinies containers that don't let you fill them at the KSP -- idea: Mun/Minmus shinies peak at T1, Duna/Ike/Gilly at T2, Dres/Eloo/Moho at T5
-       3.  Make the shinies boost your rep
+       1.  (complete) Create shinies factory
+       2.  (complete) Create a basic shinies container
+       3.  Create shinies containers that don't let you fill them at the KSP
+       4   (complete) Mun/Minmus shinies peak at T1, Duna/Ike/Gilly at T2, T5 only at Dres/Eloo/Moho/Eve
+       3.  Make the shinies boost your rep on landing
    3.  Support USI kerbal types
    4.  Life support dialog works nicely in the editors - can estimate usage and ag production
    5.  (complete) Make the GetInfo()'s show the electric utilization
