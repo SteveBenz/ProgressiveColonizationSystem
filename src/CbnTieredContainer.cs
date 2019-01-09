@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Nerm.Colonization
 {
     public class CbnTieredContainer
-        : PartModule
+        : PartModule, IPartCostModifier
     {
         /// <summary>
         ///   This is the resource name for Tier4
@@ -86,6 +86,29 @@ namespace Nerm.Colonization
             newResourceNode.AddValue("amount", HighLogic.LoadedSceneIsEditor ? (oldAmount < 0 ? this.maxAmount : (float)oldAmount) : 0.0f);
 
             currentPart.AddResource(newResourceNode);
+        }
+
+        public float GetModuleCost(float defaultCost, ModifierStagingSituation sit)
+        {
+            double total = 0;
+            foreach (var resource in this.part.Resources)
+            {
+                var resourceModel = PartResourceLibrary.Instance.resourceDefinitions.OfType<PartResourceDefinition>().FirstOrDefault(prd => prd.name == resource.resourceName);
+                if (resourceModel != null)
+                {
+                    total += resource.maxAmount * resourceModel.unitCost;
+                }
+                else
+                {
+                    Debug.LogError($"CbnTieredContainer: Resource definition for {resource.resourceName} is missing");
+                }
+            }
+            return (float)total;
+        }
+
+        public ModifierChangeWhen GetModuleCostChangeWhen()
+        {
+            return ModifierChangeWhen.CONSTANTLY;
         }
     }
 }
