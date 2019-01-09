@@ -8,8 +8,16 @@ namespace Nerm.Colonization
     public class CbnShiniesContainer
         : CbnTieredContainer
     {
-        // TODO: Somehow prevent the tank from being loaded on Kerban so
-        //  that we can prevent folks from launching stuff full of shinies from kerban and
-        //  getting the achievements.
+        [KSPField(isPersistant = true)]
+        public bool isFromKerbin = true;
+
+        public override void OnUpdate()
+        {
+            base.OnUpdate();
+            if (this.isFromKerbin && HighLogic.LoadedSceneIsFlight && this.part.Resources.Any(r => r.amount == 0))
+            {
+                this.isFromKerbin = false;
+            }
+        }
     }
 }

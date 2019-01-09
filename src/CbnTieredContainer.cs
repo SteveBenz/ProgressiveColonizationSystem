@@ -32,6 +32,29 @@ namespace Nerm.Colonization
             assignResourcesToPart();
         }
 
+        public override string GetModuleDisplayName()
+        {
+            // This is factored into the detail panel for the part - it's the headline right above the GetInfo data
+            return $"{char.ToUpper(resource[0])}{resource.Substring(1)}";
+        }
+
+        public override string GetInfo()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine($"Amount: {this.maxAmount}");
+
+            var resourceModel = PartResourceLibrary.Instance.resourceDefinitions.OfType<PartResourceDefinition>().FirstOrDefault(prd => prd.name == this.resource);
+            if (resourceModel != null)
+            {
+                builder.AppendLine($"Mass: {this.maxAmount * resourceModel.density}");
+            }
+            else
+            {
+                Debug.LogError($"CbnTieredContainer: Resource definition for {this.resource} is missing");
+            }
+            return builder.ToString();
+        }
+
         private void SetDisplayDirty()
         {
             if (this.tweakableUI == null)
