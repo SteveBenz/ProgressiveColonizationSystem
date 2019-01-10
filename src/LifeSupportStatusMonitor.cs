@@ -276,29 +276,8 @@ namespace Nerm.Colonization
         private KerbalInstructor instructor = null;
         RenderTexture instructorTexture;
         GameObject lightGameObject = null;
-        CharacterAnimationState animState = null;
-        float nextAnimTime = float.MaxValue;
         static float offset = 0.0f;
         string characterName = "Frodo";
-        public enum Animation
-        {
-            idle,
-            idle_lookAround,
-            idle_sigh,
-            idle_wonder,
-            true_thumbUp,
-            true_thumbsUp,
-            true_nodA,
-            true_nodB,
-            true_smileA,
-            true_smileB,
-            false_disappointed,
-            false_disagreeA,
-            false_disagreeB,
-            false_disagreeC,
-            false_sadA,
-        }
-        public Animation? animation;
         GUIStyle labelStyle;
 
         private static Material _portraitRenderMaterial = null;
@@ -327,6 +306,14 @@ namespace Nerm.Colonization
 
             GUILayout.Label(characterName, labelStyle, GUILayout.Width(width));
         }
+
+        private List<CharacterAnimationState> initialAnimations;
+        private List<CharacterAnimationState> vampingAnimations;
+        float nextAnimTime = float.MaxValue;
+        bool doneFirstYet = false;
+
+        System.Random random = new System.Random();
+
 
         private void makeInstructor()
         {
@@ -369,68 +356,47 @@ namespace Nerm.Colonization
 
                 instructor.SetupAnimations();
 
-                if (animation != null)
+                initialAnimations = new List<CharacterAnimationState>()
                 {
-                    switch (animation.Value)
-                    {
-                        case Animation.idle:
-                            animState = instructor.anim_idle;
-                            break;
-                        case Animation.idle_lookAround:
-                            animState = instructor.anim_idle_lookAround;
-                            break;
-                        case Animation.idle_sigh:
-                            animState = instructor.anim_idle_sigh;
-                            break;
-                        case Animation.idle_wonder:
-                            animState = instructor.anim_idle_wonder;
-                            break;
-                        case Animation.true_thumbUp:
-                            animState = instructor.anim_true_thumbUp;
-                            break;
-                        case Animation.true_thumbsUp:
-                            animState = instructor.anim_true_thumbsUp;
-                            break;
-                        case Animation.true_nodA:
-                            animState = instructor.anim_true_nodA;
-                            break;
-                        case Animation.true_nodB:
-                            animState = instructor.anim_true_nodB;
-                            break;
-                        case Animation.true_smileA:
-                            animState = instructor.anim_true_smileA;
-                            break;
-                        case Animation.true_smileB:
-                            animState = instructor.anim_true_smileB;
-                            break;
-                        case Animation.false_disappointed:
-                            animState = instructor.anim_false_disappointed;
-                            break;
-                        case Animation.false_disagreeA:
-                            animState = instructor.anim_false_disagreeA;
-                            break;
-                        case Animation.false_disagreeB:
-                            animState = instructor.anim_false_disagreeB;
-                            break;
-                        case Animation.false_disagreeC:
-                            animState = instructor.anim_false_disagreeC;
-                            break;
-                        case Animation.false_sadA:
-                            animState = instructor.anim_false_sadA;
-                            break;
-                    }
+                    instructor.anim_true_thumbsUp,
+                    instructor.anim_true_thumbUp,
+                    instructor.anim_true_nodA,
+                    instructor.anim_true_nodB,
+                    instructor.anim_true_smileA,
+                    instructor.anim_true_smileB,
+                };
+                vampingAnimations = new List<CharacterAnimationState>()
+                {
+                    instructor.anim_idle_lookAround,
+                    instructor.anim_idle_sigh,
+                    instructor.anim_idle_wonder,
+                    instructor.anim_true_nodA,
+                    instructor.anim_true_nodB,
+                    instructor.anim_true_smileA,
+                    instructor.anim_true_smileB,
+                };
 
-                    // Give a short delay before playing the animation
-                    nextAnimTime = Time.fixedTime + 0.3f;
-                }
+                // Give a short delay before playing the animation
+                nextAnimTime = Time.fixedTime + 0.3f;
             }
 
             // Play the animation
             if (nextAnimTime <= Time.fixedTime)
             {
-                instructor.PlayEmote(animState);
-                animState.audioClip = null;
-                nextAnimTime = Time.fixedTime + animState.clip.length;
+                CharacterAnimationState nowPlaying;
+                if (this.doneFirstYet)
+                {
+                    nowPlaying = initialAnimations[this.random.Next(initialAnimations.Count)];
+                    instructor.PlayEmote(nowPlaying);
+                    this.doneFirstYet = true;
+                }
+                else
+                {
+                    nowPlaying = vampingAnimations[this.random.Next(vampingAnimations.Count)];
+                    instructor.PlayEmote(nowPlaying, instructor.anim_idle, playSound: false);
+                }
+                //animState.audioClip = null;
+                nextAnimTime = Time.fixedTime + nowPlaying.clip.length + 1.0f;
             }
 
             GUILayout.BeginVertical(GUILayout.Width(128));
