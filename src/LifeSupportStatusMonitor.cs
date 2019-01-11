@@ -455,7 +455,10 @@ namespace Nerm.Colonization
                     data.KerbalDaysUntilNextTier = ColonizationResearchScenario.Instance.GetKerbalDaysUntilNextTier(source, atBody);
                 }
 
-                data.KerbalDaysContributedPerDay = TieredProduction.UnitsPerSecondToUnitsPerDay(timespentInKerbalSeconds);
+                // KerbalDaysContributedPerDay is equal to Kerbals.
+                // timeSpentInKerbalSeconds works out to be time spent in a kerbal second (because that's the timespan
+                // we passed into the production engine), so it's really kerbalSecondsContributedPerKerbalSecond.
+                data.KerbalDaysContributedPerDay = timespentInKerbalSeconds;
                 return false;
             }
 

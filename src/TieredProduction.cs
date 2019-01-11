@@ -171,10 +171,10 @@ namespace Nerm.Colonization
                     // If we have some doodads with research associated with it and some not, then
                     // what we want to do is make sure that the labs with research turned on do
                     // all the work they can.
-                    double contributionInUnitsPerDay = Math.Min(producerData.AllottedCapacity, producerData.ProductionContributingToResearch);
+                    double contributionInKerbals = Math.Min(producerData.AllottedCapacity, producerData.ProductionContributingToResearch);
                     breakthroughHappened |= producerData.SourceTemplate.ContributeResearch(
                         colonizationResearch,
-                        timePassedInSeconds * UnitsPerDayToUnitsPerSecond(contributionInUnitsPerDay));
+                        timePassedInSeconds * contributionInKerbals /* convert to kerbal-seconds */);
                 }
             }
         }
