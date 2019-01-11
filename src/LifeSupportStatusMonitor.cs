@@ -140,12 +140,12 @@ namespace Nerm.Colonization
             GUILayout.Space(15);
 
             GUILayout.BeginHorizontal();
+            if (GUILayout.Button("POP!"))
+            {
+                ShowPopup();
+            }
+            GUILayout.EndHorizontal();
 
-            this.makeInstructor();
-
-
-
-            GUILayout.BeginVertical();
             GUILayout.BeginHorizontal();
             GUILayout.Label("What if we ");
             if (GUILayout.Button("add"))
@@ -269,8 +269,28 @@ namespace Nerm.Colonization
                 }
             }
             GUILayout.EndVertical();
-            GUILayout.EndHorizontal();
-            GUILayout.EndVertical();
+        }
+
+        private void ShowPopup()
+        {
+            var menu = PopupDialog.SpawnPopupDialog(
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f),
+                new MultiOptionDialog(
+                    "TierUpAlert",
+                    "Tier Up Baby!",
+                    "Whoah a title!",
+                    HighLogic.UISkin,
+                    new DialogGUIVerticalLayout(
+                        new DialogGUIFlexibleSpace(),
+                        new DialogGUIButton("Sprinkles!", () =>
+                        {
+                            Debug.Log("Sprinkles happened");
+                        }))),
+                persistAcrossScenes: false,
+                skin: HighLogic.UISkin,
+                isModal: true,
+                titleExtra: "TITLE EXTRA!");
         }
 
         private KerbalInstructor instructor = null;
