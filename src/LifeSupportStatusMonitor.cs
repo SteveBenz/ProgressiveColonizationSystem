@@ -273,20 +273,32 @@ namespace Nerm.Colonization
 
         private void ShowPopup()
         {
+            // .25,.5 x .5,.75  yielded a placement around .75-1.2x by .3-.5y
             var menu = PopupDialog.SpawnPopupDialog(
                 new Vector2(0.5f, 0.5f),
                 new Vector2(0.5f, 0.5f),
                 new MultiOptionDialog(
                     "TierUpAlert",
-                    "Tier Up Baby!",
+                    "Tier Up Baby!  what if it's super long and has a lot of lines adnf;lkjsdaf lkjdalf;k jads;lkjfda;lkfdaf\r\n"
+                    + "I mean a lotta lotta lines.\r\n"
+                    + "I mean a lotta lotta lines.\r\n"
+                    + "I mean a lotta lotta lines.\r\n"
+                    + "I mean a lotta lotta lines.\r\n"
+                    + "I mean a lotta lotta lines.\r\n"
+                    + "I mean a lotta lotta lines.\r\n"
+                    + "sfal;jdasf lksadfj;lfdas lkf;asdlk fdj l;fdas jklfd; ;fjkdlj;fkd fjdkj lfkd lkf jksdfl kfsdljlksdf dfkjsdl kjsfdljfsd lk fsdklf sdjklfdjs fdsjkl fsdlkfdsljf sdlfdl sjkfds ljk",
                     "Whoah a title!",
                     HighLogic.UISkin,
                     new DialogGUIVerticalLayout(
-                        new DialogGUIFlexibleSpace(),
-                        new DialogGUIButton("Sprinkles!", () =>
-                        {
-                            Debug.Log("Sprinkles happened");
-                        }))),
+                        new DialogGUIHorizontalLayout(
+                            new DialogGUIFlexibleSpace(),
+                            this.makeInstructor(),
+                            new DialogGUIButton("Sprinkles!", () =>
+                            {
+                                Debug.Log("Sprinkles happened");
+                            }),
+                            new DialogGUIFlexibleSpace()
+                        ))),
                 persistAcrossScenes: false,
                 skin: HighLogic.UISkin,
                 isModal: true,
@@ -335,7 +347,7 @@ namespace Nerm.Colonization
         System.Random random = new System.Random();
 
 
-        private void makeInstructor()
+        private DialogGUIImage makeInstructor()
         {
             if (instructor == null)
             {
@@ -400,37 +412,31 @@ namespace Nerm.Colonization
                 nextAnimTime = Time.fixedTime + 0.3f;
             }
 
-            // Play the animation
-            if (nextAnimTime <= Time.fixedTime)
+            DialogGUIImage box = new DialogGUIImage(new Vector2(128,128), new Vector2(0,0), Color.gray, instructorTexture);
+            box.OnUpdate = () =>
             {
-                CharacterAnimationState nowPlaying;
-                if (this.doneFirstYet)
+
+                // Play the animation
+                if (nextAnimTime <= Time.fixedTime)
                 {
-                    nowPlaying = initialAnimations[this.random.Next(initialAnimations.Count)];
-                    instructor.PlayEmote(nowPlaying);
-                    this.doneFirstYet = true;
+                    CharacterAnimationState nowPlaying;
+                    if (this.doneFirstYet)
+                    {
+                        nowPlaying = initialAnimations[this.random.Next(initialAnimations.Count)];
+                        instructor.PlayEmote(nowPlaying);
+                        this.doneFirstYet = true;
+                    }
+                    else
+                    {
+                        nowPlaying = vampingAnimations[this.random.Next(vampingAnimations.Count)];
+                        instructor.PlayEmote(nowPlaying, instructor.anim_idle, playSound: false);
+                    }
+                    //animState.audioClip = null;
+                    nextAnimTime = Time.fixedTime + nowPlaying.clip.length + 1.0f;
                 }
-                else
-                {
-                    nowPlaying = vampingAnimations[this.random.Next(vampingAnimations.Count)];
-                    instructor.PlayEmote(nowPlaying, instructor.anim_idle, playSound: false);
-                }
-                //animState.audioClip = null;
-                nextAnimTime = Time.fixedTime + nowPlaying.clip.length + 1.0f;
-            }
+            };
 
-            GUILayout.BeginVertical(GUILayout.Width(128));
-            GUILayout.Box("", GUILayout.Width(128), GUILayout.Height(128));
-            if (Event.current.type == EventType.Repaint)
-            {
-                Rect rect = GUILayoutUtility.GetLastRect();
-                rect = new Rect(rect.x + 1f, rect.y + 1f, rect.width - 2f, rect.height - 2f);
-                Graphics.DrawTexture(rect, instructorTexture, new Rect(0.0f, 0.0f, 1f, 1f), 124, 124, 124, 124, Color.white, PortraitRenderMaterial);
-            }
-
-            DisplayName(128);
-
-            GUILayout.EndVertical();
+            return box;
         }
 
 
