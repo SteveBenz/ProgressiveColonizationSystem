@@ -117,7 +117,7 @@ namespace Nerm.Colonization.UnitTests
             // So they're running at 1/3 capacity.
             Assert.AreEqual(5 * (1 - Tier0AgroponicMaxDietRatio), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay);
             Assert.AreEqual(5 * Tier0AgroponicMaxDietRatio, consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay);
-            Assert.AreEqual(5 * Tier0AgroponicMaxDietRatio, colonizationResearchScenario.AgroponicResearchProgress * SecondsPerKerbanDay);
+            Assert.AreEqual(5 * Tier0AgroponicMaxDietRatio, colonizationResearchScenario.AgroponicResearchProgress);
             Assert.AreEqual(0, productionPerSecond.Count);
 
             // now we overwhelm the system with 20 kerbals - they'll be willing to eat (in total)
@@ -136,7 +136,7 @@ namespace Nerm.Colonization.UnitTests
             // So they're running at 1/3 capacity.
             Assert.AreEqual(20.0-3.0 /* working facilities */, consumptionPerSecond["Snacks"] * SecondsPerKerbanDay);
             Assert.AreEqual(3.0, consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay);
-            Assert.AreEqual(1.0 /* previous test */ + 1.0 /* current test */, colonizationResearchScenario.AgroponicResearchProgress * SecondsPerKerbanDay);
+            Assert.AreEqual(1.0 /* previous test */ + 1.0 /* current test */, colonizationResearchScenario.AgroponicResearchProgress);
 
             // Now let's take that last test and give it a twist that they run out of fertilizer halfway
             // through the second of time
@@ -154,7 +154,7 @@ namespace Nerm.Colonization.UnitTests
             Assert.AreEqual(3.0, consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay);
 
             // And half of the time goes to research
-            Assert.AreEqual(2.0 /* previous two tests */ + 0.5 /* current test */, colonizationResearchScenario.AgroponicResearchProgress * SecondsPerKerbanDay);
+            Assert.AreEqual(2.0 /* previous two tests */ + 0.5 /* current test */, colonizationResearchScenario.AgroponicResearchProgress);
         }
 
         /// <summary>
@@ -206,8 +206,8 @@ namespace Nerm.Colonization.UnitTests
             Assert.AreEqual(timePassedInSeconds, 1.0);
             Assert.AreEqual(4 * (1 - Tier0AgricultureMaxDietRatio), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(5.0 /* 2*10-15 */, consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay, TestTolerance);
-            Assert.AreEqual(20.0, colonizationResearchScenario.AgricultureResearchProgress * SecondsPerKerbanDay, TestTolerance);
-            Assert.AreEqual(15.0, colonizationResearchScenario.ProductionResearchProgress * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(20.0, colonizationResearchScenario.AgricultureResearchProgress, TestTolerance);
+            Assert.AreEqual(15.0, colonizationResearchScenario.ProductionResearchProgress, TestTolerance);
             Assert.AreEqual(20.0 - 4 * Tier0AgricultureMaxDietRatio, productionPerSecond["Snacks-Tier0"] * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(1, productionPerSecond.Count); // Only producing snacks
 
@@ -221,8 +221,8 @@ namespace Nerm.Colonization.UnitTests
                 out consumptionPerSecond, out productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
             Assert.AreEqual(4 * (1 - Tier0AgricultureMaxDietRatio), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
-            Assert.AreEqual(15.0, colonizationResearchScenario.AgricultureResearchProgress * SecondsPerKerbanDay, TestTolerance);
-            Assert.AreEqual(15.0, colonizationResearchScenario.ProductionResearchProgress * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(15.0, colonizationResearchScenario.AgricultureResearchProgress, TestTolerance);
+            Assert.AreEqual(15.0, colonizationResearchScenario.ProductionResearchProgress, TestTolerance);
             Assert.AreEqual(15.0 - 4 * Tier0AgricultureMaxDietRatio, productionPerSecond["Snacks-Tier0"] * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(1, productionPerSecond.Count); // Only producing snacks
 
@@ -238,8 +238,8 @@ namespace Nerm.Colonization.UnitTests
                 out consumptionPerSecond, out productionPerSecond);
             Assert.AreEqual(expectedTimePassed, timePassedInSeconds);
             Assert.AreEqual(4 * (1 - Tier0AgricultureMaxDietRatio), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
-            Assert.AreEqual(15.0, colonizationResearchScenario.AgricultureResearchProgress * SecondsPerKerbanDay / expectedTimePassed, TestTolerance);
-            Assert.AreEqual(15.0, colonizationResearchScenario.ProductionResearchProgress * SecondsPerKerbanDay / expectedTimePassed, TestTolerance);
+            Assert.AreEqual(15.0, colonizationResearchScenario.AgricultureResearchProgress / expectedTimePassed, TestTolerance);
+            Assert.AreEqual(15.0, colonizationResearchScenario.ProductionResearchProgress / expectedTimePassed, TestTolerance);
             Assert.AreEqual(15.0 - 4 * Tier0AgricultureMaxDietRatio, productionPerSecond["Snacks-Tier0"] * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(1, productionPerSecond.Count); // Only producing snacks
 
@@ -253,8 +253,8 @@ namespace Nerm.Colonization.UnitTests
                 out consumptionPerSecond, out productionPerSecond);
             Assert.AreEqual(1.0, timePassedInSeconds);
             Assert.AreEqual(4 * (1 - Tier0AgricultureMaxDietRatio), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
-            Assert.AreEqual(4 * Tier0AgricultureMaxDietRatio, colonizationResearchScenario.AgricultureResearchProgress * SecondsPerKerbanDay, TestTolerance);
-            Assert.AreEqual(4 * Tier0AgricultureMaxDietRatio, colonizationResearchScenario.ProductionResearchProgress * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(4 * Tier0AgricultureMaxDietRatio, colonizationResearchScenario.AgricultureResearchProgress, TestTolerance);
+            Assert.AreEqual(4 * Tier0AgricultureMaxDietRatio, colonizationResearchScenario.ProductionResearchProgress, TestTolerance);
             Assert.AreEqual(0, productionPerSecond.Count);
         }
 
@@ -298,7 +298,7 @@ namespace Nerm.Colonization.UnitTests
             Assert.AreEqual(false, agroponicsBreakthroughHappened);
             Assert.AreEqual(4 * (1 - Tier2AgroponicMaxDietRatio), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(4 * Tier2AgroponicMaxDietRatio, consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay, TestTolerance);
-            Assert.AreEqual(4 * (Tier2AgroponicMaxDietRatio - Tier0AgroponicMaxDietRatio), colonizationResearchScenario.AgroponicResearchProgress * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(4 * (Tier2AgroponicMaxDietRatio - Tier0AgroponicMaxDietRatio), colonizationResearchScenario.AgroponicResearchProgress, TestTolerance);
 
             // Duna return scenario - still got the max-tier stuff, but added some local stuff
             available["Fertilizer-Tier0"] = 1.0;

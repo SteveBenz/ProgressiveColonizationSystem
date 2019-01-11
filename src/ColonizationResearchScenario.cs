@@ -152,7 +152,7 @@ namespace Nerm.Colonization
             }
 
             double kerbalSecondsToGo = KerbalYearsToKerbalSeconds(forResource.ResearchCategory.KerbalYearsToNextTier(currentTier));
-            return KerbalSecondsToKerbalDays(kerbalSecondsToGo);
+            return KerbalSecondsToKerbalDays(kerbalSecondsToGo-kerbalSecondsSoFar);
         }
         
         public override void OnLoad(ConfigNode node)
