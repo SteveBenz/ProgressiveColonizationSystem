@@ -26,11 +26,8 @@ namespace Nerm.Colonization
 
         private ApplicationLauncherButton toolbarButton;
 
-        internal enum CrewState { Nonexistant, Happy, Antsy, Angry };
-
         private PopupDialog dialog = null;
         private string consumptionAndProductionInformation;
-        private CrewState crewState;
 
         [KSPField(isPersistant = true)]
         public float x;
@@ -92,7 +89,6 @@ namespace Nerm.Colonization
                         new DialogGUIVerticalLayout(
                             new DialogGUILabel(() => this.consumptionAndProductionInformation),
                             new DialogGUIFlexibleSpace(),
-
                             new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
                                 new DialogGUILabel("What if we"),
                                 new DialogGUIButton("Add", () => { ++crewDelta; }, () => true, false),
@@ -173,9 +169,8 @@ namespace Nerm.Colonization
             activeSnackConsumption.ResourceQuantities(out var availableResources, out var availableStorage);
             List<IProducer> snackProducers = activeSnackConsumption.Vessel.FindPartModulesImplementing<IProducer>();
 
-            BuildStatusString(activeSnackConsumption, availableResources, availableStorage, snackProducers, crewCount, crewDelta, out string message, out CrewState crewState);
+            BuildStatusString(activeSnackConsumption, availableResources, availableStorage, snackProducers, crewCount, crewDelta, out string message);
             this.consumptionAndProductionInformation = message;
-            this.crewState = crewState;
 
             if (this.isVisible && this.dialog == null)
             {
@@ -193,20 +188,17 @@ namespace Nerm.Colonization
             List<IProducer> snackProducers,
             int crewCount,
             int crewDelta,
-            out string message,
-            out CrewState crewState)
+            out string message)
         {
             StringBuilder text = new StringBuilder();
 
-            if (crewCount == 0 && snackProducers.Count == 0)
+            if (crewCount + crewDelta == 0 && snackProducers.Count == 0)
             {
-                crewState = CrewState.Nonexistant;
                 text.AppendLine("Oy!  Robots don't eat!");
                 // "This ship apparently ate all its crew"
             }
             else if (crewCount + crewDelta == 0)
             {
-                crewState = CrewState.Nonexistant;
                 text.AppendLine("With no crew aboard, not much is going on life-support wise...");
             }
             else
@@ -219,7 +211,6 @@ namespace Nerm.Colonization
                 if (timePassed == 0)
                 {
                     text.AppendLine("There aren't enough supplies or producers here to feed any kerbals.");
-                    crewState = CrewState.Antsy;
 
                     Debug.Assert(LifeSupportScenario.Instance != null);
                     if (LifeSupportScenario.Instance != null)
@@ -236,8 +227,7 @@ namespace Nerm.Colonization
 
                             if (isGrouchy)
                             {
-                                crewState = CrewState.Angry;
-                                text.AppendLine($"{crew.name} hasn't eaten in {(int)daysSinceMeal} days and is too grouchy to work");
+                                text.AppendLine($"<color #ff4040>{crew.name} hasn't eaten in {(int)daysSinceMeal} days and is too grouchy to work.</color>");
                             }
                             else if (daysToGrouchy > 5)
                             {
@@ -245,14 +235,13 @@ namespace Nerm.Colonization
                             }
                             else if (daysToGrouchy < 2)
                             {
-                                text.AppendLine($"{crew.name} hasn't eaten in {(int)daysSinceMeal} days and will quit working in a couple of days if this keeps up.");
+                                text.AppendLine($"<color #ffff00>{crew.name} hasn't eaten in {(int)daysSinceMeal} days and will quit working in a couple of days if this keeps up.</color>");
                             }
                         }
                     }
                 }
                 else
                 {
-                    crewState = CrewState.Happy;
                     if (crewDelta == 0)
                     {
                         text.AppendLine($"To sustain its crew of {crewCount + crewDelta}, this vessel is using:");
