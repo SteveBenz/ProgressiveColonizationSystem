@@ -37,6 +37,8 @@ namespace Nerm.Colonization
         [KSPField(isPersistant = true)]
         public float y;
 
+        private bool toolbarStateMatchedToIsVisible;
+
         public override void OnAwake()
         {
             base.OnAwake();
@@ -66,6 +68,7 @@ namespace Nerm.Colonization
                 }, null, null, null, null,
                 ApplicationLauncher.AppScenes.FLIGHT,
                 appLauncherTexture);
+            this.toolbarStateMatchedToIsVisible = false;
         }
 
         private void ShowDialog()
@@ -135,6 +138,13 @@ namespace Nerm.Colonization
             {
                 // Shouldn't happen, but just in case...
                 return;
+            }
+
+            // Shenanigans!  This gets around the apparent fact that you can't tell the toolbar what state to start in.
+            if (!this.toolbarStateMatchedToIsVisible)
+            {
+                this.toolbarButton.toggleButton.Value = this.isVisible;
+                this.toolbarStateMatchedToIsVisible = true;
             }
 
             // Shenanigans!  This hack gets around the apparent fact that you can't tell the window where to position itself.
