@@ -149,7 +149,8 @@ namespace Nerm.Colonization
                     + "I mean a lotta lotta lines.\r\n"
                     + "I mean a lotta lotta lines.\r\n"
                     + "I mean a lotta lotta lines.\r\n"
-                    + "sfal;jdasf lksadfj;lfdas lkf;asdlk fdj l;fdas jklfd; ;fjkdlj;fkd fjdkj lfkd lkf jksdfl kfsdljlksdf dfkjsdl kjsfdljfsd lk fsdklf sdjklfdjs fdsjkl fsdlkfdsljf sdlfdl sjkfds ljk");
+                    + "sfal;jdasf lksadfj;lfdas lkf;asdlk fdj l;fdas jklfd; ;fjkdlj;fkd fjdkj lfkd lkf jksdfl kfsdljlksdf dfkjsdl kjsfdljfsd lk fsdklf sdjklfdjs fdsjkl fsdlkfdsljf sdlfdl sjkfds ljk",
+                    "Got it!");
             }
             GUILayout.EndHorizontal();
 
