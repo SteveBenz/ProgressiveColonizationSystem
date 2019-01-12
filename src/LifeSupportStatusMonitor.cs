@@ -19,7 +19,6 @@ namespace Nerm.Colonization
         public bool isVisible = false;
 
         // If simulating + or - crewman, this becomes positive or negative.
-        private int lastCrewCount;
         private int crewDelta = 0;
 
         // CrewDelta gets reset when lastActiveVessel no longer equals the current vessel.
@@ -29,7 +28,6 @@ namespace Nerm.Colonization
 
         internal enum CrewState { Nonexistant, Happy, Antsy, Angry };
 
-        private DialogGUIHorizontalLayout whatIfRack;
         private PopupDialog dialog = null;
         private string consumptionAndProductionInformation;
         private CrewState crewState;
@@ -65,33 +63,10 @@ namespace Nerm.Colonization
                 appLauncherTexture);
         }
 
-        private void OnCrewDeltaChanged()
-        {
-            if (this.whatIfRack == null)
-            {
-                return;
-            }
-
-            whatIfRack.children.Clear();
-            List<DialogGUIBase> children = new List<DialogGUIBase>();
-            children.Add(new DialogGUILabel("What if we"));
-            children.Add(new DialogGUIButton("Add", () => { ++crewDelta; OnCrewDeltaChanged(); }));
-            if (this.lastCrewCount + this.crewDelta > 0)
-            {
-                children.Add(new DialogGUILabel("/"));
-                children.Add(new DialogGUIButton("Remove", () => { --crewDelta; OnCrewDeltaChanged(); }));
-            }
-            children.Add(new DialogGUILabel("a kerbal"));
-
-            whatIfRack.AddChildren(children.ToArray());
-        }
-
         private void ShowDialog()
         {
             if (this.dialog == null)
             {
-                this.whatIfRack = new DialogGUIHorizontalLayout();
-                OnCrewDeltaChanged();
                 if (this.consumptionAndProductionInformation == null)
                 {
                     // Fixed update hasn't run yet.
@@ -108,7 +83,13 @@ namespace Nerm.Colonization
                         new DialogGUIVerticalLayout(
                             new DialogGUILabel(() => this.consumptionAndProductionInformation),
                             new DialogGUIFlexibleSpace(),
-                            whatIfRack)),
+
+                            new DialogGUIHorizontalLayout(
+                                new DialogGUILabel("What if we"),
+                                new DialogGUIButton("Add", () => { ++crewDelta; }, () => true, false),
+                                new DialogGUILabel("/"),
+                                new DialogGUIButton("Remove", () => { --crewDelta; }, () => FlightGlobals.ActiveVessel.GetCrewCount() + this.crewDelta > 0, false),
+                                new DialogGUILabel("a kerbal")))),
                     persistAcrossScenes: false,
                     skin: HighLogic.UISkin,
                     isModal: false,
@@ -119,7 +100,6 @@ namespace Nerm.Colonization
         private void HideDialog()
         {
             this.dialog?.Dismiss();
-            this.whatIfRack = null;
             this.dialog = null;
             this.crewDelta = 0;
         }
@@ -151,12 +131,7 @@ namespace Nerm.Colonization
                 return;
             }
 
-            int crewCount = this.lastActiveVessel.GetCrewCount();
-            if (this.lastCrewCount != crewCount)
-            {
-                this.lastCrewCount = crewCount;
-                this.OnCrewDeltaChanged();
-            }
+            int crewCount = FlightGlobals.ActiveVessel.GetCrewCount();
 
             activeSnackConsumption.ResourceQuantities(out var availableResources, out var availableStorage);
             List<IProducer> snackProducers = activeSnackConsumption.Vessel.FindPartModulesImplementing<IProducer>();
