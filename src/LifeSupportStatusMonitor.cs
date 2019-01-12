@@ -142,7 +142,14 @@ namespace Nerm.Colonization
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("POP!"))
             {
-                ShowPopup();
+                PopupMessageWithKerbal.ShowPopup("What a title!", "Tier Up Baby!  what if it's super long and has a lot of lines adnf;lkjsdaf lkjdalf;k jads;lkjfda;lkfdaf\r\n"
+                    + "I mean a lotta lotta lines.\r\n"
+                    + "I mean a lotta lotta lines.\r\n"
+                    + "I mean a lotta lotta lines.\r\n"
+                    + "I mean a lotta lotta lines.\r\n"
+                    + "I mean a lotta lotta lines.\r\n"
+                    + "I mean a lotta lotta lines.\r\n"
+                    + "sfal;jdasf lksadfj;lfdas lkf;asdlk fdj l;fdas jklfd; ;fjkdlj;fkd fjdkj lfkd lkf jksdfl kfsdljlksdf dfkjsdl kjsfdljfsd lk fsdklf sdjklfdjs fdsjkl fsdlkfdsljf sdlfdl sjkfds ljk");
             }
             GUILayout.EndHorizontal();
 
@@ -271,173 +278,6 @@ namespace Nerm.Colonization
             GUILayout.EndVertical();
         }
 
-        private void ShowPopup()
-        {
-            // .25,.5 x .5,.75  yielded a placement around .75-1.2x by .3-.5y
-            var menu = PopupDialog.SpawnPopupDialog(
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new MultiOptionDialog(
-                    "TierUpAlert",
-                    "Tier Up Baby!  what if it's super long and has a lot of lines adnf;lkjsdaf lkjdalf;k jads;lkjfda;lkfdaf\r\n"
-                    + "I mean a lotta lotta lines.\r\n"
-                    + "I mean a lotta lotta lines.\r\n"
-                    + "I mean a lotta lotta lines.\r\n"
-                    + "I mean a lotta lotta lines.\r\n"
-                    + "I mean a lotta lotta lines.\r\n"
-                    + "I mean a lotta lotta lines.\r\n"
-                    + "sfal;jdasf lksadfj;lfdas lkf;asdlk fdj l;fdas jklfd; ;fjkdlj;fkd fjdkj lfkd lkf jksdfl kfsdljlksdf dfkjsdl kjsfdljfsd lk fsdklf sdjklfdjs fdsjkl fsdlkfdsljf sdlfdl sjkfds ljk",
-                    "Whoah a title!",
-                    HighLogic.UISkin,
-                    new DialogGUIVerticalLayout(
-                        new DialogGUIHorizontalLayout(
-                            new DialogGUIFlexibleSpace(),
-                            this.makeInstructor(),
-                            new DialogGUIButton("Sprinkles!", () =>
-                            {
-                                Debug.Log("Sprinkles happened");
-                            }),
-                            new DialogGUIFlexibleSpace()
-                        ))),
-                persistAcrossScenes: false,
-                skin: HighLogic.UISkin,
-                isModal: true,
-                titleExtra: "TITLE EXTRA!");
-        }
-
-        private KerbalInstructor instructor = null;
-        RenderTexture instructorTexture;
-        GameObject lightGameObject = null;
-        static float offset = 0.0f;
-        string characterName = "Frodo";
-        GUIStyle labelStyle;
-
-        private static Material _portraitRenderMaterial = null;
-        public static Material PortraitRenderMaterial
-        {
-            get
-            {
-                if (_portraitRenderMaterial == null)
-                {
-                    _portraitRenderMaterial = AssetBase.GetPrefab("Instructor_Gene").GetComponent<KerbalInstructor>().PortraitRenderMaterial;
-                }
-                return _portraitRenderMaterial;
-            }
-        }
-
-
-        protected void DisplayName(float width)
-        {
-            if (labelStyle == null)
-            {
-                labelStyle = new GUIStyle(UnityEngine.GUI.skin.label);
-                labelStyle.alignment = TextAnchor.UpperCenter;
-                //labelStyle.normal.textColor = textColor;
-                labelStyle.fontStyle = FontStyle.Bold;
-            }
-
-            GUILayout.Label(characterName, labelStyle, GUILayout.Width(width));
-        }
-
-        private List<CharacterAnimationState> initialAnimations;
-        private List<CharacterAnimationState> vampingAnimations;
-        float nextAnimTime = float.MaxValue;
-        bool doneFirstYet = false;
-
-        System.Random random = new System.Random();
-
-
-        private DialogGUIImage makeInstructor()
-        {
-            if (instructor == null)
-            {
-                GameObject o = AssetBase.GetPrefab("Instructor_Gene");
-                var i = UnityEngine.Object.Instantiate(o);
-                instructor = i.GetComponent<KerbalInstructor>();
-                //instructor = ((GameObject)UnityEngine.Object.Instantiate(AssetBase.GetPrefab(name))).GetComponent<KerbalInstructor>();
-
-                instructorTexture = new RenderTexture(128, 128, 8);
-                instructor.instructorCamera.targetTexture = instructorTexture;
-                instructor.instructorCamera.ResetAspect();
-
-                // Remove the lights for Gene/Wernher
-                Light mainlight = instructor.GetComponentsInChildren<Light>(true).Where(l => l.name == "mainlight").FirstOrDefault();
-                if (mainlight != null)
-                {
-                    UnityEngine.Object.Destroy(mainlight);
-                }
-                Light backlight = instructor.GetComponentsInChildren<Light>(true).Where(l => l.name == "backlight").FirstOrDefault();
-                if (backlight != null)
-                {
-                    UnityEngine.Object.Destroy(backlight);
-                }
-
-                offset += 25f;
-                instructor.gameObject.transform.Translate(offset, 0.0f, 0.0f);
-
-                // Add a light
-                lightGameObject = new GameObject("Dialog Box Light");
-                Light lightComp = lightGameObject.AddComponent<Light>();
-                lightComp.color = new Color(0.4f, 0.4f, 0.4f);
-                lightGameObject.transform.position = instructor.instructorCamera.transform.position;
-
-                //if (string.IsNullOrEmpty(characterName))
-                //{
-                //    characterName = Localizer.GetStringByTag(instructor.CharacterName);
-                //}
-
-                instructor.SetupAnimations();
-
-                initialAnimations = new List<CharacterAnimationState>()
-                {
-                    instructor.anim_true_thumbsUp,
-                    instructor.anim_true_thumbUp,
-                    instructor.anim_true_nodA,
-                    instructor.anim_true_nodB,
-                    instructor.anim_true_smileA,
-                    instructor.anim_true_smileB,
-                };
-                vampingAnimations = new List<CharacterAnimationState>()
-                {
-                    instructor.anim_idle_lookAround,
-                    instructor.anim_idle_sigh,
-                    instructor.anim_idle_wonder,
-                    instructor.anim_true_nodA,
-                    instructor.anim_true_nodB,
-                    instructor.anim_true_smileA,
-                    instructor.anim_true_smileB,
-                };
-
-                // Give a short delay before playing the animation
-                nextAnimTime = Time.fixedTime + 0.3f;
-            }
-
-            DialogGUIImage box = new DialogGUIImage(new Vector2(128,128), new Vector2(0,0), Color.gray, instructorTexture);
-            box.OnUpdate = () =>
-            {
-
-                // Play the animation
-                if (nextAnimTime <= Time.fixedTime)
-                {
-                    CharacterAnimationState nowPlaying;
-                    if (this.doneFirstYet)
-                    {
-                        nowPlaying = initialAnimations[this.random.Next(initialAnimations.Count)];
-                        instructor.PlayEmote(nowPlaying);
-                        this.doneFirstYet = true;
-                    }
-                    else
-                    {
-                        nowPlaying = vampingAnimations[this.random.Next(vampingAnimations.Count)];
-                        instructor.PlayEmote(nowPlaying, instructor.anim_idle, playSound: false);
-                    }
-                    //animState.audioClip = null;
-                    nextAnimTime = Time.fixedTime + nowPlaying.clip.length + 1.0f;
-                }
-            };
-
-            return box;
-        }
 
 
         private class ResearchData

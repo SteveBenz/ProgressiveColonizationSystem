@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="CbnCrewRequirement.cs" />
     <Compile Include="CbnShiniesContainer.cs" />
+    <Compile Include="PopupMessageWithKerbal.cs" />
     <Compile Include="ColonizationResearchScenario.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
