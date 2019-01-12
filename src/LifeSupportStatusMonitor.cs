@@ -32,6 +32,11 @@ namespace Nerm.Colonization
         private string consumptionAndProductionInformation;
         private CrewState crewState;
 
+        [KSPField(isPersistant = true)]
+        public float x;
+        [KSPField(isPersistant = true)]
+        public float y;
+
         public override void OnAwake()
         {
             base.OnAwake();
@@ -72,6 +77,7 @@ namespace Nerm.Colonization
                     // Fixed update hasn't run yet.
                     return;
                 }
+
                 this.dialog = PopupDialog.SpawnPopupDialog(
                     new Vector2(.5f, .5f),
                     new Vector2(.5f, .5f),
@@ -84,12 +90,12 @@ namespace Nerm.Colonization
                             new DialogGUILabel(() => this.consumptionAndProductionInformation),
                             new DialogGUIFlexibleSpace(),
 
-                            new DialogGUIHorizontalLayout(
+                            new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
                                 new DialogGUILabel("What if we"),
                                 new DialogGUIButton("Add", () => { ++crewDelta; }, () => true, false),
                                 new DialogGUILabel("/"),
                                 new DialogGUIButton("Remove", () => { --crewDelta; }, () => FlightGlobals.ActiveVessel.GetCrewCount() + this.crewDelta > 0, false),
-                                new DialogGUILabel("a kerbal")))),
+                                new DialogGUILabel("a kerbal?")))),
                     persistAcrossScenes: false,
                     skin: HighLogic.UISkin,
                     isModal: false,
@@ -115,7 +121,7 @@ namespace Nerm.Colonization
                 this.toolbarButton = null;
             }
         }
-        
+
         private void FixedUpdate()
         {
             if (this.lastActiveVessel != FlightGlobals.ActiveVessel)
@@ -131,25 +137,35 @@ namespace Nerm.Colonization
                 return;
             }
 
+            // Shenanigans!  This hack gets around the apparent fact that you can't tell the window where to position itself.
+            if (this.dialog?.popupWindow?.transform?.localPosition != null)
+            {
+                if ((x > 1f || y > 1f || x < 1f || y < 1f)
+                    && this.dialog.popupWindow.transform.localPosition.x == 0 && this.dialog.popupWindow.transform.localPosition.y == 0)
+                {
+                    if (x > 1f || y > 1f || x < 1f || y < 1f)
+                    {
+                        // Re-apply the previous translation - adjusting for UI Scale
+                        this.dialog.popupWindow.transform.Translate(x * GameSettings.UI_SCALE, y * GameSettings.UI_SCALE, 0f);
+                        // If we have to persist this hack, we should detect whether the thing is pushed off the screen.
+                    }
+                }
+                else
+                {
+                    // Record the translation for the future.
+                    x = this.dialog.popupWindow.transform.localPosition.x;
+                    y = this.dialog.popupWindow.transform.localPosition.y;
+                }
+            }
+
             int crewCount = FlightGlobals.ActiveVessel.GetCrewCount();
 
             activeSnackConsumption.ResourceQuantities(out var availableResources, out var availableStorage);
             List<IProducer> snackProducers = activeSnackConsumption.Vessel.FindPartModulesImplementing<IProducer>();
 
-            // If there are no top-tier supplies, no producers, and no crew
-            if (crewCount == 0
-             && snackProducers.Count == 0
-             && !availableResources.ContainsKey("Snacks"))
-            {
-                GUILayout.Label("Oy!  Robots don't eat!");
-                // "This ship apparently ate all its crew"
-            }
-            else
-            {
-                BuildStatusString(activeSnackConsumption, availableResources, availableStorage, snackProducers, crewCount, crewDelta, out string message, out CrewState crewState);
-                this.consumptionAndProductionInformation = message;
-                this.crewState = crewState;
-            }
+            BuildStatusString(activeSnackConsumption, availableResources, availableStorage, snackProducers, crewCount, crewDelta, out string message, out CrewState crewState);
+            this.consumptionAndProductionInformation = message;
+            this.crewState = crewState;
 
             if (this.isVisible && this.dialog == null)
             {
@@ -245,6 +261,7 @@ namespace Nerm.Colonization
 
                     if (resourcesProduced != null && resourcesProduced.Count > 0)
                     {
+                        text.AppendLine();
                         text.AppendLine("The crew is also producing:");
                         foreach (var resourceName in resourcesProduced.Keys.OrderBy(n => n))
                         {
@@ -254,8 +271,15 @@ namespace Nerm.Colonization
                         }
                     }
 
+                    bool addedResearchLineBreak = false;
                     foreach (var pair in researchSink.Data)
                     {
+                        if (!addedResearchLineBreak)
+                        {
+                            text.AppendLine();
+                            addedResearchLineBreak = true;
+                        }
+
                         text.AppendLine($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {pair.Value.KerbalDaysContributedPerDay:N1} units of {pair.Key.DisplayName} research per day.  ({pair.Value.KerbalDaysUntilNextTier:N} are needed to reach the next tier).");
                     }
                 }
