@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace Nerm.Colonization
@@ -22,7 +21,7 @@ namespace Nerm.Colonization
                     new DialogGUIVerticalLayout(
                         new DialogGUIHorizontalLayout(
                             new DialogGUIFlexibleSpace(),
-                            makeInstructor(),
+                            makePictureOfAKerbal(160,160),
                             new DialogGUIButton("Sprinkles!", () =>
                             {
                                 Debug.Log("Sprinkles happened");
@@ -35,107 +34,71 @@ namespace Nerm.Colonization
                 titleExtra: "TITLE EXTRA!");
         }
 
-        private static KerbalInstructor instructor = null;
-        private static RenderTexture instructorTexture;
-        private static GameObject lightGameObject = null;
-        private static float offset = 0.0f;
-        private static string characterName = "Frodo";
-        private static GUIStyle labelStyle;
-
-        private static Material _portraitRenderMaterial = null;
-        public static Material PortraitRenderMaterial
+        private static DialogGUIImage makePictureOfAKerbal(int width, int height)
         {
-            get
+            GameObject genesPrefab = AssetBase.GetPrefab("Instructor_Gene");
+            var instantiatedGene = UnityEngine.Object.Instantiate(genesPrefab);
+            KerbalInstructor instructor = instantiatedGene.GetComponent<KerbalInstructor>();
+
+            RenderTexture instructorTexture = new RenderTexture(width, height, 8);
+            instructor.instructorCamera.targetTexture = instructorTexture;
+            instructor.instructorCamera.ResetAspect();
+
+            // Remove the lights for Gene/Wernher
+            Light mainlight = instructor.GetComponentsInChildren<Light>(true).Where(l => l.name == "mainlight").FirstOrDefault();
+            if (mainlight != null)
             {
-                if (_portraitRenderMaterial == null)
-                {
-                    _portraitRenderMaterial = AssetBase.GetPrefab("Instructor_Gene").GetComponent<KerbalInstructor>().PortraitRenderMaterial;
-                }
-                return _portraitRenderMaterial;
+                UnityEngine.Object.Destroy(mainlight);
             }
-        }
-
-        private static List<CharacterAnimationState> initialAnimations;
-        private static List<CharacterAnimationState> vampingAnimations;
-        private static float nextAnimTime = float.MaxValue;
-        private static bool doneFirstYet = false;
-
-        private static System.Random random = new System.Random();
-
-
-        private static DialogGUIImage makeInstructor()
-        {
-            if (instructor == null)
+            Light backlight = instructor.GetComponentsInChildren<Light>(true).Where(l => l.name == "backlight").FirstOrDefault();
+            if (backlight != null)
             {
-                GameObject o = AssetBase.GetPrefab("Instructor_Gene");
-                var i = UnityEngine.Object.Instantiate(o);
-                instructor = i.GetComponent<KerbalInstructor>();
-                //instructor = ((GameObject)UnityEngine.Object.Instantiate(AssetBase.GetPrefab(name))).GetComponent<KerbalInstructor>();
-
-                instructorTexture = new RenderTexture(128, 128, 8);
-                instructor.instructorCamera.targetTexture = instructorTexture;
-                instructor.instructorCamera.ResetAspect();
-
-                // Remove the lights for Gene/Wernher
-                Light mainlight = instructor.GetComponentsInChildren<Light>(true).Where(l => l.name == "mainlight").FirstOrDefault();
-                if (mainlight != null)
-                {
-                    UnityEngine.Object.Destroy(mainlight);
-                }
-                Light backlight = instructor.GetComponentsInChildren<Light>(true).Where(l => l.name == "backlight").FirstOrDefault();
-                if (backlight != null)
-                {
-                    UnityEngine.Object.Destroy(backlight);
-                }
-
-                offset += 25f;
-                instructor.gameObject.transform.Translate(offset, 0.0f, 0.0f);
-
-                // Add a light
-                lightGameObject = new GameObject("Dialog Box Light");
-                Light lightComp = lightGameObject.AddComponent<Light>();
-                lightComp.color = new Color(0.4f, 0.4f, 0.4f);
-                lightGameObject.transform.position = instructor.instructorCamera.transform.position;
-
-                //if (string.IsNullOrEmpty(characterName))
-                //{
-                //    characterName = Localizer.GetStringByTag(instructor.CharacterName);
-                //}
-
-                instructor.SetupAnimations();
-
-                initialAnimations = new List<CharacterAnimationState>()
-                    {
-                        instructor.anim_true_thumbsUp,
-                        instructor.anim_true_thumbUp,
-                        instructor.anim_true_nodA,
-                        instructor.anim_true_nodB,
-                        instructor.anim_true_smileA,
-                        instructor.anim_true_smileB,
-                    };
-                vampingAnimations = new List<CharacterAnimationState>()
-                    {
-                        instructor.anim_idle_lookAround,
-                        instructor.anim_idle_sigh,
-                        instructor.anim_idle_wonder,
-                        instructor.anim_true_nodA,
-                        instructor.anim_true_nodB,
-                        instructor.anim_true_smileA,
-                        instructor.anim_true_smileB,
-                    };
-
-                // Give a short delay before playing the animation
-                nextAnimTime = Time.fixedTime + 0.3f;
+                UnityEngine.Object.Destroy(backlight);
             }
 
-            DialogGUIImage box = new DialogGUIImage(new Vector2(128, 128), new Vector2(0, 0), Color.gray, instructorTexture);
+            instructor.gameObject.transform.Translate(25f, 0.0f, 0.0f);
+
+            // Add a light
+            GameObject lightGameObject = new GameObject("Dialog Box Light");
+            Light lightComp = lightGameObject.AddComponent<Light>();
+            lightComp.color = new Color(0.4f, 0.4f, 0.4f);
+            lightGameObject.transform.position = instructor.instructorCamera.transform.position;
+
+            instructor.SetupAnimations();
+
+            var initialAnimations = new List<CharacterAnimationState>()
+                {
+                    instructor.anim_true_thumbsUp,
+                    instructor.anim_true_thumbUp,
+                    instructor.anim_true_nodA,
+                    instructor.anim_true_nodB,
+                    instructor.anim_true_smileA,
+                    instructor.anim_true_smileB,
+                };
+            var vampingAnimations = new List<CharacterAnimationState>()
+                {
+                    instructor.anim_idle_lookAround,
+                    instructor.anim_idle_sigh,
+                    instructor.anim_idle_wonder,
+                    instructor.anim_true_nodA,
+                    instructor.anim_true_nodB,
+                    instructor.anim_true_smileA,
+                    instructor.anim_true_smileB,
+                };
+
+            // Give a short delay before playing the animation
+            float nextAnimTime = Time.fixedTime + 0.3f;
+            bool doneFirstYet = false;
+            var random = new System.Random();
+
+            DialogGUIImage box = new DialogGUIImage(new Vector2(width, height), new Vector2(0, 0), Color.gray, instructorTexture);
             box.OnUpdate = () =>
             {
                 // Play the animation
                 if (nextAnimTime <= Time.fixedTime)
                 {
                     CharacterAnimationState nowPlaying;
-                    if (doneFirstYet)
+                    if (!doneFirstYet)
                     {
                         nowPlaying = initialAnimations[random.Next(initialAnimations.Count)];
                         instructor.PlayEmote(nowPlaying);
@@ -146,7 +109,6 @@ namespace Nerm.Colonization
                         nowPlaying = vampingAnimations[random.Next(vampingAnimations.Count)];
                         instructor.PlayEmote(nowPlaying, instructor.anim_idle, playSound: false);
                     }
-                    //animState.audioClip = null;
                     nextAnimTime = Time.fixedTime + nowPlaying.clip.length + 1.0f;
                 }
             };
