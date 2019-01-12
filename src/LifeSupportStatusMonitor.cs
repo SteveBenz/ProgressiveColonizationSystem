@@ -16,12 +16,10 @@ namespace Nerm.Colonization
         : ScenarioModule
     {
         [KSPField(isPersistant = true)]
-        public Rect extent = new Rect(100, 100, 800, 300);
-
-        [KSPField(isPersistant = true)]
         public bool isVisible = false;
 
         // If simulating + or - crewman, this becomes positive or negative.
+        private int lastCrewCount;
         private int crewDelta = 0;
 
         // CrewDelta gets reset when lastActiveVessel no longer equals the current vessel.
@@ -29,7 +27,12 @@ namespace Nerm.Colonization
 
         private ApplicationLauncherButton toolbarButton;
 
-        private bool toolbarStateMatchedToIsVisible;
+        internal enum CrewState { Nonexistant, Happy, Antsy, Angry };
+
+        private DialogGUIHorizontalLayout whatIfRack;
+        private PopupDialog dialog = null;
+        private string consumptionAndProductionInformation;
+        private CrewState crewState;
 
         public override void OnAwake()
         {
@@ -46,19 +49,79 @@ namespace Nerm.Colonization
                 return;
             }
 
-            Texture2D texture2D = new Texture2D(36, 36, TextureFormat.ARGB32, false);
-            texture2D.LoadImage(Properties.Resources.AppLauncherIcon);
+            Texture2D appLauncherTexture = new Texture2D(36, 36, TextureFormat.ARGB32, false);
+            appLauncherTexture.LoadImage(Properties.Resources.AppLauncherIcon);
 
             Debug.Assert(ApplicationLauncher.Ready, "ApplicationLauncher is not ready - can't add the toolbar button.  Is this possible, really?  If so maybe we could do it later?");
             this.toolbarButton = ApplicationLauncher.Instance.AddModApplication(
                 () => {
                     isVisible = true;
+                    ShowDialog();
                 }, () => {
                     isVisible = false;
+                    HideDialog();
                 }, null, null, null, null,
-                ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.SPH | ApplicationLauncher.AppScenes.VAB,
-                texture2D);
-            toolbarStateMatchedToIsVisible = false;
+                ApplicationLauncher.AppScenes.FLIGHT,
+                appLauncherTexture);
+        }
+
+        private void OnCrewDeltaChanged()
+        {
+            if (this.whatIfRack == null)
+            {
+                return;
+            }
+
+            whatIfRack.children.Clear();
+            List<DialogGUIBase> children = new List<DialogGUIBase>();
+            children.Add(new DialogGUILabel("What if we"));
+            children.Add(new DialogGUIButton("Add", () => { ++crewDelta; OnCrewDeltaChanged(); }));
+            if (this.lastCrewCount + this.crewDelta > 0)
+            {
+                children.Add(new DialogGUILabel("/"));
+                children.Add(new DialogGUIButton("Remove", () => { --crewDelta; OnCrewDeltaChanged(); }));
+            }
+            children.Add(new DialogGUILabel("a kerbal"));
+
+            whatIfRack.AddChildren(children.ToArray());
+        }
+
+        private void ShowDialog()
+        {
+            if (this.dialog == null)
+            {
+                this.whatIfRack = new DialogGUIHorizontalLayout();
+                OnCrewDeltaChanged();
+                if (this.consumptionAndProductionInformation == null)
+                {
+                    // Fixed update hasn't run yet.
+                    return;
+                }
+                this.dialog = PopupDialog.SpawnPopupDialog(
+                    new Vector2(.5f, .5f),
+                    new Vector2(.5f, .5f),
+                    new MultiOptionDialog(
+                        "LifeSupportMonitor",  // <- no idea what this does.
+                        "",
+                        "Colony Status",
+                        HighLogic.UISkin,
+                        new DialogGUIVerticalLayout(
+                            new DialogGUILabel(() => this.consumptionAndProductionInformation),
+                            new DialogGUIFlexibleSpace(),
+                            whatIfRack)),
+                    persistAcrossScenes: false,
+                    skin: HighLogic.UISkin,
+                    isModal: false,
+                    titleExtra: "TITLE EXTRA!"); // <- no idea what that does.
+            }
+        }
+
+        private void HideDialog()
+        {
+            this.dialog?.Dismiss();
+            this.whatIfRack = null;
+            this.dialog = null;
+            this.crewDelta = 0;
         }
 
         private void OnDestroy()
@@ -72,44 +135,31 @@ namespace Nerm.Colonization
                 this.toolbarButton = null;
             }
         }
-
-        public void OnGUI()
+        
+        private void FixedUpdate()
         {
-            if (!this.toolbarStateMatchedToIsVisible)
+            if (this.lastActiveVessel != FlightGlobals.ActiveVessel)
             {
-                this.toolbarButton.toggleButton.Value = this.isVisible;
-                this.toolbarStateMatchedToIsVisible = true;
+                this.crewDelta = 0;
             }
 
-            if (!this.isVisible)
-            {
-                return;
-            }
-
-            //windowPos = ClickThruBlocker.GUILayoutWindow(99977, windowPos, DebugModeDialog, "Debug modes");
-            this.extent = GUI.Window(GetInstanceID(), this.extent, WindowCallback, "Life Support Status");
-        }
-
-        private void WindowCallback(int windowId)
-        {
+            this.lastActiveVessel = FlightGlobals.ActiveVessel;
             var activeSnackConsumption = FlightGlobals.ActiveVessel?.GetComponent<SnackConsumption>();
             if (activeSnackConsumption == null)
             {
-                GUILayout.Label("No active vessel.");
+                // Shouldn't happen, but just in case...
                 return;
             }
 
-            if (activeSnackConsumption.Vessel != this.lastActiveVessel)
+            int crewCount = this.lastActiveVessel.GetCrewCount();
+            if (this.lastCrewCount != crewCount)
             {
-                this.crewDelta = 0;
-                this.lastActiveVessel = activeSnackConsumption.Vessel;
+                this.lastCrewCount = crewCount;
+                this.OnCrewDeltaChanged();
             }
-
-            GUILayout.BeginHorizontal();
 
             activeSnackConsumption.ResourceQuantities(out var availableResources, out var availableStorage);
             List<IProducer> snackProducers = activeSnackConsumption.Vessel.FindPartModulesImplementing<IProducer>();
-            int crewCount = activeSnackConsumption.Vessel.GetCrewCount();
 
             // If there are no top-tier supplies, no producers, and no crew
             if (crewCount == 0
@@ -121,61 +171,42 @@ namespace Nerm.Colonization
             }
             else
             {
-                DrawDialog(activeSnackConsumption, availableResources, availableStorage, snackProducers, crewCount);
+                BuildStatusString(activeSnackConsumption, availableResources, availableStorage, snackProducers, crewCount, crewDelta, out string message, out CrewState crewState);
+                this.consumptionAndProductionInformation = message;
+                this.crewState = crewState;
             }
-            GUILayout.EndVertical();
 
-            GUI.DragWindow();
+            if (this.isVisible && this.dialog == null)
+            {
+                this.ShowDialog();
+            }
         }
 
 
-        private void DrawDialog(
+
+
+        internal static void BuildStatusString(
             SnackConsumption activeSnackConsumption,
             Dictionary<string, double> resources,
             Dictionary<string, double> storage,
             List<IProducer> snackProducers,
-            int crewCount)
+            int crewCount,
+            int crewDelta,
+            out string message,
+            out CrewState crewState)
         {
-            GUILayout.BeginVertical();
-            GUILayout.Space(15);
+            StringBuilder text = new StringBuilder();
 
-            GUILayout.BeginHorizontal();
-            if (GUILayout.Button("POP!"))
+            if (crewCount == 0 && snackProducers.Count == 0)
             {
-                PopupMessageWithKerbal.ShowPopup("What a title!", "Tier Up Baby!  what if it's super long and has a lot of lines adnf;lkjsdaf lkjdalf;k jads;lkjfda;lkfdaf\r\n"
-                    + "I mean a lotta lotta lines.\r\n"
-                    + "I mean a lotta lotta lines.\r\n"
-                    + "I mean a lotta lotta lines.\r\n"
-                    + "I mean a lotta lotta lines.\r\n"
-                    + "I mean a lotta lotta lines.\r\n"
-                    + "I mean a lotta lotta lines.\r\n"
-                    + "sfal;jdasf lksadfj;lfdas lkf;asdlk fdj l;fdas jklfd; ;fjkdlj;fkd fjdkj lfkd lkf jksdfl kfsdljlksdf dfkjsdl kjsfdljfsd lk fsdklf sdjklfdjs fdsjkl fsdlkfdsljf sdlfdl sjkfds ljk",
-                    "Got it!");
+                crewState = CrewState.Nonexistant;
+                text.AppendLine("Oy!  Robots don't eat!");
+                // "This ship apparently ate all its crew"
             }
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("What if we ");
-            if (GUILayout.Button("add"))
+            else if (crewCount + crewDelta == 0)
             {
-                ++crewDelta;
-            }
-            if (crewCount + crewDelta > 1)
-            {
-                GUILayout.Label(" / ");
-                if (GUILayout.Button("remove"))
-                {
-                    --crewDelta;
-                }
-                GUILayout.Label(" a kerbal?");
-            }
-            GUILayout.EndHorizontal();
-
-            if (crewCount + crewDelta == 0)
-            {
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("With no crew aboard, not much is going on life-support wise...");
-                GUILayout.EndHorizontal();
+                crewState = CrewState.Nonexistant;
+                text.AppendLine("With no crew aboard, not much is going on life-support wise...");
             }
             else
             {
@@ -186,9 +217,8 @@ namespace Nerm.Colonization
                     out Dictionary<string, double> resourcesProduced);
                 if (timePassed == 0)
                 {
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label("There aren't enough supplies or producers here to feed any kerbals.");
-                    GUILayout.EndHorizontal();
+                    text.AppendLine("There aren't enough supplies or producers here to feed any kerbals.");
+                    crewState = CrewState.Antsy;
 
                     Debug.Assert(LifeSupportScenario.Instance != null);
                     if (LifeSupportScenario.Instance != null)
@@ -196,7 +226,6 @@ namespace Nerm.Colonization
                         // TODO: Somehow bucketize this, since all the crew are likely in the same state.
                         foreach (var crew in activeSnackConsumption.Vessel.GetVesselCrew())
                         {
-                            GUILayout.BeginHorizontal();
                             var kerbalIsKnown = LifeSupportScenario.Instance.TryGetStatus(crew, out double daysSinceMeal, out double daysToGrouchy, out bool isGrouchy);
                             if (!kerbalIsKnown)
                             {
@@ -206,80 +235,59 @@ namespace Nerm.Colonization
 
                             if (isGrouchy)
                             {
-                                GUILayout.Label($"{crew.name} hasn't eaten in {(int)daysSinceMeal} days and is too grouchy to work");
+                                crewState = CrewState.Angry;
+                                text.AppendLine($"{crew.name} hasn't eaten in {(int)daysSinceMeal} days and is too grouchy to work");
                             }
                             else if (daysToGrouchy > 5)
                             {
-                                GUILayout.Label($"{crew.name} is secretly munching a smuggled bag of potato chips");
+                                text.AppendLine($"{crew.name} is secretly munching a smuggled bag of potato chips");
                             }
                             else if (daysToGrouchy < 2)
                             {
-                                GUILayout.Label($"{crew.name} hasn't eaten in {(int)daysSinceMeal} days and will quit working in a couple of days if this keeps up.");
+                                text.AppendLine($"{crew.name} hasn't eaten in {(int)daysSinceMeal} days and will quit working in a couple of days if this keeps up.");
                             }
-                            GUILayout.EndHorizontal();
                         }
                     }
                 }
                 else
                 {
-                    GUILayout.BeginHorizontal();
+                    crewState = CrewState.Happy;
                     if (crewDelta == 0)
                     {
-                        GUILayout.Label($"To sustain its crew of {crewCount + crewDelta}, this vessel is using:");
+                        text.AppendLine($"To sustain its crew of {crewCount + crewDelta}, this vessel is using:");
                     }
                     else
                     {
-                        GUILayout.Label($"To sustain a crew of {crewCount + crewDelta} this vessel would use:");
+                        text.AppendLine($"To sustain a crew of {crewCount + crewDelta} this vessel would use:");
                     }
-                    GUILayout.EndHorizontal();
-
-
-                    // TODO:
-                    //  ((**If the crew has active producers but no fertilizer consumption for the given tier:))
-                    //      The Nom-o-tron(Tier3) is offline for lack of appropriate fertilizer
-                    //  
-
 
                     foreach (var resourceName in resourcesConsumed.Keys.OrderBy(n => n))
                     {
                         double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(resourcesConsumed[resourceName]);
                         double daysLeft = resources[resourceName] / perDay;
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label($"{perDay:N1} {resourceName} per day ({daysLeft:N1} days left)");
-                        GUILayout.EndHorizontal();
+                        text.AppendLine($"{perDay:N1} {resourceName} per day ({daysLeft:N1} days left)");
                     }
 
                     if (resourcesProduced != null && resourcesProduced.Count > 0)
                     {
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label("The crew is also producing:");
-                        GUILayout.EndHorizontal();
+                        text.AppendLine("The crew is also producing:");
                         foreach (var resourceName in resourcesProduced.Keys.OrderBy(n => n))
                         {
                             double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(resourcesProduced[resourceName]);
                             double daysLeft = resources[resourceName] / perDay;
-                            GUILayout.BeginHorizontal();
-                            GUILayout.Label($"{perDay:N1} {resourceName} per day");
-                            GUILayout.EndHorizontal();
+                            text.AppendLine($"{perDay:N1} {resourceName} per day");
                         }
                     }
 
                     foreach (var pair in researchSink.Data)
                     {
-                        GUILayout.BeginHorizontal();
-                        GUILayout.Label($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {pair.Value.KerbalDaysContributedPerDay:N1} units of {pair.Key.DisplayName} research per day.  ({pair.Value.KerbalDaysUntilNextTier:N} are needed to reach the next tier).");
-                        GUILayout.EndHorizontal();
+                        text.AppendLine($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {pair.Value.KerbalDaysContributedPerDay:N1} units of {pair.Key.DisplayName} research per day.  ({pair.Value.KerbalDaysUntilNextTier:N} are needed to reach the next tier).");
                     }
-
-                    // TODO: <IN VAB>
-                    // Balance supply load for a trip duration of:
-                    // [---------------------------*------------] kerbal days
                 }
             }
-            GUILayout.EndVertical();
+
+            message = text.ToString();
         }
-
-
 
         private class ResearchData
         {
