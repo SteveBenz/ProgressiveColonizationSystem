@@ -12,7 +12,7 @@ namespace Nerm.Colonization
     ///   into the life support status of the active vessel.
     /// </summary>
     [KSPScenario(ScenarioCreationOptions.AddToAllGames, GameScenes.FLIGHT)]
-    class LifeSupportStatusMonitor
+    public class LifeSupportStatusMonitor
         : ScenarioModule
     {
         [KSPField(isPersistant = true)]
@@ -144,7 +144,8 @@ namespace Nerm.Colonization
             }
 
             // Shenanigans!  This hack gets around the apparent fact that you can't tell the window where to position itself.
-            if (this.dialog?.popupWindow?.transform?.localPosition != null)
+            // Unity Shenanigans!  this.dialog?.dialog?.popupwindow can throw a null reference exception...  huh?
+            if (this.dialog != null && this.dialog.popupWindow?.transform?.localPosition != null)
             {
                 if ((x > 1f || y > 1f || x < 1f || y < 1f)
                     && this.dialog.popupWindow.transform.localPosition.x == 0 && this.dialog.popupWindow.transform.localPosition.y == 0)
@@ -206,7 +207,7 @@ namespace Nerm.Colonization
                 ResearchSink researchSink = new ResearchSink();
                 TieredProduction.CalculateResourceUtilization(
                     crewCount + crewDelta, 1, snackProducers, researchSink, resources, storage,
-                    out double timePassed, out bool _, out Dictionary<string, double> resourcesConsumed,
+                    out double timePassed, out var _, out Dictionary<string, double> resourcesConsumed,
                     out Dictionary<string, double> resourcesProduced);
                 if (timePassed == 0)
                 {

@@ -30,10 +30,10 @@ namespace Nerm.Colonization.UnitTests
             Dictionary<string, double> noStorage = new Dictionary<string, double>();
             TieredProduction.CalculateResourceUtilization(
                 5 /* kerbals */, 1.0 /* seconds*/, new List<IProducer>(), colonizationResearchScenario, available, noStorage,
-                out double timePassedInSeconds, out bool agroponicsBreakthroughHappened,
+                out double timePassedInSeconds, out List<TieredResource> breakthroughs,
                 out Dictionary<string, double> consumptionPerSecond, out Dictionary<string, double> productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
-            Assert.AreEqual(false, agroponicsBreakthroughHappened);
+            Assert.AreEqual(false, breakthroughs.Any());
             Assert.IsNotNull(consumptionPerSecond);
             Assert.AreEqual(1, consumptionPerSecond.Count);
             Assert.AreEqual("Snacks", consumptionPerSecond.First().Key);
@@ -43,10 +43,10 @@ namespace Nerm.Colonization.UnitTests
             // There's a days' worth of snacks, but 5 kerbals getting after it.
             TieredProduction.CalculateResourceUtilization(
                 5 /* kerbals */, 1.0 * SecondsPerKerbanDay, new List<IProducer>(), colonizationResearchScenario,
-                available, noStorage, out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond,
+                available, noStorage, out timePassedInSeconds, out breakthroughs, out consumptionPerSecond,
                 out productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, SecondsPerKerbanDay / 5);
-            Assert.AreEqual(false, agroponicsBreakthroughHappened);
+            Assert.AreEqual(false, breakthroughs.Any());
             Assert.IsNotNull(consumptionPerSecond);
             Assert.AreEqual(1, consumptionPerSecond.Count);
             Assert.AreEqual("Snacks", consumptionPerSecond.First().Key);
@@ -56,10 +56,10 @@ namespace Nerm.Colonization.UnitTests
             available.Clear();
             TieredProduction.CalculateResourceUtilization(
                 5 /* kerbals */, 1.0 * SecondsPerKerbanDay, new List<IProducer>(), colonizationResearchScenario,
-                available, noStorage, out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond,
+                available, noStorage, out timePassedInSeconds, out breakthroughs, out consumptionPerSecond,
                 out productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 0.0);
-            Assert.AreEqual(false, agroponicsBreakthroughHappened);
+            Assert.IsNull(breakthroughs);
             Assert.IsNull(consumptionPerSecond);
             Assert.IsNull(productionPerSecond);
         }
@@ -106,10 +106,10 @@ namespace Nerm.Colonization.UnitTests
             // First we test when we have more than enough production
             TieredProduction.CalculateResourceUtilization(
                 5 /* kerbals */, 1.0 /* seconds*/, agroponicModules, colonizationResearchScenario, available, noStorage,
-                out double timePassedInSeconds, out bool agroponicsBreakthroughHappened,
+                out double timePassedInSeconds, out List<TieredResource> breakthroughs,
                 out Dictionary<string, double> consumptionPerSecond, out Dictionary<string,double> productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
-            Assert.AreEqual(false, agroponicsBreakthroughHappened);
+            Assert.AreEqual(false, breakthroughs.Any());
             Assert.IsNotNull(consumptionPerSecond);
             Assert.AreEqual(2, consumptionPerSecond.Count);
             // With 5 kerbals aboard, our 3 working agroponics farms are more than enough because
@@ -125,10 +125,10 @@ namespace Nerm.Colonization.UnitTests
             // research from 1 of the modules.
             TieredProduction.CalculateResourceUtilization(
                 20 /* kerbals */, 1.0 /* seconds*/, agroponicModules, colonizationResearchScenario, available, noStorage,
-                out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond,
+                out timePassedInSeconds, out breakthroughs, out consumptionPerSecond,
                 out productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
-            Assert.AreEqual(false, agroponicsBreakthroughHappened);
+            Assert.AreEqual(false, breakthroughs.Any());
             Assert.IsNotNull(consumptionPerSecond);
             Assert.AreEqual(2, consumptionPerSecond.Count);
             // With 20 kerbals aboard, our 3 working agroponics farms are more than enough because
@@ -143,10 +143,10 @@ namespace Nerm.Colonization.UnitTests
             available["Fertilizer"] = 1.5 / SecondsPerKerbanDay;
             TieredProduction.CalculateResourceUtilization(
                 20 /* kerbals */, 1.0 /* seconds*/, agroponicModules, colonizationResearchScenario, available, noStorage,
-                out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond,
+                out timePassedInSeconds, out breakthroughs, out consumptionPerSecond,
                 out productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 0.5);
-            Assert.AreEqual(false, agroponicsBreakthroughHappened);
+            Assert.AreEqual(false, breakthroughs.Any());
             Assert.IsNotNull(consumptionPerSecond);
             Assert.AreEqual(2, consumptionPerSecond.Count);
             // Same rates as in previous test
@@ -201,7 +201,7 @@ namespace Nerm.Colonization.UnitTests
 
             TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, landedModules, colonizationResearchScenario, inStorage, storageSpace,
-                out double timePassedInSeconds, out bool breakthroughHappened,
+                out double timePassedInSeconds, out List<TieredResource> breakthroughs,
                 out Dictionary<string, double> consumptionPerSecond, out Dictionary<string, double> productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
             Assert.AreEqual(4 * (1 - Tier0AgricultureMaxDietRatio), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
@@ -217,8 +217,7 @@ namespace Nerm.Colonization.UnitTests
 
             TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, landedModules, colonizationResearchScenario, inStorage, storageSpace,
-                out timePassedInSeconds, out breakthroughHappened,
-                out consumptionPerSecond, out productionPerSecond);
+                out timePassedInSeconds, out breakthroughs, out consumptionPerSecond, out productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
             Assert.AreEqual(4 * (1 - Tier0AgricultureMaxDietRatio), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(15.0, colonizationResearchScenario.AgricultureResearchProgress, TestTolerance);
@@ -234,8 +233,7 @@ namespace Nerm.Colonization.UnitTests
 
             TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, landedModules, colonizationResearchScenario, inStorage, storageSpace,
-                out timePassedInSeconds, out breakthroughHappened,
-                out consumptionPerSecond, out productionPerSecond);
+                out timePassedInSeconds, out breakthroughs, out consumptionPerSecond, out productionPerSecond);
             Assert.AreEqual(expectedTimePassed, timePassedInSeconds);
             Assert.AreEqual(4 * (1 - Tier0AgricultureMaxDietRatio), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(15.0, colonizationResearchScenario.AgricultureResearchProgress / expectedTimePassed, TestTolerance);
@@ -249,8 +247,7 @@ namespace Nerm.Colonization.UnitTests
             storageSpace.Remove("Fertilizer-Tier0");
             TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, landedModules, colonizationResearchScenario, inStorage, storageSpace,
-                out timePassedInSeconds, out breakthroughHappened,
-                out consumptionPerSecond, out productionPerSecond);
+                out timePassedInSeconds, out breakthroughs, out consumptionPerSecond, out productionPerSecond);
             Assert.AreEqual(1.0, timePassedInSeconds);
             Assert.AreEqual(4 * (1 - Tier0AgricultureMaxDietRatio), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(4 * Tier0AgricultureMaxDietRatio, colonizationResearchScenario.AgricultureResearchProgress, TestTolerance);
@@ -292,10 +289,10 @@ namespace Nerm.Colonization.UnitTests
             available["Snacks"] = 1.0;
             TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, enRouteModules, colonizationResearchScenario, available, noStorage,
-                out double timePassedInSeconds, out bool agroponicsBreakthroughHappened,
+                out double timePassedInSeconds, out List<TieredResource> breakthroughs,
                 out Dictionary<string, double> consumptionPerSecond, out Dictionary<string, double> productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
-            Assert.AreEqual(false, agroponicsBreakthroughHappened);
+            Assert.AreEqual(false, breakthroughs.Any());
             Assert.AreEqual(4 * (1 - Tier2AgroponicMaxDietRatio), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(4 * Tier2AgroponicMaxDietRatio, consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(4 * (Tier2AgroponicMaxDietRatio - Tier0AgroponicMaxDietRatio), colonizationResearchScenario.AgroponicResearchProgress, TestTolerance);
@@ -308,10 +305,10 @@ namespace Nerm.Colonization.UnitTests
                 ColonizationResearchScenario.KerbalYearsToKerbalSeconds(StubColonizationResearchScenario.hydroponicResearchCategory.KerbalYearsToNextTier(TechTier.Tier2)) - 0.00001;
             TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, enRouteModules, colonizationResearchScenario, available, noStorage,
-                out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond,
+                out timePassedInSeconds, out breakthroughs, out consumptionPerSecond,
                 out productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
-            Assert.AreEqual(true, agroponicsBreakthroughHappened);
+            Assert.AreEqual(1, breakthroughs.Count);
             // We're burning T0 fertilizer in the T0 agro lab
             Assert.AreEqual(4 * Tier0AgroponicMaxDietRatio,
                             consumptionPerSecond["Fertilizer-Tier0"] * SecondsPerKerbanDay, TestTolerance);
@@ -332,10 +329,10 @@ namespace Nerm.Colonization.UnitTests
             available.Remove("Fertilizer");
             TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, enRouteModules, colonizationResearchScenario, available, noStorage,
-                out timePassedInSeconds, out agroponicsBreakthroughHappened, out consumptionPerSecond,
+                out timePassedInSeconds, out breakthroughs, out consumptionPerSecond,
                 out productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
-            Assert.AreEqual(false, agroponicsBreakthroughHappened);
+            Assert.AreEqual(false, breakthroughs.Any());
             // We're burning T0 fertilizer in the T0 agro lab
             Assert.AreEqual(4 * Tier0AgroponicMaxDietRatio,
                             consumptionPerSecond["Fertilizer-Tier0"] * SecondsPerKerbanDay, TestTolerance);

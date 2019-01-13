@@ -31,11 +31,7 @@ namespace Nerm.Colonization
 
         public abstract bool CanDoResearch(Vessel vessel, TechTier currentTier, out string reasonWhyNot);
 
-        public virtual string BreakthroughMessage(TechTier newTier)
-        {
-            // TODO: We can do a lot better than this.
-            return $"{newTier.DisplayName()} has been unlocked";
-        }
+        public abstract string BreakthroughMessage(TechTier newTier);
 
         public abstract string DisplayName { get; }
 
@@ -158,6 +154,9 @@ namespace Nerm.Colonization
 
         public override bool CanDoResearch(Vessel vessel, TechTier currentTier, out string reasonWhyNot)
             => MaxLimitedNearKerbin(vessel, currentTier, out reasonWhyNot);
+
+        public override string BreakthroughMessage(TechTier newTier)
+            => CrewBlurbs.HydroponicBreakthrough(newTier, c => c.trait == "Scientist" || c.trait == "Biologist");
     }
 
     public class FarmingResearchCategory
@@ -172,6 +171,9 @@ namespace Nerm.Colonization
 
         public override bool CanDoResearch(Vessel vessel, TechTier currentTier, out string reasonWhyNot)
             => NoResearchLimits(vessel, currentTier, out reasonWhyNot);
+
+        public override string BreakthroughMessage(TechTier newTier)
+            => CrewBlurbs.FarmingBreakthrough(newTier, c => c.trait == "Scientist" || c.trait == "Farmer");
     }
 
     public class ProductionResearchCategory
@@ -186,6 +188,9 @@ namespace Nerm.Colonization
 
         public override bool CanDoResearch(Vessel vessel, TechTier currentTier, out string reasonWhyNot)
             => NoResearchLimits(vessel, currentTier, out reasonWhyNot);
+
+        public override string BreakthroughMessage(TechTier newTier)
+            => CrewBlurbs.ProductionBreakthrough(newTier, c => c.trait == "Engineer" || c.trait == "Mechanic");
     }
 
     public class ScanningResearchCategory
@@ -200,6 +205,9 @@ namespace Nerm.Colonization
 
         public override bool CanDoResearch(Vessel vessel, TechTier currentTier, out string reasonWhyNot)
             => NoResearchLimits(vessel, currentTier, out reasonWhyNot);
+
+        public override string BreakthroughMessage(TechTier newTier)
+            => CrewBlurbs.ScanningBreakthrough(newTier, c => c.trait == "Pilot" || c.trait == "Geologist");
     }
 
     public class ShiniesResearchCategory
@@ -214,5 +222,8 @@ namespace Nerm.Colonization
 
         public override bool CanDoResearch(Vessel vessel, TechTier currentTier, out string reasonWhyNot)
             => MaxLimitedOnEasyWorlds(vessel, currentTier, out reasonWhyNot);
+
+        public override string BreakthroughMessage(TechTier newTier)
+            => CrewBlurbs.ShiniesBreakthrough(newTier, c => c.trait == "Engineer" || c.trait == "Technician");
     }
 }

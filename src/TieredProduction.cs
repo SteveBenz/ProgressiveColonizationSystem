@@ -49,7 +49,7 @@ namespace Nerm.Colonization
             Dictionary<string, double> availableResources,
             Dictionary<string, double> availableStorage,
             out double timePassedInSeconds,
-            out bool breakthroughHappened,
+            out List<TieredResource> breakthroughs,
             out Dictionary<string, double> resourceConsumptionPerSecond,
             out Dictionary<string, double> resourceProductionPerSecond
             )
@@ -100,7 +100,7 @@ namespace Nerm.Colonization
                 timePassedInSeconds = 0;
                 resourceConsumptionPerSecond = null;
                 resourceProductionPerSecond = null;
-                breakthroughHappened = false;
+                breakthroughs = null;
                 return;
             }
 
@@ -163,7 +163,7 @@ namespace Nerm.Colonization
             }
 
             // Okay, finally now we can apply the work done towards research
-            breakthroughHappened = false;
+            breakthroughs = new List<TieredResource>();
             foreach (ProducerData producerData in producerInfos)
             {
                 if (producerData.ProductionContributingToResearch > 0)
@@ -172,9 +172,12 @@ namespace Nerm.Colonization
                     // what we want to do is make sure that the labs with research turned on do
                     // all the work they can.
                     double contributionInKerbals = Math.Min(producerData.AllottedCapacity, producerData.ProductionContributingToResearch);
-                    breakthroughHappened |= producerData.SourceTemplate.ContributeResearch(
+                    if (producerData.SourceTemplate.ContributeResearch(
                         colonizationResearch,
-                        timePassedInSeconds * contributionInKerbals /* convert to kerbal-seconds */);
+                        timePassedInSeconds * contributionInKerbals /* convert to kerbal-seconds */))
+                    {
+                        breakthroughs.Add(producerData.SourceTemplate.Output);
+                    }
                 }
             }
         }

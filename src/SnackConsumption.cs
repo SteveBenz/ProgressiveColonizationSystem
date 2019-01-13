@@ -93,7 +93,7 @@ namespace Nerm.Colonization
                     availableResources,
 					availableStorage,
                     out double elapsedTime,
-                    out bool agroponicsBreakthrough,
+                    out List<TieredResource> breakthroughCategories,
                     out Dictionary<string,double> resourceConsumptionPerSecond,
                     out Dictionary<string,double> resourceProductionPerSecond);
 
@@ -133,9 +133,12 @@ namespace Nerm.Colonization
                         "Nerm.Colonization.SnackConsumption.CalculateSnackFlow is busted - it somehow got the consumption recipe wrong.");
                 }
 
-                if (agroponicsBreakthrough)
+                foreach (TieredResource resource in breakthroughCategories)
                 {
-                    ScreenMessages.PostScreenMessage($"Wewt!  The crew have choked down enough of these nasty snacks to unlock a new tier of equipment.  Turns out the secret was to add more Sri-Racha.", 10.0f);
+                    TechTier newTier = ColonizationResearchScenario.Instance.GetMaxUnlockedTier(resource, this.vessel.landedAt);
+                    string title = $"{resource.ResearchCategory.DisplayName} has progressed to {newTier.DisplayName()}!";
+                    string message = resource.ResearchCategory.BreakthroughMessage(newTier);
+                    PopupMessageWithKerbal.ShowPopup(title, message, "That's Just Swell");
                 }
 
                 remainingTime -= elapsedTime;
