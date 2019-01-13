@@ -212,8 +212,7 @@ namespace Nerm.Colonization
                 {
                     text.AppendLine("There aren't enough supplies or producers here to feed any kerbals.");
 
-                    Debug.Assert(LifeSupportScenario.Instance != null);
-                    if (LifeSupportScenario.Instance != null)
+                    if (!activeSnackConsumption.IsAtHome)
                     {
                         // TODO: Somehow bucketize this, since all the crew are likely in the same state.
                         foreach (var crew in activeSnackConsumption.Vessel.GetVesselCrew())

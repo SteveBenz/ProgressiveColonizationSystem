@@ -189,7 +189,7 @@ namespace Nerm.Colonization
             }
         }
 
-        private bool IsAtHome => vessel.mainBody == FlightGlobals.GetHomeBody() && vessel.altitude < 10000;
+        public bool IsAtHome => vessel.mainBody == FlightGlobals.GetHomeBody() && vessel.altitude < 10000;
 
         private double GetDeltaTime()
         {
