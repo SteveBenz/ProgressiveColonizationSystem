@@ -36,6 +36,11 @@ namespace Nerm.Colonization
 
         private bool toolbarStateMatchedToIsVisible;
 
+        private bool showingWhatIfButtons;
+        private bool showingResourceTransfer;
+
+        private IntervesselResourceTransfer resourceTransfer = new IntervesselResourceTransfer();
+
         public override void OnAwake()
         {
             base.OnAwake();
@@ -78,6 +83,28 @@ namespace Nerm.Colonization
                     return;
                 }
 
+                List<DialogGUIBase> parts = new List<DialogGUIBase>();
+                parts.Add(new DialogGUILabel(() => this.consumptionAndProductionInformation));
+                parts.Add(new DialogGUIFlexibleSpace());
+                if (showingWhatIfButtons)
+                {
+                    parts.Add(new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
+                                new DialogGUILabel("What if we"),
+                                new DialogGUIButton("Add", () => { ++crewDelta; }, () => true, false),
+                                new DialogGUILabel("/"),
+                                new DialogGUIButton("Remove", () => { --crewDelta; }, () => FlightGlobals.ActiveVessel.GetCrewCount() + this.crewDelta > 0, false),
+                                new DialogGUILabel("a kerbal?")));
+                }
+
+                if (showingResourceTransfer)
+                {
+                    parts.Add(new DialogGUIHorizontalLayout(
+                                new DialogGUIButton("Transfer Resources", resourceTransfer.StartTransfer, () => resourceTransfer.TargetVessel != null && !resourceTransfer.IsTransferUnderway, dismissOnSelect: false),
+                                new DialogGUISlider(() => resourceTransfer.TransferPercent, 0, 1, false, 100, 20, null),
+                                new DialogGUILabel("to"),
+                                new DialogGUILabel(resourceTransfer.TargetVessel?.name)));
+                }
+
                 this.dialog = PopupDialog.SpawnPopupDialog(
                     new Vector2(.5f, .5f),
                     new Vector2(.5f, .5f),
@@ -86,15 +113,7 @@ namespace Nerm.Colonization
                         "",
                         "Colony Status",
                         HighLogic.UISkin,
-                        new DialogGUIVerticalLayout(
-                            new DialogGUILabel(() => this.consumptionAndProductionInformation),
-                            new DialogGUIFlexibleSpace(),
-                            new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
-                                new DialogGUILabel("What if we"),
-                                new DialogGUIButton("Add", () => { ++crewDelta; }, () => true, false),
-                                new DialogGUILabel("/"),
-                                new DialogGUIButton("Remove", () => { --crewDelta; }, () => FlightGlobals.ActiveVessel.GetCrewCount() + this.crewDelta > 0, false),
-                                new DialogGUILabel("a kerbal?")))),
+                        new DialogGUIVerticalLayout(parts.ToArray())),
                     persistAcrossScenes: false,
                     skin: HighLogic.UISkin,
                     isModal: false,
@@ -123,6 +142,8 @@ namespace Nerm.Colonization
 
         private void FixedUpdate()
         {
+            resourceTransfer.OnFixedUpdate();
+
             if (this.lastActiveVessel != FlightGlobals.ActiveVessel)
             {
                 this.crewDelta = 0;
@@ -166,6 +187,25 @@ namespace Nerm.Colonization
             }
 
             int crewCount = FlightGlobals.ActiveVessel.GetCrewCount();
+            if ((crewCount > 0) != this.showingWhatIfButtons)
+            {
+                this.showingWhatIfButtons = (crewCount > 0);
+                if (this.dialog)
+                {
+                    this.dialog.Dismiss();
+                    this.dialog = null;
+                }
+            }
+
+            if ((resourceTransfer.TargetVessel != null) != this.showingResourceTransfer)
+            {
+                this.showingResourceTransfer = (resourceTransfer.TargetVessel != null);
+                if (this.dialog)
+                {
+                    this.dialog.Dismiss();
+                    this.dialog = null;
+                }
+            }
 
             activeSnackConsumption.ResourceQuantities(out var availableResources, out var availableStorage);
             List<IProducer> snackProducers = activeSnackConsumption.Vessel.FindPartModulesImplementing<IProducer>();
