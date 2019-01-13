@@ -178,6 +178,8 @@ namespace Nerm.Colonization
             {
                 foreach (var resource in part.Resources)
                 {
+                    // Be careful that we treat nearly-zero as zero, as otherwise we can get into an infinite
+                    // loop when the resource calculator decides the amount is too minute to rate more than 0 time.
                     if (resource.flowState && resource.amount > 100*ResourceUtilities.FLOAT_TOLERANCE)
                     {
 						availableResources.TryGetValue(resource.resourceName, out double amount);
