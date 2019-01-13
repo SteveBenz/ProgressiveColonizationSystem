@@ -178,12 +178,12 @@ namespace Nerm.Colonization
             {
                 foreach (var resource in part.Resources)
                 {
-                    if (resource.flowState && resource.amount > 0)
+                    if (resource.flowState && resource.amount > 100*ResourceUtilities.FLOAT_TOLERANCE)
                     {
 						availableResources.TryGetValue(resource.resourceName, out double amount);
 						availableResources[resource.resourceName] = amount + resource.amount;
                     }
-					if (resource.flowState && resource.maxAmount > resource.amount)
+					if (resource.flowState && resource.maxAmount > resource.amount + 100 * ResourceUtilities.FLOAT_TOLERANCE)
 					{
 						availableStorage.TryGetValue(resource.resourceName, out double amount);
 						availableStorage[resource.resourceName] = amount + resource.maxAmount - resource.amount;

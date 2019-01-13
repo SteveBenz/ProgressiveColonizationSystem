@@ -26,11 +26,13 @@ Development plan:
    2.  Tweak the mass and density of Fertilizer & Supplies
    3.  (complete)Agroponic and Ag modules consume some electricity
    4.  Actually enforce the crew counts, types & stars (see 2.v)
-   5.  Make the reporting of when you make a tier breakthrough more informative and fun
+   5.  (complete)Make the reporting of when you make a tier breakthrough more informative and fun
    6.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
+   7.  Be able to do a cargo run
 5. Release prep
-   1.  Figure out how to Release
-   2.  Release to CKAN
+   1.  (complete)De-fugly the dialogs
+   2.  Figure out how to Release
+   3.  Release to CKAN
 6. Advanced Progression - the ability to have extended missions on Duna
    1.  Create the resource gathering mechanic
        1.  Create a configurable part for storing Stuff
@@ -43,12 +45,14 @@ Development plan:
    2.  Create shinies resource chain
        1.  (complete) Create shinies factory
        2.  (complete) Create a basic shinies container
-       3.  Create shinies containers that don't let you fill them at the KSP
+       3.  (complete) Create shinies containers that don't let you fill them at the KSP
        4   (complete) Mun/Minmus shinies peak at T1, Duna/Ike/Gilly at T2, T5 only at Dres/Eloo/Moho/Eve
        3.  Make the shinies boost your rep on landing
    3.  Support USI kerbal types
    4.  Life support dialog works nicely in the editors - can estimate usage and ag production
    5.  (complete) Make the GetInfo()'s show the electric utilization
+   6.  Support some form of resource transfer (resupply / salvage)
+        Resupply:  Fertilizer, Shinies, LF&OX out of "Base" / Snacks in
 7. Play Nice With Others
    1.  (cut - sticking with the game one) Integrate with Toolbar?
    2.  Integrate with ModuleManager
