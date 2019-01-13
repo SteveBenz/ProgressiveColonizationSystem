@@ -83,6 +83,11 @@ namespace Nerm.Colonization
                     return;
                 }
 
+                // FYI, if you want to override a style, here'd be a way to do it:
+                // var myStyle = new UIStyle(UISkinManager.defaultSkin.label) { wordWrap = false};
+                //
+                // Too bad wordWrap doesn't get paid attention to.
+
                 List<DialogGUIBase> parts = new List<DialogGUIBase>();
                 parts.Add(new DialogGUILabel(() => this.consumptionAndProductionInformation));
                 parts.Add(new DialogGUIFlexibleSpace());
@@ -98,11 +103,16 @@ namespace Nerm.Colonization
 
                 if (showingResourceTransfer)
                 {
-                    parts.Add(new DialogGUIHorizontalLayout(
-                                new DialogGUIButton("Transfer Resources", resourceTransfer.StartTransfer, () => resourceTransfer.TargetVessel != null && !resourceTransfer.IsTransferUnderway, dismissOnSelect: false),
-                                new DialogGUISlider(() => resourceTransfer.TransferPercent, 0, 1, false, 100, 20, null),
-                                new DialogGUILabel("to"),
-                                new DialogGUILabel(resourceTransfer.TargetVessel?.name)));
+                    parts.Add(
+                        new DialogGUIVerticalLayout(
+                            new DialogGUILabel("<color #c0c0c0>______________________________________________</color>"),
+                            new DialogGUILabel("<b>Resource Transfer</b>"),
+                            new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
+                                new DialogGUILabel("Target: "),
+                                new DialogGUILabel(resourceTransfer.TargetVessel?.GetDisplayName())),
+                            new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
+                                new DialogGUIButton("Start", resourceTransfer.StartTransfer, () => resourceTransfer.TargetVessel != null && !resourceTransfer.IsTransferUnderway, dismissOnSelect: false),
+                                new DialogGUISlider(() => resourceTransfer.TransferPercent, 0, 1, false, 100, 20, null))));
                 }
 
                 this.dialog = PopupDialog.SpawnPopupDialog(

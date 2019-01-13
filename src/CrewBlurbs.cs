@@ -88,7 +88,7 @@ namespace Nerm.Colonization
         }
 
         public static string ProductionBreakthrough(TechTier tier, Func<ProtoCrewMember, bool> isInstrumental)
-            => ProductionBreakthrough(GetCrewDescriptors(isInstrumental), FlightGlobals.ActiveVessel.vesselName, tier);
+            => ProductionBreakthrough(GetCrewDescriptors(isInstrumental), FlightGlobals.ActiveVessel.GetDisplayName(), tier);
 
         internal static string ProductionBreakthrough(List<CrewDescriptor> crew, string shipName, TechTier tier)
         {
