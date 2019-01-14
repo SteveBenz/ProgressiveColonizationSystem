@@ -108,17 +108,20 @@ namespace Nerm.Colonization
             if (IsTransferUnderway && FlightGlobals.ActiveVessel == this.sourceVessel)
             {
                 double now = Planetarium.GetUniversalTime();
-                double elapsedTime = now - lastTransferTime;
+                double elapsedTime = now - this.lastTransferTime;
+                this.lastTransferTime = now;
+
                 // Move the goodies
                 var thisShipResults = this.resourceConverter.ProcessRecipe(elapsedTime, this.thisVesselConversionRecipe, this.sourceVessel.rootPart, null, 1f);
                 var otherShipResults = this.resourceConverter.ProcessRecipe(elapsedTime, this.otherVesselConversionRecipe, this.TargetVessel.rootPart, null, 1f);
-                if (thisShipResults.TimeFactor == 0 || otherShipResults.TimeFactor == 0)
+                if (thisShipResults.TimeFactor < elapsedTime || otherShipResults.TimeFactor < elapsedTime)
                 {
                     this.resourceConverter = null;
                     this.thisVesselConversionRecipe = null;
                     this.otherVesselConversionRecipe = null;
                     this.IsTransferComplete = true;
                 }
+
                 return;
             }
 
