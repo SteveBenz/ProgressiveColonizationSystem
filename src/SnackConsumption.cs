@@ -171,9 +171,9 @@ namespace Nerm.Colonization
         }
 
         internal void ResourceQuantities(out Dictionary<string, double> availableResources, out Dictionary<string, double> availableStorage)
-            => ResourceQuantities(this.vessel, out availableResources, out availableStorage);
+            => ResourceQuantities(this.vessel, 100 * ResourceUtilities.FLOAT_TOLERANCE, out availableResources, out availableStorage);
 
-        internal static void ResourceQuantities(Vessel vessel, out Dictionary<string, double> availableResources, out Dictionary<string, double> availableStorage)
+        internal static void ResourceQuantities(Vessel vessel, double minimumAmount, out Dictionary<string, double> availableResources, out Dictionary<string, double> availableStorage)
         {
             availableResources = new Dictionary<string, double>();
             availableStorage = new Dictionary<string, double>();
@@ -183,12 +183,12 @@ namespace Nerm.Colonization
                 {
                     // Be careful that we treat nearly-zero as zero, as otherwise we can get into an infinite
                     // loop when the resource calculator decides the amount is too minute to rate more than 0 time.
-                    if (resource.flowState && resource.amount > 100 * ResourceUtilities.FLOAT_TOLERANCE)
+                    if (resource.flowState && resource.amount > minimumAmount)
                     {
                         availableResources.TryGetValue(resource.resourceName, out double amount);
                         availableResources[resource.resourceName] = amount + resource.amount;
                     }
-                    if (resource.flowState && resource.maxAmount > resource.amount + 100 * ResourceUtilities.FLOAT_TOLERANCE)
+                    if (resource.flowState && resource.maxAmount > resource.amount + minimumAmount)
                     {
                         availableStorage.TryGetValue(resource.resourceName, out double amount);
                         availableStorage[resource.resourceName] = amount + resource.maxAmount - resource.amount;

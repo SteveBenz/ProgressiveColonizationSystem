@@ -171,11 +171,11 @@ namespace Nerm.Colonization
         {
             // If the other ship is unmanned and has producers, take everything and give nothing
 
-            SnackConsumption.ResourceQuantities(FlightGlobals.ActiveVessel, out Dictionary<string, double> thisShipCanSupply, out Dictionary<string, double> thisShipCanTransport);
-            SnackConsumption.ResourceQuantities(otherVessel, out Dictionary<string, double> otherShipCanSupply, out Dictionary<string, double> otherShipCouldUse);
+            SnackConsumption.ResourceQuantities(FlightGlobals.ActiveVessel, 1, out Dictionary<string, double> thisShipCanSupply, out Dictionary<string, double> thisShipCanUse);
+            SnackConsumption.ResourceQuantities(otherVessel, 1, out Dictionary<string, double> otherShipCanSupply, out Dictionary<string, double> otherShipCouldUse);
 
             List<string> couldSend = thisShipCanSupply.Keys.Intersect(otherShipCouldUse.Keys).ToList();
-            List<string> couldTake = otherShipCanSupply.Keys.Intersect(thisShipCanTransport.Keys).ToList();
+            List<string> couldTake = otherShipCanSupply.Keys.Intersect(thisShipCanUse.Keys).ToList();
 
             List<CbnTieredResourceConverter> otherVesselProducers = otherVessel.FindPartModulesImplementing<CbnTieredResourceConverter>();
 
@@ -187,28 +187,50 @@ namespace Nerm.Colonization
                 foreach (var otherShipPair in otherShipCanSupply)
                 {
                     string resourceName = otherShipPair.Key;
-                    if (thisShipCanTransport.ContainsKey(resourceName))
+                    if (thisShipCanUse.ContainsKey(resourceName))
                     {
-                        toReceive.Add(resourceName, Math.Min(thisShipCanTransport[resourceName], otherShipPair.Value));
+                        toReceive.Add(resourceName, Math.Min(thisShipCanUse[resourceName], otherShipPair.Value));
                     }
                 }
                 return toReceive.Count > 0;
             }
 
             // If other ship has a producer for a resource, take it
+            // and if this ship has a producer for a resource (and the other doesn't), give it
+            HashSet<string> thisShipsProducts = GetVesselsProducers(FlightGlobals.ActiveVessel);
             HashSet<string> otherShipsProducts = GetVesselsProducers(otherVessel);
-            foreach (string takeableStuff in otherShipCanSupply.Keys)
+            foreach (string takeableStuff in otherShipCanSupply.Keys.Union(thisShipCanSupply.Keys))
             {
-                if (otherShipsProducts.Contains(takeableStuff) && thisShipCanTransport.ContainsKey(takeableStuff))
+                if (otherShipsProducts.Contains(takeableStuff)
+                 && !thisShipsProducts.Contains(takeableStuff)
+                 && thisShipCanUse.ContainsKey(takeableStuff)
+                 && otherShipCanSupply.ContainsKey(takeableStuff))
                 {
-                    toReceive.Add(takeableStuff, Math.Min(thisShipCanTransport[takeableStuff], otherShipCanSupply[takeableStuff]));
+                    toReceive.Add(takeableStuff, Math.Min(thisShipCanUse[takeableStuff], otherShipCanSupply[takeableStuff]));
+                }
+                else if (!otherShipsProducts.Contains(takeableStuff)
+                       && thisShipsProducts.Contains(takeableStuff)
+                       && otherShipCouldUse.ContainsKey(takeableStuff)
+                       && thisShipCanSupply.ContainsKey(takeableStuff))
+                {
+                    toSend.Add(takeableStuff, Math.Min(otherShipCouldUse[takeableStuff], thisShipCanSupply[takeableStuff]));
                 }
             }
 
-            // Give max-tier snacks if the other ship is a base (has farms?)
-            if (thisShipCanSupply.ContainsKey("Snacks") && !otherShipsProducts.Contains("Snacks") && otherShipCouldUse.ContainsKey("Snacks"))
+            // Push MaxTier Snacks to bases and rovers
+            if (thisShipCanSupply.ContainsKey("Snacks") && otherShipCouldUse.ContainsKey("Snacks")
+             && (otherVessel.vesselType == VesselType.Base || otherVessel.vesselType == VesselType.Rover)
+             && !otherShipsProducts.Contains("Snacks"))
             {
                 toSend.Add("Snacks", Math.Min(thisShipCanSupply["Snacks"], otherShipCouldUse["Snacks"]));
+            }
+
+            // Likewise, pull snacks when you are the base.
+            if (otherShipCanSupply.ContainsKey("Snacks") && thisShipCanUse.ContainsKey("Snacks")
+             && (FlightGlobals.ActiveVessel.vesselType == VesselType.Base || FlightGlobals.ActiveVessel.vesselType == VesselType.Rover)
+             && !thisShipsProducts.Contains("Snacks"))
+            {
+                toReceive.Add("Snacks", Math.Min(thisShipCanUse["Snacks"], otherShipCanSupply["Snacks"]));
             }
 
             return toReceive.Any() || toSend.Any();
