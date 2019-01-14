@@ -170,27 +170,30 @@ namespace Nerm.Colonization
             }
         }
 
-        internal void ResourceQuantities(out Dictionary<string, double> availableResources, out Dictionary<string,double> availableStorage)
+        internal void ResourceQuantities(out Dictionary<string, double> availableResources, out Dictionary<string, double> availableStorage)
+            => ResourceQuantities(this.vessel, out availableResources, out availableStorage);
+
+        internal static void ResourceQuantities(Vessel vessel, out Dictionary<string, double> availableResources, out Dictionary<string, double> availableStorage)
         {
-			availableResources = new Dictionary<string, double>();
-			availableStorage = new Dictionary<string, double>();
-			foreach (var part in this.vessel.parts)
+            availableResources = new Dictionary<string, double>();
+            availableStorage = new Dictionary<string, double>();
+            foreach (var part in vessel.parts)
             {
                 foreach (var resource in part.Resources)
                 {
                     // Be careful that we treat nearly-zero as zero, as otherwise we can get into an infinite
                     // loop when the resource calculator decides the amount is too minute to rate more than 0 time.
-                    if (resource.flowState && resource.amount > 100*ResourceUtilities.FLOAT_TOLERANCE)
+                    if (resource.flowState && resource.amount > 100 * ResourceUtilities.FLOAT_TOLERANCE)
                     {
-						availableResources.TryGetValue(resource.resourceName, out double amount);
-						availableResources[resource.resourceName] = amount + resource.amount;
+                        availableResources.TryGetValue(resource.resourceName, out double amount);
+                        availableResources[resource.resourceName] = amount + resource.amount;
                     }
-					if (resource.flowState && resource.maxAmount > resource.amount + 100 * ResourceUtilities.FLOAT_TOLERANCE)
-					{
-						availableStorage.TryGetValue(resource.resourceName, out double amount);
-						availableStorage[resource.resourceName] = amount + resource.maxAmount - resource.amount;
-					}
-				}
+                    if (resource.flowState && resource.maxAmount > resource.amount + 100 * ResourceUtilities.FLOAT_TOLERANCE)
+                    {
+                        availableStorage.TryGetValue(resource.resourceName, out double amount);
+                        availableStorage[resource.resourceName] = amount + resource.maxAmount - resource.amount;
+                    }
+                }
             }
         }
 
