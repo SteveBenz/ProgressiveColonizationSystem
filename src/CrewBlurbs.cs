@@ -50,11 +50,11 @@ namespace Nerm.Colonization
                     }
                 case TechTier.Tier2:
                     return $"{perp.Name} has cracked the code!  If {perp.heshe} just takes the green goo, and then molds it into the "
-                        + "shape of a dorito and sprinkles a lot of salt & MSG on it, then secretly places it in the "
+                        + "shape of a triange and sprinkles a lot of salt & MSG on it, then secretly places it in the "
                         + "real snack storage in bags that say 'DOITOS' on it, the crew will just pound down bag after bag "
                         + "of the stuff.";
                 case TechTier.Tier3:
-                    return $"While contemplating the incredible vastness of space and staring at yet another of the green "
+                    return $"While contemplating the incredible vastness of space and staring at yet another of the flat green "
                         + $"lumps that {GetGroupDescription(crew, true)} have been trying to pass off as 'chips' that "
                         + $"{victim.Name} surprised everyone with the simple answer:  They needed to turn some of the leftover "
                         + "goo into dip!  It's as simple as that!";
@@ -97,8 +97,8 @@ namespace Nerm.Colonization
                 case TechTier.Tier4:
                     return $"{victim.Name} had been plotting against {perp.Name}'s scheme of creating a "
                            + $"hybrid of broccoli, okra, eggplant and prunes for weeks.  {perp.Name} knew something "
-                           + $"was in the works {perp.heshe} had seen how the rest of the crew had been looking at {perp.himher}. "
-                           + "But no Kerbal could have anticipated the unexpectedly (and certainly unintentionally) synnergistic "
+                           + $"was in the works; {perp.heshe} had seen how the rest of the crew had been looking at {perp.himher}. "
+                           + "But no Kerbal could have anticipated the unexpectedly (and certainly unintentionally) synergistic "
                            + "effect that the fully weaponized robotic nematode had on the sickly mutated plants...\r\n\r\n"
                            + "A vegetable that tastes like chicken!";
             }
@@ -131,7 +131,7 @@ namespace Nerm.Colonization
                           + $"expected of {perp.himher} from the beginning...  Maybe a little sooner than they actually "
                           + $"came, but the breakthrough finally happened.  Yes, {perp.Name} has conclusively proven "
                           + "that some of the dirt around here is better for fertilizer, some is better for making "
-                          + "shiny things, and some is really only good for mounding up in silly shapes.";
+                          + "shiny things, and some is really only good for wiggling your toes in.";
                 case TechTier.Tier2:
                 case TechTier.Tier3:
                 case TechTier.Tier4:
