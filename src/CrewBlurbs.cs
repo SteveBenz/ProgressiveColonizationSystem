@@ -133,7 +133,7 @@ namespace Nerm.Colonization
         }
 
         public static string ShiniesBreakthrough(TechTier tier, Func<ProtoCrewMember, bool> isInstrumental)
-            => ShiniesBreakthrough(GetCrewDescriptors(isInstrumental), FlightGlobals.ActiveVessel.landedAt, tier);
+            => ShiniesBreakthrough(GetCrewDescriptors(isInstrumental), FlightGlobals.ActiveVessel.lastBody.name, tier);
 
         internal static string ShiniesBreakthrough(List<CrewDescriptor> crew, string bodyName, TechTier tier)
         {
@@ -152,7 +152,7 @@ namespace Nerm.Colonization
                            + "by duck-taping closed the doors to the KSP legal department, and then "
                            + "removing all those warning labels that say \"Danger!  May contain "
                            + "alien microbes that will wipe out all life on the planet!\" sales of "
-                           + $"{bodyName}-dirt facial scrub shot through the roof!";
+                           + $"{bodyName}-Dirt facial scrub shot through the roof!";
             }
         }
 

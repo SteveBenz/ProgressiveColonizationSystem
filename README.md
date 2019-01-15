@@ -28,7 +28,6 @@ Development plan:
    4.  Actually enforce the crew counts, types & stars (see 2.v)
    5.  (complete)Make the reporting of when you make a tier breakthrough more informative and fun
    6.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
-   7.  Be able to do a cargo run
 5. Release prep
    1.  (complete)De-fugly the dialogs
    2.  Figure out how to Release
@@ -51,7 +50,7 @@ Development plan:
    3.  Support USI kerbal types
    4.  Life support dialog works nicely in the editors - can estimate usage and ag production
    5.  (complete) Make the GetInfo()'s show the electric utilization
-   6.  Support some form of resource transfer (resupply / salvage)
+   6.  (complete) Support some form of resource transfer (resupply / salvage)
         Resupply:  Fertilizer, Shinies, LF&OX out of "Base" / Snacks in
 7. Play Nice With Others
    1.  (cut - sticking with the game one) Integrate with Toolbar?

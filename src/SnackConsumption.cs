@@ -135,7 +135,7 @@ namespace Nerm.Colonization
 
                 foreach (TieredResource resource in breakthroughCategories)
                 {
-                    TechTier newTier = ColonizationResearchScenario.Instance.GetMaxUnlockedTier(resource, this.vessel.landedAt);
+                    TechTier newTier = ColonizationResearchScenario.Instance.GetMaxUnlockedTier(resource, this.vessel.lastBody.name);
                     string title = $"{resource.ResearchCategory.DisplayName} has progressed to {newTier.DisplayName()}!";
                     string message = resource.ResearchCategory.BreakthroughMessage(newTier);
                     PopupMessageWithKerbal.ShowPopup(title, message, "That's Just Swell");
@@ -181,6 +181,11 @@ namespace Nerm.Colonization
             {
                 foreach (var resource in part.Resources)
                 {
+                    if (resource.resourceName == "ElectricCharge")
+                    {
+                        continue;
+                    }
+
                     // Be careful that we treat nearly-zero as zero, as otherwise we can get into an infinite
                     // loop when the resource calculator decides the amount is too minute to rate more than 0 time.
                     if (resource.flowState && resource.amount > minimumAmount)
@@ -188,7 +193,7 @@ namespace Nerm.Colonization
                         availableResources.TryGetValue(resource.resourceName, out double amount);
                         availableResources[resource.resourceName] = amount + resource.amount;
                     }
-                    if (resource.flowState && resource.maxAmount > resource.amount + minimumAmount)
+                    if (resource.flowState && resource.maxAmount - resource.amount > minimumAmount)
                     {
                         availableStorage.TryGetValue(resource.resourceName, out double amount);
                         availableStorage[resource.resourceName] = amount + resource.maxAmount - resource.amount;
