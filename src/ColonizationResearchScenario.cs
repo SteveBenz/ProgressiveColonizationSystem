@@ -116,11 +116,6 @@ namespace Nerm.Colonization
         public static double KerbalYearsToKerbalSeconds(double years) => years * 426.0 * 6.0 * 60.0 * 60.0;
         public static double KerbalSecondsToKerbalDays(double seconds) => seconds / (6.0 * 60.0 * 60.0);
 
-        public string GetBreakthroughMessage(TieredResource resource, TechTier newTier)
-        {
-            return resource.ResearchCategory.BreakthroughMessage(newTier);
-        }
-
         public TechTier GetMaxUnlockedTier(TieredResource forResource, string atBody)
         {
             if (!this.categoryToBodyToProgressMap.TryGetValue(forResource.ResearchCategory, out Dictionary<string, TechProgress> bodyToProgressMap))

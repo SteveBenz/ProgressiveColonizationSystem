@@ -33,6 +33,8 @@ namespace Nerm.Colonization
 
         public abstract string BreakthroughMessage(TechTier newTier);
 
+        public abstract string BoringBreakthroughMessage(TechTier newTier);
+
         public abstract string DisplayName { get; }
 
         #region Common implementations of CanDoResearch
@@ -157,6 +159,9 @@ namespace Nerm.Colonization
 
         public override string BreakthroughMessage(TechTier newTier)
             => CrewBlurbs.HydroponicBreakthrough(newTier, c => c.trait == "Scientist" || c.trait == "Biologist");
+
+        public override string BoringBreakthroughMessage(TechTier newTier)
+            => CrewBlurbs.BoringHydroponicBreakthrough(newTier);
     }
 
     public class FarmingResearchCategory
@@ -174,6 +179,9 @@ namespace Nerm.Colonization
 
         public override string BreakthroughMessage(TechTier newTier)
             => CrewBlurbs.FarmingBreakthrough(newTier, c => c.trait == "Scientist" || c.trait == "Farmer");
+
+        public override string BoringBreakthroughMessage(TechTier newTier)
+            => CrewBlurbs.BoringFarmingBreakthrough(newTier);
     }
 
     public class ProductionResearchCategory
@@ -191,6 +199,9 @@ namespace Nerm.Colonization
 
         public override string BreakthroughMessage(TechTier newTier)
             => CrewBlurbs.ProductionBreakthrough(newTier, c => c.trait == "Engineer" || c.trait == "Mechanic");
+
+        public override string BoringBreakthroughMessage(TechTier newTier)
+            => CrewBlurbs.BoringProductionBreakthrough(newTier);
     }
 
     public class ScanningResearchCategory
@@ -208,6 +219,9 @@ namespace Nerm.Colonization
 
         public override string BreakthroughMessage(TechTier newTier)
             => CrewBlurbs.ScanningBreakthrough(newTier, c => c.trait == "Pilot" || c.trait == "Geologist");
+
+        public override string BoringBreakthroughMessage(TechTier newTier)
+            => CrewBlurbs.BoringScanningBreakthrough(newTier);
     }
 
     public class ShiniesResearchCategory
@@ -225,5 +239,8 @@ namespace Nerm.Colonization
 
         public override string BreakthroughMessage(TechTier newTier)
             => CrewBlurbs.ShiniesBreakthrough(newTier, c => c.trait == "Engineer" || c.trait == "Technician");
+
+        public override string BoringBreakthroughMessage(TechTier newTier)
+            => CrewBlurbs.BoringShiniesBreakthrough(newTier);
     }
 }

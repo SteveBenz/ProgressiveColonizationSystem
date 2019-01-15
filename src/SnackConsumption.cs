@@ -138,7 +138,8 @@ namespace Nerm.Colonization
                     TechTier newTier = ColonizationResearchScenario.Instance.GetMaxUnlockedTier(resource, this.vessel.lastBody.name);
                     string title = $"{resource.ResearchCategory.DisplayName} has progressed to {newTier.DisplayName()}!";
                     string message = resource.ResearchCategory.BreakthroughMessage(newTier);
-                    PopupMessageWithKerbal.ShowPopup(title, message, "That's Just Swell");
+                    string boringMessage = resource.ResearchCategory.BoringBreakthroughMessage(newTier);
+                    PopupMessageWithKerbal.ShowPopup(title, message, boringMessage, "That's Just Swell");
                 }
 
                 remainingTime -= elapsedTime;

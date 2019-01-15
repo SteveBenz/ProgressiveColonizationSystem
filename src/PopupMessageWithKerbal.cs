@@ -13,13 +13,15 @@ namespace Nerm.Colonization
         public static float x1 = 0.55f, y1 = 0.4f;
         public static float x2 = 0.62f, y2 = 0.4f;
 
+        static int uniquifier = 0;
+
         public static void ShowPopup(string title, string content, string okayButton)
         {
             var menu = PopupDialog.SpawnPopupDialog(
-                new Vector2(x1,y1),
-                new Vector2(x2,y2),
+                new Vector2(x1, y1),
+                new Vector2(x2, y2),
                 new MultiOptionDialog(
-                    "TierUpAlert",  // <- no idea what this does.
+                    "TierUpAlert" + (uniquifier++.ToString()),  // <- no idea what this does.
                     "",
                     title,
                     HighLogic.UISkin,
@@ -33,6 +35,38 @@ namespace Nerm.Colonization
                         new DialogGUIHorizontalLayout(
                             new DialogGUIFlexibleSpace(),
                             new DialogGUIButton(okayButton, () => { }),
+                            new DialogGUIFlexibleSpace()
+                        ))),
+                persistAcrossScenes: false,
+                skin: HighLogic.UISkin,
+                isModal: true,
+                titleExtra: "TITLE EXTRA!"); // <- no idea what that does.
+        }
+
+        public static void ShowPopup(string title, string content, string boringContent, string okayButton)
+        {
+            bool isBoring = false;
+
+            var menu = PopupDialog.SpawnPopupDialog(
+                new Vector2(x1, y1),
+                new Vector2(x2, y2),
+                new MultiOptionDialog(
+                    "TierUpAlert" + (uniquifier++.ToString()),  // <- no idea what this does.
+                    "",
+                    title,
+                    HighLogic.UISkin,
+                    new DialogGUIVerticalLayout(
+                        new DialogGUIHorizontalLayout(
+                            new DialogGUIVerticalLayout(
+                                new DialogGUIFlexibleSpace(),
+                                makePictureOfAKerbal(160, 160),
+                                new DialogGUIFlexibleSpace()),
+                            new DialogGUILabel(() => isBoring ? boringContent : content, true, true)),
+                        new DialogGUIHorizontalLayout(
+                            new DialogGUIFlexibleSpace(),
+                            new DialogGUIButton(okayButton, () => { }),
+                            new DialogGUIFlexibleSpace(),
+                            new DialogGUIButton("Umm... wut?", () => { isBoring = true; }, () => !isBoring, dismissOnSelect: false),
                             new DialogGUIFlexibleSpace()
                         ))),
                 persistAcrossScenes: false,

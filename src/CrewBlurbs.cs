@@ -65,8 +65,19 @@ namespace Nerm.Colonization
             }
         }
 
+        internal static string BoringHydroponicBreakthrough(TechTier tier)
+        {
+            return $"You can now set the tier of hydroponic parts to {tier.DisplayName()} in the VAB.  You cannot "
+                   + "retrofit or fix this part to be a higher tier than it is.  You can keep using it, but it won't "
+                   + "be as effective as a new part and you can't do research with it.  The new part will be more effective - "
+                   + "you can see just how much so in the VAB/SPH.  Agroponic research is limited by how close you are "
+                   + "to Kerbin.  Your max tier is 2 near Kerbin; it can be researched up to 3 at orbits around one "
+                   + "planet inside and outside of Kerbin's orbit and the final tier can only be unlocked beyond those "
+                   + "planet's orbits.";
+        }
+
         public static string FarmingBreakthrough(TechTier tier, Func<ProtoCrewMember, bool> isInstrumental)
-            => FarmingBreakthrough(GetCrewDescriptors(isInstrumental), FlightGlobals.ActiveVessel.vesselName, tier);
+        => FarmingBreakthrough(GetCrewDescriptors(isInstrumental), FlightGlobals.ActiveVessel.vesselName, tier);
 
         internal static string FarmingBreakthrough(List<CrewDescriptor> crew, string shipName, TechTier tier)
         {
@@ -77,14 +88,30 @@ namespace Nerm.Colonization
             {
                 default:
                 case TechTier.Tier1:
-                case TechTier.Tier2:
-                case TechTier.Tier3:
-                case TechTier.Tier4:
                     return $"It took a while, but {perp.Name} figured out how to get {GetGroupDescription(crew, false)} to "
                            + $"eat more of the crop - {perp.heshe} told the crew {perp.heshe} rerouted the greywater "
                            + "plumbing out of the farm module and into the drill coolant module instead, proving the "
                            + "point, it's not what you sell, but how you sell it that counts.";
+                case TechTier.Tier2:
+                case TechTier.Tier3:
+                case TechTier.Tier4:
+                    return $"{victim.Name} had been plotting against {perp.Name}'s scheme of creating a "
+                           + $"hybrid of broccoli, okra, eggplant and prunes for weeks.  {perp.Name} knew something "
+                           + $"was in the works {perp.heshe} had seen how the rest of the crew had been looking at {perp.himher}. "
+                           + "But no Kerbal could have anticipated the unexpectedly (and certainly unintentionally) synnergistic "
+                           + "effect that the fully weaponized robotic nematode had on the sickly mutated plants...\r\n\r\n"
+                           + "A vegetable that tastes like chicken!";
             }
+        }
+
+        internal static string BoringFarmingBreakthrough(TechTier tier)
+        {
+            return $"You can now set the tier of farming parts to {tier.DisplayName()} in the VAB.  You cannot "
+                   + "retrofit or fix this part to be a higher tier than it is.  You can keep using it, but it won't "
+                   + "be as effective as a new part and you can't do research with it.  The new part will be more effective - "
+                   + "you can see just how much so in the VAB/SPH.  Farming is a body-specific thing - this breakthrough "
+                   + "only applies to the body you're landed at.  Farming also relies on fertilizer - basically you "
+                   + "either have to generate an equal tier on the body you're at or bring it from home.";
         }
 
         public static string ProductionBreakthrough(TechTier tier, Func<ProtoCrewMember, bool> isInstrumental)
@@ -99,6 +126,12 @@ namespace Nerm.Colonization
             {
                 default:
                 case TechTier.Tier1:
+                    return $"{perp.Name} was specially selected for this mission because it's a well known fact around "
+                          + $"the astronaut complex that {perp.Name} really likes to look at dirt.  Great things were "
+                          + $"expected of {perp.himher} from the beginning...  Maybe a little sooner than they actually "
+                          + $"came, but the breakthrough finally happened.  Yes, {perp.Name} has conclusively proven "
+                          + "that some of the dirt around here is better for fertilizer, some is better for making "
+                          + "shiny things, and some is really only good for mounding up in silly shapes.";
                 case TechTier.Tier2:
                 case TechTier.Tier3:
                 case TechTier.Tier4:
@@ -106,6 +139,16 @@ namespace Nerm.Colonization
                          + $"plant with {perp.Name}'s toe cheese, production goes up 25%!";
             }
         }
+
+        internal static string BoringProductionBreakthrough(TechTier tier)
+        {
+            return $"You can now set the tier of fertilizer plants and stuff scroungers to {tier.DisplayName()} in the VAB.  "
+                   + "You cannot retrofit this part to be a higher tier than it is.  You can keep using it, but it won't "
+                   + "be as effective as a new part and you can't do research with it.  The new part will be more effective - "
+                   + "you can see just how much so in the VAB/SPH.  Production is a body-specific thing - this breakthrough "
+                   + "only applies to the body you're landed at.";
+        }
+
 
         public static string ScanningBreakthrough(TechTier tier, Func<ProtoCrewMember, bool> isInstrumental)
             => ScanningBreakthrough(GetCrewDescriptors(isInstrumental), FlightGlobals.ActiveVessel.vesselName, tier);
@@ -132,6 +175,17 @@ namespace Nerm.Colonization
             }
         }
 
+
+        internal static string BoringScanningBreakthrough(TechTier tier)
+        {
+            return $"You can now set the tier of scanners to {tier.DisplayName()} in the VAB.  "
+                   + "You cannot retrofit this part to be a higher tier than it is.  You can keep using it, but it won't "
+                   + "be as effective as a new part and you can't do research with it.  The new part will be more effective - "
+                   + "you can see just how much so in the VAB/SPH.  Scanning is a body-specific thing - this breakthrough "
+                   + "only applies to the body you're landed at.";
+        }
+
+
         public static string ShiniesBreakthrough(TechTier tier, Func<ProtoCrewMember, bool> isInstrumental)
             => ShiniesBreakthrough(GetCrewDescriptors(isInstrumental), FlightGlobals.ActiveVessel.lastBody.name, tier);
 
@@ -144,16 +198,31 @@ namespace Nerm.Colonization
             {
                 default:
                 case TechTier.Tier1:
-                case TechTier.Tier2:
-                case TechTier.Tier3:
-                case TechTier.Tier4:
                     return "Once again Duck-Tape is core to a breakthrough in space science! "
                            + $"In one of {perp.Name}'s more brilliant insights, it's been found that "
                            + "by duck-taping closed the doors to the KSP legal department, and then "
                            + "removing all those warning labels that say \"Danger!  May contain "
-                           + "alien microbes that will wipe out all life on the planet!\" sales of "
+                           + "alien microbes that could wipe out all life on the planet!\" sales of "
                            + $"{bodyName}-Dirt facial scrub shot through the roof!";
+                case TechTier.Tier2:
+                case TechTier.Tier3:
+                case TechTier.Tier4:
+                    return $"Last night was a turning point.  {perp.Name} finally saw the curious formation "
+                          + "at sector Zed Zed 9 Plural Zed Alpha really was just a pile of rocks. "
+                          + $"Yes.  Certainly.  Just rocks.  Reluctantly, {perp.Name} recalibrated the instruments "
+                          + "to actually look for that Stuff the guys on the surface and yeah.  Sure enough. "
+                          + "There's stuff down there.  Great.  <sigh>";
             }
+        }
+
+        internal static string BoringShiniesBreakthrough(TechTier tier)
+        {
+            return $"You can now set the tier of shinies to {tier.DisplayName()} in the VAB.  "
+                   + "You cannot retrofit this part to be a higher tier than it is.  You can keep using it, but it won't "
+                   + "be as effective as a new part and you can't do research with it.  The new part will produce the next "
+                   + "tier of shinies, which are more valuable than this tier.  Shinies that are made near Kerbin aren't so "
+                   + $"shiny - they're limited to {TechTier.Tier2.DisplayName()} on Kerbin's moons, 3 at bodies in easy "
+                   + "reach of Kerbin, and can only get to 4 at difficult bodies";
         }
 
 
@@ -189,7 +258,7 @@ namespace Nerm.Colonization
                 return crew[0].Name;
             }
 
-            CrewDescriptor perp = ChoosePerpetrator(crew);
+            CrewDescriptor perp = ChooseOne(crew, null);
             List<CrewDescriptor> gang = crew.Where(c => c != perp).ToList();
             if (crew.Count == 2)
             {
@@ -231,5 +300,8 @@ namespace Nerm.Colonization
 
         public string heshe
             => Gender == Gender.Male ? "he" : "she";
+
+        public string himher
+            => Gender == Gender.Male ? "him" : "her";
     }
 }
