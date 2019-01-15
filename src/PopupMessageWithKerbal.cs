@@ -15,9 +15,46 @@ namespace Nerm.Colonization
 
         static int uniquifier = 0;
 
+        static Queue<Action> messageQueue = null;
+
         public static void ShowPopup(string title, string content, string okayButton)
         {
-            var menu = PopupDialog.SpawnPopupDialog(
+            ShowPopup(() => _ShowPopup(title, content, okayButton));
+        }
+
+        public static void ShowPopup(string title, string content, string boringContent, string okayButton)
+        {
+            ShowPopup(() => _ShowPopup(title, content, boringContent, okayButton));
+        }
+
+        private static void ShowPopup(Func<PopupDialog> popupShower)
+        {
+            if (messageQueue == null)
+            {
+                messageQueue = new Queue<Action>();
+                PopupDialog dialog = popupShower();
+            }
+            else
+            {
+                messageQueue.Enqueue(() => popupShower() );
+            }
+        }
+
+        private static void OnDismiss()
+        {
+            if (messageQueue.Count > 0)
+            {
+                messageQueue.Dequeue()();
+            }
+            else
+            {
+                messageQueue = null;
+            }
+        }
+
+        private static PopupDialog _ShowPopup(string title, string content, string okayButton)
+        {
+            return PopupDialog.SpawnPopupDialog(
                 new Vector2(x1, y1),
                 new Vector2(x2, y2),
                 new MultiOptionDialog(
@@ -34,7 +71,7 @@ namespace Nerm.Colonization
                             new DialogGUILabel(content, true, true)),
                         new DialogGUIHorizontalLayout(
                             new DialogGUIFlexibleSpace(),
-                            new DialogGUIButton(okayButton, () => { }),
+                            new DialogGUIButton(okayButton, OnDismiss),
                             new DialogGUIFlexibleSpace()
                         ))),
                 persistAcrossScenes: false,
@@ -43,11 +80,11 @@ namespace Nerm.Colonization
                 titleExtra: "TITLE EXTRA!"); // <- no idea what that does.
         }
 
-        public static void ShowPopup(string title, string content, string boringContent, string okayButton)
+        private static PopupDialog _ShowPopup(string title, string content, string boringContent, string okayButton)
         {
             bool isBoring = false;
 
-            var menu = PopupDialog.SpawnPopupDialog(
+            return PopupDialog.SpawnPopupDialog(
                 new Vector2(x1, y1),
                 new Vector2(x2, y2),
                 new MultiOptionDialog(
@@ -64,7 +101,7 @@ namespace Nerm.Colonization
                             new DialogGUILabel(() => isBoring ? boringContent : content, true, true)),
                         new DialogGUIHorizontalLayout(
                             new DialogGUIFlexibleSpace(),
-                            new DialogGUIButton(okayButton, () => { }),
+                            new DialogGUIButton(okayButton, OnDismiss),
                             new DialogGUIFlexibleSpace(),
                             new DialogGUIButton("Umm... wut?", () => { isBoring = true; }, () => !isBoring, dismissOnSelect: false),
                             new DialogGUIFlexibleSpace()
