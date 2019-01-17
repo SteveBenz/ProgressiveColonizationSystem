@@ -93,7 +93,7 @@ namespace Nerm.Colonization
                                 new DialogGUILabel("What if we"),
                                 new DialogGUIButton("Add", () => { ++crewDelta; }, () => true, false),
                                 new DialogGUILabel("/"),
-                                new DialogGUIButton("Remove", () => { --crewDelta; }, () => FlightGlobals.ActiveVessel.GetCrewCount() + this.crewDelta > 0, false),
+                                new DialogGUIButton("Remove", () => { --crewDelta; }, () => FlightGlobals.ActiveVessel.GetCrewCount() + this.crewDelta > 1, false),
                                 new DialogGUILabel("a kerbal?")));
                 }
 
@@ -254,94 +254,82 @@ namespace Nerm.Colonization
         {
             StringBuilder text = new StringBuilder();
 
-            if (crewCount + crewDelta == 0 && snackProducers.Count == 0)
+            ResearchSink researchSink = new ResearchSink();
+            TieredProduction.CalculateResourceUtilization(
+                crewCount + crewDelta, 1, snackProducers, researchSink, resources, storage,
+                out double timePassed, out var _, out Dictionary<string, double> resourcesConsumed,
+                out Dictionary<string, double> resourcesProduced);
+            if (timePassed == 0)
             {
-                text.AppendLine("Oy!  Robots don't eat!");
-                // "This ship apparently ate all its crew"
-            }
-            else if (crewCount + crewDelta == 0)
-            {
-                text.AppendLine("With no crew aboard, not much is going on life-support wise...");
-            }
-            else
-            {
-                ResearchSink researchSink = new ResearchSink();
-                TieredProduction.CalculateResourceUtilization(
-                    crewCount + crewDelta, 1, snackProducers, researchSink, resources, storage,
-                    out double timePassed, out var _, out Dictionary<string, double> resourcesConsumed,
-                    out Dictionary<string, double> resourcesProduced);
-                if (timePassed == 0)
+                text.AppendLine("There aren't enough supplies or producers here to feed any kerbals.");
+
+                if (!activeSnackConsumption.IsAtHome)
                 {
-                    text.AppendLine("There aren't enough supplies or producers here to feed any kerbals.");
-
-                    if (!activeSnackConsumption.IsAtHome)
+                    // TODO: Somehow bucketize this, since all the crew are likely in the same state.
+                    foreach (var crew in activeSnackConsumption.Vessel.GetVesselCrew())
                     {
-                        // TODO: Somehow bucketize this, since all the crew are likely in the same state.
-                        foreach (var crew in activeSnackConsumption.Vessel.GetVesselCrew())
+                        var kerbalIsKnown = LifeSupportScenario.Instance.TryGetStatus(crew, out double daysSinceMeal, out double daysToGrouchy, out bool isGrouchy);
+                        if (!kerbalIsKnown)
                         {
-                            var kerbalIsKnown = LifeSupportScenario.Instance.TryGetStatus(crew, out double daysSinceMeal, out double daysToGrouchy, out bool isGrouchy);
-                            if (!kerbalIsKnown)
-                            {
-                                // TODO: Maybe if ! on kerban we complain about this?
-                                // Debug.LogError($"Couldn't find a life support record for {crew.name}");
-                            }
+                            // TODO: Maybe if ! on kerban we complain about this?
+                            // Debug.LogError($"Couldn't find a life support record for {crew.name}");
+                        }
 
-                            if (isGrouchy)
-                            {
-                                text.AppendLine($"<color #ff4040>{crew.name} hasn't eaten in {(int)daysSinceMeal} days and is too grouchy to work.</color>");
-                            }
-                            else if (daysToGrouchy > 5)
-                            {
-                                text.AppendLine($"{crew.name} is secretly munching a smuggled bag of potato chips");
-                            }
-                            else if (daysToGrouchy < 2)
-                            {
-                                text.AppendLine($"<color #ffff00>{crew.name} hasn't eaten in {(int)daysSinceMeal} days and will quit working in a couple of days if this keeps up.</color>");
-                            }
+                        if (isGrouchy)
+                        {
+                            text.AppendLine($"<color #ff4040>{crew.name} hasn't eaten in {(int)daysSinceMeal} days and is too grouchy to work.</color>");
+                        }
+                        else if (daysToGrouchy > 5)
+                        {
+                            text.AppendLine($"{crew.name} is secretly munching a smuggled bag of potato chips");
+                        }
+                        else if (daysToGrouchy < 2)
+                        {
+                            text.AppendLine($"<color #ffff00>{crew.name} hasn't eaten in {(int)daysSinceMeal} days and will quit working in a couple of days if this keeps up.</color>");
                         }
                     }
                 }
+            }
+            else
+            {
+                if (crewDelta == 0)
+                {
+                    text.AppendLine($"To sustain its crew of {crewCount + crewDelta}, this vessel is using:");
+                }
                 else
                 {
-                    if (crewDelta == 0)
-                    {
-                        text.AppendLine($"To sustain its crew of {crewCount + crewDelta}, this vessel is using:");
-                    }
-                    else
-                    {
-                        text.AppendLine($"To sustain a crew of {crewCount + crewDelta} this vessel would use:");
-                    }
+                    text.AppendLine($"To sustain a crew of {crewCount + crewDelta} this vessel would use:");
+                }
 
-                    foreach (var resourceName in resourcesConsumed.Keys.OrderBy(n => n))
+                foreach (var resourceName in resourcesConsumed.Keys.OrderBy(n => n))
+                {
+                    double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(resourcesConsumed[resourceName]);
+                    double daysLeft = resources[resourceName] / perDay;
+                    text.AppendLine($"{perDay:N1} {resourceName} per day ({daysLeft:N1} days left)");
+                }
+
+                if (resourcesProduced != null && resourcesProduced.Count > 0)
+                {
+                    text.AppendLine();
+                    text.AppendLine("The crew is also producing:");
+                    foreach (var resourceName in resourcesProduced.Keys.OrderBy(n => n))
                     {
-                        double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(resourcesConsumed[resourceName]);
+                        double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(resourcesProduced[resourceName]);
                         double daysLeft = resources[resourceName] / perDay;
-                        text.AppendLine($"{perDay:N1} {resourceName} per day ({daysLeft:N1} days left)");
+                        text.AppendLine($"{perDay:N1} {resourceName} per day");
                     }
+                }
 
-                    if (resourcesProduced != null && resourcesProduced.Count > 0)
+                bool addedResearchLineBreak = false;
+                foreach (var pair in researchSink.Data)
+                {
+                    if (!addedResearchLineBreak)
                     {
                         text.AppendLine();
-                        text.AppendLine("The crew is also producing:");
-                        foreach (var resourceName in resourcesProduced.Keys.OrderBy(n => n))
-                        {
-                            double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(resourcesProduced[resourceName]);
-                            double daysLeft = resources[resourceName] / perDay;
-                            text.AppendLine($"{perDay:N1} {resourceName} per day");
-                        }
+                        addedResearchLineBreak = true;
                     }
 
-                    bool addedResearchLineBreak = false;
-                    foreach (var pair in researchSink.Data)
-                    {
-                        if (!addedResearchLineBreak)
-                        {
-                            text.AppendLine();
-                            addedResearchLineBreak = true;
-                        }
-
-                        text.AppendLine($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {pair.Value.KerbalDaysContributedPerDay:N1} units of {pair.Key.DisplayName} research per day.  ({pair.Value.KerbalDaysUntilNextTier:N} are needed to reach the next tier).");
-                    }
+                    text.AppendLine($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {pair.Value.KerbalDaysContributedPerDay:N1} units of {pair.Key.DisplayName} research per day.  ({pair.Value.KerbalDaysUntilNextTier:N} are needed to reach the next tier).");
                 }
             }
 
