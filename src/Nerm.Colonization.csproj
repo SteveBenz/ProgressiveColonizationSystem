@@ -63,6 +63,7 @@
     <Compile Include="CbnCrewRequirement.cs" />
     <Compile Include="CbnShiniesContainer.cs" />
     <Compile Include="CrewBlurbs.cs" />
+    <Compile Include="CrewRequirementVesselModule.cs" />
     <Compile Include="IntervesselResourceTransfer.cs" />
     <Compile Include="PopupMessageWithKerbal.cs" />
     <Compile Include="ColonizationResearchScenario.cs" />

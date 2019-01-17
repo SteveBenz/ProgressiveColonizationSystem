@@ -148,8 +148,11 @@ namespace Nerm.Colonization
         : ResearchCategory
     {
         public HydroponicResearchCategory()
-            : base(5.0, 12.0, 7.0, 12.0) 
+            : base(3.2, 8.0, 6.6, 15.0) 
         { // For hydroponics, getting out there is the hard part, so the requirements diminish at T4
+            // 8 kerbals in orbit for 2 years at .2 per => 16*.2 = 3.2
+            // 10 kerbals in orbit for 2 years at .4 per => 10*2*.4 = 20*.4 = 8
+            // 6 kerbals in orbit for 2 years at .55 per => 12*.55 = 6.6
         }
 
         public override string DisplayName => "Hydroponic";
@@ -168,7 +171,7 @@ namespace Nerm.Colonization
         : ResearchCategory
     {
         public FarmingResearchCategory()
-            : base(2.0, 4.0, 10.0, 18.0)
+            : base(3.0, 6.0, 10.0, 18.0)
         {
         }
 

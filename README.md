@@ -12,7 +12,7 @@ Development plan:
    2.  (complete) The ability to create a station in kerban's SOI and rank up the "Tiers" of agriponics
    3.  (complete) The ability for Kerbals to run out of supply and get grumpy (turn into Tourists)
    4.  (complete) Grumpy Kerbals will get happy again upon return to Kerban
-   5.  (sortakinda) Need appropriate crew to do agroponics and research
+   5.  (complete) Need appropriate crew to do agroponics and research
    6.  (complete) Can't do research on Agriponics T3 in Kerbin's SoI
 3. (complete)Basic Progression - the ability to plan a mission to Duna
    1.  (complete) Kerbals can do agriculture on the Mun or Minmus
@@ -25,7 +25,7 @@ Development plan:
    1.  (complete) Editors can show good data to guide the construction of ships (see GetInfo())
    2.  Tweak the mass and density of Fertilizer & Supplies
    3.  (complete)Agroponic and Ag modules consume some electricity
-   4.  Actually enforce the crew counts, types & stars (see 2.v)
+   4.  (complete)Actually enforce the crew counts, types & stars (see 2.v)
    5.  (complete)Make the reporting of when you make a tier breakthrough more informative and fun
    6.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
 5. Release prep

@@ -184,7 +184,7 @@ namespace Nerm.Colonization
             }
 
             var crewRequirement = this.GetComponent<CbnCrewRequirement>();
-            return crewRequirement == null || crewRequirement.TryAssignCrew();
+            return crewRequirement == null || crewRequirement.IsStaffed;
         }
 
         /// <summary>

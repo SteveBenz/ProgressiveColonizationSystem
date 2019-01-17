@@ -5,8 +5,16 @@ using System.Text;
 
 namespace Nerm.Colonization
 {
+    public interface ICbnCrewRequirement
+    {
+        bool CanRunPart(SkilledCrewman crewman);
+        bool IsRunning { get; }
+        bool IsStaffed { get; set; }
+        float CapacityRequired { get; }
+    }
+
     public class CbnCrewRequirement
-        : PartModule
+        : PartModule, ICbnCrewRequirement
     {
         [KSPField]
         public string specialistTraits;
@@ -16,6 +24,14 @@ namespace Nerm.Colonization
 
         [KSPField]
         public float requiredCrew;
+
+        [KSPField]
+        public int tier = -1;
+
+        private BaseConverter resourceConverter = null;
+
+        [KSPField(isPersistant = true)]
+        private bool isStaffed = true;
 
         public override string GetModuleDisplayName()
         {
@@ -45,7 +61,7 @@ namespace Nerm.Colonization
                         {
                             info.Append(", ");
                         }
-                        info.Append(this.DescribeKerbal(1 + (int)tier - specialistStarBonus, trait));
+                        info.Append(this.DescribeKerbalTrait(1 + (int)tier - specialistStarBonus, trait));
                         any = true;
                     }
                 }
@@ -55,14 +71,14 @@ namespace Nerm.Colonization
                     {
                         info.Append(" or a ");
                     }
-                    info.Append(this.DescribeKerbal(1 + (int)tier, this.generalistTrait));
+                    info.Append(this.DescribeKerbalTrait(1 + (int)tier, this.generalistTrait));
                 }
                 info.AppendLine();
             }
             return info.ToString();
         }
 
-        private string DescribeKerbal(int numStars, string trait)
+        private string DescribeKerbalTrait(int numStars, string trait)
         {
             string result = "";
             if (numStars > 0)
@@ -73,14 +89,73 @@ namespace Nerm.Colonization
             return result;
         }
 
-        public bool TryAssignCrew()
+        public bool CanRunPart(SkilledCrewman crewman)
         {
-            return this.vessel.GetVesselCrew().Any(k => k.trait == generalistTrait);
+            bool isSpecialistForThisPart = this.SpecialistTraits.Contains(crewman.Trait);
+            bool isGeneralistForThisPart = this.generalistTrait == crewman.Trait;
+            if (!isSpecialistForThisPart && !isGeneralistForThisPart)
+            {
+                return false;
+            }
+
+            int tier;
+            if (this.tier < 0)
+            {
+                var tieredResourceModule = this.part.FindModuleImplementing<CbnTieredResourceConverter>();
+                tier = tieredResourceModule == null ? 0 : tieredResourceModule.tier;
+            }
+            else
+            {
+                tier = this.tier;
+            }
+
+            return crewman.Stars + (isSpecialistForThisPart ? specialistStarBonus : 0) > tier;
         }
 
-        public string GetCrewRequirement()
+        public BaseConverter ResourceConverter
         {
-            return $"The crew needs to include at least one {this.generalistTrait}.";
+            get
+            {
+                if (this.resourceConverter == null)
+                {
+                    this.resourceConverter = this.part.FindModuleImplementing<BaseConverter>();
+                }
+                return this.resourceConverter;
+            }
         }
+
+        public bool IsRunning
+        {
+            get
+            {
+                return this.ResourceConverter == null ? true : this.ResourceConverter.isActiveAndEnabled;
+            }
+        }
+
+        public bool IsStaffed
+        {
+            get => this.isStaffed;
+            set
+            {
+                if (this.isStaffed && !value)
+                {
+                    this.isStaffed = value;
+                    if (this.IsRunning)
+                    {
+                        ScreenMessages.PostScreenMessage($"{this.part.name} has stopped production because there's not enough crew to operate it.");
+                    }
+                }
+                else if (!this.isStaffed && value && IsRunning)
+                {
+                    isStaffed = value;
+                    if (this.IsRunning)
+                    {
+                        ScreenMessages.PostScreenMessage($"{this.part.name} has resumed production because it has enough skilled crew to operate now.");
+                    }
+                }
+            }
+        }
+
+        public float CapacityRequired => this.requiredCrew;
     }
 }
