@@ -215,6 +215,44 @@ namespace Nerm.Colonization
             }
         }
 
+        internal static string HungryKerbals(List<ProtoCrewMember> crewInBucket, double daysToGrouchy, bool anyFoodProduction)
+            => HungryKerbals(crewInBucket.Select(k => FromKsp(k, _ => false)).ToList(), daysToGrouchy, anyFoodProduction);
+
+        internal static string HungryKerbals(List<CrewDescriptor> crewInBucket, double daysToGrouchy, bool anyFoodProduction)
+        {
+            if (anyFoodProduction)
+            {
+                return Yellow($"{GetGroupDescription(crewInBucket)} can't make any snacks!  {capitalize(heshethey(crewInBucket))} can scrounge up old pizza crusts for {(int)(daysToGrouchy + .5)} more days.");
+            }
+            else
+            {
+                return $"{GetGroupDescription(crewInBucket)} {isare(crewInBucket)} surviving off a small stash of snacks; {heshethey(crewInBucket)} will be okay for {(int)(daysToGrouchy + .5)} more days.";
+            }
+        }
+
+        internal static string GrumpyKerbals(List<ProtoCrewMember> crewInBucket, double daysToGrouchy, bool anyFoodProduction)
+            => GrumpyKerbals(crewInBucket.Select(k => FromKsp(k, _ => false)).ToList(), daysToGrouchy, anyFoodProduction);
+
+        internal static string GrumpyKerbals(List<CrewDescriptor> crewInBucket, double daysToGrouchy, bool anyFoodProduction)
+        {
+            if (anyFoodProduction)
+            {
+                return Yellow($"{GetGroupDescription(crewInBucket)} can't make any snacks!  {capitalize(heshethey(crewInBucket))} are starting to spend more and more time drawing up legal action against KSP than they are working.");
+            }
+            else
+            {
+                return Yellow($"{GetGroupDescription(crewInBucket)} {isare(crewInBucket)} can't find any more food!  {capitalize(heshethey(crewInBucket))} need to get home soon!");
+            }
+        }
+
+        internal static string StarvingKerbals(List<ProtoCrewMember> crewInBucket)
+            => StarvingKerbals(crewInBucket.Select(k => FromKsp(k, _ => false)).ToList());
+
+        internal static string StarvingKerbals(List<CrewDescriptor> crewInBucket)
+        {
+            return Red($"{GetGroupDescription(crewInBucket)} {isare(crewInBucket)} refusing do any more work and their families are organizing legal action against KSP!  Get {himherthem(crewInBucket)} home or get them some food right away!");
+        }
+
         internal static string BoringShiniesBreakthrough(TechTier tier)
         {
             return $"You can now set the tier of shinies to {tier.DisplayName()} in the VAB.  "
@@ -224,6 +262,24 @@ namespace Nerm.Colonization
                    + $"shiny - they're limited to {TechTier.Tier2.DisplayName()} on Kerbin's moons, 3 at bodies in easy "
                    + "reach of Kerbin, and can only get to 4 at difficult bodies";
         }
+
+        public static string Red(string s)
+            => $"<color #ff4040>{s}</color>";
+
+        public static string  Yellow(string s)
+            => $"<color #ffff00>{s}</color>";
+
+        internal static string heshethey(List<CrewDescriptor> l)
+            => (l.Count > 1) ? "they" : l[0].heshe;
+
+        internal static string himherthem(List<CrewDescriptor> l)
+            => (l.Count > 1) ? "them" : l[0].himher;
+
+        internal static string isare(List<CrewDescriptor> l)
+            => (l.Count == 1) ? "is" : "are";
+
+        internal static string capitalize(string word)
+            => $"{char.ToUpper(word[0])}{word.Substring(1)}";
 
 
         public static CrewDescriptor ChoosePerpetrator(List<CrewDescriptor> crew)

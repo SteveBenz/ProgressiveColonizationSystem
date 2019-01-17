@@ -265,6 +265,7 @@ namespace Nerm.Colonization
 
                 if (!activeSnackConsumption.IsAtHome)
                 {
+                    Dictionary<int, List<ProtoCrewMember>> buckets = new Dictionary<int, List<ProtoCrewMember>>();
                     // TODO: Somehow bucketize this, since all the crew are likely in the same state.
                     foreach (var crew in activeSnackConsumption.Vessel.GetVesselCrew())
                     {
@@ -275,17 +276,31 @@ namespace Nerm.Colonization
                             // Debug.LogError($"Couldn't find a life support record for {crew.name}");
                         }
 
+                        int bucketKey = isGrouchy ? -1 : (int)daysToGrouchy;
+                        if (!buckets.TryGetValue(bucketKey, out var crewInBucket))
+                        {
+                            crewInBucket = new List<ProtoCrewMember>();
+                            buckets.Add(bucketKey, crewInBucket);
+                        }
+                        crewInBucket.Add(crew);
+                    }
+
+                    CrewBlurbs.random = new System.Random(FlightGlobals.ActiveVessel.GetHashCode());
+                    foreach (List<ProtoCrewMember> crewInBucket in buckets.Values)
+                    {
+                        // yeah yeah, recomputing this is wasteful & all...
+                        LifeSupportScenario.Instance.TryGetStatus(crewInBucket[0], out double daysSinceMeal, out double daysToGrouchy, out bool isGrouchy);
                         if (isGrouchy)
                         {
-                            text.AppendLine($"<color #ff4040>{crew.name} hasn't eaten in {(int)daysSinceMeal} days and is too grouchy to work.</color>");
-                        }
-                        else if (daysToGrouchy > 5)
-                        {
-                            text.AppendLine($"{crew.name} is secretly munching a smuggled bag of potato chips");
+                            text.AppendLine(CrewBlurbs.StarvingKerbals(crewInBucket));
                         }
                         else if (daysToGrouchy < 2)
                         {
-                            text.AppendLine($"<color #ffff00>{crew.name} hasn't eaten in {(int)daysSinceMeal} days and will quit working in a couple of days if this keeps up.</color>");
+                            text.AppendLine(CrewBlurbs.GrumpyKerbals(crewInBucket, daysToGrouchy, snackProducers.Any()));
+                        }
+                        else
+                        {
+                            text.AppendLine(CrewBlurbs.HungryKerbals(crewInBucket, daysToGrouchy, snackProducers.Any()));
                         }
                     }
                 }
