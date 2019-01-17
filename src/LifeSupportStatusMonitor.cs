@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
+// TODO: Boy Voyage has a less bad way of doing positioning:
+//   https://github.com/jarosm/KSP-BonVoyage/blob/master/BonVoyage/gui/MainWindowView.cs
+
 namespace Nerm.Colonization
 {
     /// <summary>
@@ -60,21 +63,14 @@ namespace Nerm.Colonization
             appLauncherTexture.LoadImage(Properties.Resources.AppLauncherIcon);
 
             Debug.Assert(ApplicationLauncher.Ready, "ApplicationLauncher is not ready - can't add the toolbar button.  Is this possible, really?  If so maybe we could do it later?");
-            this.toolbarButton = ApplicationLauncher.Instance.AddModApplication(
-                () => {
-                    isVisible = true;
-                    ShowDialog();
-                }, () => {
-                    isVisible = false;
-                    HideDialog();
-                }, null, null, null, null,
-                ApplicationLauncher.AppScenes.FLIGHT,
-                appLauncherTexture);
+            this.toolbarButton = ApplicationLauncher.Instance.AddModApplication(ShowDialog, HideDialog, null, null, null, null,
+                ApplicationLauncher.AppScenes.FLIGHT, appLauncherTexture);
             this.toolbarStateMatchedToIsVisible = false;
         }
 
         private void ShowDialog()
         {
+            isVisible = true;
             if (this.dialog == null)
             {
                 if (this.consumptionAndProductionInformation == null)
@@ -133,6 +129,7 @@ namespace Nerm.Colonization
 
         private void HideDialog()
         {
+            isVisible = false;
             this.dialog?.Dismiss();
             this.dialog = null;
             this.crewDelta = 0;
@@ -153,6 +150,20 @@ namespace Nerm.Colonization
         private void FixedUpdate()
         {
             resourceTransfer.OnFixedUpdate();
+
+            if (FlightGlobals.ActiveVessel.GetCrewCount() == 0 || FlightGlobals.ActiveVessel.isEVA)
+            {
+                if (this.dialog != null)
+                {
+                    this.dialog.Dismiss();
+                    this.dialog = null;
+                    // But leave isVisible set, as that's the persistent view.
+                }
+                this.toolbarButton.Disable();
+                return;
+            }
+
+            this.toolbarButton.Enable();
 
             if (this.lastActiveVessel != FlightGlobals.ActiveVessel)
             {
