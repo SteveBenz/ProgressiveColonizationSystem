@@ -65,6 +65,8 @@
     <Compile Include="CrewBlurbs.cs" />
     <Compile Include="CrewRequirementVesselModule.cs" />
     <Compile Include="IntervesselResourceTransfer.cs" />
+    <Compile Include="CbnToolbarDialog.cs" />
+    <Compile Include="LifeSupportCalculator.cs" />
     <Compile Include="PopupMessageWithKerbal.cs" />
     <Compile Include="ColonizationResearchScenario.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
