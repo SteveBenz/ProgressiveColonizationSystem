@@ -94,13 +94,13 @@ namespace Nerm.Colonization
             if ((crewCount > 0) != this.showingWhatIfButtons)
             {
                 this.showingWhatIfButtons = (crewCount > 0);
-                this.ForceRebuild();
+                this.Redraw();
             }
 
             if ((resourceTransfer.TargetVessel != null) != this.showingResourceTransfer)
             {
                 this.showingResourceTransfer = (resourceTransfer.TargetVessel != null);
-                this.ForceRebuild();
+                this.Redraw();
             }
 
             activeSnackConsumption.ResourceQuantities(out var availableResources, out var availableStorage);

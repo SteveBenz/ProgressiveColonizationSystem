@@ -75,7 +75,7 @@ namespace Nerm.Colonization
             }
         }
 
-        protected void ForceRebuild()
+        protected void Redraw()
         {
             if (this.dialog != null)
             {
