@@ -14,8 +14,10 @@ namespace Nerm.Colonization
         [KSPField(advancedTweakable = false, category = "Nermables", guiActive = true, guiName = "Tier", isPersistant = true, guiActiveEditor = true)]
         public int tier;
 
+        public const string NotSet = "<not set>";
+
         [KSPField(advancedTweakable = false, category = "Nermables", guiActive = true, guiName = "Target Body", isPersistant = true, guiActiveEditor = true)]
-        public string body = "<not set>";
+        public string body = NotSet;
 
         [KSPEvent(guiActive = false, guiActiveEditor = true, guiName = "Change Tier")]
         public void ChangeTier()

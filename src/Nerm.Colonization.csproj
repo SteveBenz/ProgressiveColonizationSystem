@@ -80,7 +80,6 @@
     <Compile Include="CbnTieredContainer.cs" />
     <Compile Include="IProducer.cs" />
     <Compile Include="LifeSupportStatusMonitor.cs" />
-    <Compile Include="BodySpecificTieredResourceConverter.cs" />
     <Compile Include="AssemblyVersion.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
