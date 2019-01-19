@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Nerm.Colonization
 {
-    public interface IProducer
+    public interface ITieredProducer
     {
         TechTier Tier { get; }
         double ProductionRate { get; }
@@ -25,5 +25,7 @@ namespace Nerm.Colonization
         ///   If this producer needs something to make what it's making, this is set to what it needs.
         /// </summary>
         TieredResource Input { get; }
+
+        string Body { get; set; }
     }
 }

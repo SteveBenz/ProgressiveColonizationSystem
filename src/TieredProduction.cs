@@ -44,7 +44,7 @@ namespace Nerm.Colonization
         public static void CalculateResourceUtilization(
             int numCrew,
             double fullTimespanInSeconds,
-            List<IProducer> producers2,
+            List<ITieredProducer> producers2,
             IColonizationResearchScenario colonizationResearch,
             Dictionary<string, double> availableResources,
             Dictionary<string, double> availableStorage,
@@ -185,7 +185,7 @@ namespace Nerm.Colonization
         public const double AcceptableError = 0.001;
 
         private class StorageProducer
-            : IProducer
+            : ITieredProducer
         {
             public StorageProducer(TieredResource resource, TechTier tier, double amount)
             {
@@ -214,6 +214,8 @@ namespace Nerm.Colonization
             // Not part of IProducer
 
             public double Amount { get; }
+
+            public string Body { get; set; } = null;
         }
 
         private class ProducerData
@@ -223,7 +225,7 @@ namespace Nerm.Colonization
             ///   a module of the same type and they're configured for the same tier, then you only
             ///   get one ProducerData row for all 5 of them.)
             /// </summary>
-            public IProducer SourceTemplate;
+            public ITieredProducer SourceTemplate;
 
             public double TotalProductionCapacity;
             public double ProductionContributingToResearch;
@@ -304,14 +306,14 @@ namespace Nerm.Colonization
                .ToList();
 
         private static List<ProducerData> FindProducers(
-            List<IProducer> producers,
+            List<ITieredProducer> producers,
             IColonizationResearchScenario colonizationScenario,
             Dictionary<string, double> availableResources,
             Dictionary<string, double> availableStorage)
         {
             // First run through the producers to find out who can contribute what
             List<ProducerData> productionPossibilities = new List<ProducerData>();
-            foreach (IProducer producer in producers)
+            foreach (ITieredProducer producer in producers)
             {
                 if (producer.IsProductionEnabled)
                 {

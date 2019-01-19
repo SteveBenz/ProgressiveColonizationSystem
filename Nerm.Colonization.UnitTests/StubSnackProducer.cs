@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Nerm.Colonization.UnitTests
 {
 	public abstract class StubSnackProducer
-        : IProducer
+        : ITieredProducer
 	{
 		public TechTier Tier { get; set; }
 		public double ProductionRate { get; set; }
@@ -18,6 +18,7 @@ namespace Nerm.Colonization.UnitTests
         public TieredResource Input => StubColonizationResearchScenario.GetTieredResourceByName("Fertilizer");
         public bool ContributeResearch(IColonizationResearchScenario target, double amount)
             => target.ContributeResearch(this.Output, "test", amount);
+        public string Body { get; set; }
     }
 
     public class StubHydroponic

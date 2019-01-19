@@ -29,7 +29,7 @@ namespace Nerm.Colonization.UnitTests
             available.Add("Snacks", 1.0); // One days' worth
             Dictionary<string, double> noStorage = new Dictionary<string, double>();
             TieredProduction.CalculateResourceUtilization(
-                5 /* kerbals */, 1.0 /* seconds*/, new List<IProducer>(), colonizationResearchScenario, available, noStorage,
+                5 /* kerbals */, 1.0 /* seconds*/, new List<ITieredProducer>(), colonizationResearchScenario, available, noStorage,
                 out double timePassedInSeconds, out List<TieredResource> breakthroughs,
                 out Dictionary<string, double> consumptionPerSecond, out Dictionary<string, double> productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
@@ -42,7 +42,7 @@ namespace Nerm.Colonization.UnitTests
 
             // There's a days' worth of snacks, but 5 kerbals getting after it.
             TieredProduction.CalculateResourceUtilization(
-                5 /* kerbals */, 1.0 * SecondsPerKerbanDay, new List<IProducer>(), colonizationResearchScenario,
+                5 /* kerbals */, 1.0 * SecondsPerKerbanDay, new List<ITieredProducer>(), colonizationResearchScenario,
                 available, noStorage, out timePassedInSeconds, out breakthroughs, out consumptionPerSecond,
                 out productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, SecondsPerKerbanDay / 5);
@@ -55,7 +55,7 @@ namespace Nerm.Colonization.UnitTests
             // Test no snacks at all
             available.Clear();
             TieredProduction.CalculateResourceUtilization(
-                5 /* kerbals */, 1.0 * SecondsPerKerbanDay, new List<IProducer>(), colonizationResearchScenario,
+                5 /* kerbals */, 1.0 * SecondsPerKerbanDay, new List<ITieredProducer>(), colonizationResearchScenario,
                 available, noStorage, out timePassedInSeconds, out breakthroughs, out consumptionPerSecond,
                 out productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 0.0);
@@ -73,7 +73,7 @@ namespace Nerm.Colonization.UnitTests
             // We have 3 modules on our vessel, but only crew enough to staff
             // two of them (for a net production of 3) and only one of them
             // has crew enough to do research.
-            var agroponicModules = new List<IProducer>()
+            var agroponicModules = new List<ITieredProducer>()
             {
                 new StubHydroponic
                 {
@@ -165,7 +165,7 @@ namespace Nerm.Colonization.UnitTests
         {
             // Just landed - for grins this validates that it can pull some fertilizer down from storage since
             // our production won't be enough.
-            var landedModules = new List<IProducer>()
+            var landedModules = new List<ITieredProducer>()
             {
                 // 60% of food capacity  1 module oversupplies our crew of 4 and gives us excess to much on the wayhome
                 new StubFarm
@@ -261,7 +261,7 @@ namespace Nerm.Colonization.UnitTests
         [TestMethod]
         public void TieredProduction_FirstBaseSimulation()
         {
-            var enRouteModules = new List<IProducer>()
+            var enRouteModules = new List<ITieredProducer>()
             {
                 // 20% of food capacity  1 module oversupplies our crew of 4
                 new StubHydroponic

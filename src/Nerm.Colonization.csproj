@@ -66,6 +66,7 @@
     <Compile Include="CrewRequirementVesselModule.cs" />
     <Compile Include="IntervesselResourceTransfer.cs" />
     <Compile Include="CbnToolbarDialog.cs" />
+    <Compile Include="ITieredContainer.cs" />
     <Compile Include="LifeSupportCalculator.cs" />
     <Compile Include="PopupMessageWithKerbal.cs" />
     <Compile Include="ColonizationResearchScenario.cs" />
@@ -78,7 +79,7 @@
     <Compile Include="TieredResource.cs" />
     <Compile Include="EdibleResource.cs" />
     <Compile Include="CbnTieredContainer.cs" />
-    <Compile Include="IProducer.cs" />
+    <Compile Include="ITieredProducer.cs" />
     <Compile Include="LifeSupportStatusMonitor.cs" />
     <Compile Include="AssemblyVersion.cs">
       <AutoGen>True</AutoGen>

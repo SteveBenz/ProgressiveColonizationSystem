@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Nerm.Colonization
 {
     public class CbnTieredResourceConverter
-        : PartModule, IProducer
+        : PartModule, ITieredProducer
     {
         private double firstNoPowerIndicator = -1.0;
 
@@ -50,6 +50,7 @@ namespace Nerm.Colonization
 
             this.tier = (int)ColonizationResearchScenario.Instance.GetMaxUnlockedTier(this.Output, this.body);
         }
+
         /// <summary>
         ///   The name of the output resource (as a Tier4 resource)
         /// </summary>
@@ -72,6 +73,16 @@ namespace Nerm.Colonization
 
         protected virtual TechTier MaxTechTierResearched
             => ColonizationResearchScenario.Instance.GetMaxUnlockedTier(this.Output, this.body);
+
+        public string Body
+        {
+            get => this.body == NotSet ? null : this.body;
+            set
+            {
+                this.body = value;
+                this.tier = (int)ColonizationResearchScenario.Instance.GetMaxUnlockedTier(this.Output, this.body);
+            }
+        }
 
         protected virtual bool CanDoProduction(ModuleResourceConverter resourceConverter, out string reasonWhyNotMessage)
         {

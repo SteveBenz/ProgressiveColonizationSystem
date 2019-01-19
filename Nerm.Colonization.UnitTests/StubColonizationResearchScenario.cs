@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -7,9 +8,9 @@ namespace Nerm.Colonization.UnitTests
     public class StubColonizationResearchScenario
         : IColonizationResearchScenario
     {
-        public StubColonizationResearchScenario(TechTier currentTier)
+        public StubColonizationResearchScenario(TechTier agroponicsTier)
         {
-            this.AgroponicsMaxTier = currentTier;
+            this.AgroponicsMaxTier = agroponicsTier;
         }
 
         public double AgroponicResearchProgress { get; set; }
@@ -36,13 +37,17 @@ namespace Nerm.Colonization.UnitTests
         public static ResearchCategory scanningResearchCategory = new ScanningResearchCategory();
         public static ResearchCategory shiniesResearchCategory = new ShiniesResearchCategory();
 
+        public static EdibleResource Snacks = new EdibleResource("Snacks", ProductionRestriction.LandedOnBody, farmingResearchCategory, true, false, .6, .85, .95, .98, 1.0);
+        public static TieredResource Fertilizer = new TieredResource("Fertilizer", "Kerbal-Days", ProductionRestriction.LandedOnBody, productionResearchCategory, true, false);
+        public static TieredResource Stuff = new TieredResource("Stuff", null, ProductionRestriction.LandedOnBody, productionResearchCategory, true, false);
+
         private static TieredResource[] AllTieredResources =
         {
             new EdibleResource("HydroponicSnacks", ProductionRestriction.Orbit, hydroponicResearchCategory, false, false, .2, .4, .55, .7, .95),
-            new EdibleResource("Snacks", ProductionRestriction.Orbit, farmingResearchCategory, true, false, .6, .85, .95, .98, 1.0),
-            new TieredResource("Fertilizer", "Kerbal-Days", ProductionRestriction.LandedOnBody, productionResearchCategory, true, false),
+            Snacks,
+            Fertilizer,
             new TieredResource("Shinies", "Bling-per-day", ProductionRestriction.LandedOnBody, shiniesResearchCategory, true, false),
-            new TieredResource("Stuff", null, ProductionRestriction.LandedOnBody, productionResearchCategory, true, false),
+            Stuff,
             new TieredResource("ScanningData", "Kerbal-Days", ProductionRestriction.OrbitOfBody, scanningResearchCategory, false, true)
         };
 
@@ -102,9 +107,16 @@ namespace Nerm.Colonization.UnitTests
             return false;
         }
 
+        private Dictionary<string, TechTier> maxTiers = new Dictionary<string, TechTier>();
+
         public TechTier GetMaxUnlockedTier(TieredResource forResource, string atBody)
         {
-            return TechTier.Tier0;
+            return maxTiers.TryGetValue($"{atBody}-{forResource.ResearchCategory.DisplayName}", out TechTier tier) ? tier : TechTier.Tier0;
+        }
+
+        public void SetMaxTier(ResearchCategory researchCategory, string atBody, TechTier tier)
+        {
+            maxTiers[$"{atBody}-{researchCategory.DisplayName}"] = tier;
         }
     }
 }

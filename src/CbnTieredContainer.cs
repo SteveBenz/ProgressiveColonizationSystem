@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Nerm.Colonization
 {
     public class CbnTieredContainer
-        : PartModule, IPartCostModifier
+        : PartModule, IPartCostModifier, ITieredContainer
     {
         /// <summary>
         ///   This is the resource name for Tier4
@@ -24,6 +24,14 @@ namespace Nerm.Colonization
         public TechTier tier = TechTier.Tier4;
 
         private UIPartActionWindow tweakableUI = null;
+
+        TechTier ITieredContainer.Tier => this.tier;
+
+        TieredResource ITieredContainer.Content => ColonizationResearchScenario.Instance.TryGetTieredResourceByName(this.resource);
+
+        float ITieredContainer.Amount { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        float ITieredContainer.MaxAmount => this.maxAmount;
 
         [KSPEvent(active = true, guiActiveEditor = true, guiActive = true, externalToEVAOnly = true, guiName = "Change Tier", unfocusedRange = 10f)]
         public void NextTier()

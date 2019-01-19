@@ -78,7 +78,7 @@ namespace Nerm.Colonization
         /// <returns>The amount of <paramref name="deltaTime"/> in which food was supplied.</returns>
         private double ProduceAndConsume(List<ProtoCrewMember> crew, double deltaTime)
         {
-            var snackProducers = this.vessel.FindPartModulesImplementing<IProducer>();
+            var snackProducers = this.vessel.FindPartModulesImplementing<ITieredProducer>();
 			this.ResourceQuantities(out var availableResources, out var availableStorage);
             var crewPart = vessel.parts.FirstOrDefault(p => p.CrewCapacity > 0);
             double remainingTime = deltaTime;

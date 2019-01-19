@@ -104,7 +104,7 @@ namespace Nerm.Colonization
             }
 
             activeSnackConsumption.ResourceQuantities(out var availableResources, out var availableStorage);
-            List<IProducer> snackProducers = activeSnackConsumption.Vessel.FindPartModulesImplementing<IProducer>();
+            List<ITieredProducer> snackProducers = activeSnackConsumption.Vessel.FindPartModulesImplementing<ITieredProducer>();
 
             BuildStatusString(activeSnackConsumption, availableResources, availableStorage, snackProducers, crewCount, crewDelta, out string message);
             this.consumptionAndProductionInformation = message;
@@ -114,7 +114,7 @@ namespace Nerm.Colonization
             SnackConsumption activeSnackConsumption,
             Dictionary<string, double> resources,
             Dictionary<string, double> storage,
-            List<IProducer> snackProducers,
+            List<ITieredProducer> snackProducers,
             int crewCount,
             int crewDelta,
             out string message)

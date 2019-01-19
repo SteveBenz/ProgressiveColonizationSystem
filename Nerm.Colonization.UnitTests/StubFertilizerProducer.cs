@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 namespace Nerm.Colonization.UnitTests
 {
 	public class StubFertilizerProducer
-        : IProducer
+        : ITieredProducer
 	{
-
 		public TechTier Tier { get; set; }
 		public double ProductionRate { get; set; }
 		public bool IsResearchEnabled { get; set; }
@@ -20,5 +19,6 @@ namespace Nerm.Colonization.UnitTests
         {
             return target.ContributeResearch(this.Output, "test", amount);
         }
+        public string Body { get; set; }
     }
 }
