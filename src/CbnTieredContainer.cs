@@ -29,7 +29,17 @@ namespace Nerm.Colonization
 
         TieredResource ITieredContainer.Content => ColonizationResearchScenario.Instance.TryGetTieredResourceByName(this.resource);
 
-        float ITieredContainer.Amount { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        float ITieredContainer.Amount
+        {
+            get
+            {
+                return this.part.Resources.Count == 0 ? 0f : (float)this.part.Resources[0].amount;
+            }
+            set
+            {
+                this.part.Resources[0].amount = Math.Min(this.part.Resources[0].amount, this.part.Resources[0].amount);
+            }
+        }
 
         float ITieredContainer.MaxAmount => this.maxAmount;
 

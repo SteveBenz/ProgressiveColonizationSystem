@@ -114,13 +114,12 @@ namespace Nerm.Colonization
                 StaticAnalysis.CheckBodyIsSet(ColonizationResearchScenario.Instance, producers, containers)
                 .Union(StaticAnalysis.CheckTieredProduction(ColonizationResearchScenario.Instance, producers, containers))
                 .Union(StaticAnalysis.CheckTieredProductionStorage(ColonizationResearchScenario.Instance, producers, containers))
-                .Union(StaticAnalysis.CheckBodyIsSet(ColonizationResearchScenario.Instance, producers, containers))
                 .Union(StaticAnalysis.CheckCorrectCapacity(ColonizationResearchScenario.Instance, producers, containers))
                 .Union(StaticAnalysis.CheckExtraBaggage(ColonizationResearchScenario.Instance, producers, containers))
                 .ToList();
 
             // See if anything's actually changed
-            int hash = this.lastWarningList.Sum(w => w.Message.GetHashCode());
+            int hash = this.lastWarningList.Select(w => w.Message.GetHashCode()).Aggregate((accumulator, value) => accumulator ^ value);
             if (hash != this.warningsHash)
             {
                 this.warningsHash = hash;
