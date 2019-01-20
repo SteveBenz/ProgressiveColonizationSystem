@@ -90,8 +90,86 @@ namespace Nerm.Colonization
 
         private DialogGUIBase DrawCalculatorDialog()
         {
-            return new DialogGUILabel("Calculator");
+            List<Part> parts = EditorLogic.fetch.ship.Parts;
+            List<ITieredProducer> producers = parts
+                .Select(p => p.FindModuleImplementing<ITieredProducer>())
+                .Where(p => p != null).ToList();
+            List<ITieredContainer> containers = parts
+                .Select(p => p.FindModuleImplementing<ITieredContainer>())
+                .Where(p => p != null).ToList();
+
+            if (!producers.Any(p => p.Output.IsSnacks && p.Tier == TechTier.Tier4)
+                && !containers.Any(c => c.Content.IsSnacks && c.Tier == TechTier.Tier4 && c.Amount > 0))
+            {
+                return new DialogGUILabel("There is no source of top-tier Snacks on this vessel - only well-fed and happy Kerbals will produce things");
+            }
+
+            if (producers.Select(p => p.Output.ProductionRestriction).Distinct().Count() > 1)
+            {
+                return new DialogGUILabel("This ship looks like a composite ship - that is one with several sub-ships to take on "
+                                        + "different missions (e.g. landed, in-orbit and in-transit).  The calculator can't work effectively "
+                                        + "on ships like that.  Build the sub-ships individually, check the calculator and warnings panel "
+                                        + "on each one, then merge them together (using either sub-assemblies or the 'Merge' button on the "
+                                        + "load screen.");
+            }
+
+            string requiredSituationString;
+            if (!producers.Any() || producers[0].Output.ProductionRestriction == ProductionRestriction.Orbit)
+            {
+                requiredSituationString = "in space";
+            }
+            else
+            {
+                string body = producers.Select(p => p.Body).FirstOrDefault(b => !string.IsNullOrEmpty(b));
+                requiredSituationString = producers[0].Output.ProductionRestriction == ProductionRestriction.LandedOnBody
+                    ? $"landed at {body}" : $"in orbit of {body}";
+            }
+
+            // Calculator
+            //   Duration: [_____] Days  [x] Landed
+            //   Consumes:
+            //    ...
+            //    [[Fill Cans+10%]] [[Fill Cans+25%]]
+            //   Produces:
+
+            OnNumDaysChanged(uint.Parse(this.lastInputDays));
+
+            return new DialogGUIVerticalLayout(
+                new DialogGUISpace(3),
+                new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft
+                    new DialogGUILabel("Duration:"),
+                    new DialogGUITextInput(this.lastInputDays, false, 5, OnInputText, () => this.lastInputDays,
+                                           TMPro.TMP_InputField.ContentType.IntegerNumber, 24f),
+                    new DialogGUILabel("days while " + requiredSituationString),
+                    new DialogGUIFlexibleSpace()
+                ),
+                new DialogGUISpace(3),
+                new DialogGUILabel(() => this.productionInfo));
         }
+
+        private string lastInputDays = "100";
+
+        private string OnInputText(string text)
+        {
+            if (uint.TryParse(text, out uint days))
+            {
+                this.lastInputDays = text;
+                OnNumDaysChanged(days);
+                return text;
+            }
+            else
+            {
+                return this.lastInputDays;
+            }
+        }
+
+        private string productionInfo = "";
+
+        private void OnNumDaysChanged(uint days)
+        {
+            this.productionInfo = $"<calculate for {days} days>";
+        }
+
 
         private DialogGUIBase DrawWarningsDialog()
         {
@@ -168,13 +246,6 @@ namespace Nerm.Colonization
             VesselCrewManifest crewManifest = KSP.UI.CrewAssignmentDialog.Instance.GetManifest(false);
             return crewManifest.GetAllCrew(false).Select(k => new SkilledCrewman(k.experienceLevel, k.trait)).ToList();
         }
-
-        // Calculator
-        //   Duration: [_____] Days  [x] Landed
-        //   Consumes:
-        //    ...
-        //    [[Fill Cans+10%]] [[Fill Cans+25%]]
-        //   Produces:
 
         protected override ApplicationLauncher.AppScenes VisibleInScenes { get; } = ApplicationLauncher.AppScenes.SPH | ApplicationLauncher.AppScenes.VAB;
     }

@@ -39,5 +39,6 @@ namespace Nerm.Colonization
         public bool ExcessProductionCountsTowardsResearch { get; }
 
         public bool IsSupportedByScanning => BaseName == "Stuff"; // TODO: When scanning is better fleshed out, see if we can do this more nicely.
+        public bool IsSnacks => BaseName == "Snacks"; // TODO: Is there a nicer way to do this?
     }
 }

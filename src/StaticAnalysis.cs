@@ -250,8 +250,8 @@ namespace Nerm.Colonization
         internal static IEnumerable<WarningMessage> CheckHasSomeFood(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, List<ITieredContainer> containers, List<SkilledCrewman> crew)
         {
             if (crew.Count > 0
-                && !containers.Any(c => c.Content.BaseName == "Snacks" && c.Tier == TechTier.Tier4 && c.Amount > 0)
-                && producers.Any(p => p.Output.BaseName == "Snacks" && p.Tier == TechTier.Tier4))
+                && !containers.Any(c => c.Content.IsSnacks && c.Tier == TechTier.Tier4 && c.Amount > 0)
+                && !producers.Any(p => p.Output.IsSnacks && p.Tier == TechTier.Tier4))
             {
                 yield return new WarningMessage
                 {
