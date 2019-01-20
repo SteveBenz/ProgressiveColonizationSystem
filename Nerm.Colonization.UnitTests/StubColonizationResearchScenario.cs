@@ -21,6 +21,7 @@ namespace Nerm.Colonization.UnitTests
 
 		public TechTier AgroponicsMaxTier { get; private set; }
 
+        public IEnumerable<TieredResource> AllResourcesTypes => AllTieredResources;
 
         internal void Reset()
         {
@@ -37,18 +38,21 @@ namespace Nerm.Colonization.UnitTests
         public static ResearchCategory scanningResearchCategory = new ScanningResearchCategory();
         public static ResearchCategory shiniesResearchCategory = new ShiniesResearchCategory();
 
+        public static EdibleResource HydroponicSnacks = new EdibleResource("HydroponicSnacks", ProductionRestriction.Orbit, hydroponicResearchCategory, false, false, .2, .4, .55, .7, .95);
         public static EdibleResource Snacks = new EdibleResource("Snacks", ProductionRestriction.LandedOnBody, farmingResearchCategory, true, false, .6, .85, .95, .98, 1.0);
         public static TieredResource Fertilizer = new TieredResource("Fertilizer", "Kerbal-Days", ProductionRestriction.LandedOnBody, productionResearchCategory, true, false);
         public static TieredResource Stuff = new TieredResource("Stuff", null, ProductionRestriction.LandedOnBody, productionResearchCategory, true, false);
+        public static TieredResource Scanning = new TieredResource("ScanningData", "Kerbal-Days", ProductionRestriction.OrbitOfBody, scanningResearchCategory, false, true);
+        public static TieredResource Shinies = new TieredResource("Shinies", "Bling-per-day", ProductionRestriction.LandedOnBody, shiniesResearchCategory, true, false);
 
         private static TieredResource[] AllTieredResources =
         {
-            new EdibleResource("HydroponicSnacks", ProductionRestriction.Orbit, hydroponicResearchCategory, false, false, .2, .4, .55, .7, .95),
+            HydroponicSnacks,
             Snacks,
             Fertilizer,
-            new TieredResource("Shinies", "Bling-per-day", ProductionRestriction.LandedOnBody, shiniesResearchCategory, true, false),
+            Shinies,
             Stuff,
-            new TieredResource("ScanningData", "Kerbal-Days", ProductionRestriction.OrbitOfBody, scanningResearchCategory, false, true)
+            Scanning
         };
 
         public static TieredResource GetTieredResourceByName(string name)
@@ -111,12 +115,24 @@ namespace Nerm.Colonization.UnitTests
 
         public TechTier GetMaxUnlockedTier(TieredResource forResource, string atBody)
         {
-            return maxTiers.TryGetValue($"{atBody}-{forResource.ResearchCategory.DisplayName}", out TechTier tier) ? tier : TechTier.Tier0;
+            if (atBody == null)
+            {
+                return AgroponicsMaxTier;
+            }
+            else
+            {
+                return maxTiers.TryGetValue($"{atBody}-{forResource.ResearchCategory.DisplayName}", out TechTier tier) ? tier : TechTier.Tier0;
+            }
         }
 
         public void SetMaxTier(ResearchCategory researchCategory, string atBody, TechTier tier)
         {
             maxTiers[$"{atBody}-{researchCategory.DisplayName}"] = tier;
+        }
+
+        public TechTier GetMaxUnlockedScanningTier(string atBody)
+        {
+            return GetMaxUnlockedTier(Scanning, atBody);
         }
     }
 }

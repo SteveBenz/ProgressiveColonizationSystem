@@ -76,6 +76,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="ResearchCategory.cs" />
+    <Compile Include="StaticAnalysis.cs" />
     <Compile Include="TieredResource.cs" />
     <Compile Include="EdibleResource.cs" />
     <Compile Include="CbnTieredContainer.cs" />

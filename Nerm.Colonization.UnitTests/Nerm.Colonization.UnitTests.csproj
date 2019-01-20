@@ -70,7 +70,7 @@
     <Compile Include="StubProducer.cs" />
     <Compile Include="StubFertilizerProducer.cs" />
     <Compile Include="StubSnackProducer.cs" />
-    <Compile Include="WarningsTests.cs" />
+    <Compile Include="StaticAnalysisTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

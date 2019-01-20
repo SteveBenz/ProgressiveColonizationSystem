@@ -25,7 +25,7 @@ namespace Nerm.Colonization
 
         private Tab tab = Tab.Warnings;
 
-        private List<WarningMessage> lastWarningList;
+        private List<StaticAnalysis.WarningMessage> lastWarningList;
 
         protected override MultiOptionDialog DrawDialog()
         {
@@ -90,7 +90,7 @@ namespace Nerm.Colonization
         {
             if (EditorLogic.RootPart == null)
             {
-                this.lastWarningList = new List<WarningMessage>();
+                this.lastWarningList = new List<StaticAnalysis.WarningMessage>();
                 return;
             }
 
@@ -99,12 +99,6 @@ namespace Nerm.Colonization
 
         int warningsHash = 0;
 
-        internal class WarningMessage
-        {
-            public string Message { get; set; }
-            public bool IsClearlyBroken { get; set; }
-            public Action FixIt { get; set; }
-        }
 
         private void CalculateWarnings()
         {
@@ -117,8 +111,12 @@ namespace Nerm.Colonization
                 .Where(p => p != null).ToList();
 
             this.lastWarningList =
-                CheckBodyIsSet(producers, containers)
-                .Union(CheckTieredProduction(producers, containers))
+                StaticAnalysis.CheckBodyIsSet(ColonizationResearchScenario.Instance, producers, containers)
+                .Union(StaticAnalysis.CheckTieredProduction(ColonizationResearchScenario.Instance, producers, containers))
+                .Union(StaticAnalysis.CheckTieredProductionStorage(ColonizationResearchScenario.Instance, producers, containers))
+                .Union(StaticAnalysis.CheckBodyIsSet(ColonizationResearchScenario.Instance, producers, containers))
+                .Union(StaticAnalysis.CheckCorrectCapacity(ColonizationResearchScenario.Instance, producers, containers))
+                .Union(StaticAnalysis.CheckExtraBaggage(ColonizationResearchScenario.Instance, producers, containers))
                 .ToList();
 
             // See if anything's actually changed
@@ -130,55 +128,6 @@ namespace Nerm.Colonization
             }
         }
 
-        internal static IEnumerable<WarningMessage> CheckBodyIsSet(List<ITieredProducer> producers, List<ITieredContainer> containers)
-        {
-            // Check for body parts
-            List<ITieredProducer> bodySpecific = producers.Where(c => c.Output.ProductionRestriction != ProductionRestriction.Orbit).ToList();
-            var mostUsedBodyAndCount = bodySpecific
-                .Where(c => c.Body != null)
-                .GroupBy(c => c.Body)
-                .Select(g => new { body = g.Key, count = g.Count() })
-                .OrderByDescending(o => o.count)
-                .FirstOrDefault();
-            var mostUsedBody = mostUsedBodyAndCount?.body;
-            int? numSetToMostUsed = mostUsedBodyAndCount?.count;
-            int numNotSet = bodySpecific.Count(c => c.Body == null);
-            Action fixIt = mostUsedBody == null ? (Action)null : () =>
-                {
-                    foreach (var producer in producers.Where(c => c.Output.ProductionRestriction != ProductionRestriction.Orbit))
-                    {
-                        if (producer.Body != mostUsedBody)
-                        {
-                            producer.Body = mostUsedBody;
-                        }
-                    }
-                };
-
-            if (numNotSet + numSetToMostUsed < bodySpecific.Count)
-            {
-                yield return new WarningMessage
-                {
-                    Message = $"Not all of the body-specific parts are set up for {mostUsedBody}",
-                    IsClearlyBroken = true,
-                    FixIt = fixIt
-                };
-            }
-            else if (numNotSet > 0)
-            {
-                yield return new WarningMessage
-                {
-                    Message = "Need to set up the target for the world-specific parts",
-                    IsClearlyBroken = true,
-                    FixIt = fixIt
-                };
-            }
-        }
-
-        internal static IEnumerable<WarningMessage> CheckTieredProduction(List<ITieredProducer> producers, List<ITieredContainer> containers)
-        {
-            return new WarningMessage[0];
-        }
-
         // Calculator
         //   Duration: [_____] Days  [x] Landed
         //   Consumes:
@@ -187,13 +136,7 @@ namespace Nerm.Colonization
         //   Produces:
         //  
         // Warnings
-        // [Fix it] Not all the agriculture&production parts are set to Tier-X
-        // -- Tier1 Snacks are being produced but there's no place to store them
-        // -- Tier1 Fertilizer is being produced but there's no place to store them
-        // -- Tier1 Shinies are being produced ...
         // -- Not enough TRAITs to operate [part]
-        // -- Packing shinies is a silly thing to do
-        // -- Packing non-top-tier stuff is silly
 
         protected override ApplicationLauncher.AppScenes VisibleInScenes { get; } = ApplicationLauncher.AppScenes.SPH | ApplicationLauncher.AppScenes.VAB;
     }

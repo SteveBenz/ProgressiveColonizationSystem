@@ -19,6 +19,8 @@ namespace Nerm.Colonization
         private static ResearchCategory scanningResearchCategory = new ScanningResearchCategory();
         private static ResearchCategory shiniesResearchCategory = new ShiniesResearchCategory();
 
+        private static TieredResource scanningResource = new TieredResource("ScanningData", "Kerbal-Days", ProductionRestriction.OrbitOfBody, scanningResearchCategory, false, true);
+
         private static TieredResource[] AllTieredResources =
         {
             new EdibleResource("HydroponicSnacks", ProductionRestriction.Orbit, hydroponicResearchCategory, false, false, .2, .4, .55, .7, .95),
@@ -26,7 +28,7 @@ namespace Nerm.Colonization
             new TieredResource("Fertilizer", "Kerbal-Days", ProductionRestriction.LandedOnBody, productionResearchCategory, true, false),
             new TieredResource("Shinies", "Bling-per-day", ProductionRestriction.LandedOnBody, shiniesResearchCategory, true, false),
             new TieredResource("Stuff", null, ProductionRestriction.LandedOnBody, productionResearchCategory, true, false),
-            new TieredResource("ScanningData", "Kerbal-Days", ProductionRestriction.OrbitOfBody, scanningResearchCategory, false, true)
+            scanningResource
         };
 
         public static TieredResource GetTieredResourceByName(string name)
@@ -113,6 +115,8 @@ namespace Nerm.Colonization
             }
         }
 
+        public IEnumerable<TieredResource> AllResourcesTypes => AllTieredResources;
+
         public static double KerbalYearsToKerbalSeconds(double years) => years * 426.0 * 6.0 * 60.0 * 60.0;
         public static double KerbalSecondsToKerbalDays(double seconds) => seconds / (6.0 * 60.0 * 60.0);
 
@@ -130,6 +134,11 @@ namespace Nerm.Colonization
             }
 
             return progress.Tier;
+        }
+
+        public TechTier GetMaxUnlockedScanningTier(string atBody)
+        {
+            return this.GetMaxUnlockedTier(scanningResource, atBody);
         }
 
         public double GetKerbalDaysUntilNextTier(TieredResource forResource, string atBody)
@@ -285,5 +294,7 @@ namespace Nerm.Colonization
         bool ContributeResearch(TieredResource source, string atBody, double timespentInKerbalSeconds);
         TechTier GetMaxUnlockedTier(TieredResource forResource, string atBody);
         bool TryParseTieredResourceName(string tieredResourceName, out TieredResource resource, out TechTier tier);
+        IEnumerable<TieredResource> AllResourcesTypes { get; }
+        TechTier GetMaxUnlockedScanningTier(string atBody);
     }
 }

@@ -236,7 +236,14 @@ namespace Nerm.Colonization
             }
         }
 
-        public TechTier Tier => (TechTier)this.tier;
+        public TechTier Tier
+        {
+            get => (TechTier)this.tier;
+            set
+            {
+                this.tier = Math.Min((int)value, (int)this.MaxTechTierResearched);
+            }
+        }
 
         public bool IsResearchEnabled { get; private set; }
 

@@ -194,7 +194,7 @@ namespace Nerm.Colonization
                 this.Amount = amount;
             }
 
-            public TechTier Tier { get; }
+            public TechTier Tier { get; set; }
 
             public double ProductionRate => double.MaxValue;
 

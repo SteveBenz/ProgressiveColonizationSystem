@@ -7,7 +7,7 @@ namespace Nerm.Colonization
 {
     public interface ITieredProducer
     {
-        TechTier Tier { get; }
+        TechTier Tier { get; set; }
         double ProductionRate { get; }
         bool IsResearchEnabled { get; }
         bool IsProductionEnabled { get; }
