@@ -11,6 +11,7 @@ namespace Nerm.Colonization
         bool IsRunning { get; }
         bool IsStaffed { get; set; }
         float CapacityRequired { get; }
+        IEnumerable<string> RequiredTraits { get; }
     }
 
     public class CbnCrewRequirement
@@ -39,6 +40,9 @@ namespace Nerm.Colonization
         }
 
         public IEnumerable<string> SpecialistTraits => specialistTraits.Split(new char[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+        public IEnumerable<string> RequiredTraits => new string[] { generalistTrait }.Union(this.SpecialistTraits);
+
 
         private const int specialistStarBonus = 3; // Perhaps this should go in a setting?
 

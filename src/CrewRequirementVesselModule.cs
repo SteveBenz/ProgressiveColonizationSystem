@@ -58,7 +58,7 @@ namespace Nerm.Colonization
             this.hashAtLastCheck = hash;
         }
 
-        public bool TestIfCurrentCrewAssignmentCanWork(List<ICbnCrewRequirement> parts, List<SkilledCrewman> crew)
+        public static bool TestIfCurrentCrewAssignmentCanWork(List<ICbnCrewRequirement> parts, List<SkilledCrewman> crew)
         {
             if (parts.Count == 0)
             {
@@ -89,7 +89,7 @@ namespace Nerm.Colonization
             return false;
         }
 
-        public List<ICbnCrewRequirement> TestIfCrewRequirementsAreMet(List<ICbnCrewRequirement> parts, List<SkilledCrewman> crew)
+        public static List<ICbnCrewRequirement> TestIfCrewRequirementsAreMet(List<ICbnCrewRequirement> parts, List<SkilledCrewman> crew)
         {
             if (parts.Count == 0)
             {

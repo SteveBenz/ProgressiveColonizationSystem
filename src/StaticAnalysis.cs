@@ -247,18 +247,34 @@ namespace Nerm.Colonization
             return extraBaggageComplaints.OrderBy(s => s).Select(s => new WarningMessage { Message = s, FixIt = null, IsClearlyBroken = false });
         }
 
-        internal static IEnumerable<WarningMessage> CheckHasSomeFood(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, List<ITieredContainer> containers)
+        internal static IEnumerable<WarningMessage> CheckHasSomeFood(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, List<ITieredContainer> containers, List<SkilledCrewman> crew)
         {
-            // TODO:
-            return new WarningMessage[0];
-
-            // TODO: Also check for Fertilizer
+            if (crew.Count > 0
+                && !containers.Any(c => c.Content.BaseName == "Snacks" && c.Tier == TechTier.Tier4 && c.Amount > 0)
+                && producers.Any(p => p.Output.BaseName == "Snacks" && p.Tier == TechTier.Tier4))
+            {
+                yield return new WarningMessage
+                {
+                    Message = $"There's no Snacks on this vessel - the crew will get angry after {LifeSupportScenario.DaysBeforeKerbalStarves} days",
+                    IsClearlyBroken = false,
+                    FixIt = null
+                };
+            }
         }
 
-        internal static IEnumerable<WarningMessage> CheckHasProperCrew(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, List<ITieredContainer> containers)
+        internal static IEnumerable<WarningMessage> CheckHasProperCrew(List<ICbnCrewRequirement> parts, List<SkilledCrewman> crew)
         {
-            // TODO:
-            return new WarningMessage[0];
+            List<ICbnCrewRequirement> unstaffedParts = CrewRequirementVesselModule.TestIfCrewRequirementsAreMet(parts, crew);
+            if (unstaffedParts.Count > 0)
+            {
+                string list = string.Join(", ", unstaffedParts.SelectMany(part => part.RequiredTraits).Distinct().OrderBy(s => s).ToArray());
+                yield return new WarningMessage
+                {
+                    Message = $"The ship doesn't have enough crew or insufficiently experienced crew to operate all its parts - add crew with these traits: {list}",
+                    IsClearlyBroken = false,
+                    FixIt = null
+                };
+            }
         }
     }
 }

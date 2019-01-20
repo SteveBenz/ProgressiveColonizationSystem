@@ -35,6 +35,8 @@ namespace Nerm.Colonization
         private float buttonWidth = 80f; // Shenanigans - Can't figure out how to calculate this, but these numbers work somehow.
         private float buttonHeight = 30f;
 
+        private int warningsHash = 0;
+
         private DialogGUIBase DrawTabbedDialog()
         {
             DialogGUIBase content;
@@ -51,8 +53,8 @@ namespace Nerm.Colonization
 
             return new DialogGUIVerticalLayout(
                 new DialogGUIHorizontalLayout(
-                    new DialogGUIToggleButton(this.tab == Tab.Warnings, "Warnings", (isSet) => { this.tab = Tab.Warnings; this.Redraw(); }, w: -1, h: -1),
-                    new DialogGUIToggleButton(this.tab == Tab.Calculator, "Calculator", (isSet) => { this.tab = Tab.Calculator; this.Redraw(); }, w: -1, h: -1)),
+                    new DialogGUIToggleButton(this.tab == Tab.Warnings, "Warnings", (isSet) => { this.tab = Tab.Warnings; this.Redraw(); }, w: buttonWidth, h: buttonHeight),
+                    new DialogGUIToggleButton(this.tab == Tab.Calculator, "Calculator", (isSet) => { this.tab = Tab.Calculator; this.Redraw(); }, w: buttonWidth, h: buttonHeight)),
                 content);
         }
 
@@ -94,10 +96,11 @@ namespace Nerm.Colonization
                 return;
             }
 
-            CalculateWarnings();
+            if (this.isVisible)
+            {
+                CalculateWarnings();
+            }
         }
-
-        int warningsHash = 0;
 
 
         private void CalculateWarnings()
@@ -109,22 +112,36 @@ namespace Nerm.Colonization
             List<ITieredContainer> containers = parts
                 .Select(p => p.FindModuleImplementing<ITieredContainer>())
                 .Where(p => p != null).ToList();
+            List<ICbnCrewRequirement> crewedParts = parts
+                .Select(p => p.FindModuleImplementing<ICbnCrewRequirement>())
+                .Where(p => p != null)
+                .ToList();
 
+            List<SkilledCrewman> crew = this.FindAssignedCrew();
             this.lastWarningList =
                 StaticAnalysis.CheckBodyIsSet(ColonizationResearchScenario.Instance, producers, containers)
                 .Union(StaticAnalysis.CheckTieredProduction(ColonizationResearchScenario.Instance, producers, containers))
                 .Union(StaticAnalysis.CheckTieredProductionStorage(ColonizationResearchScenario.Instance, producers, containers))
                 .Union(StaticAnalysis.CheckCorrectCapacity(ColonizationResearchScenario.Instance, producers, containers))
                 .Union(StaticAnalysis.CheckExtraBaggage(ColonizationResearchScenario.Instance, producers, containers))
+                .Union(StaticAnalysis.CheckExtraBaggage(ColonizationResearchScenario.Instance, producers, containers))
+                .Union(StaticAnalysis.CheckHasSomeFood(ColonizationResearchScenario.Instance, producers, containers, crew))
+                .Union(StaticAnalysis.CheckHasProperCrew(crewedParts, crew))
                 .ToList();
 
             // See if anything's actually changed
-            int hash = this.lastWarningList.Select(w => w.Message.GetHashCode()).Aggregate((accumulator, value) => accumulator ^ value);
+            int hash = this.lastWarningList.Count == 0 ? 0 : this.lastWarningList.Select(w => w.Message.GetHashCode()).Aggregate((accumulator, value) => accumulator ^ value);
             if (hash != this.warningsHash)
             {
                 this.warningsHash = hash;
                 this.Redraw();
             }
+        }
+
+        private List<SkilledCrewman> FindAssignedCrew()
+        {
+            VesselCrewManifest crewManifest = KSP.UI.CrewAssignmentDialog.Instance.GetManifest(false);
+            return crewManifest.GetAllCrew(false).Select(k => new SkilledCrewman(k.experienceLevel, k.trait)).ToList();
         }
 
         // Calculator

@@ -27,13 +27,14 @@ namespace Nerm.Colonization
         }
 
         // TODO: Configurable?
-        private const double timeBeforeKerbalStarves = 7 * 6 * 60 * 60; // 7 kerban days
+        public const int DaysBeforeKerbalStarves = 7;
+        private const double secondsBeforeKerbalStarves = DaysBeforeKerbalStarves * 6 * 60 * 60; // 7 kerban days
 
         public void KerbalMissedAMeal(ProtoCrewMember crew)
         {
             if (this.knownKerbals.TryGetValue(crew.name, out LifeSupportStatus crewStatus))
             {
-                if (!crewStatus.IsGrouchy && Planetarium.GetUniversalTime() > crewStatus.LastMeal + timeBeforeKerbalStarves)
+                if (!crewStatus.IsGrouchy && Planetarium.GetUniversalTime() > crewStatus.LastMeal + secondsBeforeKerbalStarves)
                 {
                     crewStatus.IsGrouchy = true;
                     crewStatus.OldTrait = crew.experienceTrait.Title;
@@ -61,13 +62,13 @@ namespace Nerm.Colonization
             {
                 daysSinceMeal = ColonizationResearchScenario.KerbalSecondsToKerbalDays(now - lifeSupportStatus.LastMeal);
                 isGrouchy = lifeSupportStatus.IsGrouchy;
-                daysToGrouchy = ColonizationResearchScenario.KerbalSecondsToKerbalDays(lifeSupportStatus.LastMeal + timeBeforeKerbalStarves - now);
+                daysToGrouchy = ColonizationResearchScenario.KerbalSecondsToKerbalDays(lifeSupportStatus.LastMeal + secondsBeforeKerbalStarves - now);
                 return true;
             }
             else
             {
                 daysSinceMeal = 0;
-                daysToGrouchy = ColonizationResearchScenario.KerbalSecondsToKerbalDays(timeBeforeKerbalStarves);
+                daysToGrouchy = ColonizationResearchScenario.KerbalSecondsToKerbalDays(secondsBeforeKerbalStarves);
                 isGrouchy = false;
                 return false;
             }
