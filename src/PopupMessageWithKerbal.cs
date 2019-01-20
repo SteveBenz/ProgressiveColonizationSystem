@@ -17,14 +17,39 @@ namespace Nerm.Colonization
 
         static Queue<Action> messageQueue = null;
 
-        public static void ShowPopup(string title, string content, string okayButton)
-        {
-            ShowPopup(() => _ShowPopup(title, content, okayButton));
-        }
-
         public static void ShowPopup(string title, string content, string boringContent, string okayButton)
         {
             ShowPopup(() => _ShowPopup(title, content, boringContent, okayButton));
+        }
+
+        public static void ShowOkayCancel(string title, string content, string okayButton, string cancelButton, Action onOkay)
+        {
+            PopupDialog.SpawnPopupDialog(
+                new Vector2(x1, y1),
+                new Vector2(x2, y2),
+                new MultiOptionDialog(
+                    "OkayCancel",
+                    "",
+                    title,
+                    HighLogic.UISkin,
+                    new DialogGUIVerticalLayout(
+                        new DialogGUIHorizontalLayout(
+                            new DialogGUIVerticalLayout(
+                                new DialogGUIFlexibleSpace(),
+                                makePictureOfAKerbal(160, 160),
+                                new DialogGUIFlexibleSpace()),
+                            new DialogGUILabel(content, true, true)),
+                        new DialogGUIHorizontalLayout(
+                            new DialogGUIFlexibleSpace(),
+                            new DialogGUIButton(okayButton, () => { onOkay(); OnDismiss(); }, dismissOnSelect: true),
+                            new DialogGUIFlexibleSpace(),
+                            new DialogGUIButton(cancelButton, () => OnDismiss(), dismissOnSelect: true),
+                            new DialogGUIFlexibleSpace()
+                        ))),
+                persistAcrossScenes: false,
+                skin: HighLogic.UISkin,
+                isModal: true,
+                titleExtra: "TITLE EXTRA!");
         }
 
         private static void ShowPopup(Func<PopupDialog> popupShower)
@@ -42,7 +67,7 @@ namespace Nerm.Colonization
 
         private static void OnDismiss()
         {
-            if (messageQueue.Count > 0)
+            if (messageQueue != null && messageQueue.Count > 0)
             {
                 messageQueue.Dequeue()();
             }
@@ -52,33 +77,6 @@ namespace Nerm.Colonization
             }
         }
 
-        private static PopupDialog _ShowPopup(string title, string content, string okayButton)
-        {
-            return PopupDialog.SpawnPopupDialog(
-                new Vector2(x1, y1),
-                new Vector2(x2, y2),
-                new MultiOptionDialog(
-                    "TierUpAlert" + (uniquifier++.ToString()),  // <- no idea what this does.
-                    "",
-                    title,
-                    HighLogic.UISkin,
-                    new DialogGUIVerticalLayout(
-                        new DialogGUIHorizontalLayout(
-                            new DialogGUIVerticalLayout(
-                                new DialogGUIFlexibleSpace(),
-                                makePictureOfAKerbal(160, 160),
-                                new DialogGUIFlexibleSpace()),
-                            new DialogGUILabel(content, true, true)),
-                        new DialogGUIHorizontalLayout(
-                            new DialogGUIFlexibleSpace(),
-                            new DialogGUIButton(okayButton, OnDismiss),
-                            new DialogGUIFlexibleSpace()
-                        ))),
-                persistAcrossScenes: false,
-                skin: HighLogic.UISkin,
-                isModal: true,
-                titleExtra: "TITLE EXTRA!"); // <- no idea what that does.
-        }
 
         private static PopupDialog _ShowPopup(string title, string content, string boringContent, string okayButton)
         {

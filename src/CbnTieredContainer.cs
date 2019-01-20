@@ -14,18 +14,18 @@ namespace Nerm.Colonization
         /// <summary>
         ///   This is the resource name for Tier4
         /// </summary>
-        [KSPField]
+        [KSPField(isPersistant = true)]
         public string resource;
 
         [KSPField]
         public float maxAmount;
 
-        [KSPField]
-        public TechTier tier = TechTier.Tier4;
+        [KSPField(isPersistant = true)]
+        public int tier = (int)TechTier.Tier4;
 
         private UIPartActionWindow tweakableUI = null;
 
-        TechTier ITieredContainer.Tier => this.tier;
+        public TechTier Tier => (TechTier)this.tier;
 
         TieredResource ITieredContainer.Content => ColonizationResearchScenario.Instance.TryGetTieredResourceByName(this.resource);
 
@@ -46,7 +46,7 @@ namespace Nerm.Colonization
         [KSPEvent(active = true, guiActiveEditor = true, guiActive = true, externalToEVAOnly = true, guiName = "Change Tier", unfocusedRange = 10f)]
         public void NextTier()
         {
-            tier = (TechTier)((1 + (int)this.tier) % (1 + (int)TechTier.Tier4));
+            tier = ((1 + this.tier) % (1 + (int)TechTier.Tier4));
             assignResourcesToPart();
         }
 
@@ -122,7 +122,7 @@ namespace Nerm.Colonization
             Debug.Assert(tieredResource != null, "Tank is not configured correctly - resource is not a tiered resource");
 
             ConfigNode newResourceNode = new ConfigNode("RESOURCE");
-            newResourceNode.AddValue("name", tieredResource.TieredName(this.tier));
+            newResourceNode.AddValue("name", tieredResource.TieredName(this.Tier));
             newResourceNode.AddValue("maxAmount", this.maxAmount);
             newResourceNode.AddValue("amount", HighLogic.LoadedSceneIsEditor ? (oldAmount < 0 ? this.maxAmount : (float)oldAmount) : 0.0f);
 

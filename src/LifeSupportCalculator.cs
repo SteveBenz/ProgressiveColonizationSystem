@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Events;
 
 // TODO: Boy Voyage has a less bad way of doing positioning:
 //   https://github.com/jarosm/KSP-BonVoyage/blob/master/BonVoyage/gui/MainWindowView.cs
@@ -36,6 +37,29 @@ namespace Nerm.Colonization
         private float buttonHeight = 30f;
 
         private int warningsHash = 0;
+
+        public void Start()
+        {
+            EditorLogic.fetch.launchBtn.onClick.RemoveListener(EditorLogic.fetch.launchVessel);
+            //EditorLogic.fetch.launchBtn.onClick.RemoveAllListeners();
+            EditorLogic.fetch.launchBtn.onClick.AddListener(OnLaunchClicked);
+        }
+
+        public void OnLaunchClicked()
+        {
+            this.CalculateWarnings();
+            if (this.lastWarningList.Any(w => w.IsClearlyBroken))
+            {
+                string message = "You might want to check this list of concerns the boys in the office have about this vessel:"
+                               + Environment.NewLine
+                               + string.Join(Environment.NewLine, this.lastWarningList.Select(w => w.Message).ToArray());
+                PopupMessageWithKerbal.ShowOkayCancel("You sure, boss?", message, "Don't worry, I have a plan!", "Good point", EditorLogic.fetch.launchVessel);
+            }
+            else
+            {
+                EditorLogic.fetch.launchVessel();
+            }
+        }
 
         private DialogGUIBase DrawTabbedDialog()
         {
@@ -105,7 +129,8 @@ namespace Nerm.Colonization
 
         private void CalculateWarnings()
         {
-            List<Part> parts = EditorLogic.FindPartsInChildren(EditorLogic.RootPart);
+            List<Part> parts = EditorLogic.fetch.ship.Parts; // EditorLogic.FindPartsInChildren(EditorLogic.RootPart);
+            
             List<ITieredProducer> producers = parts
                 .Select(p => p.FindModuleImplementing<ITieredProducer>())
                 .Where(p => p != null).ToList();
@@ -150,9 +175,6 @@ namespace Nerm.Colonization
         //    ...
         //    [[Fill Cans+10%]] [[Fill Cans+25%]]
         //   Produces:
-        //  
-        // Warnings
-        // -- Not enough TRAITs to operate [part]
 
         protected override ApplicationLauncher.AppScenes VisibleInScenes { get; } = ApplicationLauncher.AppScenes.SPH | ApplicationLauncher.AppScenes.VAB;
     }
