@@ -30,7 +30,7 @@ namespace Nerm.Colonization
             // KerbalDaysContributedPerDay is equal to Kerbals.
             // timeSpentInKerbalSeconds works out to be time spent in a kerbal second (because that's the timespan
             // we passed into the production engine), so it's really kerbalSecondsContributedPerKerbalSecond.
-            if (!this.Data.TryGetValue(source.ResearchCategory, out ResearchData data))
+            if (this.Data.TryGetValue(source.ResearchCategory, out ResearchData data))
             {
                 this.Data[source.ResearchCategory] = new ResearchData(researchInKerbalsecondsPerSecond + data.KerbalDaysContributedPerDay, data.KerbalDaysUntilNextTier);
             }

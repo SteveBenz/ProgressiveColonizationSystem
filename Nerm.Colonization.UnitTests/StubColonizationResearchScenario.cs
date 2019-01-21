@@ -93,7 +93,7 @@ namespace Nerm.Colonization.UnitTests
             if (source.ResearchCategory == hydroponicResearchCategory)
             {
                 this.AgroponicResearchProgress += timespentInKerbalSeconds;
-                if (this.AgroponicResearchProgress > ColonizationResearchScenario.KerbalYearsToKerbalSeconds(source.ResearchCategory.KerbalYearsToNextTier(this.AgroponicsMaxTier)))
+                if (this.AgroponicResearchProgress > ColonizationResearchScenario.KerbalYearsToSeconds(source.ResearchCategory.KerbalYearsToNextTier(this.AgroponicsMaxTier)))
                 {
                     this.AgroponicResearchProgress = 0;
                     ++this.AgroponicsMaxTier;

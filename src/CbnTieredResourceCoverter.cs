@@ -151,6 +151,9 @@ namespace Nerm.Colonization
 
             if (!HighLogic.LoadedSceneIsFlight)
             {
+                this.IsProductionEnabled = true;
+                this.IsResearchEnabled = true;
+                this.researchStatus = "Active";
                 return;
             }
 
@@ -173,6 +176,8 @@ namespace Nerm.Colonization
             }
             else
             {
+                // Used to do this, but that's nothing but a hassle - when power recovers or whatever, it's nice that it
+                // just pops back to life.
                 //if (resourceConverter != null && resourceConverter.IsActivated)
                 //{
                 //ScreenMessages.PostScreenMessage($"{this.name} is shutting down:  {reasonWhyNotMessage}", 10.0f);

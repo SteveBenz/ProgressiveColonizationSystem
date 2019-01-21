@@ -103,7 +103,7 @@ namespace Nerm.Colonization
             }
 
             progress.ProgressInKerbalSeconds += timespentInKerbalSeconds;
-            if (progress.ProgressInKerbalSeconds > KerbalYearsToKerbalSeconds(source.ResearchCategory.KerbalYearsToNextTier(progress.Tier)))
+            if (progress.ProgressInKerbalSeconds > KerbalYearsToSeconds(source.ResearchCategory.KerbalYearsToNextTier(progress.Tier)))
             {
                 progress.ProgressInKerbalSeconds = 0;
                 ++progress.Tier;
@@ -117,8 +117,9 @@ namespace Nerm.Colonization
 
         public IEnumerable<TieredResource> AllResourcesTypes => AllTieredResources;
 
-        public static double KerbalYearsToKerbalSeconds(double years) => years * 426.0 * 6.0 * 60.0 * 60.0;
-        public static double KerbalSecondsToKerbalDays(double seconds) => seconds / (6.0 * 60.0 * 60.0);
+        public static double KerbalYearsToSeconds(double years) => KerbalDaysToSeconds(years * 426.0);
+        public static double SecondsToKerbalDays(double seconds) => seconds / (6.0 * 60.0 * 60.0);
+        public static double KerbalDaysToSeconds(double days) => days * (6.0 * 60.0 * 60.0);
 
         public TechTier GetMaxUnlockedTier(TieredResource forResource, string atBody)
         {
@@ -155,8 +156,8 @@ namespace Nerm.Colonization
                 }
             }
 
-            double kerbalSecondsToGo = KerbalYearsToKerbalSeconds(forResource.ResearchCategory.KerbalYearsToNextTier(currentTier));
-            return KerbalSecondsToKerbalDays(kerbalSecondsToGo-kerbalSecondsSoFar);
+            double kerbalSecondsToGo = KerbalYearsToSeconds(forResource.ResearchCategory.KerbalYearsToNextTier(currentTier));
+            return SecondsToKerbalDays(kerbalSecondsToGo-kerbalSecondsSoFar);
         }
         
         public override void OnLoad(ConfigNode node)

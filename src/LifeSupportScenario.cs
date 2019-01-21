@@ -60,15 +60,15 @@ namespace Nerm.Colonization
             double now = Planetarium.GetUniversalTime();
             if (this.knownKerbals.TryGetValue(crew.name, out LifeSupportStatus lifeSupportStatus))
             {
-                daysSinceMeal = ColonizationResearchScenario.KerbalSecondsToKerbalDays(now - lifeSupportStatus.LastMeal);
+                daysSinceMeal = ColonizationResearchScenario.SecondsToKerbalDays(now - lifeSupportStatus.LastMeal);
                 isGrouchy = lifeSupportStatus.IsGrouchy;
-                daysToGrouchy = ColonizationResearchScenario.KerbalSecondsToKerbalDays(lifeSupportStatus.LastMeal + secondsBeforeKerbalStarves - now);
+                daysToGrouchy = ColonizationResearchScenario.SecondsToKerbalDays(lifeSupportStatus.LastMeal + secondsBeforeKerbalStarves - now);
                 return true;
             }
             else
             {
                 daysSinceMeal = 0;
-                daysToGrouchy = ColonizationResearchScenario.KerbalSecondsToKerbalDays(secondsBeforeKerbalStarves);
+                daysToGrouchy = ColonizationResearchScenario.SecondsToKerbalDays(secondsBeforeKerbalStarves);
                 isGrouchy = false;
                 return false;
             }

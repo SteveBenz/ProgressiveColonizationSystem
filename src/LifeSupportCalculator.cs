@@ -38,10 +38,15 @@ namespace Nerm.Colonization
 
         private int warningsHash = 0;
 
+        private int plannedMissionDuration = 100;
+
+        private string productionInfo = "";
+        private string consumptionInfo = "";
+
+
         public void Start()
         {
             EditorLogic.fetch.launchBtn.onClick.RemoveListener(EditorLogic.fetch.launchVessel);
-            //EditorLogic.fetch.launchBtn.onClick.RemoveAllListeners();
             EditorLogic.fetch.launchBtn.onClick.AddListener(OnLaunchClicked);
         }
 
@@ -132,42 +137,118 @@ namespace Nerm.Colonization
             //    [[Fill Cans+10%]] [[Fill Cans+25%]]
             //   Produces:
 
-            OnNumDaysChanged(uint.Parse(this.lastInputDays));
+            RecalculateResults();
 
             return new DialogGUIVerticalLayout(
                 new DialogGUISpace(3),
-                new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft
+                new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
                     new DialogGUILabel("Duration:"),
-                    new DialogGUITextInput(this.lastInputDays, false, 5, OnInputText, () => this.lastInputDays,
-                                           TMPro.TMP_InputField.ContentType.IntegerNumber, 24f),
+                    new DialogGUITextInput(
+                        txt: this.plannedMissionDuration.ToString(),
+                        multiline: false,
+                        maxlength: 5,
+                        textSetFunc: OnInputText,
+                        getString: () => this.plannedMissionDuration.ToString(),
+                        contentType: TMPro.TMP_InputField.ContentType.IntegerNumber,
+                        hght: 24f),
                     new DialogGUILabel("days while " + requiredSituationString),
                     new DialogGUIFlexibleSpace()
                 ),
                 new DialogGUISpace(3),
-                new DialogGUILabel(() => this.productionInfo));
+                new DialogGUILabel("<b>Production:</b>"),
+                new DialogGUILabel(() => this.productionInfo),
+                new DialogGUISpace(3),
+                new DialogGUILabel("<b>Consumption:</b>"),
+                new DialogGUILabel(() => this.consumptionInfo));
         }
-
-        private string lastInputDays = "100";
 
         private string OnInputText(string text)
         {
             if (uint.TryParse(text, out uint days))
             {
-                this.lastInputDays = text;
-                OnNumDaysChanged(days);
+                this.plannedMissionDuration = Math.Max(1, (int)days);
+                RecalculateResults();
                 return text;
             }
             else
             {
-                return this.lastInputDays;
+                return this.plannedMissionDuration.ToString();
             }
         }
 
-        private string productionInfo = "";
-
-        private void OnNumDaysChanged(uint days)
+        private void RecalculateResults()
         {
-            this.productionInfo = $"<calculate for {days} days>";
+            List<Part> parts = EditorLogic.fetch.ship.Parts;
+            List<ITieredProducer> producers = parts
+                .Select(p => p.FindModuleImplementing<ITieredProducer>())
+                .Where(p => p != null).ToList();
+            List<ITieredContainer> containers = parts
+                .Select(p => p.FindModuleImplementing<ITieredContainer>())
+                .Where(p => p != null).ToList();
+
+            const double aWholeLot = 10000.0;
+            Dictionary<string, double> unlimitedInputs = containers
+                .Select(c => c.Content.TieredName(c.Tier))
+                .Distinct()
+                .ToDictionary(n => n, n => aWholeLot);
+            Dictionary<string, double> unlimitedOutputs = containers
+                .Select(c => c.Content.TieredName(c.Tier))
+                .Distinct()
+                .ToDictionary(n => n, n => aWholeLot);
+
+            int crewCount = KSP.UI.CrewAssignmentDialog.Instance.GetManifest(false).CrewCount;
+            ResearchSink researchSink = new ResearchSink();
+            TieredProduction.CalculateResourceUtilization(
+                crewCount, 1.0, producers, researchSink, unlimitedInputs, unlimitedOutputs,
+                out double timePassed, out var _, out Dictionary<string, double> resourcesConsumedPerSecond,
+                out Dictionary<string, double> resourcesProducedPerSecond);
+            if (timePassed < 1.0)
+            {
+                this.consumptionInfo = "-";
+                this.productionInfo = "-";
+                return;
+            }
+
+            Dictionary<string, double> actualInputs = containers
+                .GroupBy(c => c.Content.TieredName(c.Tier))
+                .ToDictionary(c => c.Key, c => c.Sum(x => (double)x.Amount));
+            Dictionary<string, double> actualStorage = containers
+                .GroupBy(c => c.Content.TieredName(c.Tier))
+                .ToDictionary(c => c.Key, c => c.Sum(x => (double)(x.MaxAmount - x.Amount)));
+
+            StringBuilder consumption = new StringBuilder();
+            foreach (var pair in resourcesConsumedPerSecond.OrderBy(pair => pair.Key))
+            {
+                var name = pair.Key;
+                var amountPerDay = TieredProduction.UnitsPerSecondToUnitsPerDay(pair.Value);
+
+                double available = 0;
+                actualInputs.TryGetValue(name, out available);
+                string availableBlurb = $"{amountPerDay * this.plannedMissionDuration} needed, {available} available";
+                if (available < amountPerDay * this.plannedMissionDuration)
+                {
+                    availableBlurb = ColorRed(availableBlurb);
+                }
+                consumption.AppendLine($"{amountPerDay:N1} {name}/day - {availableBlurb}");
+            }
+            this.consumptionInfo = consumption.ToString();
+
+            StringBuilder production = new StringBuilder();
+            foreach (var pair in resourcesProducedPerSecond.OrderBy(pair => pair.Key))
+            {
+                var name = pair.Key;
+                var amountPerDay = TieredProduction.UnitsPerSecondToUnitsPerDay(pair.Value);
+
+                double available = 0;
+                actualStorage.TryGetValue(name, out available);
+                string availableBlurb = $"{amountPerDay * this.plannedMissionDuration} produced, {available} max capacity";
+                if (available < amountPerDay * this.plannedMissionDuration)
+                {
+                    availableBlurb = ColorYellow(availableBlurb);
+                }
+                production.AppendLine($"{amountPerDay:N1} {name}/day - {availableBlurb}");
+            }
+            this.productionInfo = production.ToString();
         }
 
 
@@ -201,9 +282,9 @@ namespace Nerm.Colonization
             if (this.isVisible)
             {
                 CalculateWarnings();
+                RecalculateResults();
             }
         }
-
 
         private void CalculateWarnings()
         {
