@@ -48,7 +48,7 @@ Development plan:
        4   (complete) Mun/Minmus shinies peak at T1, Duna/Ike/Gilly at T2, T5 only at Dres/Eloo/Moho/Eve
        3.  Make the shinies boost your rep on landing
    3.  Support USI kerbal types
-   4.  Life support dialog works nicely in the editors - can estimate usage and ag production
+   4.  (complete) Life support dialog works nicely in the editors - can estimate usage and ag production
    5.  (complete) Make the GetInfo()'s show the electric utilization
    6.  (complete) Support some form of resource transfer (resupply / salvage)
         Resupply:  Fertilizer, Shinies, LF&OX out of "Base" / Snacks in
