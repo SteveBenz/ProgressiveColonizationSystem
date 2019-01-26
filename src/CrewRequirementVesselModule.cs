@@ -15,18 +15,24 @@ namespace Nerm.Colonization
         /// </summary>
         public void FixedUpdate()
         {
+            if (!this.vessel.loaded)
+            {
+                return;
+            }
+
             List<ICbnCrewRequirement> activatedParts = this.vessel
                 .FindPartModulesImplementing<ICbnCrewRequirement>()
                 .Where(p => p.IsRunning)
                 .ToList();
-            var crew = this.vessel.GetVesselCrew().Select(k => new SkilledCrewman(k.experienceLevel, k.trait)).ToList();
+            List<ProtoCrewMember> kspCrew = this.vessel.GetVesselCrew();
+            var crew = kspCrew.Select(k => new SkilledCrewman(k.experienceLevel, k.trait)).ToList();
 
             int hash = 0;
             foreach (ICbnCrewRequirement part in activatedParts)
             {
                 hash ^= part.GetHashCode();
             }
-            foreach (var k in crew)
+            foreach (var k in kspCrew)
             {
                 hash ^= k.GetHashCode();
             }
@@ -39,13 +45,9 @@ namespace Nerm.Colonization
             List<ICbnCrewRequirement> unstaffableParts = TestIfCrewRequirementsAreMet(activatedParts, crew);
             if (unstaffableParts.Count > 0)
             {
-                // If we've done better than the status quo, apply the new list
-                if ( unstaffableParts.Count < activatedParts.Count(pnf => !pnf.IsStaffed))
+                foreach (var part in activatedParts)
                 {
-                    foreach (var part in activatedParts)
-                    {
-                        part.IsStaffed = !unstaffableParts.Contains(part);
-                    }
+                    part.IsStaffed = !unstaffableParts.Contains(part);
                 }
             }
             else

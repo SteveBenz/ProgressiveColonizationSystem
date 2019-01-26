@@ -132,7 +132,7 @@ namespace Nerm.Colonization
         {
             get
             {
-                return this.ResourceConverter == null ? true : this.ResourceConverter.isActiveAndEnabled;
+                return this.ResourceConverter == null ? true : this.ResourceConverter.IsActivated;
             }
         }
 
@@ -146,7 +146,7 @@ namespace Nerm.Colonization
                     this.isStaffed = value;
                     if (this.IsRunning)
                     {
-                        ScreenMessages.PostScreenMessage($"{this.part.name} has stopped production because there's not enough crew to operate it.");
+                        ScreenMessages.PostScreenMessage($"{this.part.name} has stopped production because there's not enough crew to operate it.", 10f);
                     }
                 }
                 else if (!this.isStaffed && value && IsRunning)
@@ -154,7 +154,7 @@ namespace Nerm.Colonization
                     isStaffed = value;
                     if (this.IsRunning)
                     {
-                        ScreenMessages.PostScreenMessage($"{this.part.name} has resumed production because it has enough skilled crew to operate now.");
+                        ScreenMessages.PostScreenMessage($"{this.part.name} has resumed production because it has enough skilled crew to operate now.", 10f);
                     }
                 }
             }

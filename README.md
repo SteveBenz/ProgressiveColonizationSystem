@@ -62,6 +62,8 @@ Development plan:
    7.  Either reskin the stolen parts or depend on their sources and re-configure them
    8.  Write PDF help
 
+Known issues:
+  If a base is understaffed, there's no clear indicator.  Plus, turning one thing on will turn something else off.
 
    Resource finagling
 
