@@ -29,11 +29,11 @@ namespace Nerm.Colonization
 
         TieredResource ITieredContainer.Content => ColonizationResearchScenario.Instance.TryGetTieredResourceByName(this.resource);
 
-        float ITieredContainer.Amount
+        double ITieredContainer.Amount
         {
             get
             {
-                return this.part.Resources.Count == 0 ? 0f : (float)this.part.Resources[0].amount;
+                return this.part.Resources.Count == 0 ? 0.0 : this.part.Resources[0].amount;
             }
             set
             {
@@ -61,7 +61,9 @@ namespace Nerm.Colonization
             StringBuilder builder = new StringBuilder();
             builder.AppendLine($"Amount: {this.maxAmount}");
 
-            var resourceModel = PartResourceLibrary.Instance.resourceDefinitions.OfType<PartResourceDefinition>().FirstOrDefault(prd => prd.name == this.resource);
+            string tier4name = $"{this.resource}-{TechTier.Tier4}";
+
+            var resourceModel = PartResourceLibrary.Instance.resourceDefinitions.OfType<PartResourceDefinition>().FirstOrDefault(prd => prd.name == tier4name);
             if (resourceModel != null)
             {
                 builder.AppendLine($"Mass: {this.maxAmount * resourceModel.density}");

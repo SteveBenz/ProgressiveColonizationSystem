@@ -13,7 +13,7 @@ namespace Nerm.Colonization.UnitTests
 
         public TieredResource Content { get; set; } = StubColonizationResearchScenario.GetTieredResourceByName("Snacks");
 
-        public float Amount { get; set; }
+        public double Amount { get; set; }
 
         public float MaxAmount { get; set; } = 100;
     }

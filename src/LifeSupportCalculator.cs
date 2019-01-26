@@ -99,9 +99,7 @@ namespace Nerm.Colonization
             List<ITieredProducer> producers = parts
                 .Select(p => p.FindModuleImplementing<ITieredProducer>())
                 .Where(p => p != null).ToList();
-            List<ITieredContainer> containers = parts
-                .Select(p => p.FindModuleImplementing<ITieredContainer>())
-                .Where(p => p != null).ToList();
+            List<ITieredContainer> containers = TieredContainer.FindAllTieredResourceContainers(parts).ToList();
 
             if (!producers.Any(p => p.Output.IsSnacks && p.Tier == TechTier.Tier4)
                 && !containers.Any(c => c.Content.IsSnacks && c.Tier == TechTier.Tier4 && c.Amount > 0))
@@ -182,9 +180,7 @@ namespace Nerm.Colonization
             List<ITieredProducer> producers = parts
                 .Select(p => p.FindModuleImplementing<ITieredProducer>())
                 .Where(p => p != null).ToList();
-            List<ITieredContainer> containers = parts
-                .Select(p => p.FindModuleImplementing<ITieredContainer>())
-                .Where(p => p != null).ToList();
+            List<ITieredContainer> containers = TieredContainer.FindAllTieredResourceContainers(parts).ToList();
 
             const double aWholeLot = 10000.0;
             Dictionary<string, double> unlimitedInputs = containers
@@ -293,9 +289,7 @@ namespace Nerm.Colonization
             List<ITieredProducer> producers = parts
                 .Select(p => p.FindModuleImplementing<ITieredProducer>())
                 .Where(p => p != null).ToList();
-            List<ITieredContainer> containers = parts
-                .Select(p => p.FindModuleImplementing<ITieredContainer>())
-                .Where(p => p != null).ToList();
+            List<ITieredContainer> containers = TieredContainer.FindAllTieredResourceContainers(parts).ToList();
             List<ICbnCrewRequirement> crewedParts = parts
                 .Select(p => p.FindModuleImplementing<ICbnCrewRequirement>())
                 .Where(p => p != null)

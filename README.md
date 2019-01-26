@@ -62,7 +62,86 @@ Development plan:
    7.  Either reskin the stolen parts or depend on their sources and re-configure them
    8.  Write PDF help
 
-Known Issues:
-   1.  If you create a brand new vessel and add a Snack or Fertilizer container to it as the first part, it initially won't
-       show any supplies in it.  Clicking "Next Tier" fixes it.  (Looks to me like a bug in KSP - forum thread:
-       https://forum.kerbalspaceprogram.com/index.php?/topic/181234-partmoduleoninitialized-not-being-called-on-first-part/)'
+
+   Resource finagling
+
+   When looking at resources, there's an arbitrary "Unit" - which is a number that's just made up.
+   Each resource also has a density, which is defined in Resources.cfg, and a unitsPerVolume, that
+   is used by B9 in TankTypes (CBN-B9TankTypes.cfg).  The other numbers to think about are the crew
+   requirements (in the CbnRequiredCrew module descriptors) and the capacity of the part (in
+   CbnTieredResourceConverter).
+
+   A "Unit" is a completely arbitrary unit of measure, and so it's chosen to be the amount of snacks
+   a Kerbal will consume in a day so that players can get easily eyeball how much stuff to bring.
+   Similarly, a "Unit" of "Fertilizer" is enough fertilizer to make one unit of snacks.
+
+   For Hydroponics, the idea is that the Kerbals' waste is being fed back into the system and
+   so fertilizer, whatever it is, weighs a small fraction of what a snack does, unit-for-unit.
+
+   So, let's make up some numbers:
+   
+   1.  A kerbal consumes 2kg (roughly 4.4 pounds) of snacks per day.
+   2.  The KRDA-O200 Cargo Container is about as big as maybe 1.5 Mk1 command pods, and I'm
+       eyeballing it as being able to hold about 95 days worth of food.  That puts its mass
+       at 190kg or .2t.  By comparison, the FL-T200 Fuel Tank is roughly the same volume,
+       and it carries 1t of fuel.  That seems a bit awkward at first, but LO2 is a little
+       bit denser than water, which is plenty dense, so the number seems workable.
+   3.  The KRDA-O200 Cargo Container has a base volume of 950 units (which look to be about
+       a liter which is 1/1000 of a cubic meter).   If we want to have it fit 95 units,
+       that means we need 10 units of volume (liters) for each snack.  That means the
+       B9_TANK_TYPE.Resource[name=Snacks*].unitsPerVolume needs to be .1.  The 10liters
+       per day thing seems a bit steep, but really the problem is mainly that the cargo
+       container would need to have a 
+    4. As stated, density, RESOURCE_DEFINITION[name=Snacks*].density, is in tons/unit, so
+       it's just 2kg*.001ton/kg or .002t/unit
+
+    And if we ballpark fertilizer as being a tenth the mass of a snack, and, for entertainments
+    sake, twice as dense, then its "density" is .0002t/unit and its unitsPerVolume is 10*2*.1 = 2.
+
+    The density of the supplies is a bit low, but I think the fix, if one were to make it would
+    be to modify the tank so that it's got less interior space (insulation, e.g.).  I don't
+    know for sure how to do that with tank configurations today, but perhaps someday...
+
+    Now, as to the labor:  It seems like it ought to take no more than 1 kerbal in 4 to produce
+    the food.  Also, just by eyeball, the parts that we get in StationPartsExpansionRedux all
+    look to be about the same size and look to me like it ought to support 2 kerbals each.
+    So, on the surface of things, that'd seem like we should put the "capacity" of those parts
+    at 2, and the crew requirement at .5.
+
+    Practically speaking, the way the math works out, at early tiers the module can support
+    almost 5x as many kerbals as it does at the max tier, because each kerbal eats way less of
+    the produce.
+
+    At this point, the best answer seems to just let that ride, even if it does mean that parts
+    become more labor-intensive as they mature.
+
+    For farming, we want to make it about twice as productive so that the crew can produce enough
+    food while landed to take with them on the return trip.  The planetary greenhouse that comes
+    from PlanetaryBaseInc looks the part, but it's kindof small looking, so it gets the same
+    productivity as the greenhouse parts but takes half the manpower.
+
+    The drill is kindof a strange egg for the base because in mid-to-late game, we want it to be
+    sortof a magical part because we want a very small number of kerbals to go out in a rover and
+    pick some stuff up without having to make a big annoying multi-day time-warp with all the
+    hassles of the day-night-cycle electrics in KSP.  It would also be kindof nutty if the mass
+    of the mined stuff was less than the mass of the final product.  Yet we don't want to have
+    to have hugely massive loads of ore traveling around either.
+
+    Best way forward I can see is that there's basic dirt that gets mined up around the base and
+    special sauce that you go and get.
+
+
+
+
+    If you want to say that a 4-kerbal crew can grow enough food for their needs on the body and
+    to get back, you want a production rate of about 8 snacks == 8 fertilizer == 8 stuff per day.
+    For the Fertilizer chain.  If you also want them to be able to produce shinies with one
+    staffer for all those parts, then you figure, say, .4 for the drill, .3 for each factory,
+    and a productivity of 8 for the fertilizer factory.
+
+    For the Shinies factory, it doesn't matter at all what number we choose since we can fudge
+    for whatever mass and value later.
+
+    For "Stuff", we can certainly say that it should be more massive than fertilizer and more massive
+    than a unit of Shinies.
+

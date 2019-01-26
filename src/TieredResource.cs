@@ -29,8 +29,15 @@ namespace Nerm.Colonization
 
         public string BaseName { get; }
 
+        /// <summary>
+        ///    Gets the name of the resource as it is in the game configuration
+        /// </summary>
+        /// <remarks>
+        ///   The name is like "resource-Tier3" except if it's a Tier4, where it's just the resource name.  The exception
+        ///   is Fertilizer, where, to avoid conflicting with the community resource kit we just do Fertilizer-Tier4.
+        /// </remarks>
         public string TieredName(TechTier tier)
-            => tier == TechTier.Tier4 ? this.BaseName : $"{this.BaseName}-{tier.ToString()}";
+            => $"{this.BaseName}-{tier.ToString()}";
 
         public string CapacityUnits { get; }
 

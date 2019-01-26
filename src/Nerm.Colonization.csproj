@@ -78,6 +78,7 @@
     <Compile Include="ResearchCategory.cs" />
     <Compile Include="ResearchSink.cs" />
     <Compile Include="StaticAnalysis.cs" />
+    <Compile Include="TieredContainer.cs" />
     <Compile Include="TieredResource.cs" />
     <Compile Include="EdibleResource.cs" />
     <Compile Include="CbnTieredContainer.cs" />
@@ -182,6 +183,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ColonizationByNerm\Localization\en-us.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ColonizationByNerm\ModuleManager.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Snacks_125.cfg">
@@ -289,6 +293,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="GameData\ColonizationByNerm\Parts\CBN_Factory_Shinies_125.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GameData\ColonizationByNerm\CBN-B9TankTypes.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

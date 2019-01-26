@@ -9,7 +9,7 @@ namespace Nerm.Colonization
     {
         TechTier Tier { get; }
 		TieredResource Content { get; }
-        float Amount { get; set; }
+        double Amount { get; set; }
         float MaxAmount { get; }
     }
 }
