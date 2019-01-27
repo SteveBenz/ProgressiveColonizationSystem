@@ -188,9 +188,6 @@
     <Content Include="GameData\ColonizationByNerm\ModuleManager.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Snacks_125.cfg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="GameData\ColonizationByNerm\Resources.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -223,39 +220,12 @@
     <Content Include="GameData\ColonizationByNerm\Assets\Tank_375.mu">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Fertilizer_125.cfg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Fertilizer_250.cfg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Fertilizer_375.cfg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Hydroponics_Cupola.cfg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Hydroponics_Inline.cfg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Snacks_MiniPak.cfg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Snacks_250.cfg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Snacks_375.cfg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="GameData\ColonizationByNerm\Assets\Ranger_AgModule.mu">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ColonizationByNerm\Assets\Recycler.mu">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Farm_Medium.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -285,11 +255,6 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="GameData\ColonizationByNerm\Parts\CBN_Tank_Shinies_250.cfg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="GameData\ColonizationByNerm\Parts\CBN_Factory_Shinies_125.cfg">

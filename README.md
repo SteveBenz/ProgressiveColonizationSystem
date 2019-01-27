@@ -35,7 +35,7 @@ Development plan:
 6. Advanced Progression - the ability to have extended missions on Duna
    1.  Create the resource gathering mechanic
        1.  Create a configurable part for storing Stuff
-       2.  (complete)Create a KSP Resource for Tiered Stuff resource
+       2.  Create a KSP Resource for Tiered Stuff resource
        3.  (complete)Create a scanning lab (using skin from infrared telescope?)
        4.  Figure out how to make magic spots and waypoints to them
        5.  Make the Tier-1+ drill require being at a magic spot to work
@@ -46,7 +46,8 @@ Development plan:
        2.  (complete) Create a basic shinies container
        3.  (complete) Create shinies containers that don't let you fill them at the KSP
        4   (complete) Mun/Minmus shinies peak at T1, Duna/Ike/Gilly at T2, T5 only at Dres/Eloo/Moho/Eve
-       3.  Make the shinies boost your rep on landing
+       5.  Make the shinies boost your rep on landing
+       6.  Re-implement the checks to make sure Shinies don't actually come from Kerbin
    3.  Support USI kerbal types
    4.  (complete) Life support dialog works nicely in the editors - can estimate usage and ag production
    5.  (complete) Make the GetInfo()'s show the electric utilization
@@ -54,12 +55,12 @@ Development plan:
         Resupply:  Fertilizer, Shinies, LF&OX out of "Base" / Snacks in
 7. Play Nice With Others
    1.  (cut - sticking with the game one) Integrate with Toolbar?
-   2.  Integrate with ModuleManager
-   3.  Integrate with Community Resource Kit?
+   2.  (complete) Integrate with ModuleManager
+   3.  (complete) Integrate with Community Resource Kit?
    4.  Integrate with Community Categories?
    5.  Integrate with Kerbal Alarm Clock?
-   6.  Integrate with the other base parts mod whose name I forget?
-   7.  Either reskin the stolen parts or depend on their sources and re-configure them
+   6.  (complete) Integrate with the other base parts mod whose name I forget?
+   7.  (completish) Either reskin the stolen parts or depend on their sources and re-configure them
    8.  Write PDF help
 
 Known issues:
@@ -130,8 +131,18 @@ Known issues:
     to have hugely massive loads of ore traveling around either.
 
     Best way forward I can see is that there's basic dirt that gets mined up around the base and
-    special sauce that you go and get.
+    special sauce that you go and get.  If you go that way, then you don't need to store what the
+    drill produces at all, and so you don't have to care what its mass & density are.
 
+    For the Shinies factory, it doesn't matter at all what number we choose since we can fudge
+    for whatever mass and value later.  Since the numbers are so arbitrary, we might as well say
+    that the productivity of shinies factories equals fertilizer factories.  For no good reason,
+    we can declare the shines to have half the volume and twice the density of snacks.  Value is
+    the more important measure, but still, there's no real money problem in KSP, so we might as
+    well be generous.  The average ship costs ~120000 credits, and if you made an effort to
+    create shinies at all, you could make 1200 in a mission, so we could call T0 100 cash per
+    shiny at Tier-0 and ramp it up by doubling it at each tier.  If you take the time to haul a mess
+    of T5 shinies, you deserve to get paid, I suppose.
 
 
 
@@ -141,9 +152,6 @@ Known issues:
     staffer for all those parts, then you figure, say, .4 for the drill, .3 for each factory,
     and a productivity of 8 for the fertilizer factory.
 
-    For the Shinies factory, it doesn't matter at all what number we choose since we can fudge
-    for whatever mass and value later.
 
-    For "Stuff", we can certainly say that it should be more massive than fertilizer and more massive
-    than a unit of Shinies.
+    
 
