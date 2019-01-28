@@ -20,7 +20,7 @@ namespace Nerm.Colonization
             set => parent.amount = value;
         }
 
-        public float MaxAmount { get; }
+        public double MaxAmount => parent.maxAmount;
 
         public static IEnumerable<ITieredContainer> FindAllTieredResourceContainers(IEnumerable<Part> parts)
         {

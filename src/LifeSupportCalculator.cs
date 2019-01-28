@@ -107,7 +107,8 @@ namespace Nerm.Colonization
                 return new DialogGUILabel("There is no source of top-tier Snacks on this vessel - only well-fed and happy Kerbals will produce things");
             }
 
-            if (producers.Select(p => p.Output.ProductionRestriction).Distinct().Count() > 1)
+            // If we have some LandedOnBody and some not, that's going to spell trouble for our ability to calculate anything sensible.
+            if (producers.Select(p => p.Output.ProductionRestriction == ProductionRestriction.LandedOnBody).Distinct().Count() > 1)
             {
                 return new DialogGUILabel("This ship looks like a composite ship - that is one with several sub-ships to take on "
                                         + "different missions (e.g. landed, in-orbit and in-transit).  The calculator can't work effectively "
@@ -220,7 +221,7 @@ namespace Nerm.Colonization
 
                 double available = 0;
                 actualInputs.TryGetValue(name, out available);
-                string availableBlurb = $"{amountPerDay * this.plannedMissionDuration} needed, {available} available";
+                string availableBlurb = $"{amountPerDay * this.plannedMissionDuration:N0} needed, {available:N0} available";
                 if (available < amountPerDay * this.plannedMissionDuration)
                 {
                     availableBlurb = ColorRed(availableBlurb);
@@ -237,7 +238,7 @@ namespace Nerm.Colonization
 
                 double available = 0;
                 actualStorage.TryGetValue(name, out available);
-                string availableBlurb = $"{amountPerDay * this.plannedMissionDuration} produced, {available} max capacity";
+                string availableBlurb = $"{amountPerDay * this.plannedMissionDuration:N0} produced, {available:N0} max capacity";
                 if (available < amountPerDay * this.plannedMissionDuration)
                 {
                     availableBlurb = ColorYellow(availableBlurb);

@@ -41,7 +41,7 @@ namespace Nerm.Colonization
             }
         }
 
-        float ITieredContainer.MaxAmount => this.maxAmount;
+        double ITieredContainer.MaxAmount => this.maxAmount;
 
         [KSPEvent(active = true, guiActiveEditor = true, guiActive = true, externalToEVAOnly = true, guiName = "Change Tier", unfocusedRange = 10f)]
         public void NextTier()

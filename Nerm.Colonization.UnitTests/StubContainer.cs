@@ -15,6 +15,6 @@ namespace Nerm.Colonization.UnitTests
 
         public double Amount { get; set; }
 
-        public float MaxAmount { get; set; } = 100;
+        public double MaxAmount { get; set; } = 100;
     }
 }
