@@ -30,8 +30,9 @@ Development plan:
    6.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
 5. Release prep
    1.  (complete)De-fugly the dialogs
-   2.  Figure out how to Release
-   3.  Release to CKAN
+   2.  Get non-dumb name - Progressive Kolonization System?  PKS
+   3.  (complete)Figure out how to Release
+   4.  Release to CKAN
 6. Advanced Progression - the ability to have extended missions on Duna
    1.  Create the resource gathering mechanic
        1.  Create a configurable part for storing Stuff
