@@ -32,6 +32,7 @@ Development plan:
    1.  (complete)De-fugly the dialogs
    2.  Get non-dumb name - Progressive Kolonization System?  PKS
    3.  (complete)Figure out how to Release
+   4.  Fix .version file
    4.  Release to CKAN
 6. Advanced Progression - the ability to have extended missions on Duna
    1.  Create the resource gathering mechanic
