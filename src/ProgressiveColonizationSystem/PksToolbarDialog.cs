@@ -13,7 +13,7 @@ namespace ProgressiveColonizationSystem
     /// <summary>
     ///   This class maintains a toolbar button and a GUI display that has a persistent display status and position
     /// </summary>
-    public abstract class CbnToolbarDialog
+    public abstract class PksToolbarDialog
         : ScenarioModule
     {
         private ApplicationLauncherButton toolbarButton = null;

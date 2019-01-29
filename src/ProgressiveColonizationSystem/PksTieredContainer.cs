@@ -1,14 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
 
 // Much code taken from:  https://github.com/Fengist/MPFuelSwitch/blob/master/MPFuelSwitch/MPFuelSwitch.cs
+//
+// It's dead code right now, and seems doomed to remain so since we now require the B9 Tanks mod.
 
 namespace ProgressiveColonizationSystem
 {
-    public class CbnTieredContainer
+    public class PksTieredContainer
         : PartModule, IPartCostModifier, ITieredContainer
     {
         /// <summary>
@@ -70,7 +71,7 @@ namespace ProgressiveColonizationSystem
             }
             else
             {
-                Debug.LogError($"CbnTieredContainer: Resource definition for {this.resource} is missing");
+                Debug.LogError($"PksTieredContainer: Resource definition for {this.resource} is missing");
             }
             return builder.ToString();
         }
@@ -143,7 +144,7 @@ namespace ProgressiveColonizationSystem
                 }
                 else
                 {
-                    Debug.LogError($"CbnTieredContainer: Resource definition for {resource.resourceName} is missing");
+                    Debug.LogError($"PksTieredContainer: Resource definition for {resource.resourceName} is missing");
                 }
             }
             return (float)total;

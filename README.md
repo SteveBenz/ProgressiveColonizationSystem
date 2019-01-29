@@ -72,9 +72,9 @@ Known issues:
 
    When looking at resources, there's an arbitrary "Unit" - which is a number that's just made up.
    Each resource also has a density, which is defined in Resources.cfg, and a unitsPerVolume, that
-   is used by B9 in TankTypes (CBN-B9TankTypes.cfg).  The other numbers to think about are the crew
-   requirements (in the CbnRequiredCrew module descriptors) and the capacity of the part (in
-   CbnTieredResourceConverter).
+   is used by B9 in TankTypes (PKS-B9TankTypes.cfg).  The other numbers to think about are the crew
+   requirements (in the PksRequiredCrew module descriptors) and the capacity of the part (in
+   PksTieredResourceConverter).
 
    A "Unit" is a completely arbitrary unit of measure, and so it's chosen to be the amount of snacks
    a Kerbal will consume in a day so that players can get easily eyeball how much stuff to bring.

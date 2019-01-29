@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace ProgressiveColonizationSystem
 {
-    public class CbnTieredResourceConverter
+    public class PksTieredResourceConverter
         : PartModule, ITieredProducer
     {
         private double firstNoPowerIndicator = -1.0;
@@ -201,7 +201,7 @@ namespace ProgressiveColonizationSystem
                 return false;
             }
 
-            var crewRequirement = this.GetComponent<CbnCrewRequirement>();
+            var crewRequirement = this.GetComponent<PksCrewRequirement>();
             return crewRequirement == null || crewRequirement.IsStaffed;
         }
 

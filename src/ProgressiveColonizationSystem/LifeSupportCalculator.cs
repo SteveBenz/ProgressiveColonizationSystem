@@ -17,7 +17,7 @@ namespace ProgressiveColonizationSystem
     /// </summary>
     [KSPScenario(ScenarioCreationOptions.AddToAllGames, GameScenes.EDITOR)]
     public class LifeSupportCalculator
-        : CbnToolbarDialog
+        : PksToolbarDialog
     {
         private enum Tab {
             Warnings,
@@ -291,8 +291,8 @@ namespace ProgressiveColonizationSystem
                 .Select(p => p.FindModuleImplementing<ITieredProducer>())
                 .Where(p => p != null).ToList();
             List<ITieredContainer> containers = TieredContainer.FindAllTieredResourceContainers(parts).ToList();
-            List<ICbnCrewRequirement> crewedParts = parts
-                .Select(p => p.FindModuleImplementing<ICbnCrewRequirement>())
+            List<IPksCrewRequirement> crewedParts = parts
+                .Select(p => p.FindModuleImplementing<IPksCrewRequirement>())
                 .Where(p => p != null)
                 .ToList();
 

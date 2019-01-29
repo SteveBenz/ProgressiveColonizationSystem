@@ -16,7 +16,7 @@ namespace ProgressiveColonizationSystem
     /// </summary>
     [KSPScenario(ScenarioCreationOptions.AddToAllGames, GameScenes.FLIGHT)]
     public class LifeSupportStatusMonitor
-        : CbnToolbarDialog
+        : PksToolbarDialog
     {
         // If simulating + or - crewman, this becomes positive or negative.
         private int crewDelta = 0;

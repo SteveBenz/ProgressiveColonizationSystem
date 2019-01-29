@@ -20,15 +20,15 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
-            List<ICbnCrewRequirement> activatedParts = this.vessel
-                .FindPartModulesImplementing<ICbnCrewRequirement>()
+            List<IPksCrewRequirement> activatedParts = this.vessel
+                .FindPartModulesImplementing<IPksCrewRequirement>()
                 .Where(p => p.IsRunning)
                 .ToList();
             List<ProtoCrewMember> kspCrew = this.vessel.GetVesselCrew();
             var crew = kspCrew.Select(k => new SkilledCrewman(k.experienceLevel, k.trait)).ToList();
 
             int hash = 0;
-            foreach (ICbnCrewRequirement part in activatedParts)
+            foreach (IPksCrewRequirement part in activatedParts)
             {
                 hash ^= part.GetHashCode();
             }
@@ -42,7 +42,7 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
-            List<ICbnCrewRequirement> unstaffableParts = TestIfCrewRequirementsAreMet(activatedParts, crew);
+            List<IPksCrewRequirement> unstaffableParts = TestIfCrewRequirementsAreMet(activatedParts, crew);
             if (unstaffableParts.Count > 0)
             {
                 foreach (var part in activatedParts)
@@ -60,7 +60,7 @@ namespace ProgressiveColonizationSystem
             this.hashAtLastCheck = hash;
         }
 
-        public static bool TestIfCurrentCrewAssignmentCanWork(List<ICbnCrewRequirement> parts, List<SkilledCrewman> crew)
+        public static bool TestIfCurrentCrewAssignmentCanWork(List<IPksCrewRequirement> parts, List<SkilledCrewman> crew)
         {
             if (parts.Count == 0)
             {
@@ -70,8 +70,8 @@ namespace ProgressiveColonizationSystem
             // There are definitely awesomer algorithms for this.  But we'll see how we get on with this...
             // It's definitely broken for parts that require more than one kerbal to run.
 
-            ICbnCrewRequirement currentPart = parts[0];
-            List<ICbnCrewRequirement> remainingParts = new List<ICbnCrewRequirement>(parts);
+            IPksCrewRequirement currentPart = parts[0];
+            List<IPksCrewRequirement> remainingParts = new List<IPksCrewRequirement>(parts);
             remainingParts.RemoveAt(0);
 
             if (currentPart.IsStaffed)
@@ -91,7 +91,7 @@ namespace ProgressiveColonizationSystem
             return false;
         }
 
-        public static List<ICbnCrewRequirement> TestIfCrewRequirementsAreMet(List<ICbnCrewRequirement> parts, List<SkilledCrewman> crew)
+        public static List<IPksCrewRequirement> TestIfCrewRequirementsAreMet(List<IPksCrewRequirement> parts, List<SkilledCrewman> crew)
         {
             if (parts.Count == 0)
             {
@@ -101,11 +101,11 @@ namespace ProgressiveColonizationSystem
             // There are definitely awesomeer algorithms for this.  But we'll see how we get on with this...
             // It's definitely broken for parts that require more than one kerbal to run.
 
-            ICbnCrewRequirement currentPart = parts[0];
-            List<ICbnCrewRequirement> remainingParts = new List<ICbnCrewRequirement>(parts);
+            IPksCrewRequirement currentPart = parts[0];
+            List<IPksCrewRequirement> remainingParts = new List<IPksCrewRequirement>(parts);
             remainingParts.RemoveAt(0);
 
-            List<ICbnCrewRequirement> bestUnassignedParts = null;
+            List<IPksCrewRequirement> bestUnassignedParts = null;
             foreach (SkilledCrewman possibleStaffer in crew.Where(k => currentPart.CanRunPart(k) && k.RemainingCapacity >= currentPart.CapacityRequired))
             {
                 possibleStaffer.RemainingCapacity -= currentPart.CapacityRequired;
@@ -124,7 +124,7 @@ namespace ProgressiveColonizationSystem
             }
 
             // Else try not staffing this part.
-            List<ICbnCrewRequirement> unassignedPartsIfWeDontStaffThisPart = TestIfCrewRequirementsAreMet(remainingParts, crew);
+            List<IPksCrewRequirement> unassignedPartsIfWeDontStaffThisPart = TestIfCrewRequirementsAreMet(remainingParts, crew);
             unassignedPartsIfWeDontStaffThisPart.Add(currentPart);
             return bestUnassignedParts != null && bestUnassignedParts.Count < unassignedPartsIfWeDontStaffThisPart.Count
                 ? bestUnassignedParts

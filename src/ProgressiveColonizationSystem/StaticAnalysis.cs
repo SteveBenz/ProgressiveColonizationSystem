@@ -262,9 +262,9 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        internal static IEnumerable<WarningMessage> CheckHasProperCrew(List<ICbnCrewRequirement> parts, List<SkilledCrewman> crew)
+        internal static IEnumerable<WarningMessage> CheckHasProperCrew(List<IPksCrewRequirement> parts, List<SkilledCrewman> crew)
         {
-            List<ICbnCrewRequirement> unstaffedParts = CrewRequirementVesselModule.TestIfCrewRequirementsAreMet(parts, crew);
+            List<IPksCrewRequirement> unstaffedParts = CrewRequirementVesselModule.TestIfCrewRequirementsAreMet(parts, crew);
             if (unstaffedParts.Count > 0)
             {
                 string list = string.Join(", ", unstaffedParts.SelectMany(part => part.RequiredTraits).Distinct().OrderBy(s => s).ToArray());

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ProgressiveColonizationSystem
 {
-    public interface ICbnCrewRequirement
+    public interface IPksCrewRequirement
     {
         bool CanRunPart(SkilledCrewman crewman);
         bool IsRunning { get; }
@@ -14,8 +14,8 @@ namespace ProgressiveColonizationSystem
         IEnumerable<string> RequiredTraits { get; }
     }
 
-    public class CbnCrewRequirement
-        : PartModule, ICbnCrewRequirement
+    public class PksCrewRequirement
+        : PartModule, IPksCrewRequirement
     {
         [KSPField]
         public string specialistTraits;
@@ -49,9 +49,9 @@ namespace ProgressiveColonizationSystem
         public override string GetInfo()
         {
             StringBuilder info = new StringBuilder();
-            info.AppendLine(CbnTieredResourceConverter.GreenInfo("Required Crew:"));
+            info.AppendLine(PksTieredResourceConverter.GreenInfo("Required Crew:"));
             info.AppendLine($"Staffing Level: {this.requiredCrew}");
-            info.AppendLine(CbnTieredResourceConverter.GreenInfo("Traits:"));
+            info.AppendLine(PksTieredResourceConverter.GreenInfo("Traits:"));
             foreach (TechTier tier in TechTierExtensions.AllTiers)
             {
                 info.Append($"{tier}: ");
@@ -105,7 +105,7 @@ namespace ProgressiveColonizationSystem
             int tier;
             if (this.tier < 0)
             {
-                var tieredResourceModule = this.part.FindModuleImplementing<CbnTieredResourceConverter>();
+                var tieredResourceModule = this.part.FindModuleImplementing<PksTieredResourceConverter>();
                 tier = tieredResourceModule == null ? 0 : tieredResourceModule.tier;
             }
             else

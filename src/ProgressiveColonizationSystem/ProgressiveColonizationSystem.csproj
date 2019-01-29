@@ -60,12 +60,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CbnCrewRequirement.cs" />
-    <Compile Include="CbnShiniesContainer.cs" />
+    <Compile Include="PksCrewRequirement.cs" />
     <Compile Include="CrewBlurbs.cs" />
     <Compile Include="CrewRequirementVesselModule.cs" />
     <Compile Include="IntervesselResourceTransfer.cs" />
-    <Compile Include="CbnToolbarDialog.cs" />
+    <Compile Include="PksToolbarDialog.cs" />
     <Compile Include="ITieredContainer.cs" />
     <Compile Include="LifeSupportCalculator.cs" />
     <Compile Include="PopupMessageWithKerbal.cs" />
@@ -81,7 +80,7 @@
     <Compile Include="TieredContainer.cs" />
     <Compile Include="TieredResource.cs" />
     <Compile Include="EdibleResource.cs" />
-    <Compile Include="CbnTieredContainer.cs" />
+    <Compile Include="PksTieredContainer.cs" />
     <Compile Include="ITieredProducer.cs" />
     <Compile Include="LifeSupportStatusMonitor.cs" />
     <Compile Include="AssemblyVersion.cs">
@@ -97,7 +96,7 @@
     <Compile Include="TechProgress.cs" />
     <Compile Include="TechTier.cs" />
     <Compile Include="TieredProduction.cs" />
-    <Compile Include="CbnTieredResourceCoverter.cs" />
+    <Compile Include="PksTieredResourceCoverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="AssemblyVersion.tt">
@@ -120,22 +119,17 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="GameData\ProgressiveColonizationSystem\Parts\CBN_Factory_Fertilizer_250.cfg">
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\PKS_Factory_Fertilizer_125.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="GameData\ProgressiveColonizationSystem\Parts\CBN_Factory_Fertilizer_125.cfg">
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\PKS_Digger_Radial2.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="GameData\ProgressiveColonizationSystem\Parts\CBN_Digger_Radial2.cfg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="GameData\ProgressiveColonizationSystem\Parts\CBN_ScannerHub.cfg">
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\PKS_ScannerHub.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -147,12 +141,12 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="GameData\ProgressiveColonizationSystem\Parts\CBN_Factory_Shinies_125.cfg">
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\PKS_Factory_Shinies_125.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="GameData\ProgressiveColonizationSystem\CBN-B9TankTypes.cfg">
+    <Content Include="GameData\ProgressiveColonizationSystem\PKS-B9TankTypes.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

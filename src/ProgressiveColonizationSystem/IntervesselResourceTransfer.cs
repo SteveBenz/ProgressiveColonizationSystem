@@ -148,7 +148,7 @@ namespace ProgressiveColonizationSystem
         {
             HashSet<string> products = new HashSet<string>();
 
-            foreach (var tieredConverter in vessel.FindPartModulesImplementing<CbnTieredResourceConverter>())
+            foreach (var tieredConverter in vessel.FindPartModulesImplementing<PksTieredResourceConverter>())
             {
                 products.Add(tieredConverter.Output.TieredName(tieredConverter.Tier));
             }
@@ -177,7 +177,7 @@ namespace ProgressiveColonizationSystem
             List<string> couldSend = thisShipCanSupply.Keys.Intersect(otherShipCouldUse.Keys).ToList();
             List<string> couldTake = otherShipCanSupply.Keys.Intersect(thisShipCanUse.Keys).ToList();
 
-            List<CbnTieredResourceConverter> otherVesselProducers = otherVessel.FindPartModulesImplementing<CbnTieredResourceConverter>();
+            List<PksTieredResourceConverter> otherVesselProducers = otherVessel.FindPartModulesImplementing<PksTieredResourceConverter>();
 
             toSend = new Dictionary<string, double>();
             toReceive = new Dictionary<string, double>();

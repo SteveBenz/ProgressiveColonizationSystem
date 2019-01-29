@@ -196,15 +196,15 @@ namespace ProgressiveColonizationSystem
             if (ProgressTracking.Instance != null && ProgressTracking.Instance.celestialBodyNodes != null)
             {
                 StringBuilder validBodies = new StringBuilder();
-                foreach (var cbn in ProgressTracking.Instance.celestialBodyNodes)
+                foreach (var body in ProgressTracking.Instance.celestialBodyNodes)
                 {
-                    if (cbn.returnFromSurface != null && cbn.returnFromSurface.IsComplete)
+                    if (body.returnFromSurface != null && body.returnFromSurface.IsComplete)
                     {
                         if (validBodies.Length != 0)
                         {
                             validBodies.Append('|');
                         }
-                        validBodies.Append(cbn.Id);
+                        validBodies.Append(body.Id);
                     }
                 }
                 this.unlockedBodies = validBodies.ToString();
