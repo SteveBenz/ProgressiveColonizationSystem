@@ -159,21 +159,27 @@
 if $(ConfigurationName) == Debug (
   echo "$(Pdb2MdbExe)" "$(TargetPath)"
   "$(Pdb2MdbExe)" "$(TargetPath)"
-  mkdir "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" 2&gt;nul
-  copy "$(TargetPath)" "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" &gt;nul
+)
+
+mkdir "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" 2&gt;nul
+copy "$(TargetPath)" "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" &gt;nul
+if $(ConfigurationName) == Debug (
   copy "$(TargetPath).mdb" "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" &gt;nul
   echo robocopy /e /mir /mt:8 /njh /njs /ndl /nc /ns /nfl /np "$(TargetDir)GameData\ProgressiveColonizationSystem" "$(KspInstallationDir)\GameData\ProgressiveColonizationSystem"
   robocopy /e /mir /mt:8 /njh /njs /ndl /nc /ns /nfl  /np "$(TargetDir)GameData\ProgressiveColonizationSystem" "$(KspInstallationDir)\GameData\ProgressiveColonizationSystem"
   if errorlevel 8 exit /b 1
-  exit /b 0
-) else (
-  robocopy /e /mir /mt:8 "$(SolutionDir)GameData_Release" "$(KspInstallationDir)GameData\ProgressiveColonizationSystem"
-  if errorlevel 8 exit /b 1
-  echo TODO: run BuildRelease.bat
-  exit /b 0
 )
 
-</PostBuildEvent>
+if $(ConfigurationName) == Release (
+  cd $(TargetDir)
+  rmdir /s/q zip
+  del ProgressiveColonizationSystem.zip
+  mkdir zip
+  move GameData zip
+  powershell.exe -nologo -noprofile -command "&amp; { Add-Type -A 'System.IO.Compression.FileSystem'; [IO.Compression.ZipFile]::CreateFromDirectory('zip', 'ProgressiveColonizationSystem.zip'); }"
+  echo $(TargetDir)ProgressiveColonizationSystem.zip  is ready for release
+)
+exit /b 0</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>"$(TextTransformExe)" "$(ProjectDir)AssemblyVersion.tt"</PreBuildEvent>
