@@ -23,15 +23,15 @@ Development plan:
    3.  (complete) Can manufacture T0 fertilizer
 4. Basic Progression - the execution of a mission to Duna
    1.  (complete) Editors can show good data to guide the construction of ships (see GetInfo())
-   2.  Tweak the mass and density of Fertilizer & Supplies
-   3.  (complete)Agroponic and Ag modules consume some electricity
-   4.  (complete)Actually enforce the crew counts, types & stars (see 2.v)
-   5.  (complete)Make the reporting of when you make a tier breakthrough more informative and fun
+   2.  (complete) Tweak the mass and density of Fertilizer & Supplies
+   3.  (complete) Agroponic and Ag modules consume some electricity
+   4.  (complete) Actually enforce the crew counts, types & stars (see 2.v)
+   5.  (complete) Make the reporting of when you make a tier breakthrough more informative and fun
    6.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
 5. Release prep
-   1.  (complete)De-fugly the dialogs
-   2.  Get non-dumb name - Progressive Kolonization System?  PKS
-   3.  (complete)Figure out how to Release
+   1.  (complete) De-fugly the dialogs
+   2.  (complete) Get non-dumb name - Progressive Kolonization System?  PKS
+   3.  (complete) Figure out how to Release
    4.  Fix .version file
    4.  Release to CKAN
 6. Advanced Progression - the ability to have extended missions on Duna

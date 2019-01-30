@@ -1,0 +1,10 @@
+{
+    "spec_version" : 1,
+    "identifier"   : "ProgressiveColonizationSystem",
+    "$kref"        : "#/ckan/github/SteveBenz/ProgressiveColonizationSystem",
+    "license"      : "MIT",
+    "ksp_version"  : "1.6.1",
+    "resources": {
+        "homepage": "https://github.com/SteveBenz/ProgressiveColonizationSystem"
+    }
+}
