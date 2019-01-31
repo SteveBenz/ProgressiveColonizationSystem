@@ -1,10 +1,16 @@
-ColonizationByNerm
+# Progressive Colonization System
 
-See the forum thread for the full manifesto.
+This mod extends Kerbal Space Program with a simple life support mechanism and a production model.  The mod is
+different from previous mods along the same vein in that it requires very little math to figure out what
+your production rates will be, and it requires incremental exploration.
+
+[See the forum thread](https://forum.kerbalspaceprogram.com/index.php?/topic/181852-15x~16x-progressivecolonizationsystem-life-support-colonization-for-more-fun-in-late-game/)
+for the full story.
 
 
+# Development plan
 
-Development plan:
+This mod is still in early days, with a few big parts missing.
 
 1. (complete)  Hello World - figure out how to get a mod set up & compiled
 2. (complete)  Minimum playability - the ability to launch Kerbals into space that eat food and complain when they don't get it.
@@ -32,8 +38,8 @@ Development plan:
    1.  (complete) De-fugly the dialogs
    2.  (complete) Get non-dumb name - Progressive Kolonization System?  PKS
    3.  (complete) Figure out how to Release
-   4.  Fix .version file
-   4.  Release to CKAN
+   4.  (complete) Fix .version file
+   5.  Release to CKAN
 6. Advanced Progression - the ability to have extended missions on Duna
    1.  Create the resource gathering mechanic
        1.  Create a configurable part for storing Stuff
@@ -65,10 +71,11 @@ Development plan:
    7.  (completish) Either reskin the stolen parts or depend on their sources and re-configure them
    8.  Write PDF help
 
-Known issues:
-  If a base is understaffed, there's no clear indicator.  Plus, turning one thing on will turn something else off.
+   
+Rambling About The Numbers
 
-   Resource finagling
+   There are a number of bits that need to be tweaked with care.  The following or more or less
+   a justification of the current state of affairs.
 
    When looking at resources, there's an arbitrary "Unit" - which is a number that's just made up.
    Each resource also has a density, which is defined in Resources.cfg, and a unitsPerVolume, that
@@ -145,15 +152,4 @@ Known issues:
     create shinies at all, you could make 1200 in a mission, so we could call T0 100 cash per
     shiny at Tier-0 and ramp it up by doubling it at each tier.  If you take the time to haul a mess
     of T5 shinies, you deserve to get paid, I suppose.
-
-
-
-    If you want to say that a 4-kerbal crew can grow enough food for their needs on the body and
-    to get back, you want a production rate of about 8 snacks == 8 fertilizer == 8 stuff per day.
-    For the Fertilizer chain.  If you also want them to be able to produce shinies with one
-    staffer for all those parts, then you figure, say, .4 for the drill, .3 for each factory,
-    and a productivity of 8 for the fertilizer factory.
-
-
-    
 
