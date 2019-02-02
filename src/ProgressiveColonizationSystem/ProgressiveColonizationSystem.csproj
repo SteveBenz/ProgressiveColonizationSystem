@@ -172,11 +172,8 @@ if $(ConfigurationName) == Debug (
 
 if $(ConfigurationName) == Release (
   cd $(TargetDir)
-  rmdir /s/q zip
   del ProgressiveColonizationSystem.zip
-  mkdir zip
-  move GameData zip
-  powershell.exe -version 5.1 -nologo -noprofile -command "&amp; { Add-Type -A 'System.IO.Compression.FileSystem'; [IO.Compression.ZipFile]::CreateFromDirectory('zip', 'ProgressiveColonizationSystem.zip'); }"
+  "$(SevenZipExe)" a ProgressiveColonizationSystem.zip GameData
   echo $(TargetDir)ProgressiveColonizationSystem.zip  is ready for release
 )
 exit /b 0</PostBuildEvent>

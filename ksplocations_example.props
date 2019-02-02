@@ -4,5 +4,6 @@
     <TextTransformExe>C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\texttransform.exe</TextTransformExe>
     <Pdb2MdbExe>c:\pdb2mdb\pdb2mdb.exe</Pdb2MdbExe>
     <KspInstallationDir>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program - Plain\</KspInstallationDir>
+    <SevenZipExe>C:\Program Files\7-Zip\7z.exe</SevenZipExe>
   </PropertyGroup>
 </Project>
