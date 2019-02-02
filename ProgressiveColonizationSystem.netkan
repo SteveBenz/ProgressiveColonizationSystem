@@ -5,7 +5,7 @@
     "license": "MIT",
     "ksp_version_min": "1.5.1",
     "ksp_version_max": "1.6.99",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "resources": {
         "homepage": "https://forum.kerbalspaceprogram.com/index.php?/topic/181852-15x~16x-progressivecolonizationsystem-life-support-colonization-for-more-fun-in-late-game/"
     },
@@ -14,9 +14,10 @@
     "tags":  [ "colonization", "production" ],
 
     "depends": [
+        { "name": "B9PartSwitch" },
+        { "name": "CommunityCategoryKit" },
+        { "name": "KerbalPlanetaryBaseSystems" },
         { "name": "ModuleManager" },
-        { "name": "StationPartsExpansionRedux" },
-        { "name": "PlanetaryBaseInc" },
-        { "name": "B9_Aerospace_HX" }
+        { "name": "StationPartsExpansionRedux" }
     ]
 }
