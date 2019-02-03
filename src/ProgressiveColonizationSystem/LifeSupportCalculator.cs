@@ -303,7 +303,6 @@ namespace ProgressiveColonizationSystem
                 .Union(StaticAnalysis.CheckTieredProductionStorage(ColonizationResearchScenario.Instance, producers, containers))
                 .Union(StaticAnalysis.CheckCorrectCapacity(ColonizationResearchScenario.Instance, producers, containers))
                 .Union(StaticAnalysis.CheckExtraBaggage(ColonizationResearchScenario.Instance, producers, containers))
-                .Union(StaticAnalysis.CheckExtraBaggage(ColonizationResearchScenario.Instance, producers, containers))
                 .Union(StaticAnalysis.CheckHasSomeFood(ColonizationResearchScenario.Instance, producers, containers, crew))
                 .Union(StaticAnalysis.CheckHasProperCrew(crewedParts, crew))
                 .ToList();
