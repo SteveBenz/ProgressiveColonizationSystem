@@ -43,6 +43,7 @@ namespace ProgressiveColonizationSystem
         private string productionInfo = "";
         private string consumptionInfo = "";
 
+        private int lifeSupportStuffHashAtLastUpdate = 0;
 
         public void Start()
         {
@@ -276,11 +277,25 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
-            if (this.isVisible)
+            if (!this.isVisible)
             {
-                CalculateWarnings();
-                RecalculateResults();
+                return;
             }
+
+            var parts = EditorLogic.fetch.ship.Parts;
+            int lifeSupportStuffHash = parts.Aggregate(0, (accumulator, part) => accumulator ^ part.GetHashCode());
+            lifeSupportStuffHash = this.FindCrew().Aggregate(lifeSupportStuffHash, (accumulator, kerbal) => accumulator ^ kerbal.GetHashCode());
+            lifeSupportStuffHash = TieredContainer.FindAllTieredResourceContainers(parts).Aggregate(lifeSupportStuffHash,
+                (accumulator, container) => accumulator ^ container.Amount.GetHashCode() ^ container.Tier.GetHashCode() ^ container.Content.GetHashCode() ^ container.MaxAmount.GetHashCode());
+
+            if (this.lifeSupportStuffHashAtLastUpdate == lifeSupportStuffHash)
+            {
+                return;
+            }
+
+            this.lifeSupportStuffHashAtLastUpdate = lifeSupportStuffHash;
+            CalculateWarnings();
+            RecalculateResults();
         }
 
         private void CalculateWarnings()
@@ -318,8 +333,13 @@ namespace ProgressiveColonizationSystem
 
         private List<SkilledCrewman> FindAssignedCrew()
         {
+            return this.FindCrew().Select(k => new SkilledCrewman(k.experienceLevel, k.trait)).ToList();
+        }
+
+        private List<ProtoCrewMember> FindCrew()
+        {
             VesselCrewManifest crewManifest = KSP.UI.CrewAssignmentDialog.Instance.GetManifest(false);
-            return crewManifest.GetAllCrew(false).Select(k => new SkilledCrewman(k.experienceLevel, k.trait)).ToList();
+            return crewManifest.GetAllCrew(false);
         }
 
         protected override ApplicationLauncher.AppScenes VisibleInScenes { get; } = ApplicationLauncher.AppScenes.SPH | ApplicationLauncher.AppScenes.VAB;

@@ -27,15 +27,8 @@ namespace ProgressiveColonizationSystem
             List<ProtoCrewMember> kspCrew = this.vessel.GetVesselCrew();
             var crew = kspCrew.Select(k => new SkilledCrewman(k.experienceLevel, k.trait)).ToList();
 
-            int hash = 0;
-            foreach (IPksCrewRequirement part in activatedParts)
-            {
-                hash ^= part.GetHashCode();
-            }
-            foreach (var k in kspCrew)
-            {
-                hash ^= k.GetHashCode();
-            }
+            int hash = activatedParts.Aggregate(0, (accumulator, part) => accumulator ^ part.GetHashCode());
+            hash = kspCrew.Aggregate(hash, (accumulator, kerbal) => accumulator ^ kerbal.GetHashCode());
 
             if (hash == this.hashAtLastCheck)
             {
