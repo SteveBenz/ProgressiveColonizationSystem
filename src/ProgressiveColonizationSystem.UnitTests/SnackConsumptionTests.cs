@@ -36,7 +36,7 @@ namespace ProgressiveColonizationSystem.UnitTests
             Assert.AreEqual(false, breakthroughs.Any());
             Assert.IsNotNull(consumptionPerSecond);
             Assert.AreEqual(1, consumptionPerSecond.Count);
-            Assert.AreEqual("Snacks", consumptionPerSecond.First().Key);
+            Assert.AreEqual("Snacks-Tier4", consumptionPerSecond.First().Key);
             Assert.AreEqual(5 / SecondsPerKerbanDay, consumptionPerSecond.First().Value);
             Assert.AreEqual(0, productionPerSecond.Count);
 
@@ -49,7 +49,7 @@ namespace ProgressiveColonizationSystem.UnitTests
             Assert.AreEqual(false, breakthroughs.Any());
             Assert.IsNotNull(consumptionPerSecond);
             Assert.AreEqual(1, consumptionPerSecond.Count);
-            Assert.AreEqual("Snacks", consumptionPerSecond.First().Key);
+            Assert.AreEqual("Snacks-Tier4", consumptionPerSecond.First().Key);
             Assert.AreEqual(5 / SecondsPerKerbanDay, consumptionPerSecond.First().Value);
 
             // Test no snacks at all
@@ -115,8 +115,8 @@ namespace ProgressiveColonizationSystem.UnitTests
             // With 5 kerbals aboard, our 3 working agroponics farms are more than enough because
             // they can produce 3 snacks per day, but our crew will only eat .2*5=1 of them.
             // So they're running at 1/3 capacity.
-            Assert.AreEqual(5 * (1 - Tier0AgroponicMaxDietRatio), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay);
-            Assert.AreEqual(5 * Tier0AgroponicMaxDietRatio, consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay);
+            Assert.AreEqual(5 * (1 - Tier0AgroponicMaxDietRatio), consumptionPerSecond["Snacks-Tier4"] * SecondsPerKerbanDay);
+            Assert.AreEqual(5 * Tier0AgroponicMaxDietRatio, consumptionPerSecond["Fertilizer-Tier4"] * SecondsPerKerbanDay);
             Assert.AreEqual(5 * Tier0AgroponicMaxDietRatio, colonizationResearchScenario.AgroponicResearchProgress);
             Assert.AreEqual(0, productionPerSecond.Count);
 
@@ -134,8 +134,8 @@ namespace ProgressiveColonizationSystem.UnitTests
             // With 20 kerbals aboard, our 3 working agroponics farms are more than enough because
             // they can produce 3 snacks per day, but our crew will only eat .2*5=1 of them.
             // So they're running at 1/3 capacity.
-            Assert.AreEqual(20.0-3.0 /* working facilities */, consumptionPerSecond["Snacks"] * SecondsPerKerbanDay);
-            Assert.AreEqual(3.0, consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay);
+            Assert.AreEqual(20.0-3.0 /* working facilities */, consumptionPerSecond["Snacks-Tier4"] * SecondsPerKerbanDay);
+            Assert.AreEqual(3.0, consumptionPerSecond["Fertilizer-Tier4"] * SecondsPerKerbanDay);
             Assert.AreEqual(1.0 /* previous test */ + 1.0 /* current test */, colonizationResearchScenario.AgroponicResearchProgress);
 
             // Now let's take that last test and give it a twist that they run out of fertilizer halfway
@@ -150,8 +150,8 @@ namespace ProgressiveColonizationSystem.UnitTests
             Assert.IsNotNull(consumptionPerSecond);
             Assert.AreEqual(2, consumptionPerSecond.Count);
             // Same rates as in previous test
-            Assert.AreEqual(20.0 - 3.0 /* working facilities */, consumptionPerSecond["Snacks"] * SecondsPerKerbanDay);
-            Assert.AreEqual(3.0, consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay);
+            Assert.AreEqual(20.0 - 3.0 /* working facilities */, consumptionPerSecond["Snacks-Tier4"] * SecondsPerKerbanDay);
+            Assert.AreEqual(3.0, consumptionPerSecond["Fertilizer-Tier4"] * SecondsPerKerbanDay);
 
             // And half of the time goes to research
             Assert.AreEqual(2.0 /* previous two tests */ + 0.5 /* current test */, colonizationResearchScenario.AgroponicResearchProgress);
@@ -204,8 +204,8 @@ namespace ProgressiveColonizationSystem.UnitTests
                 out double timePassedInSeconds, out List<TieredResource> breakthroughs,
                 out Dictionary<string, double> consumptionPerSecond, out Dictionary<string, double> productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
-            Assert.AreEqual(4 * (1 - Tier0AgricultureMaxDietRatio), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
-            Assert.AreEqual(5.0 /* 2*10-15 */, consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(4 * (1 - Tier0AgricultureMaxDietRatio), consumptionPerSecond["Snacks-Tier4"] * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(5.0 /* 2*10-15 */, consumptionPerSecond["Fertilizer-Tier4"] * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(20.0, colonizationResearchScenario.AgricultureResearchProgress, TestTolerance);
             Assert.AreEqual(15.0, colonizationResearchScenario.ProductionResearchProgress, TestTolerance);
             Assert.AreEqual(20.0 - 4 * Tier0AgricultureMaxDietRatio, productionPerSecond["Snacks-Tier0"] * SecondsPerKerbanDay, TestTolerance);
@@ -219,7 +219,7 @@ namespace ProgressiveColonizationSystem.UnitTests
                 4 /* kerbals */, 1.0 /* seconds*/, landedModules, colonizationResearchScenario, inStorage, storageSpace,
                 out timePassedInSeconds, out breakthroughs, out consumptionPerSecond, out productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
-            Assert.AreEqual(4 * (1 - Tier0AgricultureMaxDietRatio), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(4 * (1 - Tier0AgricultureMaxDietRatio), consumptionPerSecond["Snacks-Tier4"] * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(15.0, colonizationResearchScenario.AgricultureResearchProgress, TestTolerance);
             Assert.AreEqual(15.0, colonizationResearchScenario.ProductionResearchProgress, TestTolerance);
             Assert.AreEqual(15.0 - 4 * Tier0AgricultureMaxDietRatio, productionPerSecond["Snacks-Tier0"] * SecondsPerKerbanDay, TestTolerance);
@@ -235,7 +235,7 @@ namespace ProgressiveColonizationSystem.UnitTests
                 4 /* kerbals */, 1.0 /* seconds*/, landedModules, colonizationResearchScenario, inStorage, storageSpace,
                 out timePassedInSeconds, out breakthroughs, out consumptionPerSecond, out productionPerSecond);
             Assert.AreEqual(expectedTimePassed, timePassedInSeconds);
-            Assert.AreEqual(4 * (1 - Tier0AgricultureMaxDietRatio), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(4 * (1 - Tier0AgricultureMaxDietRatio), consumptionPerSecond["Snacks-Tier4"] * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(15.0, colonizationResearchScenario.AgricultureResearchProgress / expectedTimePassed, TestTolerance);
             Assert.AreEqual(15.0, colonizationResearchScenario.ProductionResearchProgress / expectedTimePassed, TestTolerance);
             Assert.AreEqual(15.0 - 4 * Tier0AgricultureMaxDietRatio, productionPerSecond["Snacks-Tier0"] * SecondsPerKerbanDay, TestTolerance);
@@ -249,7 +249,7 @@ namespace ProgressiveColonizationSystem.UnitTests
                 4 /* kerbals */, 1.0 /* seconds*/, landedModules, colonizationResearchScenario, inStorage, storageSpace,
                 out timePassedInSeconds, out breakthroughs, out consumptionPerSecond, out productionPerSecond);
             Assert.AreEqual(1.0, timePassedInSeconds);
-            Assert.AreEqual(4 * (1 - Tier0AgricultureMaxDietRatio), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(4 * (1 - Tier0AgricultureMaxDietRatio), consumptionPerSecond["Snacks-Tier4"] * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(4 * Tier0AgricultureMaxDietRatio, colonizationResearchScenario.AgricultureResearchProgress, TestTolerance);
             Assert.AreEqual(4 * Tier0AgricultureMaxDietRatio, colonizationResearchScenario.ProductionResearchProgress, TestTolerance);
             Assert.AreEqual(0, productionPerSecond.Count);
@@ -293,8 +293,8 @@ namespace ProgressiveColonizationSystem.UnitTests
                 out Dictionary<string, double> consumptionPerSecond, out Dictionary<string, double> productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
             Assert.AreEqual(false, breakthroughs.Any());
-            Assert.AreEqual(4 * (1 - Tier2AgroponicMaxDietRatio), consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
-            Assert.AreEqual(4 * Tier2AgroponicMaxDietRatio, consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(4 * (1 - Tier2AgroponicMaxDietRatio), consumptionPerSecond["Snacks-Tier4"] * SecondsPerKerbanDay, TestTolerance);
+            Assert.AreEqual(4 * Tier2AgroponicMaxDietRatio, consumptionPerSecond["Fertilizer-Tier4"] * SecondsPerKerbanDay, TestTolerance);
             Assert.AreEqual(4 * (Tier2AgroponicMaxDietRatio - Tier0AgroponicMaxDietRatio), colonizationResearchScenario.AgroponicResearchProgress, TestTolerance);
 
             // Duna return scenario - still got the max-tier stuff, but added some local stuff
@@ -314,13 +314,13 @@ namespace ProgressiveColonizationSystem.UnitTests
                             consumptionPerSecond["Fertilizer-Tier0"] * SecondsPerKerbanDay, TestTolerance);
             // And burning reduced maxtier ferilizer
             Assert.AreEqual(4 * (Tier2AgroponicMaxDietRatio - Tier0AgroponicMaxDietRatio),
-                            consumptionPerSecond["Fertilizer"] * SecondsPerKerbanDay, TestTolerance);
+                            consumptionPerSecond["Fertilizer-Tier4"] * SecondsPerKerbanDay, TestTolerance);
             // And snacking a few local things
             Assert.AreEqual(4 * (Tier0AgricultureMaxDietRatio - Tier2AgroponicMaxDietRatio),
                             consumptionPerSecond["Snacks-Tier0"] * SecondsPerKerbanDay, TestTolerance);
             // And making up the rest from the snack stores.
             Assert.AreEqual(4 * (1 - Tier0AgricultureMaxDietRatio),
-                            consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
+                            consumptionPerSecond["Snacks-Tier4"] * SecondsPerKerbanDay, TestTolerance);
 
             Assert.AreEqual(0.0, colonizationResearchScenario.AgroponicResearchProgress); // Progress is reset
             Assert.AreEqual(TechTier.Tier3, colonizationResearchScenario.AgroponicsMaxTier); // Next tier is up
@@ -341,7 +341,7 @@ namespace ProgressiveColonizationSystem.UnitTests
                             consumptionPerSecond["Snacks-Tier0"] * SecondsPerKerbanDay, TestTolerance);
             // And making up the rest from the snack stores.
             Assert.AreEqual(4 * (1 - Tier0AgricultureMaxDietRatio),
-                            consumptionPerSecond["Snacks"] * SecondsPerKerbanDay, TestTolerance);
+                            consumptionPerSecond["Snacks-Tier4"] * SecondsPerKerbanDay, TestTolerance);
 
             Assert.AreEqual(0.0, colonizationResearchScenario.AgroponicResearchProgress); // no gear for next tier (and no T2 progress anyway)
         }
