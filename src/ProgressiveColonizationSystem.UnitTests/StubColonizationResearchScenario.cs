@@ -41,7 +41,7 @@ namespace ProgressiveColonizationSystem.UnitTests
         public static EdibleResource HydroponicSnacks = new EdibleResource("HydroponicSnacks", ProductionRestriction.Orbit, hydroponicResearchCategory, false, false, .2, .4, .55, .7, .95);
         public static EdibleResource Snacks = new EdibleResource("Snacks", ProductionRestriction.LandedOnBody, farmingResearchCategory, true, false, .6, .85, .95, .98, 1.0);
         public static TieredResource Fertilizer = new TieredResource("Fertilizer", "Kerbal-Days", ProductionRestriction.LandedOnBody, productionResearchCategory, true, false);
-        public static TieredResource Stuff = new TieredResource("Stuff", null, ProductionRestriction.LandedOnBody, productionResearchCategory, true, false);
+        public static TieredResource Stuff = new TieredResource("Stuff", null, ProductionRestriction.LandedOnBody, productionResearchCategory, false, false);
         public static TieredResource Scanning = new TieredResource("ScanningData", "Kerbal-Days", ProductionRestriction.OrbitOfBody, scanningResearchCategory, false, true);
         public static TieredResource Shinies = new TieredResource("Shinies", "Bling-per-day", ProductionRestriction.LandedOnBody, shiniesResearchCategory, true, false);
 
