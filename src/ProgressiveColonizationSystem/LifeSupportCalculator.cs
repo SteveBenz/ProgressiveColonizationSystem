@@ -294,8 +294,8 @@ namespace ProgressiveColonizationSystem
             }
 
             this.lifeSupportStuffHashAtLastUpdate = lifeSupportStuffHash;
-            CalculateWarnings();
-            RecalculateResults();
+            this.CalculateWarnings();
+            this.RecalculateResults();
         }
 
         private void CalculateWarnings()
@@ -332,9 +332,7 @@ namespace ProgressiveColonizationSystem
         }
 
         private List<SkilledCrewman> FindAssignedCrew()
-        {
-            return this.FindCrew().Select(k => new SkilledCrewman(k.experienceLevel, k.trait)).ToList();
-        }
+            => SkilledCrewman.Build(this.FindCrew()).ToList();
 
         private List<ProtoCrewMember> FindCrew()
         {

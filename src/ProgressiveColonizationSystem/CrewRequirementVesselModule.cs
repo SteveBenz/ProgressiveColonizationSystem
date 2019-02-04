@@ -25,7 +25,7 @@ namespace ProgressiveColonizationSystem
                 .Where(p => p.IsRunning)
                 .ToList();
             List<ProtoCrewMember> kspCrew = this.vessel.GetVesselCrew();
-            var crew = kspCrew.Select(k => new SkilledCrewman(k.experienceLevel, k.trait)).ToList();
+            var crew = SkilledCrewman.Build(kspCrew).ToList();
 
             int hash = activatedParts.Aggregate(0, (accumulator, part) => accumulator ^ part.GetHashCode());
             hash = kspCrew.Aggregate(hash, (accumulator, kerbal) => accumulator ^ kerbal.GetHashCode());
@@ -137,5 +137,9 @@ namespace ProgressiveColonizationSystem
         public string Trait { get; }
 
         public float RemainingCapacity { get; set; } = 1;
+
+        public static IEnumerable<SkilledCrewman> Build(IEnumerable<ProtoCrewMember> realCrew)
+            => realCrew.GroupBy(k => $"{k.trait}{k.experienceLevel}")
+                       .Select(group => new SkilledCrewman(group.First().experienceLevel, group.First().trait) { RemainingCapacity = group.Count() });
     }
 }
