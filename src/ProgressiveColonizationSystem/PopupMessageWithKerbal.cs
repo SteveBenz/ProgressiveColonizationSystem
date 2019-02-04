@@ -36,7 +36,7 @@ namespace ProgressiveColonizationSystem
                         new DialogGUIHorizontalLayout(
                             new DialogGUIVerticalLayout(
                                 new DialogGUIFlexibleSpace(),
-                                makePictureOfAKerbal(160, 160),
+                                makePictureOfAKerbal(160, 160, isGoodNews: false),
                                 new DialogGUIFlexibleSpace()),
                             new DialogGUILabel(content, true, true)),
                         new DialogGUIHorizontalLayout(
@@ -94,7 +94,7 @@ namespace ProgressiveColonizationSystem
                         new DialogGUIHorizontalLayout(
                             new DialogGUIVerticalLayout(
                                 new DialogGUIFlexibleSpace(),
-                                makePictureOfAKerbal(160, 160),
+                                makePictureOfAKerbal(160, 160, isGoodNews: true),
                                 new DialogGUIFlexibleSpace()),
                             new DialogGUILabel(() => isBoring ? boringContent : content, true, true)),
                         new DialogGUIHorizontalLayout(
@@ -113,7 +113,7 @@ namespace ProgressiveColonizationSystem
         // This object persists, whether we store it or not.
         private static KerbalInstructor instructor;
 
-        private static DialogGUIImage makePictureOfAKerbal(int width, int height)
+        private static DialogGUIImage makePictureOfAKerbal(int width, int height, bool isGoodNews)
         {
             if (instructor == null)
             {
@@ -148,7 +148,7 @@ namespace ProgressiveColonizationSystem
             instructor.instructorCamera.targetTexture = instructorTexture;
             instructor.instructorCamera.ResetAspect();
 
-            var initialAnimations = new List<CharacterAnimationState>()
+            var initialHappyAnimations = new List<CharacterAnimationState>()
                 {
                     instructor.anim_true_thumbsUp,
                     instructor.anim_true_thumbUp,
@@ -156,6 +156,12 @@ namespace ProgressiveColonizationSystem
                     instructor.anim_true_nodB,
                     instructor.anim_true_smileA,
                     instructor.anim_true_smileB,
+                };
+            var initialGrumpyAnimations = new List<CharacterAnimationState>()
+                {
+                    instructor.anim_false_disagreeA,
+                    instructor.anim_false_disagreeB,
+                    instructor.anim_false_disagreeC,
                 };
             var vampingAnimations = new List<CharacterAnimationState>()
                 {
@@ -182,7 +188,8 @@ namespace ProgressiveColonizationSystem
                     CharacterAnimationState nowPlaying;
                     if (!doneFirstYet)
                     {
-                        nowPlaying = initialAnimations[random.Next(initialAnimations.Count)];
+                        List<CharacterAnimationState> animationSet = isGoodNews ? initialHappyAnimations : initialGrumpyAnimations;
+                        nowPlaying = animationSet[random.Next(animationSet.Count)];
                         instructor.PlayEmote(nowPlaying);
                         doneFirstYet = true;
                     }
