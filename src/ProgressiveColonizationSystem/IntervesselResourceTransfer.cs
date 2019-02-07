@@ -218,19 +218,19 @@ namespace ProgressiveColonizationSystem
             }
 
             // Push MaxTier Snacks to bases and rovers
-            if (thisShipCanSupply.ContainsKey("Snacks") && otherShipCouldUse.ContainsKey("Snacks")
+            if (thisShipCanSupply.ContainsKey("Snacks-Tier4") && otherShipCouldUse.ContainsKey("Snacks-Tier4")
              && (otherVessel.vesselType == VesselType.Base || otherVessel.vesselType == VesselType.Rover)
-             && !otherShipsProducts.Contains("Snacks"))
+             && !otherShipsProducts.Contains("Snacks-Tier4"))
             {
-                toSend.Add("Snacks", Math.Min(thisShipCanSupply["Snacks"], otherShipCouldUse["Snacks"]));
+                toSend.Add("Snacks-Tier4", Math.Min(thisShipCanSupply["Snacks-Tier4"], otherShipCouldUse["Snacks-Tier4"]));
             }
 
             // Likewise, pull snacks when you are the base.
-            if (otherShipCanSupply.ContainsKey("Snacks") && thisShipCanUse.ContainsKey("Snacks")
+            if (otherShipCanSupply.ContainsKey("Snacks-Tier4") && thisShipCanUse.ContainsKey("Snacks-Tier4")
              && (FlightGlobals.ActiveVessel.vesselType == VesselType.Base || FlightGlobals.ActiveVessel.vesselType == VesselType.Rover)
-             && !thisShipsProducts.Contains("Snacks"))
+             && !thisShipsProducts.Contains("Snacks-Tier4"))
             {
-                toReceive.Add("Snacks", Math.Min(thisShipCanUse["Snacks"], otherShipCanSupply["Snacks"]));
+                toReceive.Add("Snacks-Tier4", Math.Min(thisShipCanUse["Snacks-Tier4"], otherShipCanSupply["Snacks-Tier4"]));
             }
 
             return toReceive.Any() || toSend.Any();
