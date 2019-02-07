@@ -39,7 +39,8 @@ This mod is still in early days, with a few big parts missing.
    2.  (complete) Get non-dumb name - Progressive Kolonization System?  PKS
    3.  (complete) Figure out how to Release
    4.  (complete) Fix .version file
-   5.  Release to CKAN
+   5.  (complete) Release to CKAN
+   6.  Automate release preparation
 6. Advanced Progression - the ability to have extended missions on Duna
    1.  Create the resource gathering mechanic
        1.  Create a configurable part for storing Stuff
@@ -65,7 +66,7 @@ This mod is still in early days, with a few big parts missing.
    1.  (cut - sticking with the game one) Integrate with Toolbar?
    2.  (complete) Integrate with ModuleManager
    3.  (complete) Integrate with Community Resource Kit?
-   4.  Integrate with Community Categories?
+   4.  (complete) Integrate with Community Categories?
    5.  Integrate with Kerbal Alarm Clock?
    6.  (complete) Integrate with the other base parts mod whose name I forget?
    7.  (completish) Either reskin the stolen parts or depend on their sources and re-configure them
