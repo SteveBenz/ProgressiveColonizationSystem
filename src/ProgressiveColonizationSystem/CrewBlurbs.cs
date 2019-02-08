@@ -250,7 +250,7 @@ namespace ProgressiveColonizationSystem
 
         internal static string StarvingKerbals(List<CrewDescriptor> crewInBucket)
         {
-            return Red($"{GetGroupDescription(crewInBucket)} {isare(crewInBucket)} refusing do any more work and their families are organizing legal action against KSP!  Get {himherthem(crewInBucket)} home or get them some food right away!");
+            return Red($"{GetGroupDescription(crewInBucket)} {isare(crewInBucket)} refusing to do any more work and {isare(crewInBucket)} contemplating legal action against KSP!  Get {himherthem(crewInBucket)} home or get some food out here right away!");
         }
 
         internal static string BoringShiniesBreakthrough(TechTier tier)
