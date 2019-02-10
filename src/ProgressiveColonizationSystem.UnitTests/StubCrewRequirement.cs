@@ -9,17 +9,22 @@ namespace ProgressiveColonizationSystem.UnitTests
     public class StubCrewRequirement
         : IPksCrewRequirement
     {
-        bool IPksCrewRequirement.IsRunning => throw new NotImplementedException();
+        public int CountCanRunParts { get; set; } = 0;
 
-        bool IPksCrewRequirement.IsStaffed { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public HashSet<SkilledCrewman> ValidCrew { get; set; } = new HashSet<SkilledCrewman>();
 
-        float IPksCrewRequirement.CapacityRequired => throw new NotImplementedException();
+        public bool IsRunning { get; set; }
 
-        IEnumerable<string> IPksCrewRequirement.RequiredTraits => throw new NotImplementedException();
+        public bool IsStaffed { get; set; } = true;
+
+        public float CapacityRequired { get; set; } = 1f;
+
+        public IEnumerable<string> RequiredTraits { get; set; } = new string[] { "Test1", "Test2" };
 
         bool IPksCrewRequirement.CanRunPart(SkilledCrewman crewman)
         {
-            throw new NotImplementedException();
+            ++CountCanRunParts;
+            return ValidCrew.Contains(crewman);
         }
     }
 }
