@@ -15,7 +15,9 @@ namespace ProgressiveColonizationSystem.UnitTests
         private SkilledCrewman eng1 = new SkilledCrewman(1, "Engineer");
         private SkilledCrewman eng2 = new SkilledCrewman(2, "Engineer");
         private SkilledCrewman eng3 = new SkilledCrewman(3, "Engineer");
-        private SkilledCrewman tech1 = new SkilledCrewman(1, "Engineer");
+        private SkilledCrewman tech1 = new SkilledCrewman(1, "Tech");
+        private SkilledCrewman tourist1 = new SkilledCrewman(1, "Tourist");
+        private SkilledCrewman tourist2 = new SkilledCrewman(1, "Tourist");
 
         [TestMethod]
         public void Crew_NoCrewNoRequirement()
@@ -85,6 +87,26 @@ namespace ProgressiveColonizationSystem.UnitTests
             AssertAssignsAll(bio1, generalist, sci1, eng1, part1, part2, part3, part4);
         }
 
+
+        [TestMethod]
+        public void Crew_Pathological()
+        {
+            // The categorization scheme should work for any sensible means of defining crew capabilities.
+            // But there's code in there that will unstick the algorithm, at the expensive of maybe not coming
+            // up with an ideal crew assignment.
+            var crew1 = new SkilledCrewman(1, "jack1");
+            var crew2 = new SkilledCrewman(2, "jack1");
+            var crew3 = new SkilledCrewman(3, "jack1");
+            var part1 = new StubCrewRequirement() { CapacityRequired = 2 };
+            part1.ValidCrew.UnionWith(new[] { crew1, crew2 });
+            var part2 = new StubCrewRequirement() { CapacityRequired = 2 };
+            part2.ValidCrew.UnionWith(new[] { crew2, crew3 });
+            var part3 = new StubCrewRequirement() { CapacityRequired = 2 };
+            part3.ValidCrew.UnionWith(new[] { crew3, crew1 });
+
+            AssertAssignsAll(crew1, crew2, crew3, part1, part2, part3);
+        }
+
         [TestMethod]
         public void Crew_AllocatesGeneralist_CombinesCategories()
         {
@@ -102,6 +124,18 @@ namespace ProgressiveColonizationSystem.UnitTests
             part2.ValidCrew.Add(generalist2);
 
             AssertAssignsAll(sci1, bio1, generalist1, generalist2, part1, part2);
+        }
+
+        [TestMethod]
+        public void Crew_DetectsUnstaffablePartsAndUselessCrew()
+        {
+            // This one forces things so that it does the single-assignments and then
+            // discoveres there's just one category
+            var part1 = new StubCrewRequirement();
+            part1.ValidCrew.Add(sci1);
+            var part2 = new StubCrewRequirement();
+
+            Assert.AreEqual(part2, AssertAssignsAllButOne(sci1, tourist1, tourist2, part1, part2));
         }
 
         private void AssertAssignsAll(params object[] partsAndCrew)
