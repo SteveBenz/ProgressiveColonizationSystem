@@ -43,8 +43,6 @@ namespace ProgressiveColonizationSystem
         private string productionInfo = "";
         private string consumptionInfo = "";
 
-        private int lifeSupportStuffHashAtLastUpdate = 0;
-
         public void Start()
         {
             EditorLogic.fetch.launchBtn.onClick.RemoveListener(EditorLogic.fetch.launchVessel);
@@ -282,18 +280,6 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
-            var parts = EditorLogic.fetch.ship.Parts;
-            int lifeSupportStuffHash = parts.Aggregate(0, (accumulator, part) => accumulator ^ part.GetHashCode());
-            lifeSupportStuffHash = this.FindCrew().Aggregate(lifeSupportStuffHash, (accumulator, kerbal) => accumulator ^ kerbal.GetHashCode());
-            lifeSupportStuffHash = TieredContainer.FindAllTieredResourceContainers(parts).Aggregate(lifeSupportStuffHash,
-                (accumulator, container) => accumulator ^ container.Amount.GetHashCode() ^ container.Tier.GetHashCode() ^ container.Content.GetHashCode() ^ container.MaxAmount.GetHashCode());
-
-            if (this.lifeSupportStuffHashAtLastUpdate == lifeSupportStuffHash)
-            {
-                return;
-            }
-
-            this.lifeSupportStuffHashAtLastUpdate = lifeSupportStuffHash;
             this.CalculateWarnings();
             this.RecalculateResults();
         }

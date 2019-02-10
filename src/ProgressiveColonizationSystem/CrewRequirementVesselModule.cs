@@ -53,37 +53,6 @@ namespace ProgressiveColonizationSystem
             this.hashAtLastCheck = hash;
         }
 
-        public static bool TestIfCurrentCrewAssignmentCanWork(List<IPksCrewRequirement> parts, List<SkilledCrewman> crew)
-        {
-            if (parts.Count == 0)
-            {
-                return true;
-            }
-
-            // There are definitely awesomer algorithms for this.  But we'll see how we get on with this...
-            // It's definitely broken for parts that require more than one kerbal to run.
-
-            IPksCrewRequirement currentPart = parts[0];
-            List<IPksCrewRequirement> remainingParts = new List<IPksCrewRequirement>(parts);
-            remainingParts.RemoveAt(0);
-
-            if (currentPart.IsStaffed)
-            {
-                foreach (SkilledCrewman possibleStaffer in crew.Where(k => currentPart.CanRunPart(k) && k.RemainingCapacity >= currentPart.CapacityRequired))
-                {
-                    possibleStaffer.RemainingCapacity -= currentPart.CapacityRequired;
-                    bool canWork = TestIfCurrentCrewAssignmentCanWork(remainingParts, crew);
-                    possibleStaffer.RemainingCapacity += currentPart.CapacityRequired;
-                    if (canWork)
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
         public static List<IPksCrewRequirement> TestIfCrewRequirementsAreMet(List<IPksCrewRequirement> parts, List<SkilledCrewman> crew)
         {
             if (parts.Count == 0)

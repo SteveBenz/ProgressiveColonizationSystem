@@ -26,25 +26,31 @@ namespace ProgressiveColonizationSystem
         [KSPField]
         public float requiredCrew;
 
-        [KSPField]
-        public int tier = -1;
-
-        private BaseConverter resourceConverter = null;
-
         [KSPField(isPersistant = true)]
         private bool isStaffed = true;
+
+        private bool isInitialized = false;
+        private PksTieredResourceConverter tieredResourceConverter = null;
+        private HashSet<string> specialistTraitsHash = null;
+        private BaseConverter resourceConverter = null;
+
+        private const int specialistStarBonus = 3; // Perhaps this should go in a setting?
 
         public override string GetModuleDisplayName()
         {
             return "Crew Requirements";
         }
 
-        public IEnumerable<string> SpecialistTraits => specialistTraits.Split(new char[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        public IEnumerable<string> SpecialistTraits
+        {
+            get
+            {
+                this.Initialize();
+                return this.specialistTraitsHash;
+            }
+        }
 
         public IEnumerable<string> RequiredTraits => new string[] { generalistTrait }.Union(this.SpecialistTraits);
-
-
-        private const int specialistStarBonus = 3; // Perhaps this should go in a setting?
 
         public override string GetInfo()
         {
@@ -95,23 +101,15 @@ namespace ProgressiveColonizationSystem
 
         public bool CanRunPart(SkilledCrewman crewman)
         {
-            bool isSpecialistForThisPart = this.SpecialistTraits.Contains(crewman.Trait);
+            this.Initialize();
+            bool isSpecialistForThisPart = this.specialistTraitsHash.Contains(crewman.Trait);
             bool isGeneralistForThisPart = this.generalistTrait == crewman.Trait;
             if (!isSpecialistForThisPart && !isGeneralistForThisPart)
             {
                 return false;
             }
 
-            int tier;
-            if (this.tier < 0)
-            {
-                var tieredResourceModule = this.part.FindModuleImplementing<PksTieredResourceConverter>();
-                tier = tieredResourceModule == null ? 0 : tieredResourceModule.tier;
-            }
-            else
-            {
-                tier = this.tier;
-            }
+            int tier = this.tieredResourceConverter == null ? 0 : this.tieredResourceConverter.tier;
 
             return crewman.Stars + (isSpecialistForThisPart ? specialistStarBonus : 0) > tier;
         }
@@ -120,10 +118,7 @@ namespace ProgressiveColonizationSystem
         {
             get
             {
-                if (this.resourceConverter == null)
-                {
-                    this.resourceConverter = this.part.FindModuleImplementing<BaseConverter>();
-                }
+                this.Initialize();
                 return this.resourceConverter;
             }
         }
@@ -161,5 +156,16 @@ namespace ProgressiveColonizationSystem
         }
 
         public float CapacityRequired => this.requiredCrew;
+
+        private void Initialize()
+        {
+            if (!this.isInitialized)
+            {
+                this.specialistTraitsHash = new HashSet<string>(specialistTraits.Split(new char[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries));
+                this.resourceConverter = this.part.FindModuleImplementing<BaseConverter>();
+                this.tieredResourceConverter = this.part.FindModuleImplementing<PksTieredResourceConverter>();
+            }
+            this.isInitialized = true;
+        }
     }
 }
