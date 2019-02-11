@@ -28,9 +28,9 @@ namespace ProgressiveColonizationSystem
 
         private List<StaticAnalysis.WarningMessage> lastWarningList;
 
-        protected override MultiOptionDialog DrawDialog()
+        protected override MultiOptionDialog DrawDialog(Rect rect)
         {
-            return new MultiOptionDialog("LifeSupportCalculator", "", "Life Support Calculator", HighLogic.UISkin, this.DrawTabbedDialog() );
+            return new MultiOptionDialog("LifeSupportCalculator", "", "Life Support Calculator", HighLogic.UISkin, rect, this.DrawTabbedDialog());
         }
 
         private float buttonWidth = 80f; // Shenanigans - Can't figure out how to calculate this, but these numbers work somehow.

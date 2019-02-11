@@ -5,9 +5,6 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-// TODO: Boy Voyage has a less bad way of doing positioning:
-//   https://github.com/jarosm/KSP-BonVoyage/blob/master/BonVoyage/gui/MainWindowView.cs
-
 namespace ProgressiveColonizationSystem
 {
     /// <summary>
@@ -31,7 +28,7 @@ namespace ProgressiveColonizationSystem
         protected override bool IsRelevant => FlightGlobals.ActiveVessel.GetCrewCount() > 0 && !FlightGlobals.ActiveVessel.isEVA;
         protected override ApplicationLauncher.AppScenes VisibleInScenes { get; } = ApplicationLauncher.AppScenes.FLIGHT;
 
-        protected override MultiOptionDialog DrawDialog()
+        protected override MultiOptionDialog DrawDialog(Rect rect)
         {
             // FYI, if you want to override a style, here'd be a way to do it:
             // var myStyle = new UIStyle(UISkinManager.defaultSkin.label) { wordWrap = false};
@@ -70,6 +67,7 @@ namespace ProgressiveColonizationSystem
                         "",
                         "Colony Status",
                         HighLogic.UISkin,
+                        rect,
                         new DialogGUIVerticalLayout(parts.ToArray()));
         }
 
