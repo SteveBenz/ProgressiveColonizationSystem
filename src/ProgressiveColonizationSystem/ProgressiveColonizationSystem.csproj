@@ -171,6 +171,7 @@ if $(ConfigurationName) == Debug (
 )
 
 if $(ConfigurationName) == Release (
+  $(ProjectDir)\..\CreateRelease\bin\CreateRelease.exe "$(TargetDir)"
   cd $(TargetDir)
   del ProgressiveColonizationSystem.zip
   "$(SevenZipExe)" a ProgressiveColonizationSystem.zip GameData
