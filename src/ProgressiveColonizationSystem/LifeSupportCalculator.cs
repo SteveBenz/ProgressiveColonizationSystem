@@ -6,9 +6,6 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
 
-// TODO: Boy Voyage has a less bad way of doing positioning:
-//   https://github.com/jarosm/KSP-BonVoyage/blob/master/BonVoyage/gui/MainWindowView.cs
-
 namespace ProgressiveColonizationSystem
 {
     /// <summary>
