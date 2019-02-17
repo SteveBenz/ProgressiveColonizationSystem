@@ -267,10 +267,16 @@ namespace ProgressiveColonizationSystem
             List<IPksCrewRequirement> unstaffedParts = CrewRequirementVesselModule.TestIfCrewRequirementsAreMet(parts, crew);
             if (unstaffedParts.Count > 0)
             {
-                string list = string.Join(", ", unstaffedParts.Select(part => part.RequiredEffect).Distinct().OrderBy(s => s).ToArray());
+                string list = string.Join(", ", unstaffedParts
+                    .Select(part => part.RequiredEffect)
+                    .Distinct()
+                    .SelectMany(effect => GameDatabase.Instance.ExperienceConfigs.GetTraitsWithEffect(effect))
+                    .Distinct()
+                    .OrderBy(s => s)
+                    .ToArray());
                 yield return new WarningMessage
                 {
-                    Message = $"TODO: The ship doesn't have enough crew or insufficiently experienced crew to operate all its parts - add crew with these traits: {list}",
+                    Message = $"The ship doesn't have enough crew or insufficiently experienced crew to operate all its parts - add crew with these traits: {list}",
                     IsClearlyBroken = false,
                     FixIt = null
                 };
