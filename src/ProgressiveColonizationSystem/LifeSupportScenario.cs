@@ -6,9 +6,6 @@ using UnityEngine;
 
 namespace ProgressiveColonizationSystem
 {
-    // TODO: Make it take in the whole crew, rather than just one kerbal for all these operations
-    //  so it can show a single message for all the kerbals whose state flips
-
     /// <summary>
     ///   This class maintains what we know about individual kerbals (and persists what it knows
     ///   in the save file).

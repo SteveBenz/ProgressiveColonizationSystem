@@ -29,10 +29,7 @@ namespace ProgressiveColonizationSystem
 
         private bool isInitialized = false;
         private PksTieredResourceConverter tieredResourceConverter = null;
-        private HashSet<string> specialistTraitsHash = null;
         private BaseConverter resourceConverter = null;
-
-        private const int specialistStarBonus = 3; // Perhaps this should go in a setting?
 
         public override string GetModuleDisplayName()
         {
@@ -52,8 +49,11 @@ namespace ProgressiveColonizationSystem
 
         public override string GetInfo()
         {
-            return "TODO";
-#if false
+            List<ExperienceTraitConfig> careers = GameDatabase.Instance.ExperienceConfigs
+                .GetTraitsWithEffect(this.requiredEffect)
+                .Select(name => GameDatabase.Instance.ExperienceConfigs.GetExperienceTraitConfig(name))
+                .ToList();
+
             StringBuilder info = new StringBuilder();
             info.AppendLine(PksTieredResourceConverter.GreenInfo("Required Crew:"));
             info.AppendLine($"Staffing Level: {this.requiredCrew}");
@@ -61,32 +61,26 @@ namespace ProgressiveColonizationSystem
             foreach (TechTier tier in TechTierExtensions.AllTiers)
             {
                 info.Append($"{tier}: ");
-                bool any = false;
-                if (!string.IsNullOrEmpty(specialistTraits))
+
+                for (int i = 0; i < careers.Count; ++i)
                 {
-                    foreach (string trait in SpecialistTraits)
-                    {
-                        // TODO: Validate that these traits are actually a thing
-                        if (any)
-                        {
-                            info.Append(", ");
-                        }
-                        info.Append(this.DescribeKerbalTrait(1 + (int)tier - specialistStarBonus, trait));
-                        any = true;
-                    }
-                }
-                if (!string.IsNullOrEmpty(generalistTrait))
-                {
-                    if (any)
+                    ExperienceEffectConfig effectConfig = careers[i].Effects.First(effect => effect.Name == this.requiredEffect);
+                    int numStars = 1 + (int)tier - int.Parse(effectConfig.Config.GetValue("Level"));
+
+                    if (i == careers.Count - 1)
                     {
                         info.Append(" or a ");
                     }
-                    info.Append(this.DescribeKerbalTrait(1 + (int)tier, this.generalistTrait));
+                    else if (i > 0)
+                    {
+                        info.Append(", ");
+                    }
+
+                    info.Append(this.DescribeKerbalTrait(numStars, careers[i].Title));
                 }
                 info.AppendLine();
             }
             return info.ToString();
-#endif
         }
 
         private string DescribeKerbalTrait(int numStars, string trait)

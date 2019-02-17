@@ -131,13 +131,12 @@ namespace ProgressiveColonizationSystem
                 if (!activeSnackConsumption.IsAtHome)
                 {
                     Dictionary<int, List<ProtoCrewMember>> buckets = new Dictionary<int, List<ProtoCrewMember>>();
-                    // TODO: Somehow bucketize this, since all the crew are likely in the same state.
                     foreach (var crew in activeSnackConsumption.Vessel.GetVesselCrew())
                     {
                         var kerbalIsKnown = LifeSupportScenario.Instance.TryGetStatus(crew, out double daysSinceMeal, out double daysToGrouchy, out bool isGrouchy);
                         if (!kerbalIsKnown)
                         {
-                            // TODO: Maybe if ! on kerban we complain about this?
+                            // Maybe if ! on kerban we complain about this?
                             // Debug.LogError($"Couldn't find a life support record for {crew.name}");
                         }
 
