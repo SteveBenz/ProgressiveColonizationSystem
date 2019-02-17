@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Experience;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,7 +26,7 @@ namespace ProgressiveColonizationSystem
                 .Where(p => p.IsRunning)
                 .ToList();
             List<ProtoCrewMember> kspCrew = this.vessel.GetVesselCrew();
-            var crew = SkilledCrewman.Build(kspCrew).ToList();
+            var crew = kspCrew.Select(c => new SkilledCrewman(c)).ToList();
 
             int hash = activatedParts.Aggregate(0, (accumulator, part) => accumulator ^ part.GetHashCode());
             hash = kspCrew.Aggregate(hash, (accumulator, kerbal) => accumulator ^ kerbal.GetHashCode());
@@ -77,7 +78,7 @@ namespace ProgressiveColonizationSystem
                 int crewHash = 0;
                 foreach (var kerbal in crew)
                 {
-                    if (part.CanRunPart(kerbal))
+                    if (kerbal.CanRunPart(part.RequiredEffect, part.RequiredLevel))
                     {
                         crewThatCanStaffPart.Add(kerbal);
                         crewHash ^= kerbal.GetHashCode();
@@ -253,16 +254,23 @@ namespace ProgressiveColonizationSystem
 
     public class SkilledCrewman
     {
-        public SkilledCrewman(int stars, string trait)
+        private readonly ProtoCrewMember protoCrewMember;
+        public SkilledCrewman(ProtoCrewMember protoCrewMember)
         {
-            this.Stars = stars;
-            this.Trait = trait;
+            this.protoCrewMember = protoCrewMember;
         }
 
-        public int Stars { get; }
-        public string Trait { get; }
-
-        public static IEnumerable<SkilledCrewman> Build(IEnumerable<ProtoCrewMember> realCrew)
-            => realCrew.Select(group => new SkilledCrewman(group.experienceLevel, group.trait));
+        public virtual bool CanRunPart(string requiredTrait, int requiredLevel)
+        {
+            ExperienceEffect experienceEffect = this.protoCrewMember.GetEffect(requiredTrait);
+            if (experienceEffect == null)
+            {
+                return false;
+            }
+            else
+            {
+                return experienceEffect.Level + this.protoCrewMember.experienceLevel >= requiredLevel;
+            }
+        }
     }
 }

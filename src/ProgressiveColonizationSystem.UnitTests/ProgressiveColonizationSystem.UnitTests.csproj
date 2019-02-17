@@ -74,6 +74,7 @@
     <Compile Include="StubCrewRequirement.cs" />
     <Compile Include="StubProducer.cs" />
     <Compile Include="StubFertilizerProducer.cs" />
+    <Compile Include="StubSkilledCrewman.cs" />
     <Compile Include="StubSnackProducer.cs" />
     <Compile Include="StaticAnalysisTests.cs" />
   </ItemGroup>

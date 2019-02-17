@@ -294,7 +294,7 @@ namespace ProgressiveColonizationSystem
                 .Where(p => p != null)
                 .ToList();
 
-            List<SkilledCrewman> crew = this.FindAssignedCrew();
+            List<SkilledCrewman> crew = this.FindCrew().Select(c => new SkilledCrewman(c)).ToList();
             this.lastWarningList =
                 StaticAnalysis.CheckBodyIsSet(ColonizationResearchScenario.Instance, producers, containers)
                 .Union(StaticAnalysis.CheckTieredProduction(ColonizationResearchScenario.Instance, producers, containers))
@@ -313,9 +313,6 @@ namespace ProgressiveColonizationSystem
                 this.Redraw();
             }
         }
-
-        private List<SkilledCrewman> FindAssignedCrew()
-            => SkilledCrewman.Build(this.FindCrew()).ToList();
 
         private List<ProtoCrewMember> FindCrew()
         {

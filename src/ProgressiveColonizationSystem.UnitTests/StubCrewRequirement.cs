@@ -9,9 +9,11 @@ namespace ProgressiveColonizationSystem.UnitTests
     public class StubCrewRequirement
         : IPksCrewRequirement
     {
-        public int CountCanRunParts { get; set; } = 0;
-
-        public HashSet<SkilledCrewman> ValidCrew { get; set; } = new HashSet<SkilledCrewman>();
+        public StubCrewRequirement(string requiredEffect, int requiredLevel)
+        {
+            this.RequiredEffect = requiredEffect;
+            this.RequiredLevel = requiredLevel;
+        }
 
         public bool IsRunning { get; set; }
 
@@ -19,12 +21,8 @@ namespace ProgressiveColonizationSystem.UnitTests
 
         public float CapacityRequired { get; set; } = 1f;
 
-        public IEnumerable<string> RequiredTraits { get; set; } = new string[] { "Test1", "Test2" };
+        public string RequiredEffect { get; }
 
-        bool IPksCrewRequirement.CanRunPart(SkilledCrewman crewman)
-        {
-            ++CountCanRunParts;
-            return ValidCrew.Contains(crewman);
-        }
+        public int RequiredLevel { get; }
     }
 }

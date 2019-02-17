@@ -2,26 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Experience;
 
 namespace ProgressiveColonizationSystem
 {
     public interface IPksCrewRequirement
     {
-        bool CanRunPart(SkilledCrewman crewman);
         bool IsRunning { get; }
         bool IsStaffed { get; set; }
         float CapacityRequired { get; }
-        IEnumerable<string> RequiredTraits { get; }
+        string RequiredEffect { get; }
+        int RequiredLevel { get; }
     }
 
     public class PksCrewRequirement
         : PartModule, IPksCrewRequirement
     {
         [KSPField]
-        public string specialistTraits;
-
-        [KSPField]
-        public string generalistTrait;
+        public string requiredEffect;
 
         [KSPField]
         public float requiredCrew;
@@ -41,19 +39,21 @@ namespace ProgressiveColonizationSystem
             return "Crew Requirements";
         }
 
-        public IEnumerable<string> SpecialistTraits
+        public string RequiredEffect => this.requiredEffect;
+
+        public int RequiredLevel
         {
             get
             {
                 this.Initialize();
-                return this.specialistTraitsHash;
+                return this.tieredResourceConverter == null ? 0 : ((int)this.tieredResourceConverter.Tier + 1);
             }
         }
 
-        public IEnumerable<string> RequiredTraits => new string[] { generalistTrait }.Union(this.SpecialistTraits);
-
         public override string GetInfo()
         {
+            return "TODO";
+#if false
             StringBuilder info = new StringBuilder();
             info.AppendLine(PksTieredResourceConverter.GreenInfo("Required Crew:"));
             info.AppendLine($"Staffing Level: {this.requiredCrew}");
@@ -86,6 +86,7 @@ namespace ProgressiveColonizationSystem
                 info.AppendLine();
             }
             return info.ToString();
+#endif
         }
 
         private string DescribeKerbalTrait(int numStars, string trait)
@@ -97,21 +98,6 @@ namespace ProgressiveColonizationSystem
             }
             result += trait;
             return result;
-        }
-
-        public bool CanRunPart(SkilledCrewman crewman)
-        {
-            this.Initialize();
-            bool isSpecialistForThisPart = this.specialistTraitsHash.Contains(crewman.Trait);
-            bool isGeneralistForThisPart = this.generalistTrait == crewman.Trait;
-            if (!isSpecialistForThisPart && !isGeneralistForThisPart)
-            {
-                return false;
-            }
-
-            int tier = this.tieredResourceConverter == null ? 0 : this.tieredResourceConverter.tier;
-
-            return crewman.Stars + (isSpecialistForThisPart ? specialistStarBonus : 0) > tier;
         }
 
         public BaseConverter ResourceConverter
@@ -161,7 +147,6 @@ namespace ProgressiveColonizationSystem
         {
             if (!this.isInitialized)
             {
-                this.specialistTraitsHash = new HashSet<string>(specialistTraits.Split(new char[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries));
                 this.resourceConverter = this.part.FindModuleImplementing<BaseConverter>();
                 this.tieredResourceConverter = this.part.FindModuleImplementing<PksTieredResourceConverter>();
             }

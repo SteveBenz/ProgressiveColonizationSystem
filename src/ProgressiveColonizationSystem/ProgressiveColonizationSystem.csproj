@@ -60,6 +60,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExperienceEffects\PksFarmingSkill.cs" />
+    <Compile Include="ExperienceEffects\PksHydroponicsSkill.cs" />
+    <Compile Include="ExperienceEffects\PksScroungingSkill.cs" />
+    <Compile Include="ExperienceEffects\PksManufacturingSkill.cs" />
+    <Compile Include="ExperienceEffects\PksScanningSkill.cs" />
     <Compile Include="PksCrewRequirement.cs" />
     <Compile Include="CrewBlurbs.cs" />
     <Compile Include="CrewRequirementVesselModule.cs" />
