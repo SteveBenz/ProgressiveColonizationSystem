@@ -65,7 +65,7 @@ namespace ProgressiveColonizationSystem
                 for (int i = 0; i < careers.Count; ++i)
                 {
                     ExperienceEffectConfig effectConfig = careers[i].Effects.First(effect => effect.Name == this.requiredEffect);
-                    int numStars = 1 + (int)tier - int.Parse(effectConfig.Config.GetValue("Level"));
+                    int numStars = 1 + (int)tier - int.Parse(effectConfig.Config.GetValue("level"));
 
                     if (i == careers.Count - 1)
                     {
