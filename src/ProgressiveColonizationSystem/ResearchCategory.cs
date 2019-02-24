@@ -48,14 +48,14 @@ namespace ProgressiveColonizationSystem
                 case TechTier.Tier2:
                     if (IsVeryEasyWorld(vessel))
                     {
-                        reasonWhyNot = $"Too near {FlightGlobals.GetHomeBodyDisplayName()}";
+                        reasonWhyNot = $"Disabled - Mun and Minmus are boring";
                         return false;
                     }
                     break;
                 case TechTier.Tier3:
-                    if (!IsFarOut(vessel))
+                    if (!IsHardWorld(vessel))
                     {
-                        reasonWhyNot = $"Too near {FlightGlobals.GetHomeBodyDisplayName()}";
+                        reasonWhyNot = $"Disabled - Need Eloo, Dres, Eve or Mojo";
                         return false;
                     }
                     break;
@@ -78,14 +78,14 @@ namespace ProgressiveColonizationSystem
                 case TechTier.Tier2:
                     if (IsNearKerbin(vessel))
                     {
-                        reasonWhyNot = $"Too near {FlightGlobals.GetHomeBody().name}";
+                        reasonWhyNot = $"Disabled - Too near {FlightGlobals.GetHomeBody().name}";
                         return false;
                     }
                     break;
                 case TechTier.Tier3:
-                    if (!IsFarOut(vessel))
+                    if (IsAnywhereCloseToKerbin(vessel))
                     {
-                        reasonWhyNot = $"Too near {FlightGlobals.GetHomeBody().name}";
+                        reasonWhyNot = $"Disabled - Too near {FlightGlobals.GetHomeBody().name}";
                         return false;
                     }
                     break;
@@ -134,7 +134,7 @@ namespace ProgressiveColonizationSystem
                 && vessel.distanceToSun < awayFromHomeMaxDistanceFromSun;
         }
 
-        protected static bool IsFarOut(Vessel vessel)
+        protected static bool IsAnywhereCloseToKerbin(Vessel vessel)
         {
             if (farAwayFromHomeMaxDistanceFromSun < 0)
             {
@@ -153,8 +153,8 @@ namespace ProgressiveColonizationSystem
                     ? homeworld.orbit.semiMajorAxis * 1.2
                     : outerPlanetOrbit.semiMajorAxis * (1 + outerPlanetOrbit.eccentricity);
             }
-            return vessel.distanceToSun > farAwayFromHomeMaxDistanceFromSun
-                || vessel.distanceToSun < farAwayFromHomeMinDistanceFromSun;
+            return vessel.distanceToSun < farAwayFromHomeMaxDistanceFromSun
+                && vessel.distanceToSun > farAwayFromHomeMinDistanceFromSun;
         }
 
         protected static bool IsVeryEasyWorld(Vessel vessel)

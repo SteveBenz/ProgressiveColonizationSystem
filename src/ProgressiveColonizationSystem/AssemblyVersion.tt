@@ -20,7 +20,7 @@
 
     int major = 0; 
     int minor = 0; 	
-    int build = 0; 
+    int build = 6; 
 	int patch = 0;
 	bool versionSection = false;
 
