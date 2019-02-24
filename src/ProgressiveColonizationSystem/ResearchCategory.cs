@@ -48,14 +48,14 @@ namespace ProgressiveColonizationSystem
                 case TechTier.Tier2:
                     if (IsVeryEasyWorld(vessel))
                     {
-                        reasonWhyNot = $"{this.DisplayName} research is limited to {TechTier.Tier2.DisplayName()} on the moons of the home world";
+                        reasonWhyNot = $"Too near {FlightGlobals.GetHomeBodyDisplayName()}";
                         return false;
                     }
                     break;
                 case TechTier.Tier3:
                     if (!IsFarOut(vessel))
                     {
-                        reasonWhyNot = $"{this.DisplayName} research is limited to {TechTier.Tier3.DisplayName()} on easy worlds";
+                        reasonWhyNot = $"Too near {FlightGlobals.GetHomeBodyDisplayName()}";
                         return false;
                     }
                     break;
@@ -78,14 +78,14 @@ namespace ProgressiveColonizationSystem
                 case TechTier.Tier2:
                     if (IsNearKerbin(vessel))
                     {
-                        reasonWhyNot = $"{this.DisplayName} progression is limited to {TechTier.Tier2.DisplayName()} near {FlightGlobals.GetHomeBody().name}";
+                        reasonWhyNot = $"Too near {FlightGlobals.GetHomeBody().name}";
                         return false;
                     }
                     break;
                 case TechTier.Tier3:
                     if (!IsFarOut(vessel))
                     {
-                        reasonWhyNot = $"{this.DisplayName} progression is limited to {TechTier.Tier3.DisplayName()} anywhere remotely near {FlightGlobals.GetHomeBody().name}";
+                        reasonWhyNot = $"Too near {FlightGlobals.GetHomeBody().name}";
                         return false;
                     }
                     break;
@@ -110,26 +110,51 @@ namespace ProgressiveColonizationSystem
             return true;
         }
 
-        protected string MaxTierMessage = $"All research is capped at {TechTier.Tier4.DisplayName()}";
+        protected string MaxTierMessage = $"At max tier";
+        private static double awayFromHomeMinDistanceFromSun = -1;
+        private static double awayFromHomeMaxDistanceFromSun = -1;
+        private static double farAwayFromHomeMinDistanceFromSun = -1;
+        private static double farAwayFromHomeMaxDistanceFromSun = -1;
 
         protected static bool IsNearKerbin(Vessel vessel)
         {
+            if (awayFromHomeMinDistanceFromSun < 0)
+            {
+                double homeworldDistanceFromSun = FlightGlobals.GetHomeBody().orbit.semiMajorAxis;
+                awayFromHomeMinDistanceFromSun = homeworldDistanceFromSun * .9;
+                awayFromHomeMaxDistanceFromSun = homeworldDistanceFromSun * 1.1;
+            }
             // There are more stylish ways to do this.  It's also a bit problematic for the player
             // because if they ignore a craft on its way back from some faroff world until it
             // reaches kerbin's SOI, then they'll lose all that tasty research.
             //
             // A fix would be to look at the vessel's orbit as well, and, if it just carries the
             // vessel out of the SOI, count that.
-            double homeworldDistanceFromSun = FlightGlobals.GetHomeBody().orbit.altitude;
-            return vessel.distanceToSun > homeworldDistanceFromSun * .9
-                && vessel.distanceToSun < homeworldDistanceFromSun * 1.1;
+            return vessel.distanceToSun > awayFromHomeMinDistanceFromSun
+                && vessel.distanceToSun < awayFromHomeMaxDistanceFromSun;
         }
 
         protected static bool IsFarOut(Vessel vessel)
         {
-            double homeworldDistanceFromSun = FlightGlobals.GetHomeBody().orbit.altitude;
-            return vessel.distanceToSun > homeworldDistanceFromSun * .9
-                && vessel.distanceToSun < homeworldDistanceFromSun * 1.1;
+            if (farAwayFromHomeMaxDistanceFromSun < 0)
+            {
+                var homeworld = FlightGlobals.GetHomeBody();
+                var planets = FlightGlobals.Bodies
+                    .Where(b => b.referenceBody == homeworld.referenceBody && b.orbit != null)
+                    .OrderBy(b => b.orbit.semiMajorAxis)
+                    .ToArray();
+                var homeworldIndex = planets.IndexOf(homeworld);
+                var innerPlanetOrbit = (homeworldIndex == 0) ? null : planets[homeworldIndex - 1].orbit;
+                farAwayFromHomeMinDistanceFromSun = (innerPlanetOrbit == null)
+                    ? homeworld.orbit.semiMajorAxis * .8
+                    : innerPlanetOrbit.semiMajorAxis * (1 - innerPlanetOrbit.eccentricity);
+                var outerPlanetOrbit = (homeworldIndex == planets.Length - 1) ? null : planets[homeworldIndex + 1].orbit;
+                farAwayFromHomeMaxDistanceFromSun = (outerPlanetOrbit == null)
+                    ? homeworld.orbit.semiMajorAxis * 1.2
+                    : outerPlanetOrbit.semiMajorAxis * (1 + outerPlanetOrbit.eccentricity);
+            }
+            return vessel.distanceToSun > farAwayFromHomeMaxDistanceFromSun
+                || vessel.distanceToSun < farAwayFromHomeMinDistanceFromSun;
         }
 
         protected static bool IsVeryEasyWorld(Vessel vessel)
