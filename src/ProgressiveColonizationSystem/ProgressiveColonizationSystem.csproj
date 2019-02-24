@@ -69,6 +69,7 @@
     <Compile Include="CrewBlurbs.cs" />
     <Compile Include="CrewRequirementVesselModule.cs" />
     <Compile Include="IntervesselResourceTransfer.cs" />
+    <Compile Include="PksSpecialStuffScrounger.cs" />
     <Compile Include="PksToolbarDialog.cs" />
     <Compile Include="ITieredContainer.cs" />
     <Compile Include="LifeSupportCalculator.cs" />
@@ -157,6 +158,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="GameData\ProgressiveColonizationSystem\Kolonists.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\PKS_PortableDigger_Radial.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
