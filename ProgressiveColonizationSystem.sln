@@ -14,8 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release files", "Release files", "{316BAE93-C0A3-4A70-877F-2089CE0DED4F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProgressiveColonizationSystem", "src\ProgressiveColonizationSystem\ProgressiveColonizationSystem.csproj", "{CCB42DBA-0CA5-4EAE-AADA-B574E816FD35}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProgressiveColonizationSystem.UnitTests", "src\ProgressiveColonizationSystem.UnitTests\ProgressiveColonizationSystem.UnitTests.csproj", "{5C67783D-A409-4944-B5FE-B14445F43EB9}"
