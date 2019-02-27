@@ -58,9 +58,6 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>$(KspInstallationDir)\KSP_x64_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
-    <Reference Include="WaypointManager">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\GameData\WaypointManager\WaypointManager.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExperienceEffects\PksFarmingSkill.cs" />
