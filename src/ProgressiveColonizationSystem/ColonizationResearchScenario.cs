@@ -11,6 +11,8 @@ namespace ProgressiveColonizationSystem
     {
         public static ColonizationResearchScenario Instance;
 
+        public static TieredResource LodeResource = new TieredResource("Lode", "", ProductionRestriction.OrbitOfBody, scanningResearchCategory, false, true);
+
         private Dictionary<ResearchCategory, Dictionary<string, TechProgress>> categoryToBodyToProgressMap;
 
         private static ResearchCategory hydroponicResearchCategory = new HydroponicResearchCategory();

@@ -17,7 +17,7 @@ namespace ProgressiveColonizationSystem
             Instance = this;
         }
 
-        public ResourceLode GetOrCreateResourceLoad(Vessel nearVessel)
+        public ResourceLode GetOrCreateResourceLoad(Vessel nearVessel, TechTier tier)
         {
             // There's only allowed one resource load - you have to harvest it until it's gone
             // So find the thing first.
@@ -34,7 +34,7 @@ namespace ProgressiveColonizationSystem
             else
             {
                 var waypoint = Waypoints.CreateWaypointNear("Resource Lode", nearVessel, 1000, 3000);
-                lode = new ResourceLode(waypoint);
+                lode = new ResourceLode(waypoint, tier);
                 activeLodes.Add(lode);
             }
 
@@ -102,7 +102,7 @@ namespace ProgressiveColonizationSystem
 
         public class ResourceLode
         {
-            internal ResourceLode(Waypoint waypoint)
+            internal ResourceLode(Waypoint waypoint, TechTier tier)
             {
                 this.Latitude = waypoint.latitude;
                 this.Longitude = waypoint.longitude;
@@ -110,9 +110,10 @@ namespace ProgressiveColonizationSystem
                 this.Identifier = waypoint.id.ToString();
                 this.DiscoveryTime = Planetarium.GetUniversalTime();
                 this.Quantity = 5000;
+                this.Tier = tier;
             }
 
-            internal ResourceLode(string bodyName, double latitude, double longitude, string identifier, double discoveryTime, double quantity)
+            internal ResourceLode(string bodyName, double latitude, double longitude, string identifier, double discoveryTime, double quantity, TechTier tier)
             {
                 this.Latitude = latitude;
                 this.Longitude =longitude;
@@ -120,6 +121,7 @@ namespace ProgressiveColonizationSystem
                 this.Identifier = identifier;
                 this.DiscoveryTime = discoveryTime;
                 this.Quantity = 5000;
+                this.Tier = tier;
             }
 
             public static bool TryLoad(ConfigNode configNode, out ResourceLode resourceLode)
@@ -128,10 +130,12 @@ namespace ProgressiveColonizationSystem
                 double longitude = 0;
                 double discoveryTime = 0;
                 double quantity = 0;
+                int tier = 0;
                 if (!configNode.TryGetValue("latitude", ref latitude)
                  || !configNode.TryGetValue("longitude", ref longitude)
                  || !configNode.TryGetValue("discoveryTime", ref discoveryTime)
-                 || !configNode.TryGetValue("quantity", ref quantity))
+                 || !configNode.TryGetValue("quantity", ref quantity)
+                 || !configNode.TryGetValue("tier", ref tier))
                 {
                     resourceLode = null;
                     return false;
@@ -139,7 +143,7 @@ namespace ProgressiveColonizationSystem
 
                 string bodyName = configNode.GetValue("body");
                 string identifier = configNode.GetValue("id");
-                resourceLode = new ResourceLode(bodyName, latitude, longitude, identifier, discoveryTime, quantity);
+                resourceLode = new ResourceLode(bodyName, latitude, longitude, identifier, discoveryTime, quantity, (TechTier)tier);
                 return true;
             }
 
@@ -152,6 +156,7 @@ namespace ProgressiveColonizationSystem
                 node.AddValue("longitude", this.Longitude);
                 node.AddValue("discoveryTime", this.DiscoveryTime);
                 node.AddValue("quantity", this.Quantity);
+                node.AddValue("tier", (int)this.Tier);
                 return node;
             }
 
@@ -161,6 +166,7 @@ namespace ProgressiveColonizationSystem
             public string Identifier { get; }
             public double DiscoveryTime { get; }
             public double Quantity { get; set; }
+            public TechTier Tier { get; set; }
         }
     }
 }

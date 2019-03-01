@@ -115,6 +115,15 @@ namespace ProgressiveColonizationSystem
                                 DumpExcess = false,
                                 FlowMode = ResourceFlowMode.ALL_VESSEL
                             }));
+
+                        if (ResourceLodeScenario.Instance.TryFindResourceLodeInRange(vessel, out var resourceLode))
+                        {
+                            if (resourceConsumptionPerSecond.TryGetValue(ColonizationResearchScenario.LodeResource.TieredName(resourceLode.Tier), out double lodeConsumptionPerSecond))
+                            {
+                                ResourceLodeScenario.Instance.TryConsume(resourceLode, lodeConsumptionPerSecond * elapsedTime, out _);
+                            }
+                        }
+
                     }
                     if (resourceProductionPerSecond != null)
                     {
@@ -200,6 +209,12 @@ namespace ProgressiveColonizationSystem
                         availableStorage[resource.resourceName] = amount + resource.maxAmount - resource.amount;
                     }
                 }
+            }
+
+            // Add a magic container that has whatever stuff the planet has
+            if (ResourceLodeScenario.Instance.TryFindResourceLodeInRange(vessel, out var resourceLode))
+            {
+                availableResources.Add(ColonizationResearchScenario.LodeResource.TieredName(resourceLode.Tier), resourceLode.Quantity);
             }
         }
 

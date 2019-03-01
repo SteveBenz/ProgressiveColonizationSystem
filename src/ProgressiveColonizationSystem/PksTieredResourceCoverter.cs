@@ -139,8 +139,10 @@ namespace ProgressiveColonizationSystem
             return true;
         }
 
-        public void FixedUpdate()
+        public override void OnFixedUpdate()
         {
+            base.OnFixedUpdate();
+
             // somehow, if this is called from OnAwake, like it sensibly should be, it breaks
             // the part so that FixedUpdate never gets called.
             if (!isInitialized)
