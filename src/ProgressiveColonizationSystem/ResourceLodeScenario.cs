@@ -83,7 +83,7 @@ namespace ProgressiveColonizationSystem
             this.activeLodes.Clear();
             foreach (var childNode in node.GetNodes())
             {
-                if (ResourceLode.TryLoad(node, out ResourceLode lode))
+                if (ResourceLode.TryLoad(childNode, out ResourceLode lode))
                 {
                     this.activeLodes.Add(lode);
                 }
@@ -107,7 +107,7 @@ namespace ProgressiveColonizationSystem
                 this.Latitude = waypoint.latitude;
                 this.Longitude = waypoint.longitude;
                 this.bodyName = waypoint.celestialBody.name;
-                this.Identifier = waypoint.id.ToString();
+                this.Identifier = waypoint.navigationId.ToString();
                 this.DiscoveryTime = Planetarium.GetUniversalTime();
                 this.Quantity = 5000;
                 this.Tier = tier;
@@ -149,7 +149,7 @@ namespace ProgressiveColonizationSystem
 
             public ConfigNode Serialize()
             {
-                ConfigNode node = new ConfigNode();
+                ConfigNode node = new ConfigNode("Lode");
                 node.AddValue("id", this.Identifier);
                 node.AddValue("body", this.bodyName);
                 node.AddValue("latitude", this.Latitude);

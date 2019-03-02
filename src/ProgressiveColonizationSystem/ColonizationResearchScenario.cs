@@ -30,7 +30,9 @@ namespace ProgressiveColonizationSystem
             new TieredResource("Fertilizer", "Kerbal-Days", ProductionRestriction.LandedOnBody, productionResearchCategory, true, false),
             new TieredResource("Shinies", "Bling-per-day", ProductionRestriction.LandedOnBody, shiniesResearchCategory, true, false),
             new TieredResource("Stuff", null, ProductionRestriction.LandedOnBody, productionResearchCategory, false, false),
-            scanningResource
+            new TieredResource("SpecialStuff", null, ProductionRestriction.LandedOnBody, productionResearchCategory, false, false),
+            scanningResource,
+            LodeResource,
         };
 
         public static TieredResource GetTieredResourceByName(string name)
