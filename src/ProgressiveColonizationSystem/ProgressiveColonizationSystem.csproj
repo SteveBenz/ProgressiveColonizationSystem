@@ -69,7 +69,7 @@
     <Compile Include="CrewBlurbs.cs" />
     <Compile Include="CrewRequirementVesselModule.cs" />
     <Compile Include="IntervesselResourceTransfer.cs" />
-    <Compile Include="PksSpecialStuffScrounger.cs" />
+    <Compile Include="PksCrushInsScrounger.cs" />
     <Compile Include="PksToolbarDialog.cs" />
     <Compile Include="ITieredContainer.cs" />
     <Compile Include="LifeSupportCalculator.cs" />

@@ -28,12 +28,12 @@ namespace ProgressiveColonizationSystem
                 // Ensure that there's a waypoint
                 if (!Waypoints.TryFindWaypointById(lode.Identifier, out _))
                 {
-                    Waypoints.CreateWaypointAt("Resource Lode", nearVessel.mainBody, lode.Latitude, lode.Longitude);
+                    Waypoints.CreateWaypointAt("Loose Crushins", nearVessel.mainBody, lode.Latitude, lode.Longitude);
                 }
             }
             else
             {
-                var waypoint = Waypoints.CreateWaypointNear("Resource Lode", nearVessel, 1000, 3000);
+                var waypoint = Waypoints.CreateWaypointNear("Loose Crushins", nearVessel, 1000, 3000);
                 lode = new ResourceLode(waypoint, tier);
                 activeLodes.Add(lode);
             }

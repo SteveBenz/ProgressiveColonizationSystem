@@ -45,7 +45,7 @@ This mod is still in early days, with a few big parts missing.
    1.  Create the resource gathering mechanic
        1.  (complete) Create a configurable part for storing Stuff
        2.  (complete) Create a KSP Resource for Tiered Stuff resource
-       3.  Readjust the numbers
+       3.  Readjust the numbers 200 not 5000 so *.04
        3.  (complete)Create a scanning lab (using skin from infrared telescope?)
        4.  (complete)Figure out how to make magic spots and waypoints to them
        5.  (complete)Make the Tier-1+ drill require being at a magic spot to work

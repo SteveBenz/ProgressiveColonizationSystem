@@ -8,7 +8,7 @@ using UnityEngine;
 namespace ProgressiveColonizationSystem
 {
 
-    public class PksSpecialStuffScrounger
+    public class PksCrushInsScrounger
         : PksTieredResourceConverter
     {
         [KSPEvent(guiActive = true)]
@@ -26,7 +26,7 @@ namespace ProgressiveColonizationSystem
 
             if (!ResourceLodeScenario.Instance.TryFindResourceLodeInRange(this.vessel, out _))
             {
-                reasonWhyNotMessage = "Not at a Resource Lode";
+                reasonWhyNotMessage = "Not at the spot";
                 return false;
             }
 

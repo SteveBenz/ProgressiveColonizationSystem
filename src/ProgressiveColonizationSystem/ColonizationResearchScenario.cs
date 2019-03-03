@@ -21,7 +21,7 @@ namespace ProgressiveColonizationSystem
 
         private static TieredResource scanningResource = new TieredResource("ScanningData", "Kerbal-Days", ProductionRestriction.OrbitOfBody, scanningResearchCategory, false, true);
 
-        public static TieredResource LodeResource = new TieredResource("Lode", "", ProductionRestriction.OrbitOfBody, scanningResearchCategory, canBeStored: false, unstoredExcessCanGoToResearch: false);
+        public static TieredResource LodeResource = new TieredResource("LooseCrushIns", "", ProductionRestriction.OrbitOfBody, scanningResearchCategory, canBeStored: false, unstoredExcessCanGoToResearch: false);
 
         private static TieredResource[] AllTieredResources =
         {
@@ -30,7 +30,7 @@ namespace ProgressiveColonizationSystem
             new TieredResource("Fertilizer", "Kerbal-Days", ProductionRestriction.LandedOnBody, productionResearchCategory, true, false),
             new TieredResource("Shinies", "Bling-per-day", ProductionRestriction.LandedOnBody, shiniesResearchCategory, true, false),
             new TieredResource("Stuff", null, ProductionRestriction.LandedOnBody, productionResearchCategory, false, false),
-            new TieredResource("SpecialStuff", null, ProductionRestriction.LandedOnBody, productionResearchCategory, false, false),
+            new TieredResource("CrushIns", null, ProductionRestriction.LandedOnBody, productionResearchCategory, false, false),
             scanningResource,
             LodeResource,
         };
