@@ -11,8 +11,6 @@ namespace ProgressiveColonizationSystem
     {
         public static ColonizationResearchScenario Instance;
 
-        public static TieredResource LodeResource = new TieredResource("Lode", "", ProductionRestriction.OrbitOfBody, scanningResearchCategory, false, true);
-
         private Dictionary<ResearchCategory, Dictionary<string, TechProgress>> categoryToBodyToProgressMap;
 
         private static ResearchCategory hydroponicResearchCategory = new HydroponicResearchCategory();
@@ -22,6 +20,8 @@ namespace ProgressiveColonizationSystem
         private static ResearchCategory shiniesResearchCategory = new ShiniesResearchCategory();
 
         private static TieredResource scanningResource = new TieredResource("ScanningData", "Kerbal-Days", ProductionRestriction.OrbitOfBody, scanningResearchCategory, false, true);
+
+        public static TieredResource LodeResource = new TieredResource("Lode", "", ProductionRestriction.OrbitOfBody, scanningResearchCategory, canBeStored: false, unstoredExcessCanGoToResearch: false);
 
         private static TieredResource[] AllTieredResources =
         {

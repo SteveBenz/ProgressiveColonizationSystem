@@ -43,7 +43,18 @@ namespace ProgressiveColonizationSystem
             return waypoint;
         }
 
-
+        public static bool RemoveWaypoint(string id)
+        {
+            if (TryFindWaypointById(id, out var waypoint))
+            {
+                ScenarioCustomWaypoints.RemoveWaypoint(waypoint);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
         public static Waypoint CreateWaypointAt(
             string name,

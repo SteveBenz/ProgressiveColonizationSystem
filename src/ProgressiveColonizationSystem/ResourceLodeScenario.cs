@@ -65,6 +65,7 @@ namespace ProgressiveColonizationSystem
             if (resourceLode.Quantity <= amountRequested)
             {
                 this.activeLodes.Remove(resourceLode);
+                Waypoints.RemoveWaypoint(resourceLode.Identifier);
                 amountReceived = resourceLode.Quantity;
                 return amountRequested == resourceLode.Quantity;
             }
@@ -120,7 +121,7 @@ namespace ProgressiveColonizationSystem
                 this.bodyName = bodyName;
                 this.Identifier = identifier;
                 this.DiscoveryTime = discoveryTime;
-                this.Quantity = 5000;
+                this.Quantity = quantity;
                 this.Tier = tier;
             }
 

@@ -24,7 +24,13 @@ namespace ProgressiveColonizationSystem
                 return false;
             }
 
-            return ResourceLodeScenario.Instance.TryFindResourceLodeInRange(this.vessel, out _);
+            if (!ResourceLodeScenario.Instance.TryFindResourceLodeInRange(this.vessel, out _))
+            {
+                reasonWhyNotMessage = "Not at a Resource Lode";
+                return false;
+            }
+
+            return true;
         }
     }
 }

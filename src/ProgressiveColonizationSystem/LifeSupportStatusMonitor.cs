@@ -194,7 +194,6 @@ namespace ProgressiveColonizationSystem
                     foreach (var resourceName in resourcesProduced.Keys.OrderBy(n => n))
                     {
                         double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(resourcesProduced[resourceName]);
-                        double daysLeft = resources[resourceName] / perDay;
                         text.AppendLine($"{perDay:N1} {resourceName} per day");
                     }
                 }

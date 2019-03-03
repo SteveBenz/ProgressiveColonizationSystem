@@ -107,23 +107,25 @@ namespace ProgressiveColonizationSystem
                     ConversionRecipe consumptionRecipe = new ConversionRecipe();
                     if (resourceConsumptionPerSecond != null)
                     {
-                        consumptionRecipe.Inputs.AddRange(
-                            resourceConsumptionPerSecond.Select(pair => new ResourceRatio()
-                            {
-                                ResourceName = pair.Key,
-                                Ratio = pair.Value,
-                                DumpExcess = false,
-                                FlowMode = ResourceFlowMode.ALL_VESSEL
-                            }));
-
-                        if (ResourceLodeScenario.Instance.TryFindResourceLodeInRange(vessel, out var resourceLode))
+                        // ISSUE 2019/2: This isn't really ideal, since finding nearby lodes is not a cheap operation
+                        //   and it gets done twice.  But perhaps it's all mute because the whole resource chain calculation
+                        //   is expensive as well and perhaps there's a way to compute it less than once a frame.
+                        if (ResourceLodeScenario.Instance.TryFindResourceLodeInRange(vessel, out var resourceLode)
+                         && resourceConsumptionPerSecond.TryGetValue(ColonizationResearchScenario.LodeResource.TieredName(resourceLode.Tier), out double lodeConsumptionPerSecond))
                         {
-                            if (resourceConsumptionPerSecond.TryGetValue(ColonizationResearchScenario.LodeResource.TieredName(resourceLode.Tier), out double lodeConsumptionPerSecond))
-                            {
-                                ResourceLodeScenario.Instance.TryConsume(resourceLode, lodeConsumptionPerSecond * elapsedTime, out _);
-                            }
+                            ResourceLodeScenario.Instance.TryConsume(resourceLode, lodeConsumptionPerSecond * elapsedTime, out _);
                         }
-
+                        else
+                        {
+                            consumptionRecipe.Inputs.AddRange(
+                                resourceConsumptionPerSecond.Select(pair => new ResourceRatio()
+                                {
+                                    ResourceName = pair.Key,
+                                    Ratio = pair.Value,
+                                    DumpExcess = false,
+                                    FlowMode = ResourceFlowMode.ALL_VESSEL
+                                }));
+                        }
                     }
                     if (resourceProductionPerSecond != null)
                     {

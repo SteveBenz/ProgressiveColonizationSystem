@@ -139,6 +139,11 @@ namespace ProgressiveColonizationSystem
             return true;
         }
 
+        public void FixedUpdate()
+        {
+            this.OnFixedUpdate();
+        }
+
         public override void OnFixedUpdate()
         {
             base.OnFixedUpdate();
