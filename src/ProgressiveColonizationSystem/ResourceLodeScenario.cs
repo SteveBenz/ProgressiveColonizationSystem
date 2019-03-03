@@ -1,4 +1,5 @@
 ﻿using FinePrint;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -55,6 +56,7 @@ namespace ProgressiveColonizationSystem
             if (!Waypoints.TryFindWaypointById(resourceLode.Identifier, out Waypoint waypoint))
             {
                 waypoint = Waypoints.CreateWaypointAt("Resource Lode", vessel.mainBody, resourceLode.Latitude, resourceLode.Longitude);
+                resourceLode.WaypointRecreated(waypoint);
             }
 
             return Waypoints.StraightLineDistanceInMetersFromWaypoint(vessel, waypoint) < 150.0;
@@ -161,10 +163,15 @@ namespace ProgressiveColonizationSystem
                 return node;
             }
 
+            internal void WaypointRecreated(Waypoint waypoint)
+            {
+                this.Identifier = waypoint.navigationId.ToString();
+            }
+
             public double Latitude { get; }
             public double Longitude { get; }
             public string bodyName { get; }
-            public string Identifier { get; }
+            public string Identifier { get; private set; }
             public double DiscoveryTime { get; }
             public double Quantity { get; set; }
             public TechTier Tier { get; set; }
