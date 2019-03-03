@@ -112,7 +112,7 @@ namespace ProgressiveColonizationSystem
                 this.bodyName = waypoint.celestialBody.name;
                 this.Identifier = waypoint.navigationId.ToString();
                 this.DiscoveryTime = Planetarium.GetUniversalTime();
-                this.Quantity = 5000;
+                this.Quantity = 500;
                 this.Tier = tier;
             }
 

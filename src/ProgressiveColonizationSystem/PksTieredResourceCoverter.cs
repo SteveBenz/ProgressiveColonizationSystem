@@ -64,6 +64,9 @@ namespace ProgressiveColonizationSystem
         public string input;
 
         [KSPField]
+        public int inputRequirementStartingTier;
+
+        [KSPField]
         public float capacity;
 
         [KSPField(guiActive = true, guiActiveEditor = false, guiName = "Research")]
@@ -278,7 +281,7 @@ namespace ProgressiveColonizationSystem
         {
             get
             {
-                if (this.inputAsTieredResource == null && !string.IsNullOrEmpty(this.input))
+                if (this.inputAsTieredResource == null && !string.IsNullOrEmpty(this.input) && this.tier >= inputRequirementStartingTier)
                 {
                     this.inputAsTieredResource = ColonizationResearchScenario.GetTieredResourceByName(this.input);
                 }

@@ -52,9 +52,11 @@ This mod is still in early days, with a few big parts missing.
        6.  (complete)Actually require that a scanner of the appriate tier be in orbit
        7.  Make the scanner require a network of scanner satelites
        8.  (complete)Rename to "Crush-ins", "Loose Crush-ins"
-       9.  Be able to transfer Crushins to a base
-       10. Make the base able to consume them to make stuff
+       9.  (complete)Be able to transfer Crushins to a base
+       10. (complete)Make the base able to consume them to make stuff
        11. Put the find resource thing on the scanner
+       12. Make nodes disappear after time or something?
+       13. Manually transfer Snacks-4 - "Grab Snacks" "Give Snacks"
    2.  Create shinies resource chain
        1.  (complete) Create shinies factory
        2.  (complete) Create a basic shinies container
