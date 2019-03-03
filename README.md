@@ -46,17 +46,19 @@ This mod is still in early days, with a few big parts missing.
        1.  (complete) Create a configurable part for storing Stuff
        2.  (complete) Create a KSP Resource for Tiered Stuff resource
        3.  (complete) Readjust the numbers
-       3.  (complete)Create a scanning lab (using skin from infrared telescope?)
-       4.  (complete)Figure out how to make magic spots and waypoints to them
-       5.  (complete)Make the Tier-1+ drill require being at a magic spot to work
-       6.  (complete)Actually require that a scanner of the appriate tier be in orbit
-       7.  Make the scanner require a network of scanner satelites
+       4.  (complete)Create a scanning lab (using skin from infrared telescope?)
+       5.  (complete)Figure out how to make magic spots and waypoints to them
+       6.  (complete)Make the Tier-1+ drill require being at a magic spot to work
+       7.  (complete)Actually require that a scanner of the appriate tier be in orbit
        8.  (complete)Rename to "Crush-ins", "Loose Crush-ins"
        9.  (complete)Be able to transfer Crushins to a base
        10. (complete)Make the base able to consume them to make stuff
        11. Put the find resource thing on the scanner
-       12. Make nodes disappear after time or something?
-       13. Manually transfer Snacks-4 - "Grab Snacks" "Give Snacks"
+       12. The Crush-Ins warning should be more explicit about what's needed
+       13. The Trip-Duration calculator should not be limited by Crush-Ins
+       14. Make the scanner require a network of scanner satelites
+       15. Make nodes disappear after time or something?
+       16. Manually transfer Snacks-4 - "Grab Snacks" "Give Snacks"
    2.  Create shinies resource chain
        1.  (complete) Create shinies factory
        2.  (complete) Create a basic shinies container
@@ -64,7 +66,7 @@ This mod is still in early days, with a few big parts missing.
        4   (complete) Mun/Minmus shinies peak at T1, Duna/Ike/Gilly at T2, T5 only at Dres/Eloo/Moho/Eve
        5.  Make the shinies boost your rep on landing
        6.  Re-implement the checks to make sure Shinies don't actually come from Kerbin
-   3.  Support USI kerbal types
+   3.  (complete) Support USI kerbal types
    4.  (complete) Life support dialog works nicely in the editors - can estimate usage and ag production
    5.  (complete) Make the GetInfo()'s show the electric utilization
    6.  (complete) Support some form of resource transfer (resupply / salvage)
