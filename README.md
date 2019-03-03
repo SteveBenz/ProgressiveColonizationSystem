@@ -43,13 +43,18 @@ This mod is still in early days, with a few big parts missing.
    6.  Automate release preparation
 6. Advanced Progression - the ability to have extended missions on Duna
    1.  Create the resource gathering mechanic
-       1.  Create a configurable part for storing Stuff
-       2.  Create a KSP Resource for Tiered Stuff resource
+       1.  (complete) Create a configurable part for storing Stuff
+       2.  (complete) Create a KSP Resource for Tiered Stuff resource
+       3.  Readjust the numbers
        3.  (complete)Create a scanning lab (using skin from infrared telescope?)
-       4.  Figure out how to make magic spots and waypoints to them
-       5.  Make the Tier-1+ drill require being at a magic spot to work
-       6.  Actually require that a scanner of the appriate tier be in orbit
+       4.  (complete)Figure out how to make magic spots and waypoints to them
+       5.  (complete)Make the Tier-1+ drill require being at a magic spot to work
+       6.  (complete)Actually require that a scanner of the appriate tier be in orbit
        7.  Make the scanner require a network of scanner satelites
+       8.  Rename to "Crush-ins", "Loose Crush-ins"
+       9.  Be able to transfer Crushins to a base
+       10. Make the base able to consume them to make stuff
+       11. Put the find resource thing on the scanner
    2.  Create shinies resource chain
        1.  (complete) Create shinies factory
        2.  (complete) Create a basic shinies container
