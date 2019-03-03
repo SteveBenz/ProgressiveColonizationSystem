@@ -11,12 +11,6 @@ namespace ProgressiveColonizationSystem
     public class PksCrushInsScrounger
         : PksTieredResourceConverter
     {
-        [KSPEvent(guiActive = true)]
-        public void FindResource()
-        {
-            ResourceLodeScenario.Instance.GetOrCreateResourceLoad(this.vessel, Tier);
-        }
-
         protected override bool CanDoProduction(ModuleResourceConverter resourceConverter, out string reasonWhyNotMessage)
         {
             if (!base.CanDoProduction(resourceConverter, out reasonWhyNotMessage))
