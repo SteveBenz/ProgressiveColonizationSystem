@@ -53,12 +53,13 @@ This mod is still in early days, with a few big parts missing.
        8.  (complete)Rename to "Crush-ins", "Loose Crush-ins"
        9.  (complete)Be able to transfer Crushins to a base
        10. (complete)Make the base able to consume them to make stuff
-       11. Put the find resource thing on the scanner
-       12. The Crush-Ins warning should be more explicit about what's needed
-       13. The Trip-Duration calculator should not be limited by Crush-Ins
-       14. Make the scanner require a network of scanner satelites
-       15. Make nodes disappear after time or something?
-       16. Manually transfer Snacks-4 - "Grab Snacks" "Give Snacks"
+       11. (complete)Put the find resource thing on the scanner
+       12. (complete)The Crush-Ins warning should be more explicit about what's needed
+       13. (complete)The Trip-Duration calculator should not be limited by Crush-Ins
+       14. Make the scanner require a network of scanner satelites (and range the crushins appropriately)
+       15. Automate crush-in collection after two successful trips
+       16. Make nodes disappear after time or something?
+       17. Manually transfer Snacks-4 - "Grab Snacks" "Give Snacks"
    2.  Create shinies resource chain
        1.  (complete) Create shinies factory
        2.  (complete) Create a basic shinies container

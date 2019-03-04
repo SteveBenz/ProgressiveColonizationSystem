@@ -189,6 +189,14 @@ namespace ProgressiveColonizationSystem
                 .Distinct()
                 .ToDictionary(n => n, n => aWholeLot);
 
+            foreach (var producer in producers)
+            {
+                if (producer.Input != null && producer.Input.IsHarvestedLocally)
+                {
+                    unlimitedInputs[producer.Input.TieredName(producer.Tier)] = aWholeLot;
+                }
+            }
+
             int crewCount = KSP.UI.CrewAssignmentDialog.Instance.GetManifest(false).CrewCount;
             ResearchSink researchSink = new ResearchSink();
             TieredProduction.CalculateResourceUtilization(
@@ -214,15 +222,26 @@ namespace ProgressiveColonizationSystem
             {
                 var name = pair.Key;
                 var amountPerDay = TieredProduction.UnitsPerSecondToUnitsPerDay(pair.Value);
+                consumption.Append($"{amountPerDay:N1} {name}/day");
 
-                double available = 0;
-                actualInputs.TryGetValue(name, out available);
-                string availableBlurb = $"{amountPerDay * this.plannedMissionDuration:N0} needed, {available:N0} available";
-                if (available < amountPerDay * this.plannedMissionDuration)
+                ColonizationResearchScenario.Instance.TryParseTieredResourceName(name, out TieredResource resource, out TechTier tier);
+                if (resource.IsHarvestedLocally)
                 {
-                    availableBlurb = ColorRed(availableBlurb);
+                    consumption.Append(" - will need to be fetched from a resource lode");
                 }
-                consumption.AppendLine($"{amountPerDay:N1} {name}/day - {availableBlurb}");
+                else
+                {
+                    double available = 0;
+                    actualInputs.TryGetValue(name, out available);
+                    string availableBlurb = $"{amountPerDay * this.plannedMissionDuration:N0} needed, {available:N0} available";
+                    if (available < amountPerDay * this.plannedMissionDuration)
+                    {
+                        availableBlurb = ColorRed(availableBlurb);
+                    }
+                    consumption.Append(" - ");
+                    consumption.Append(availableBlurb);
+                }
+                consumption.AppendLine();
             }
             this.consumptionInfo = consumption.ToString();
 

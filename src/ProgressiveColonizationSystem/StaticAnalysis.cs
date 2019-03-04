@@ -145,7 +145,7 @@ namespace ProgressiveColonizationSystem
 
                 // Supplier parts should be at least maxTier
                 TieredResource input = parts.First().Input;
-                if (input == null && output.IsSupportedByScanning && targetBody != null)
+                if (input == null && output.IsHarvestedLocally && targetBody != null)
                 {
                     // then it depends on scanning
                     TechTier maxScanningTier = colonizationResearch.GetMaxUnlockedScanningTier(targetBody);
@@ -190,7 +190,10 @@ namespace ProgressiveColonizationSystem
                 double inputRequired = inputPair.Value;
                 if (!production.TryGetValue(inputPair.Key, out double outputAmount))
                 {
-                    if (!containers.Any(c => c.Content == inputResource && c.Tier == TechTier.Tier4 && c.Amount > 0))
+                    // Okay, there's no producer for this - complain if there's no storage that either contains the
+                    // required tier or could contain it if it's gathered locally.
+                    TechTier requiredTier = producers.Where(p => p.Input == inputResource).Select(p => p.Tier).Min();
+                    if (!containers.Any(c => c.Content == inputResource && c.Tier >= requiredTier && (c.Content.IsHarvestedLocally || c.Amount > 0)))
                     {
                         yield return new WarningMessage()
                         {
@@ -199,7 +202,6 @@ namespace ProgressiveColonizationSystem
                             FixIt = null
                         };
                     }
-                    // See if there's storage
                 }
                 else if (outputAmount < inputRequired)
                 {
@@ -220,14 +222,6 @@ namespace ProgressiveColonizationSystem
             {
                 if (!containers.Any(c => c.Content == producer.Output && c.Tier == producer.Tier) && producer.Output.CanBeStored)
                 {
-                    // Don't complain about missing Stuff storage at Tier0 & Tier1 (the tiers before the rover requirement)
-                    // because it makes no sense to store it it.
-                    if (producer.Output.IsSupportedByScanning && producer.Tier < TechTier.Tier2)
-                    {
-                        // TODO: Perhaps after the scanning refactor we can detect this a bit better.
-                        continue;
-                    }
-
                     missingStorageComplaints.Add($"This craft is producing {producer.Output.TieredName(producer.Tier)} but there's no storage for it.");
                 }
             }

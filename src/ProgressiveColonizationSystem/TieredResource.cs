@@ -11,7 +11,7 @@ namespace ProgressiveColonizationSystem
 
     public class TieredResource
     {
-        public TieredResource(string name, string capacityUnits, ProductionRestriction productionRestriction, ResearchCategory researchCategory, bool canBeStored, bool unstoredExcessCanGoToResearch)
+        public TieredResource(string name, string capacityUnits, ProductionRestriction productionRestriction, ResearchCategory researchCategory, bool canBeStored, bool unstoredExcessCanGoToResearch, bool isHarvestedLocally)
         {
             this.BaseName = name;
             this.CapacityUnits = capacityUnits;
@@ -19,6 +19,7 @@ namespace ProgressiveColonizationSystem
             this.ExcessProductionCountsTowardsResearch = unstoredExcessCanGoToResearch;
             this.ProductionRestriction = productionRestriction;
             this.ResearchCategory = researchCategory;
+            this.IsHarvestedLocally = isHarvestedLocally;
         }
 
         public ProductionRestriction ProductionRestriction { get; }
@@ -45,7 +46,8 @@ namespace ProgressiveColonizationSystem
 
         public bool ExcessProductionCountsTowardsResearch { get; }
 
-        public bool IsSupportedByScanning => BaseName == "Stuff"; // TODO: When scanning is better fleshed out, see if we can do this more nicely.
+        public bool IsHarvestedLocally { get; }
+
         public bool IsSnacks => BaseName == "Snacks"; // TODO: Is there a nicer way to do this?
     }
 }
