@@ -50,7 +50,7 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
-            if (!TryFindResourceToTransfer(this.TargetVessel, out Dictionary<string,double> toSend, out Dictionary<string,double> toReceive))
+            if (!TryFindResourceToTransfer(FlightGlobals.ActiveVessel, this.TargetVessel, out Dictionary<string,double> toSend, out Dictionary<string,double> toReceive))
             {
                 return;
             }
@@ -164,17 +164,21 @@ namespace ProgressiveColonizationSystem
         }
 
         private bool HasStuffToTrade(Vessel otherVessel)
-            => TryFindResourceToTransfer(otherVessel, out _, out _);
+            => TryFindResourceToTransfer(FlightGlobals.ActiveVessel, otherVessel, out _, out _);
 
-
-        private bool TryFindResourceToTransfer(Vessel otherVessel, out Dictionary<string, double> toSend, out Dictionary<string, double> toReceive)
+        private enum SnacksDirection
         {
-            // If the other ship is unmanned and has producers, take everything and give nothing
+            Send,
+            Receive,
+            Neither,
+        }
 
-            SnackConsumption.ResourceQuantities(FlightGlobals.ActiveVessel, 1, out Dictionary<string, double> thisShipCanSupply, out Dictionary<string, double> thisShipCanUse);
-            SnackConsumption.ResourceQuantities(otherVessel, 1, out Dictionary<string, double> otherShipCanSupply, out Dictionary<string, double> otherShipCouldUse);
+        private static bool TryFindResourceToTransfer(Vessel sourceVessel, Vessel otherVessel, out Dictionary<string, double> toSend, out Dictionary<string, double> toReceive)
+        {
+            SnackConsumption.ResourceQuantities(sourceVessel, 1, out Dictionary<string, double> thisShipCanSupply, out Dictionary<string, double> thisShipCanUse);
+            SnackConsumption.ResourceQuantities(otherVessel, 1, out Dictionary<string, double> otherShipCanSupply, out Dictionary<string, double> otherShipCanUse);
 
-            List<string> couldSend = thisShipCanSupply.Keys.Intersect(otherShipCouldUse.Keys).ToList();
+            List<string> couldSend = thisShipCanSupply.Keys.Intersect(otherShipCanUse.Keys).ToList();
             List<string> couldTake = otherShipCanSupply.Keys.Intersect(thisShipCanUse.Keys).ToList();
 
             List<PksTieredResourceConverter> otherVesselProducers = otherVessel.FindPartModulesImplementing<PksTieredResourceConverter>();
@@ -197,7 +201,7 @@ namespace ProgressiveColonizationSystem
 
             // If other ship has a producer for a resource, take it
             // and if this ship has a producer for a resource (and the other doesn't), give it
-            HashSet<string> thisShipsProducts = GetVesselsProducers(FlightGlobals.ActiveVessel);
+            HashSet<string> thisShipsProducts = GetVesselsProducers(sourceVessel);
             HashSet<string> otherShipsProducts = GetVesselsProducers(otherVessel);
             foreach (string takeableStuff in otherShipCanSupply.Keys.Union(thisShipCanSupply.Keys))
             {
@@ -210,25 +214,41 @@ namespace ProgressiveColonizationSystem
                 }
                 else if (!otherShipsProducts.Contains(takeableStuff)
                        && thisShipsProducts.Contains(takeableStuff)
-                       && otherShipCouldUse.ContainsKey(takeableStuff)
+                       && otherShipCanUse.ContainsKey(takeableStuff)
                        && thisShipCanSupply.ContainsKey(takeableStuff))
                 {
-                    toSend.Add(takeableStuff, Math.Min(otherShipCouldUse[takeableStuff], thisShipCanSupply[takeableStuff]));
+                    toSend.Add(takeableStuff, Math.Min(otherShipCanUse[takeableStuff], thisShipCanSupply[takeableStuff]));
                 }
             }
 
-            // Push MaxTier Snacks to bases and rovers
-            if (thisShipCanSupply.ContainsKey("Snacks-Tier4") && otherShipCouldUse.ContainsKey("Snacks-Tier4")
-             && (otherVessel.vesselType == VesselType.Base || otherVessel.vesselType == VesselType.Rover)
-             && !otherShipsProducts.Contains("Snacks-Tier4"))
+            SnacksDirection snackDirectionBasedOnVesselType;
+            if (sourceVessel.vesselType == VesselType.Ship && (otherVessel.vesselType == VesselType.Base || otherVessel.vesselType == VesselType.Rover || otherVessel.vesselType == VesselType.Lander)
+             || sourceVessel.vesselType == VesselType.Base && (otherVessel.vesselType == VesselType.Rover || otherVessel.vesselType == VesselType.Lander))
             {
-                toSend.Add("Snacks-Tier4", Math.Min(thisShipCanSupply["Snacks-Tier4"], otherShipCouldUse["Snacks-Tier4"]));
+                snackDirectionBasedOnVesselType = SnacksDirection.Send;
+            }
+            else if (otherVessel.vesselType == VesselType.Ship && (sourceVessel.vesselType == VesselType.Base || sourceVessel.vesselType == VesselType.Rover || sourceVessel.vesselType == VesselType.Lander)
+                  || otherVessel.vesselType == VesselType.Base && (sourceVessel.vesselType == VesselType.Rover || sourceVessel.vesselType == VesselType.Lander))
+            {
+                snackDirectionBasedOnVesselType = SnacksDirection.Receive;
+            }
+            else
+            {
+                snackDirectionBasedOnVesselType = SnacksDirection.Neither;
             }
 
-            // Likewise, pull snacks when you are the base.
-            if (otherShipCanSupply.ContainsKey("Snacks-Tier4") && thisShipCanUse.ContainsKey("Snacks-Tier4")
-             && (FlightGlobals.ActiveVessel.vesselType == VesselType.Base || FlightGlobals.ActiveVessel.vesselType == VesselType.Rover)
-             && !thisShipsProducts.Contains("Snacks-Tier4"))
+            // Send snacks?
+            if (thisShipCanSupply.ContainsKey("Snacks-Tier4")
+             && otherShipCanUse.ContainsKey("Snacks-Tier4")
+             && ( thisShipsProducts.Contains("Snacks-Tier4")   // Always send if we produce it
+               || snackDirectionBasedOnVesselType == SnacksDirection.Send))
+            {
+                toSend.Add("Snacks-Tier4", Math.Min(thisShipCanSupply["Snacks-Tier4"], otherShipCanUse["Snacks-Tier4"]));
+            }
+            else if (otherShipCanSupply.ContainsKey("Snacks-Tier4")
+             && thisShipCanUse.ContainsKey("Snacks-Tier4")
+             && (otherShipsProducts.Contains("Snacks-Tier4")   // Always take if the other guy produces it
+               || snackDirectionBasedOnVesselType == SnacksDirection.Receive))
             {
                 toReceive.Add("Snacks-Tier4", Math.Min(thisShipCanUse["Snacks-Tier4"], otherShipCanSupply["Snacks-Tier4"]));
             }
