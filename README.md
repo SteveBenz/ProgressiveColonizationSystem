@@ -56,10 +56,11 @@ This mod is still in early days, with a few big parts missing.
        11. (complete)Put the find resource thing on the scanner
        12. (complete)The Crush-Ins warning should be more explicit about what's needed
        13. (complete)The Trip-Duration calculator should not be limited by Crush-Ins
-       14. Make the scanner require a network of scanner satelites (and range the crushins appropriately)
-       15. Automate crush-in collection after two successful trips
-       16. Make nodes disappear after time or something?
-       17. Manually transfer Snacks-4 - "Grab Snacks" "Give Snacks"
+       14. Make it so a popup/tutorial message comes up when a user breaks Tier2 anywhere.
+       15. Make the scanner require a network of scanner satelites (and range the crushins appropriately)
+       16. Automate crush-in collection after two successful trips
+       17. Make nodes disappear after time or something?
+       18. Manually transfer Snacks-4 - "Grab Snacks" "Give Snacks"
    2.  Create shinies resource chain
        1.  (complete) Create shinies factory
        2.  (complete) Create a basic shinies container
