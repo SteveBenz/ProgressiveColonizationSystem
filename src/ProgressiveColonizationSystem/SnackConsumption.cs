@@ -12,6 +12,19 @@ namespace ProgressiveColonizationSystem
         [KSPField(isPersistant = true)]
         public double LastUpdateTime;
 
+        /// <summary>
+        ///   This is the vessel ID of the rover or lander that is used to automatically supply
+        ///   the base.
+        /// </summary>
+        [KSPField(isPersistant = true)]
+        public Guid supplierMinerCraftId = Guid.Empty;
+
+        /// <summary>
+        ///   The vessel ID of the rover that last pushed the minimum quantity of resources to the station.
+        /// </summary>
+        [KSPField(isPersistant = true)]
+        public Guid lastMinerToDepositCraftId = Guid.Empty;
+
         protected IResourceBroker _resBroker;
         public IResourceBroker ResBroker
         {
@@ -70,6 +83,43 @@ namespace ProgressiveColonizationSystem
             }
         }
 
+        private bool IsMiningLanderPresent
+        {
+            get
+            {
+                if (this.supplierMinerCraftId == Guid.Empty)
+                {
+                    return false;
+                }
+                else
+                {
+                    Guid vesselId = this.supplierMinerCraftId;
+                    Vessel vessel = FlightGlobals.Vessels.FirstOrDefault(v => v.id == vesselId);
+                    return vessel.loaded && (vessel.situation == Vessel.Situations.LANDED || vessel.situation == Vessel.Situations.SPLASHED);
+                }
+            }
+        }
+
+        internal void MiningMissionFinished(Vessel sourceVessel)
+        {
+            if (this.lastMinerToDepositCraftId == sourceVessel.id)
+            {
+                if (this.supplierMinerCraftId != sourceVessel.id)
+                {
+                    // TODO: Funner messages.
+                    PopupMessageWithKerbal.ShowPopup("We Got it From here!",
+                        $"Looks like the {sourceVessel.name} is a fine vessel for grabbing resources.",
+                        $"Looks like the {sourceVessel.name} is a fine vessel for grabbing resources.",
+                        "Thanks!");
+                    this.supplierMinerCraftId = sourceVessel.id;
+                }
+            }
+            else
+            {
+                this.lastMinerToDepositCraftId = sourceVessel.id;
+            }
+        }
+
         /// <summary>
         ///   Calculates snacks consumption aboard the vessel.
         /// </summary>
@@ -117,8 +167,9 @@ namespace ProgressiveColonizationSystem
                         }
                         else
                         {
-                            consumptionRecipe.Inputs.AddRange(
-                                resourceConsumptionPerSecond.Select(pair => new ResourceRatio()
+                            consumptionRecipe.Inputs.AddRange(resourceConsumptionPerSecond
+                                .Where(pair => !resourceIsAutosupplied(pair.Key))
+                                .Select(pair => new ResourceRatio()
                                 {
                                     ResourceName = pair.Key,
                                     Ratio = pair.Value,
@@ -179,6 +230,19 @@ namespace ProgressiveColonizationSystem
             else
             {
                 return 0;
+            }
+        }
+
+        private bool resourceIsAutosupplied(string tieredResourceName)
+        {
+            if (this.IsMiningLanderPresent)
+            {
+                ColonizationResearchScenario.Instance.TryParseTieredResourceName(tieredResourceName, out var resource, out _);
+                return resource == ColonizationResearchScenario.CrushInsResource;
+            }
+            else
+            {
+                return false;
             }
         }
 

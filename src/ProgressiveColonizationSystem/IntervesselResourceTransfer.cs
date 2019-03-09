@@ -81,6 +81,38 @@ namespace ProgressiveColonizationSystem
             }
         }
 
+        private void CheckIfSatisfiedAutoMiningRequirement()
+        {
+            foreach (var resource in this.thisVesselConversionRecipe.Outputs)
+            {
+                if (this.IsResourceSatisfyingMiningRequirement(resource))
+                {
+                    this.TargetVessel.vesselModules.OfType<SnackConsumption>().First()
+                        .MiningMissionFinished(this.sourceVessel);
+                }
+            }
+            foreach (var resource in this.thisVesselConversionRecipe.Inputs)
+            {
+                if (this.IsResourceSatisfyingMiningRequirement(resource))
+                {
+                    this.sourceVessel.vesselModules.OfType<SnackConsumption>().First()
+                        .MiningMissionFinished(this.TargetVessel);
+                }
+            }
+        }
+
+        private bool IsResourceSatisfyingMiningRequirement(ResourceRatio resource)
+        {
+            if (!ColonizationResearchScenario.Instance.TryParseTieredResourceName(resource.ResourceName, out TieredResource tieredResource, out TechTier tier)
+             || tieredResource != ColonizationResearchScenario.CrushInsResource)
+            {
+                return false;
+            }
+
+            // TODO: Validate that the amount is sufficient;
+            return true;
+        }
+
         private void Reset()
         {
             this.TargetVessel = null;
@@ -116,6 +148,7 @@ namespace ProgressiveColonizationSystem
                 var otherShipResults = this.resourceConverter.ProcessRecipe(elapsedTime, this.otherVesselConversionRecipe, this.TargetVessel.rootPart, null, 1f);
                 if (thisShipResults.TimeFactor < elapsedTime || otherShipResults.TimeFactor < elapsedTime)
                 {
+                    this.CheckIfSatisfiedAutoMiningRequirement();
                     this.resourceConverter = null;
                     this.thisVesselConversionRecipe = null;
                     this.otherVesselConversionRecipe = null;

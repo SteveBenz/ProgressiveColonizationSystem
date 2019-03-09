@@ -84,7 +84,7 @@ namespace ProgressiveColonizationSystem
                 List<FoodProducer> snackStorage = GetFoodStorage(producerInfos);
                 foreach (FoodProducer foodProducer in snackStorage)
                 {
-                    if (foodProducer.MaxDietRatio > ratioFulfilled)
+                    if (foodProducer.MaxDietRatio > ratioFulfilled + AcceptableError)
                     {
                         double amountAskedFor = numCrew * (foodProducer.MaxDietRatio - ratioFulfilled);
                         double amountReceived = foodProducer.ProductionChain.TryToProduce(amountAskedFor);
@@ -166,12 +166,12 @@ namespace ProgressiveColonizationSystem
             breakthroughs = new List<TieredResource>();
             foreach (ProducerData producerData in producerInfos)
             {
-                if (producerData.ProductionContributingToResearch > 0)
+                double contributionInKerbals = Math.Min(producerData.AllottedCapacity, producerData.ProductionContributingToResearch);
+                if (contributionInKerbals > 0)
                 {
                     // If we have some doodads with research associated with it and some not, then
                     // what we want to do is make sure that the labs with research turned on do
                     // all the work they can.
-                    double contributionInKerbals = Math.Min(producerData.AllottedCapacity, producerData.ProductionContributingToResearch);
                     if (producerData.SourceTemplate.ContributeResearch(
                         colonizationResearch,
                         timePassedInSeconds * contributionInKerbals /* convert to kerbal-seconds */))
