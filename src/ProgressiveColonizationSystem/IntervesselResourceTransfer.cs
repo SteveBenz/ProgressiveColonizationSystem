@@ -88,7 +88,7 @@ namespace ProgressiveColonizationSystem
                 if (this.IsResourceSatisfyingMiningRequirement(resource))
                 {
                     this.sourceVessel.vesselModules.OfType<SnackConsumption>().First()
-                        .MiningMissionFinished(this.TargetVessel);
+                        .MiningMissionFinished(this.TargetVessel, resource.Ratio * transferTimeInSeconds);
                     return;
                 }
             }
@@ -97,7 +97,7 @@ namespace ProgressiveColonizationSystem
                 if (this.IsResourceSatisfyingMiningRequirement(resource))
                 {
                     this.TargetVessel.vesselModules.OfType<SnackConsumption>().First()
-                        .MiningMissionFinished(this.sourceVessel);
+                        .MiningMissionFinished(this.sourceVessel, resource.Ratio * transferTimeInSeconds);
                     return;
                 }
             }

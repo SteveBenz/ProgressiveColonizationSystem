@@ -9,6 +9,8 @@ namespace ProgressiveColonizationSystem
     public class SnackConsumption
         : VesselModule
     {
+        public const double DrillCapacityMultiplierForAutomaticMiningQualification = 5.0;
+
         [KSPField(isPersistant = true)]
         public double LastUpdateTime;
 
@@ -132,11 +134,21 @@ namespace ProgressiveColonizationSystem
             return $"{minerVessel.vesselName} is automatically fetching Crush-Ins for this base.";
         }
 
-        internal void MiningMissionFinished(Vessel sourceVessel)
+        internal void MiningMissionFinished(Vessel sourceVessel, double amountSent)
         {
-            if (sourceVessel.GetCrewCount() < 2)
+            if (sourceVessel.GetCrewCapacity() < 2)
             {
                 ScreenMessages.PostScreenMessage("This vessel doesn't qualify to be an automatic miner -- it doesn't have a crew capacity of 2 or more", 15.0f);
+                return;
+            }
+
+            double totalCapacityAtBase = this.vessel.FindPartModulesImplementing<ITieredProducer>()
+                .Where(p => p.Input == ColonizationResearchScenario.CrushInsResource)
+                .Sum(p => p.ProductionRate);
+            double minimumQualifyingAmount = totalCapacityAtBase * DrillCapacityMultiplierForAutomaticMiningQualification;
+            if (amountSent < minimumQualifyingAmount)
+            {
+                ScreenMessages.PostScreenMessage($"This vessel doesn't qualify towards becoming an automatic miner -- less than {minimumQualifyingAmount} was transferred.", 15.0f);
                 return;
             }
 
