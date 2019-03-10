@@ -12,7 +12,7 @@ namespace ProgressiveColonizationSystem
 
         private static string[] SillyResourceNames = new string[] {
             "jalapenonite", "unobtanium", "kryptonite", "red hot hoolipidum ore", "indobodobinuminum",
-            "only slightly radioactive plutonium" };
+            "only slightly radioactive plutonium", "electric boogalite" };
 
         public static List<CrewDescriptor> GetCrewDescriptors(Func<ProtoCrewMember, bool> isInstrumental)
             => FlightGlobals.ActiveVessel.GetVesselCrew().Select(c => FromKsp(c, isInstrumental)).ToList();

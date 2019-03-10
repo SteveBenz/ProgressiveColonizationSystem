@@ -34,6 +34,7 @@ This mod is still in early days, with a few big parts missing.
    4.  (complete) Actually enforce the crew counts, types & stars (see 2.v)
    5.  (complete) Make the reporting of when you make a tier breakthrough more informative and fun
    6.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
+   7.  IDEA: Bag all these different categories of research and just have one number for every body
 5. Release prep
    1.  (complete) De-fugly the dialogs
    2.  (complete) Get non-dumb name - Progressive Kolonization System?  PKS

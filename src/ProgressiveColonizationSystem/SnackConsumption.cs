@@ -134,6 +134,12 @@ namespace ProgressiveColonizationSystem
 
         internal void MiningMissionFinished(Vessel sourceVessel)
         {
+            if (sourceVessel.GetCrewCount() < 2)
+            {
+                ScreenMessages.PostScreenMessage("This vessel doesn't qualify to be an automatic miner -- it doesn't have a crew capacity of 2 or more", 15.0f);
+                return;
+            }
+
             string sourceVesselId = sourceVessel.id.ToString();
             if (this.lastMinerToDepositCraftId == sourceVesselId)
             {

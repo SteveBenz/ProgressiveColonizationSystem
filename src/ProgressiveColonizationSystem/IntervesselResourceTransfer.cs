@@ -89,6 +89,7 @@ namespace ProgressiveColonizationSystem
                 {
                     this.sourceVessel.vesselModules.OfType<SnackConsumption>().First()
                         .MiningMissionFinished(this.TargetVessel);
+                    return;
                 }
             }
             foreach (var resource in this.thisVesselConversionRecipe.Inputs)
@@ -97,6 +98,7 @@ namespace ProgressiveColonizationSystem
                 {
                     this.TargetVessel.vesselModules.OfType<SnackConsumption>().First()
                         .MiningMissionFinished(this.sourceVessel);
+                    return;
                 }
             }
         }
