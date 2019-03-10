@@ -108,10 +108,15 @@ namespace ProgressiveColonizationSystem
             {
                 if (this.supplierMinerCraftId != sourceVesselId)
                 {
-                    // TODO: Funner messages.
                     PopupMessageWithKerbal.ShowPopup("We Got it From here!",
-                        $"Looks like the {sourceVessel.vesselName} is a fine vessel for grabbing resources.",
-                        $"Looks like the {sourceVessel.vesselName} is a fine vessel for grabbing resources.",
+                        $"Looks like the {sourceVessel.vesselName} is a fine vessel for grabbing resources.  "
+                        + "If you don't mind, leaving her parked here, Kerbals at the base will automatically "
+                        + "drive it out and gather resources in the future.",
+                        "Because you delivered two loads of Crush-Ins to your base with this craft, you qualify "
+                        + "for automatic mining.  That means that if you leave your base alone, even for a long "
+                        + "time, when you return they'll still be full of Crush-Ins.  This depends on you leaving "
+                        + "the ship parked in physics-range of the base (2.2km) and the base having a Pilot on "
+                        + "board to do the driving.",
                         "Thanks!");
                     this.supplierMinerCraftId = sourceVesselId;
                 }
