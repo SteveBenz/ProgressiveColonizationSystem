@@ -27,9 +27,14 @@ namespace ProgressiveColonizationSystem
             if (lode != null)
             {
                 // Ensure that there's a waypoint
-                if (!Waypoints.TryFindWaypointById(lode.Identifier, out _))
+                if (Waypoints.TryFindWaypointById(lode.Identifier, out _))
+                {
+                    ScreenMessages.PostScreenMessage("A lode has already been identified - look for a waypoint on the surface");
+                }
+                else
                 {
                     Waypoints.CreateWaypointAt("Loose Crushins", nearVessel.mainBody, lode.Latitude, lode.Longitude);
+                    ScreenMessages.PostScreenMessage("A lode has already been identified - the waypoint was recreated");
                 }
             }
             else

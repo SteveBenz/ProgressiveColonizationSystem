@@ -10,6 +10,10 @@ namespace ProgressiveColonizationSystem
     {
         internal static Random random = new Random();
 
+        private static string[] SillyResourceNames = new string[] {
+            "jalapenonite", "unobtanium", "kryptonite", "red hot hoolipidum ore", "indobodobinuminum",
+            "only slightly radioactive plutonium" };
+
         public static List<CrewDescriptor> GetCrewDescriptors(Func<ProtoCrewMember, bool> isInstrumental)
             => FlightGlobals.ActiveVessel.GetVesselCrew().Select(c => FromKsp(c, isInstrumental)).ToList();
 
@@ -27,6 +31,19 @@ namespace ProgressiveColonizationSystem
 
         public static string HydroponicBreakthrough(TechTier tier, Func<ProtoCrewMember, bool> isInstrumental)
             => HydroponicBreakthrough(GetCrewDescriptors(isInstrumental), FlightGlobals.ActiveVessel.vesselName, tier);
+
+        internal static string ResourceLocated()
+            => ResourceLocated(GetCrewDescriptors(c => c.trait == "Pilot" || c.trait == "Geologist"),
+                               FlightGlobals.ActiveVessel.vesselName);
+
+        internal static string ResourceLocated(List<CrewDescriptor> crew, string shipName)
+        {
+            CrewDescriptor perp = ChoosePerpetrator(crew);
+            string resourceName = SillyResourceNames[random.Next(SillyResourceNames.Length - 1)];
+            return $"Peering through the scope and randomly twisting the instrument's dials, {perp.Name} "
+                 + $"has spotted a rich deposit of {resourceName}.  How those yoohoos down below are going "
+                 + $"to get to it is strictly not {perp.hisher} problem.";
+        }
 
         internal static string HydroponicBreakthrough(List<CrewDescriptor> crew, string shipName, TechTier tier)
         {

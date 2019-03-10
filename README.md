@@ -56,13 +56,12 @@ This mod is still in early days, with a few big parts missing.
        11. (complete)Put the find resource thing on the scanner
        12. (complete)The Crush-Ins warning should be more explicit about what's needed
        13. (complete)The Trip-Duration calculator should not be limited by Crush-Ins
-       14. Make it so a popup/tutorial message comes up when a user breaks Tier2 anywhere.
        15. Make the scanner require a network of scanner satelites (and range the crushins appropriately)
-       16. Automate crush-in collection after two successful trips
-       17. Dialog should show the status of the kerbal
+       16. (complete)Automate crush-in collection after two successful trips
+       17. Bug: Find Resources button activated for Tier 0 and Tier 1.
        18. Make the flight dialog show mining ship assignment
        19. BUG: Things that change the size of the colony status window cause it to move back the center
-       20. BUG: Find Loose Stuff doesn't require part to be crewed
+       20. (fixed) BUG: Find Loose Stuff doesn't require part to be crewed
        21. BUG: Find Loose Stuff should put up a dialog on success
        22. Make it insist on having a pilot for the rover
        23. Make it insist on two seats on the rover

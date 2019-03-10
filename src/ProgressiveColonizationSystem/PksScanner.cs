@@ -20,6 +20,13 @@ namespace ProgressiveColonizationSystem
     public class PksScanner
         : PartModule
     {
+        /// <summary>
+        ///   The minimum tier where grabbing crushins is required.  See also <see cref="PksTieredResourceConverter.inputRequirementStartingTier"/>
+        ///   which is set for drills
+        /// </summary>
+        [KSPField]
+        int minimumTier = 2;
+
         [KSPEvent(guiActive = true, guiName = "Find Loose Crush-Ins")]
         public void FindResource()
         {
@@ -33,6 +40,12 @@ namespace ProgressiveColonizationSystem
             if (this.vessel.mainBody.name != targetBody)
             {
                 ScreenMessages.PostScreenMessage($"The vessel is not in a stable orbit around {targetBody}");
+                return;
+            }
+
+            if ((int)tier < this.minimumTier)
+            {
+                ScreenMessages.PostScreenMessage($"Crushins are not required for production at {tier.DisplayName()}.");
                 return;
             }
 
@@ -56,6 +69,15 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
+            PopupMessageWithKerbal.ShowPopup(
+                "Lookie What I Found!",
+                CrewBlurbs.ResourceLocated(),
+                "A waypoint has been created - you need to land a ship or drive a rover with a portable digger "
+                + "to within 150m of the waypoint, deploy the drill, fill your tanks with CrushIns, haul the "
+                + "load back to the base and unload it using the resource-transfer mechanism on the colony "
+                + "status screen (the cupcake button).  After you've dumped two loads with the same craft, "
+                + "the crew at the base will be able to automatically gather resources in the future.",
+                "On it");
             ResourceLodeScenario.Instance.GetOrCreateResourceLoad(onPlanetBase, tier);
         }
 
