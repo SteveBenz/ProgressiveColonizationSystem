@@ -104,8 +104,12 @@ namespace ProgressiveColonizationSystem
             activeSnackConsumption.ResourceQuantities(out var availableResources, out var availableStorage);
             List<ITieredProducer> snackProducers = activeSnackConsumption.Vessel.FindPartModulesImplementing<ITieredProducer>();
 
+            string minerStatusMessage = FlightGlobals.ActiveVessel.vesselModules
+                .OfType<SnackConsumption>()
+                .FirstOrDefault()
+                ?.GetMinerStatusMessage();
             BuildStatusString(activeSnackConsumption, availableResources, availableStorage, snackProducers, crewCount, crewDelta, out string message);
-            this.consumptionAndProductionInformation = message;
+            this.consumptionAndProductionInformation = (minerStatusMessage == null ? "" : minerStatusMessage + "\r\n\r\n") + message;
         }
 
         internal static void BuildStatusString(

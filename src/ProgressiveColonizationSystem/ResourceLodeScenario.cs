@@ -42,6 +42,16 @@ namespace ProgressiveColonizationSystem
                 var waypoint = Waypoints.CreateWaypointNear("Loose Crushins", nearVessel, 1000, 3000);
                 lode = new ResourceLode(waypoint, tier);
                 activeLodes.Add(lode);
+
+                PopupMessageWithKerbal.ShowPopup(
+                    "Lookie What I Found!",
+                    CrewBlurbs.ResourceLocated(),
+                    "A waypoint has been created - you need to land a ship or drive a rover with a portable digger "
+                    + "to within 150m of the waypoint, deploy the drill, fill your tanks with CrushIns, haul the "
+                    + "load back to the base and unload it using the resource-transfer mechanism on the colony "
+                    + "status screen (the cupcake button).  After you've dumped two loads with the same craft, "
+                    + "the crew at the base will be able to automatically gather resources in the future.",
+                    "On it");
             }
 
             return lode;

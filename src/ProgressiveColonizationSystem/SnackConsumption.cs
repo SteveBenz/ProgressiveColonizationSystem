@@ -96,9 +96,40 @@ namespace ProgressiveColonizationSystem
                     Guid vesselId = new Guid(this.supplierMinerCraftId);
                     Vessel vessel = FlightGlobals.Vessels.FirstOrDefault(v => v.id == vesselId);
                     return vessel != null && vessel.loaded
-                        && (vessel.situation == Vessel.Situations.LANDED || vessel.situation == Vessel.Situations.SPLASHED);
+                        && (vessel.situation == Vessel.Situations.LANDED || vessel.situation == Vessel.Situations.SPLASHED)
+                        && this.vessel.GetVesselCrew().Any(c => c.trait == KerbalRoster.pilotTrait);
                 }
             }
+        }
+
+        /// <summary>
+        ///   This gets a string that summarizes the state of the miner for the <see cref="LifeSupportStatusMonitor"/>
+        /// </summary>
+        public string GetMinerStatusMessage()
+        {
+            if (string.IsNullOrEmpty(this.supplierMinerCraftId))
+            {
+                return null;
+            }
+
+            Guid vesselId = new Guid(this.supplierMinerCraftId);
+            Vessel minerVessel = FlightGlobals.Vessels.FirstOrDefault(v => v.id == vesselId);
+            if (minerVessel == null)
+            {
+                return null;
+            }
+
+            if (!minerVessel.loaded || (minerVessel.situation != Vessel.Situations.LANDED && minerVessel.situation != Vessel.Situations.SPLASHED))
+            {
+                return $"{minerVessel.vesselName} is set up to automatically fetch Crush-Ins for this base, but it's not present.";
+            }
+
+            if (!this.vessel.GetVesselCrew().Any(c => c.trait == KerbalRoster.pilotTrait))
+            {
+                return $"{minerVessel.vesselName} is set up to automatically fetch Crush-Ins for this base, but there's no pilot here to drive it.";
+            }
+
+            return $"{minerVessel.vesselName} is automatically fetching Crush-Ins for this base.";
         }
 
         internal void MiningMissionFinished(Vessel sourceVessel)

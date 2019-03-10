@@ -58,12 +58,11 @@ This mod is still in early days, with a few big parts missing.
        13. (complete)The Trip-Duration calculator should not be limited by Crush-Ins
        15. Make the scanner require a network of scanner satelites (and range the crushins appropriately)
        16. (complete)Automate crush-in collection after two successful trips
-       17. (fixed?)Bug: Find Resources button activated for Tier 0 and Tier 1.
+       17. (fixed)Bug: Find Resources button activated for Tier 0 and Tier 1.
        18. Make the flight dialog show mining ship assignment
-       19. BUG: Things that change the size of the colony status window cause it to move back the center
        20. (fixed) BUG: Find Loose Stuff doesn't require part to be crewed
-       21. (complete?)BUG: Find Loose Stuff should put up a dialog on success
-       22. Make it insist on having a pilot for the rover
+       21. (complete)BUG: Find Loose Stuff should put up a dialog on success
+       22. (complete)Make it insist on having a pilot for the rover
        23. Make it insist on two seats on the rover
        24. Make it require a minimum amount of resources
        25. 22-24 should be visible in the VAB
@@ -88,6 +87,7 @@ This mod is still in early days, with a few big parts missing.
    7.  (complete) Integrate with the other base parts mod whose name I forget?
    8.  (complete) Either reskin the stolen parts or depend on their sources and re-configure them
    9.  Write PDF help
+8. BUG: Things that change the size of the colony status window cause it to move back the center
 
    
 Rambling About The Numbers
