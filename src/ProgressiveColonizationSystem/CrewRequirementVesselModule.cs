@@ -272,5 +272,10 @@ namespace ProgressiveColonizationSystem
                 return experienceEffect.Level + this.protoCrewMember.experienceLevel >= requiredLevel;
             }
         }
+
+        public virtual bool CanPilotRover()
+        {
+            return this.protoCrewMember.trait == KerbalRoster.pilotTrait;
+        }
     }
 }

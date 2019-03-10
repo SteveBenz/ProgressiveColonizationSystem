@@ -188,7 +188,11 @@ namespace ProgressiveColonizationSystem
             {
                 TieredResource inputResource = inputPair.Key;
                 double inputRequired = inputPair.Value;
-                if (!production.TryGetValue(inputPair.Key, out double outputAmount))
+                if (inputResource.IsHarvestedLocally)
+                {
+                    // Crush-ins -- there are other things that ensure this works.
+                }
+                else if (!production.TryGetValue(inputPair.Key, out double outputAmount))
                 {
                     // Okay, there's no producer for this - complain if there's no storage that either contains the
                     // required tier or could contain it if it's gathered locally.
@@ -271,6 +275,76 @@ namespace ProgressiveColonizationSystem
                 yield return new WarningMessage
                 {
                     Message = $"The ship doesn't have enough crew or insufficiently experienced crew to operate all its parts - add crew with these traits: {list}",
+                    IsClearlyBroken = false,
+                    FixIt = null
+                };
+            }
+        }
+
+        internal static IEnumerable<WarningMessage> CheckHasCrushinStorage(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, List<ITieredContainer> containers)
+        {
+            double totalDrillCapacity = producers
+                .Where(p => p.Input == colonizationResearch.CrushInsResource)
+                .Sum(p => p.ProductionRate);
+            double crushinsRequired = totalDrillCapacity * SnackConsumption.DrillCapacityMultiplierForAutomaticMiningQualification;
+            double totalCrushinStorage = containers
+                .Where(c => c.Content == colonizationResearch.CrushInsResource)
+                .Sum(c => c.MaxAmount);
+
+            if (crushinsRequired == 0)
+            {
+                // Nothing to say
+            }
+            else if (totalCrushinStorage < crushinsRequired)
+            {
+                // not enough storage
+                yield return new WarningMessage
+                {
+                    Message = $"To ensure you can use automated mining (via a separate mining craft), you need to have "
+                            + $"storage for at least {crushinsRequired} {colonizationResearch.CrushInsResource.BaseName}.  "
+                            + "You will also need to send a craft capable of mining it (which will be found in "
+                            + "scattered locations around the body using your orbital scanner) and bringing them "
+                            + "back to the base.",
+                    IsClearlyBroken = false,
+                    FixIt = null
+                };
+            }
+            else
+            {
+                yield return new WarningMessage
+                {
+                    Message = $"To ensure you can use automated mining (via a separate mining craft), you need to have "
+                            + $"a craft capable of mining and delivering {crushinsRequired} {colonizationResearch.CrushInsResource.BaseName}.",
+                    IsClearlyBroken = false,
+                    FixIt = null
+                };
+            }
+        }
+
+        internal static IEnumerable<WarningMessage> CheckHasRoverPilot(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, List<ITieredContainer> containers, List<SkilledCrewman> crew)
+        {
+            bool needsRoverPilot = producers.Any(p => p.Input == colonizationResearch.CrushInsResource);
+            if (needsRoverPilot && !crew.Any(c => c.CanPilotRover()))
+            {
+                yield return new WarningMessage
+                {
+                    Message = $"To ensure you can use automated mining (via a separate mining craft), you need to have "
+                            + $"a pilot at the base to drive it.",
+                    IsClearlyBroken = false,
+                    FixIt = null
+                };
+            }
+        }
+
+        internal static IEnumerable<WarningMessage> CheckRoverHasTwoSeats(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, List<ITieredContainer> containers, int maxCrewCapacity)
+        {
+            bool isCrushinRover = producers.Any(p => p.Output == colonizationResearch.CrushInsResource);
+            if (isCrushinRover && maxCrewCapacity < 2)
+            {
+                yield return new WarningMessage
+                {
+                    Message = "For this craft to be useable as an automated miner, it needs at least two seats -- "
+                             +"one for a miner and one for a pilot.",
                     IsClearlyBroken = false,
                     FixIt = null
                 };

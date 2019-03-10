@@ -24,6 +24,8 @@ namespace ProgressiveColonizationSystem
         public static TieredResource LodeResource = new TieredResource("LooseCrushIns", "", ProductionRestriction.OrbitOfBody, scanningResearchCategory, canBeStored: false, unstoredExcessCanGoToResearch: false, isHarvestedLocally: true);
         public static TieredResource CrushInsResource = new TieredResource("CrushIns", null, ProductionRestriction.LandedOnBody, productionResearchCategory, false, false, isHarvestedLocally: true);
 
+        TieredResource IColonizationResearchScenario.CrushInsResource => ColonizationResearchScenario.CrushInsResource;
+
         private static TieredResource[] AllTieredResources =
         {
             new EdibleResource("HydroponicSnacks", ProductionRestriction.Orbit, hydroponicResearchCategory, false, false, .2, .4, .55, .7, .95),
@@ -302,5 +304,6 @@ namespace ProgressiveColonizationSystem
         bool TryParseTieredResourceName(string tieredResourceName, out TieredResource resource, out TechTier tier);
         IEnumerable<TieredResource> AllResourcesTypes { get; }
         TechTier GetMaxUnlockedScanningTier(string atBody);
+        TieredResource CrushInsResource { get; }
     }
 }

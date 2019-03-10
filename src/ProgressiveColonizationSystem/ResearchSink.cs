@@ -25,6 +25,8 @@ namespace ProgressiveColonizationSystem
 
         IEnumerable<TieredResource> IColonizationResearchScenario.AllResourcesTypes => ColonizationResearchScenario.Instance.AllResourcesTypes;
 
+        TieredResource IColonizationResearchScenario.CrushInsResource => ColonizationResearchScenario.CrushInsResource;
+
         bool IColonizationResearchScenario.ContributeResearch(TieredResource source, string atBody, double researchInKerbalsecondsPerSecond)
         {
             // KerbalDaysContributedPerDay is equal to Kerbals.

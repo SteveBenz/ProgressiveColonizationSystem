@@ -314,14 +314,18 @@ namespace ProgressiveColonizationSystem
                 .ToList();
 
             List<SkilledCrewman> crew = this.FindCrew().Select(c => new SkilledCrewman(c)).ToList();
+            int crewCount = parts.Sum(p => p.CrewCapacity);
             this.lastWarningList =
                 StaticAnalysis.CheckBodyIsSet(ColonizationResearchScenario.Instance, producers, containers)
+                .Union(StaticAnalysis.CheckHasCrushinStorage(ColonizationResearchScenario.Instance, producers, containers))
                 .Union(StaticAnalysis.CheckTieredProduction(ColonizationResearchScenario.Instance, producers, containers))
                 .Union(StaticAnalysis.CheckTieredProductionStorage(ColonizationResearchScenario.Instance, producers, containers))
                 .Union(StaticAnalysis.CheckCorrectCapacity(ColonizationResearchScenario.Instance, producers, containers))
                 .Union(StaticAnalysis.CheckExtraBaggage(ColonizationResearchScenario.Instance, producers, containers))
                 .Union(StaticAnalysis.CheckHasSomeFood(ColonizationResearchScenario.Instance, producers, containers, crew))
+                .Union(StaticAnalysis.CheckHasRoverPilot(ColonizationResearchScenario.Instance, producers, containers, crew))
                 .Union(StaticAnalysis.CheckHasProperCrew(crewedParts, crew))
+                .Union(StaticAnalysis.CheckRoverHasTwoSeats(ColonizationResearchScenario.Instance, producers, containers, crewCount))
                 .ToList();
 
             // See if anything's actually changed

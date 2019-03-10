@@ -47,31 +47,31 @@ This mod is still in early days, with a few big parts missing.
        1.  (complete) Create a configurable part for storing Stuff
        2.  (complete) Create a KSP Resource for Tiered Stuff resource
        3.  (complete) Readjust the numbers
-       4.  (complete)Create a scanning lab (using skin from infrared telescope?)
-       5.  (complete)Figure out how to make magic spots and waypoints to them
-       6.  (complete)Make the Tier-1+ drill require being at a magic spot to work
-       7.  (complete)Actually require that a scanner of the appriate tier be in orbit
-       8.  (complete)Rename to "Crush-ins", "Loose Crush-ins"
-       9.  (complete)Be able to transfer Crushins to a base
-       10. (complete)Make the base able to consume them to make stuff
-       11. (complete)Put the find resource thing on the scanner
-       12. (complete)The Crush-Ins warning should be more explicit about what's needed
-       13. (complete)The Trip-Duration calculator should not be limited by Crush-Ins
+       4.  (complete) Create a scanning lab (using skin from infrared telescope?)
+       5.  (complete) Figure out how to make magic spots and waypoints to them
+       6.  (complete) Make the Tier-1+ drill require being at a magic spot to work
+       7.  (complete) Actually require that a scanner of the appriate tier be in orbit
+       8.  (complete) Rename to "Crush-ins", "Loose Crush-ins"
+       9.  (complete) Be able to transfer Crushins to a base
+       10. (complete) Make the base able to consume them to make stuff
+       11. (complete) Put the find resource thing on the scanner
+       12. (complete) The Crush-Ins warning should be more explicit about what's needed
+       13. (complete) The Trip-Duration calculator should not be limited by Crush-Ins
        15. Make the scanner require a network of scanner satelites (and range the crushins appropriately)
-       16. (complete)Automate crush-in collection after two successful trips
-       17. (fixed)Bug: Find Resources button activated for Tier 0 and Tier 1.
-       18. Make the flight dialog show mining ship assignment
-       20. (fixed) BUG: Find Loose Stuff doesn't require part to be crewed
-       21. (complete)BUG: Find Loose Stuff should put up a dialog on success
-       22. (complete)Make it insist on having a pilot for the rover
-       23. Make it insist on two seats on the rover
-       24. Make it require a minimum amount of resources
-       25. 22-24 should be visible in the VAB
+       16. (complete) Automate crush-in collection after two successful trips
+       17. (complete) Bug: Find Resources button activated for Tier 0 and Tier 1.
+       18. (complete) Make the flight dialog show mining ship assignment
+       20. (complete) BUG: Find Loose Stuff doesn't require part to be crewed
+       21. (complete) Find Loose Stuff should put up a dialog on success
+       22. (complete) Make it insist on having a pilot for the rover
+       23. (complete) Make it insist on two seats on the rover
+       24. (complete) Make it require a minimum amount of resources
+       25. (complete) 22-24 should be visible in the VAB
    2.  Create shinies resource chain
        1.  (complete) Create shinies factory
        2.  (complete) Create a basic shinies container
        3.  (complete) Create shinies containers that don't let you fill them at the KSP
-       4   (complete) Mun/Minmus shinies peak at T1, Duna/Ike/Gilly at T2, T5 only at Dres/Eloo/Moho/Eve
+       4.  (complete) Mun/Minmus shinies peak at T2, Duna/Ike/Gilly at T3, T5 only at Dres/Eloo/Moho/Eve
        5.  Make the shinies boost your rep on landing
        6.  Re-implement the checks to make sure Shinies don't actually come from Kerbin
    3.  (complete) Support USI kerbal types
