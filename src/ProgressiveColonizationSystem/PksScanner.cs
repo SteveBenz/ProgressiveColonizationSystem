@@ -43,6 +43,19 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
+            var crewRequirement = this.part.FindModuleImplementing<PksCrewRequirement>();
+            if (crewRequirement != null && !crewRequirement.IsRunning)
+            {
+                ScreenMessages.PostScreenMessage($"Finding resources with this scanner is proving really difficult.  Maybe we should turn it on?");
+                return;
+            }
+
+            if (crewRequirement != null && !crewRequirement.IsStaffed)
+            {
+                ScreenMessages.PostScreenMessage($"This part requires a qualified Kerbal to run it.");
+                return;
+            }
+
             ResourceLodeScenario.Instance.GetOrCreateResourceLoad(onPlanetBase, tier);
         }
 

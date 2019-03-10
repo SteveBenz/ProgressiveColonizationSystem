@@ -17,13 +17,13 @@ namespace ProgressiveColonizationSystem
         ///   the base.
         /// </summary>
         [KSPField(isPersistant = true)]
-        public Guid supplierMinerCraftId = Guid.Empty;
+        public string supplierMinerCraftId = "";
 
         /// <summary>
         ///   The vessel ID of the rover that last pushed the minimum quantity of resources to the station.
         /// </summary>
         [KSPField(isPersistant = true)]
-        public Guid lastMinerToDepositCraftId = Guid.Empty;
+        public string lastMinerToDepositCraftId = "";
 
         protected IResourceBroker _resBroker;
         public IResourceBroker ResBroker
@@ -87,36 +87,38 @@ namespace ProgressiveColonizationSystem
         {
             get
             {
-                if (this.supplierMinerCraftId == Guid.Empty)
+                if (string.IsNullOrEmpty(this.supplierMinerCraftId))
                 {
                     return false;
                 }
                 else
                 {
-                    Guid vesselId = this.supplierMinerCraftId;
+                    Guid vesselId = new Guid(this.supplierMinerCraftId);
                     Vessel vessel = FlightGlobals.Vessels.FirstOrDefault(v => v.id == vesselId);
-                    return vessel.loaded && (vessel.situation == Vessel.Situations.LANDED || vessel.situation == Vessel.Situations.SPLASHED);
+                    return vessel != null && vessel.loaded
+                        && (vessel.situation == Vessel.Situations.LANDED || vessel.situation == Vessel.Situations.SPLASHED);
                 }
             }
         }
 
         internal void MiningMissionFinished(Vessel sourceVessel)
         {
-            if (this.lastMinerToDepositCraftId == sourceVessel.id)
+            string sourceVesselId = sourceVessel.id.ToString();
+            if (this.lastMinerToDepositCraftId == sourceVesselId)
             {
-                if (this.supplierMinerCraftId != sourceVessel.id)
+                if (this.supplierMinerCraftId != sourceVesselId)
                 {
                     // TODO: Funner messages.
                     PopupMessageWithKerbal.ShowPopup("We Got it From here!",
-                        $"Looks like the {sourceVessel.name} is a fine vessel for grabbing resources.",
-                        $"Looks like the {sourceVessel.name} is a fine vessel for grabbing resources.",
+                        $"Looks like the {sourceVessel.vesselName} is a fine vessel for grabbing resources.",
+                        $"Looks like the {sourceVessel.vesselName} is a fine vessel for grabbing resources.",
                         "Thanks!");
-                    this.supplierMinerCraftId = sourceVessel.id;
+                    this.supplierMinerCraftId = sourceVesselId;
                 }
             }
             else
             {
-                this.lastMinerToDepositCraftId = sourceVessel.id;
+                this.lastMinerToDepositCraftId = sourceVesselId;
             }
         }
 

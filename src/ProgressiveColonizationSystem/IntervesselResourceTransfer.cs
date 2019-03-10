@@ -87,16 +87,16 @@ namespace ProgressiveColonizationSystem
             {
                 if (this.IsResourceSatisfyingMiningRequirement(resource))
                 {
-                    this.TargetVessel.vesselModules.OfType<SnackConsumption>().First()
-                        .MiningMissionFinished(this.sourceVessel);
+                    this.sourceVessel.vesselModules.OfType<SnackConsumption>().First()
+                        .MiningMissionFinished(this.TargetVessel);
                 }
             }
             foreach (var resource in this.thisVesselConversionRecipe.Inputs)
             {
                 if (this.IsResourceSatisfyingMiningRequirement(resource))
                 {
-                    this.sourceVessel.vesselModules.OfType<SnackConsumption>().First()
-                        .MiningMissionFinished(this.TargetVessel);
+                    this.TargetVessel.vesselModules.OfType<SnackConsumption>().First()
+                        .MiningMissionFinished(this.sourceVessel);
                 }
             }
         }
