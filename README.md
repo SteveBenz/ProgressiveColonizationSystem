@@ -35,6 +35,7 @@ This mod is still in early days, with a few big parts missing.
    5.  (complete) Make the reporting of when you make a tier breakthrough more informative and fun
    6.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
    7.  IDEA: Bag all these different categories of research and just have one number for every body
+   8.  The Colony Status window is getting too big - it should get broken up
 5. Release prep
    1.  (complete) De-fugly the dialogs
    2.  (complete) Get non-dumb name - Progressive Kolonization System?  PKS
@@ -57,7 +58,7 @@ This mod is still in early days, with a few big parts missing.
        11. (complete) Put the find resource thing on the scanner
        12. (complete) The Crush-Ins warning should be more explicit about what's needed
        13. (complete) The Trip-Duration calculator should not be limited by Crush-Ins
-       15. Make the scanner require a network of scanner satelites (and range the crushins appropriately)
+       15. (complete) Make the scanner require a network of scanner satelites (and range the crushins appropriately)
        16. (complete) Automate crush-in collection after two successful trips
        17. (complete) Bug: Find Resources button activated for Tier 0 and Tier 1.
        18. (complete) Make the flight dialog show mining ship assignment

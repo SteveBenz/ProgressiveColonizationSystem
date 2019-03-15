@@ -69,7 +69,7 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
-            ResourceLodeScenario.Instance.GetOrCreateResourceLoad(onPlanetBase, tier);
+            ResourceLodeScenario.Instance.GetOrCreateResourceLoad(onPlanetBase, tier, this.ScannerNetQuality());
         }
 
         private void GetTargetInfo(out TechTier tier, out string targetBody)
@@ -108,6 +108,12 @@ namespace ProgressiveColonizationSystem
             }
 
             return candidates.FirstOrDefault();
+        }
+
+        private double ScannerNetQuality()
+        {
+            var scansats = FlightGlobals.Vessels.Where(v => v.mainBody == this.vessel.mainBody && v.GetCrewCapacity() == 0);
+            return scansats.Sum(v => (v.orbit.inclination > 80.0 && v.orbit.inclination  < 100.0) ? 1 : .3);
         }
     }
 }

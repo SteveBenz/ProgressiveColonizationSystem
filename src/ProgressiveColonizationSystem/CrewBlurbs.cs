@@ -32,17 +32,27 @@ namespace ProgressiveColonizationSystem
         public static string HydroponicBreakthrough(TechTier tier, Func<ProtoCrewMember, bool> isInstrumental)
             => HydroponicBreakthrough(GetCrewDescriptors(isInstrumental), FlightGlobals.ActiveVessel.vesselName, tier);
 
-        internal static string ResourceLocated()
-            => ResourceLocated(GetCrewDescriptors(c => c.trait == "Pilot" || c.trait == "Geologist"),
+        internal static string ResourceLocated(double scannerNetQuality)
+            => ResourceLocated(scannerNetQuality, GetCrewDescriptors(c => c.trait == "Pilot" || c.trait == "Geologist"),
                                FlightGlobals.ActiveVessel.vesselName);
 
-        internal static string ResourceLocated(List<CrewDescriptor> crew, string shipName)
+        internal static string ResourceLocated(double ScannerNetQuality, List<CrewDescriptor> crew, string shipName)
         {
             CrewDescriptor perp = ChoosePerpetrator(crew);
             string resourceName = SillyResourceNames[random.Next(SillyResourceNames.Length - 1)];
-            return $"Peering through the scope and randomly twisting the instrument's dials, {perp.Name} "
-                 + $"has spotted a rich deposit of {resourceName}.  How those yoohoos down below are going "
-                 + $"to get to it is strictly not {perp.hisher} problem.";
+            if (ScannerNetQuality == 0)
+            {
+                return $"{perp.Name} was told this would be an easy job - just click a button and the orbiting "
+                     + $"satellites would tell {perp.himher} what the closest glop of stuff was.  But no.  Bill forgot to "
+                     + $"put up any scanner satellites so {perp.Name} is gonna have to use manual override.  "
+                     + $"Peering through the scope, there seems to be a shiny spot on the horizon...";
+            }
+            else
+            {
+                return $"Peering through the scope and randomly twisting the instrument's dials, {perp.Name} "
+                     + $"has spotted a rich deposit of {resourceName}.  How those yoohoos down below are going "
+                     + $"to get to it is strictly not {perp.hisher} problem.";
+            }
         }
 
         internal static string HydroponicBreakthrough(List<CrewDescriptor> crew, string shipName, TechTier tier)

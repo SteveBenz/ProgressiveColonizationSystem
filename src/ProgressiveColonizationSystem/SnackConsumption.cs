@@ -172,6 +172,7 @@ namespace ProgressiveColonizationSystem
             }
             else
             {
+                ScreenMessages.PostScreenMessage($"{this.vessel.vesselName} has given a signed bill of lading to {sourceVessel.vesselName} -- one more delivery and it'll be certified for automatic use!", 15.0f);
                 this.lastMinerToDepositCraftId = sourceVesselId;
             }
         }

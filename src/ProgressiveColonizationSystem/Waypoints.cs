@@ -20,27 +20,45 @@ namespace ProgressiveColonizationSystem
             Vessel near,
             double minDistanceInMeters,
             double maxDistanceInMeters,
+            double scannerNetQuality,
+            bool waterAllowed,
             string detail1 = null,
             string detail2 = null,
             string detail3 = null)
         {
-            var waypoint = new Waypoint()
+            Waypoint bestWaypoint = null;
+            double bestWaypointDistance = 0;
+            double currentMaxDistance = maxDistanceInMeters;
+            for (int i = 0; i <= 3*scannerNetQuality; ++i)
             {
-                celestialName = near.mainBody.name,
-                name = name,
-                nodeCaption1 = detail1,
-                nodeCaption2 = detail2,
-                nodeCaption3 = detail3,
-                id = "custom",
-                seed = 269,
-            };
+                var waypoint = new Waypoint()
+                {
+                    celestialName = near.mainBody.name,
+                    name = name,
+                    nodeCaption1 = detail1,
+                    nodeCaption2 = detail2,
+                    nodeCaption3 = detail3,
+                    id = "custom",
+                    seed = 269,
+                };
 
-            waypoint.RandomizeNear(near.latitude, near.longitude, minDistanceInMeters, maxDistanceInMeters, waterAllowed: false, generator: new System.Random());
-            waypoint.height = WaypointHeight(waypoint);
-            waypoint.altitude = 0;
+                waypoint.RandomizeNear(near.latitude, near.longitude, minDistanceInMeters, currentMaxDistance, waterAllowed: false, generator: new System.Random());
+                waypoint.height = WaypointHeight(waypoint);
+                waypoint.altitude = 0;
 
-            ScenarioCustomWaypoints.AddWaypoint(waypoint);
-            return waypoint;
+                double thisWaypointDistance = StraightLineDistanceInMetersFromWaypoint(near, waypoint);
+
+                if (i == 0 || thisWaypointDistance < bestWaypointDistance )
+                {
+                    bestWaypoint = waypoint;
+                    bestWaypointDistance = thisWaypointDistance;
+                }
+
+                currentMaxDistance = minDistanceInMeters + (currentMaxDistance - minDistanceInMeters) * .75;
+            }
+
+            ScenarioCustomWaypoints.AddWaypoint(bestWaypoint);
+            return bestWaypoint;
         }
 
         public static bool RemoveWaypoint(string id)
