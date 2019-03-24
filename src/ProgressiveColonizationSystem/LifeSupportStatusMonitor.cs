@@ -1,4 +1,5 @@
 ﻿using KSP.UI.Screens;
+using ProgressiveColonizationSystem.ProductionChain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -102,13 +103,14 @@ namespace ProgressiveColonizationSystem
             }
 
             activeSnackConsumption.ResourceQuantities(out var availableResources, out var availableStorage);
-            List<ITieredProducer> snackProducers = activeSnackConsumption.Vessel.FindPartModulesImplementing<ITieredProducer>();
+            List<ITieredProducer> tieredProducers = activeSnackConsumption.Vessel.FindPartModulesImplementing<ITieredProducer>();
+            List<ITieredCombiner> tieredCombiners = activeSnackConsumption.Vessel.FindPartModulesImplementing<ITieredCombiner>();
 
             string minerStatusMessage = FlightGlobals.ActiveVessel.vesselModules
                 .OfType<SnackConsumption>()
                 .FirstOrDefault()
                 ?.GetMinerStatusMessage();
-            BuildStatusString(activeSnackConsumption, availableResources, availableStorage, snackProducers, crewCount, crewDelta, out string message);
+            BuildStatusString(activeSnackConsumption, availableResources, availableStorage, tieredProducers, tieredCombiners, crewCount, crewDelta, out string message);
             this.consumptionAndProductionInformation = (minerStatusMessage == null ? "" : minerStatusMessage + "\r\n\r\n") + message;
         }
 
@@ -116,7 +118,8 @@ namespace ProgressiveColonizationSystem
             SnackConsumption activeSnackConsumption,
             Dictionary<string, double> resources,
             Dictionary<string, double> storage,
-            List<ITieredProducer> snackProducers,
+            List<ITieredProducer> tieredProducers,
+            List<ITieredCombiner> tieredCombiners,
             int crewCount,
             int crewDelta,
             out string message)
@@ -125,7 +128,7 @@ namespace ProgressiveColonizationSystem
 
             ResearchSink researchSink = new ResearchSink();
             TieredProduction.CalculateResourceUtilization(
-                crewCount + crewDelta, 1, snackProducers, researchSink, resources, storage,
+                crewCount + crewDelta, 1, tieredProducers, tieredCombiners, researchSink, resources, storage,
                 out double timePassed, out var _, out Dictionary<string, double> resourcesConsumed,
                 out Dictionary<string, double> resourcesProduced);
             if (timePassed == 0)
@@ -164,11 +167,11 @@ namespace ProgressiveColonizationSystem
                         }
                         else if (daysToGrouchy < 2)
                         {
-                            text.AppendLine(CrewBlurbs.GrumpyKerbals(crewInBucket, daysToGrouchy, snackProducers.Any()));
+                            text.AppendLine(CrewBlurbs.GrumpyKerbals(crewInBucket, daysToGrouchy, tieredProducers.Any()));
                         }
                         else
                         {
-                            text.AppendLine(CrewBlurbs.HungryKerbals(crewInBucket, daysToGrouchy, snackProducers.Any()));
+                            text.AppendLine(CrewBlurbs.HungryKerbals(crewInBucket, daysToGrouchy, tieredProducers.Any()));
                         }
                     }
                 }

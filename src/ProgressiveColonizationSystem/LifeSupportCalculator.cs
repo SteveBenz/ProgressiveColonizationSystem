@@ -1,4 +1,5 @@
 ﻿using KSP.UI.Screens;
+using ProgressiveColonizationSystem.ProductionChain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -176,7 +177,12 @@ namespace ProgressiveColonizationSystem
             List<Part> parts = EditorLogic.fetch.ship.Parts;
             List<ITieredProducer> producers = parts
                 .Select(p => p.FindModuleImplementing<ITieredProducer>())
-                .Where(p => p != null).ToList();
+                .Where(p => p != null)
+                .ToList();
+            List<ITieredCombiner> combiners = parts
+                .Select(p => p.FindModuleImplementing<ITieredCombiner>())
+                .Where(p => p != null)
+                .ToList();
             List<ITieredContainer> containers = TieredContainer.FindAllTieredResourceContainers(parts).ToList();
 
             const double aWholeLot = 10000.0;
@@ -200,7 +206,7 @@ namespace ProgressiveColonizationSystem
             int crewCount = KSP.UI.CrewAssignmentDialog.Instance.GetManifest(false).CrewCount;
             ResearchSink researchSink = new ResearchSink();
             TieredProduction.CalculateResourceUtilization(
-                crewCount, 1.0, producers, researchSink, unlimitedInputs, unlimitedOutputs,
+                crewCount, 1.0, producers, combiners, researchSink, unlimitedInputs, unlimitedOutputs,
                 out double timePassed, out var _, out Dictionary<string, double> resourcesConsumedPerSecond,
                 out Dictionary<string, double> resourcesProducedPerSecond);
             if (timePassed < 1.0)

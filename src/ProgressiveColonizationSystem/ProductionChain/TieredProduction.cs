@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ProgressiveColonizationSystem
+namespace ProgressiveColonizationSystem.ProductionChain
 {
     public static class TieredProduction
     {
@@ -44,15 +44,15 @@ namespace ProgressiveColonizationSystem
         public static void CalculateResourceUtilization(
             int numCrew,
             double fullTimespanInSeconds,
-            List<ITieredProducer> producers2,
+            List<ITieredProducer> producers,
+            List<ITieredCombiner> combiners,
             IColonizationResearchScenario colonizationResearch,
             Dictionary<string, double> availableResources,
             Dictionary<string, double> availableStorage,
             out double timePassedInSeconds,
             out List<TieredResource> breakthroughs,
             out Dictionary<string, double> resourceConsumptionPerSecond,
-            out Dictionary<string, double> resourceProductionPerSecond
-            )
+            out Dictionary<string, double> resourceProductionPerSecond)
         {
             // The mechanic we're after writes up pretty simple - Kerbals will try to use renewable
             // resources first, then they start in on the on-board stocks, taking as much of the low-tier
@@ -63,9 +63,13 @@ namespace ProgressiveColonizationSystem
             //  see that 'availableResources.Keys' and 'availableStorage.Keys' are the same.
 
             // First just get a handle on what stuff we could produce.
-            List<ProducerData> producerInfos = FindProducers(producers2, colonizationResearch, availableResources, availableStorage);
+            List<ProducerData> producerInfos = FindProducers(producers, colonizationResearch, availableResources, availableStorage);
             SortProducerList(producerInfos);
             MatchProducersWithSourceProducers(producerInfos);
+
+            Dictionary<TieredResource, AmalgamatedCombiners> inputToCombinerMap = combiners
+                .GroupBy(c => c.TieredInput)
+                .ToDictionary(pair => pair.Key, pair => new AmalgamatedCombiners(pair));
 
             List<FoodProducer> snackProducers = GetFoodProducers(producerInfos);
             double ratioFulfilled = 0;
@@ -105,7 +109,29 @@ namespace ProgressiveColonizationSystem
             }
 
             resourceProductionPerSecond = new Dictionary<string, double>();
+            resourceConsumptionPerSecond = new Dictionary<string, double>();
             // Okay, now we know what the minimum plan is that will keep our kerbals fed.
+
+            // See what goes into tiered->untiered converters
+            foreach (ProducerData producerData in producerInfos)
+            {
+                if (inputToCombinerMap.TryGetValue(producerData.SourceTemplate.Output, out AmalgamatedCombiners combiner)
+                 && availableResources.ContainsKey(combiner.NonTieredInputResourceName)
+                 && availableStorage.ContainsKey(combiner.NonTieredOutputResourceName))
+                {
+                    double productionRatio = combiner.GetRatioForTier(producerData.SourceTemplate.Tier);
+                    double suppliesWanted = (combiner.ProductionRate - combiner.UsedCapacity) * productionRatio;
+                    double applicableConverterCapacity = producerData.TryToProduce(suppliesWanted);
+                    combiner.UsedCapacity -= applicableConverterCapacity;
+                    double usedResourcesRate = (suppliesWanted / applicableConverterCapacity) * (1 - productionRatio);
+                    combiner.RequiredMixins += usedResourcesRate;
+                    double producedResourcesRate = (suppliesWanted / applicableConverterCapacity) * combiner.ProductionRate;
+
+                    AddTo(resourceProductionPerSecond, combiner.NonTieredOutputResourceName, producedResourcesRate);
+                    AddTo(resourceConsumptionPerSecond, combiner.NonTieredInputResourceName, usedResourcesRate);
+                }
+            }
+
             // Augment that with stockpiling
             foreach (ProducerData producerData in producerInfos)
             {
@@ -114,17 +140,7 @@ namespace ProgressiveColonizationSystem
                 {
                     double stockpiledPerDay = producerData.TryToProduce(double.MaxValue);
                     double stockpiledPerSecond = UnitsPerDayToUnitsPerSecond(stockpiledPerDay);
-                    if (stockpiledPerSecond > 0.0)
-                    {
-                        if (resourceProductionPerSecond.ContainsKey(resourceName))
-                        {
-                            resourceProductionPerSecond[resourceName] = resourceProductionPerSecond[resourceName] + stockpiledPerSecond;
-                        }
-                        else
-                        {
-                            resourceProductionPerSecond.Add(resourceName, stockpiledPerSecond);
-                        }
-                    }
+                    AddTo(resourceProductionPerSecond, resourceName, stockpiledPerSecond);
                 }
                 else if (producerData.SourceTemplate.Output.ExcessProductionCountsTowardsResearch)
                 {
@@ -136,7 +152,6 @@ namespace ProgressiveColonizationSystem
 
             // Figure out how much time we can run with this production plan before the stores run out
             timePassedInSeconds = fullTimespanInSeconds;
-            resourceConsumptionPerSecond = new Dictionary<string, double>();
             foreach (ProducerData producerData in producerInfos)
             {
                 if (producerData.SourceTemplate is StorageProducer storage)
@@ -183,105 +198,6 @@ namespace ProgressiveColonizationSystem
         }
 
         public const double AcceptableError = 0.001;
-
-        private class StorageProducer
-            : ITieredProducer
-        {
-            public StorageProducer(TieredResource resource, TechTier tier, double amount)
-            {
-                this.Output = resource;
-                this.Tier = tier;
-                this.Amount = amount;
-            }
-
-            public TechTier Tier { get; set; }
-
-            public double ProductionRate => double.MaxValue;
-
-            public bool IsResearchEnabled => false;
-
-            public bool IsProductionEnabled => true;
-
-            public bool CanStockpileProduce => false;
-
-            public TieredResource Input => null;
-
-            public TieredResource Output { get; }
-
-            public bool ContributeResearch(IColonizationResearchScenario target, double amount)
-                => throw new NotImplementedException();
-
-            // Not part of IProducer
-
-            public double Amount { get; }
-
-            public string Body { get; set; } = null;
-        }
-
-        private class ProducerData
-        {
-            /// <summary>
-            ///   An exemplar of the type of producer.  (That is, if you have 5 parts that all have
-            ///   a module of the same type and they're configured for the same tier, then you only
-            ///   get one ProducerData row for all 5 of them.)
-            /// </summary>
-            public ITieredProducer SourceTemplate;
-
-            public double TotalProductionCapacity;
-            public double ProductionContributingToResearch;
-
-            /// <summary>
-            ///   True if we are stockpiling the resource that this produces
-            /// </summary>
-            public bool IsStockpiling;
-
-            public List<ProducerData> Suppliers = new List<ProducerData>();
-
-            public double AllottedCapacity;
-            public double WastedCapacity; // Amount that can't be used because of a lack of supply
-
-            /// <summary>
-            ///   Attempts to allocate enough production resources to satisfy the requirement
-            /// </summary>
-            /// <param name="resourceName">The Tier-4 name of the resource to produce</param>
-            /// <param name="tier">The Tier which must be produced - this routine does not substitute Tier4 for Tier1.</param>
-            /// <param name="amountPerDay">The required amount in units per day</param>
-            /// <returns>The amount that this production tree can actually produce in a day</returns>
-            public double TryToProduce(double amountPerDay)
-            {
-                if (this.WastedCapacity > 0)
-                {
-                    // No point in trying - this producer's maxed out.
-                    return 0;
-                }
-
-                double capacityLimitedRequest = Math.Min(this.TotalProductionCapacity - this.AllottedCapacity, amountPerDay);
-                if (this.SourceTemplate.Input == null)
-                {
-                    this.AllottedCapacity += capacityLimitedRequest;
-                    return capacityLimitedRequest;
-                }
-                else
-                {
-                    double sourcesObtainedSoFar = 0;
-                    foreach (ProducerData supplier in this.Suppliers)
-                    {
-                        sourcesObtainedSoFar += supplier.TryToProduce(capacityLimitedRequest - sourcesObtainedSoFar);
-                        if (sourcesObtainedSoFar >= capacityLimitedRequest - AcceptableError)
-                        {
-                            // We got all we asked for
-                            this.AllottedCapacity += capacityLimitedRequest;
-                            return capacityLimitedRequest;
-                        }
-                    }
-
-                    // We can't completely fulfil the request.
-                    this.AllottedCapacity += sourcesObtainedSoFar;
-                    this.WastedCapacity = this.TotalProductionCapacity - this.AllottedCapacity;
-                    return sourcesObtainedSoFar;
-                }
-            }
-        }
 
         private class FoodProducer
         {
@@ -346,7 +262,6 @@ namespace ProgressiveColonizationSystem
                 string storedResource = pair.Key;
                 double amount = pair.Value;
                 // TODO: Come up with a better way to filter it down to the resources that we care about.
-
 
                 if (colonizationScenario.TryParseTieredResourceName(storedResource, out TieredResource resource, out TechTier tier))
                 {
@@ -449,6 +364,22 @@ namespace ProgressiveColonizationSystem
                 }
 
                 producersWithNoSupply = producers.Where(p => p.SourceTemplate.Input != null && p.Suppliers.Count == 0).ToList();
+            }
+        }
+
+        private static void AddTo<T>(Dictionary<T, double> dictionary, T key, double amount)
+        {
+            if (amount < 0.0000000000001)
+            {
+                // Disregard tiny amounts
+            }
+            else if (dictionary.TryGetValue(key, out var existing))
+            {
+                dictionary[key] = existing + amount;
+            }
+            else
+            {
+                dictionary.Add(key, amount);
             }
         }
     }

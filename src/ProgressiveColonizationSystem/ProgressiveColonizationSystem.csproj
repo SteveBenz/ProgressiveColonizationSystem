@@ -65,6 +65,8 @@
     <Compile Include="ExperienceEffects\PksScroungingSkill.cs" />
     <Compile Include="ExperienceEffects\PksManufacturingSkill.cs" />
     <Compile Include="ExperienceEffects\PksScanningSkill.cs" />
+    <Compile Include="ProductionChain\AmalgamatedCombiners.cs" />
+    <Compile Include="ITieredCombiner.cs" />
     <Compile Include="PksCrewRequirement.cs" />
     <Compile Include="CrewBlurbs.cs" />
     <Compile Include="CrewRequirementVesselModule.cs" />
@@ -76,6 +78,8 @@
     <Compile Include="LifeSupportCalculator.cs" />
     <Compile Include="PopupMessageWithKerbal.cs" />
     <Compile Include="ColonizationResearchScenario.cs" />
+    <Compile Include="ProductionChain\ProducerData.cs" />
+    <Compile Include="ProductionChain\StorageProducer.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -103,7 +107,7 @@
     <Compile Include="SnackConsumption.cs" />
     <Compile Include="TechProgress.cs" />
     <Compile Include="TechTier.cs" />
-    <Compile Include="TieredProduction.cs" />
+    <Compile Include="ProductionChain\TieredProduction.cs" />
     <Compile Include="PksTieredResourceCoverter.cs" />
     <Compile Include="Waypoints.cs" />
   </ItemGroup>
