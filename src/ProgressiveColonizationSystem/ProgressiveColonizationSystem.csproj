@@ -65,6 +65,7 @@
     <Compile Include="ExperienceEffects\PksScroungingSkill.cs" />
     <Compile Include="ExperienceEffects\PksManufacturingSkill.cs" />
     <Compile Include="ExperienceEffects\PksScanningSkill.cs" />
+    <Compile Include="PksTieredCombiner.cs" />
     <Compile Include="ProductionChain\AmalgamatedCombiners.cs" />
     <Compile Include="ITieredCombiner.cs" />
     <Compile Include="PksCrewRequirement.cs" />
@@ -175,6 +176,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="GameData\ProgressiveColonizationSystem\AddSnacksToModules.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\PKS_Factory_RocketParts.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
