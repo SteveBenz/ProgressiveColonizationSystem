@@ -203,6 +203,12 @@ namespace ProgressiveColonizationSystem
                 }
             }
 
+#error in here, it didn't give it any of the rocket parts in the mock craft.  Probably wasn't in outputs either.
+            foreach (var combiner in combiners)
+            {
+
+            }
+
             int crewCount = KSP.UI.CrewAssignmentDialog.Instance.GetManifest(false).CrewCount;
             ResearchSink researchSink = new ResearchSink();
             TieredProduction.CalculateResourceUtilization(
