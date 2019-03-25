@@ -18,6 +18,7 @@ namespace ProgressiveColonizationSystem
         private static ResearchCategory productionResearchCategory = new ProductionResearchCategory();
         private static ResearchCategory scanningResearchCategory = new ScanningResearchCategory();
         private static ResearchCategory shiniesResearchCategory = new ShiniesResearchCategory();
+        private static ResearchCategory rocketPartsResearchCategory = new RocketPartsResearchCategory();
 
         private static TieredResource scanningResource = new TieredResource("ScanningData", "Kerbal-Days", ProductionRestriction.OrbitOfBody, scanningResearchCategory, canBeStored: false, unstoredExcessCanGoToResearch: true, isHarvestedLocally: false);
 
@@ -32,6 +33,7 @@ namespace ProgressiveColonizationSystem
             new EdibleResource("Snacks", ProductionRestriction.LandedOnBody, farmingResearchCategory, true, false, .6, .85, .95, .98, 1.0),
             new TieredResource("Fertilizer", "Kerbal-Days", ProductionRestriction.LandedOnBody, productionResearchCategory, true, false, false),
             new TieredResource("Shinies", "Bling-per-day", ProductionRestriction.LandedOnBody, shiniesResearchCategory, true, false, false),
+            new TieredResource("LocalParts", "Parts", ProductionRestriction.LandedOnBody, rocketPartsResearchCategory, false, false, false),
             new TieredResource("Stuff", null, ProductionRestriction.LandedOnBody, productionResearchCategory, false, false, false),
             CrushInsResource,
             scanningResource,

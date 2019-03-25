@@ -67,7 +67,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CrewRequirementsTests.cs" />
-    <Compile Include="SnackConsumptionTests.cs" />
+    <Compile Include="CombinerTests.cs" />
+    <Compile Include="StubDrill.cs" />
+    <Compile Include="StubRocketPartCombiner.cs" />
+    <Compile Include="StubPartFactory.cs" />
+    <Compile Include="TieredProductionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StubColonizationResearchScenario.cs" />
     <Compile Include="StubContainer.cs" />

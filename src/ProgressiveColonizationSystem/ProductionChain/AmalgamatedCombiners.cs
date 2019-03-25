@@ -18,7 +18,7 @@ namespace ProgressiveColonizationSystem.ProductionChain
 
         public double ProductionRate { get; }
 
-        public string NonTieredOutputResourceName => exemplar.NonTieredInputResourceName;
+        public string NonTieredOutputResourceName => exemplar.NonTieredOutputResourceName;
 
         public TieredResource TieredInput => exemplar.TieredInput;
 

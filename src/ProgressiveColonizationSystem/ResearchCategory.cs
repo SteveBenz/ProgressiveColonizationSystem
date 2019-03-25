@@ -271,4 +271,24 @@ namespace ProgressiveColonizationSystem
         public override string BoringBreakthroughMessage(TechTier newTier)
             => CrewBlurbs.BoringShiniesBreakthrough(newTier);
     }
+
+    public class RocketPartsResearchCategory
+        : ResearchCategory
+    {
+        public RocketPartsResearchCategory()
+            : base(.8, 1.6, 3.0, 3.0)
+        {
+        }
+
+        public override string DisplayName => "Construction";
+
+        public override bool CanDoResearch(Vessel vessel, TechTier currentTier, out string reasonWhyNot)
+            => NoResearchLimits(vessel, currentTier, out reasonWhyNot);
+
+        public override string BreakthroughMessage(TechTier newTier)
+            => CrewBlurbs.ShiniesBreakthrough(newTier, c => c.trait == "Engineer" || c.trait == "Mechanic");
+
+        public override string BoringBreakthroughMessage(TechTier newTier)
+            => CrewBlurbs.BoringShiniesBreakthrough(newTier);
+    }
 }

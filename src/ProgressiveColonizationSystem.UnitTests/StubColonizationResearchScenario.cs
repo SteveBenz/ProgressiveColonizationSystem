@@ -37,6 +37,7 @@ namespace ProgressiveColonizationSystem.UnitTests
         public static ResearchCategory productionResearchCategory = new ProductionResearchCategory();
         public static ResearchCategory scanningResearchCategory = new ScanningResearchCategory();
         public static ResearchCategory shiniesResearchCategory = new ShiniesResearchCategory();
+        public static ResearchCategory rocketPartsResearchCategory = new RocketPartsResearchCategory();
 
         public static EdibleResource HydroponicSnacks = new EdibleResource("HydroponicSnacks", ProductionRestriction.Orbit, hydroponicResearchCategory, false, false, .2, .4, .55, .7, .95);
         public static EdibleResource Snacks = new EdibleResource("Snacks", ProductionRestriction.LandedOnBody, farmingResearchCategory, true, false, .6, .85, .95, .98, 1.0);
@@ -45,6 +46,7 @@ namespace ProgressiveColonizationSystem.UnitTests
         public static TieredResource CrushIns = new TieredResource("CrushIns", null, ProductionRestriction.LandedOnBody, productionResearchCategory, false, false, true);
         public static TieredResource Scanning = new TieredResource("ScanningData", "Kerbal-Days", ProductionRestriction.OrbitOfBody, scanningResearchCategory, false, false, true);
         public static TieredResource Shinies = new TieredResource("Shinies", "Bling-per-day", ProductionRestriction.LandedOnBody, shiniesResearchCategory, true, false, false);
+        public static TieredResource LocalParts = new TieredResource("LocalParts", "Parts", ProductionRestriction.LandedOnBody, rocketPartsResearchCategory, false, false, false);
 
         private static TieredResource[] AllTieredResources =
         {
@@ -66,7 +68,7 @@ namespace ProgressiveColonizationSystem.UnitTests
             int dashIndex = tieredResourceName.IndexOf('-');
             if (dashIndex < 0)
             {
-                resource = GetTieredResourceByName(tieredResourceName);
+                resource = AllTieredResources.FirstOrDefault(tr => tr.BaseName == tieredResourceName);
                 tier = TechTier.Tier4;
                 return resource != null;
             }

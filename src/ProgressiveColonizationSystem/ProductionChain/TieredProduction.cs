@@ -123,12 +123,12 @@ namespace ProgressiveColonizationSystem.ProductionChain
                     double suppliesWanted = (combiner.ProductionRate - combiner.UsedCapacity) * productionRatio;
                     double applicableConverterCapacity = producerData.TryToProduce(suppliesWanted);
                     combiner.UsedCapacity -= applicableConverterCapacity;
-                    double usedResourcesRate = (suppliesWanted / applicableConverterCapacity) * (1 - productionRatio);
+                    double usedResourcesRate = combiner.ProductionRate * (applicableConverterCapacity / suppliesWanted) * (1 - productionRatio);
                     combiner.RequiredMixins += usedResourcesRate;
-                    double producedResourcesRate = (suppliesWanted / applicableConverterCapacity) * combiner.ProductionRate;
+                    double producedResourcesRate = (applicableConverterCapacity / suppliesWanted) * combiner.ProductionRate;
 
-                    AddTo(resourceProductionPerSecond, combiner.NonTieredOutputResourceName, producedResourcesRate);
-                    AddTo(resourceConsumptionPerSecond, combiner.NonTieredInputResourceName, usedResourcesRate);
+                    AddTo(resourceProductionPerSecond, combiner.NonTieredOutputResourceName, UnitsPerDayToUnitsPerSecond(producedResourcesRate));
+                    AddTo(resourceConsumptionPerSecond, combiner.NonTieredInputResourceName, UnitsPerDayToUnitsPerSecond(usedResourcesRate));
                 }
             }
 
@@ -161,11 +161,16 @@ namespace ProgressiveColonizationSystem.ProductionChain
                     double amountUsedPerSecond = UnitsPerDayToUnitsPerSecond(producerData.AllottedCapacity);
                     if (amountUsedPerSecond > 0)
                     {
-                        double secondsToEmpty = (storage.Amount / amountUsedPerSecond);
-                        timePassedInSeconds = Math.Min(timePassedInSeconds, secondsToEmpty);
-                        resourceConsumptionPerSecond.Add(storage.Output.TieredName(storage.Tier), amountUsedPerSecond);
+                        AddTo(resourceConsumptionPerSecond, storage.Output.TieredName(storage.Tier), amountUsedPerSecond);
                     }
                 }
+            }
+
+            foreach (var consumedPair in resourceConsumptionPerSecond)
+            {
+                double storageAmount = availableResources[consumedPair.Key];
+                double secondsToEmpty = (storageAmount / consumedPair.Value);
+                timePassedInSeconds = Math.Min(timePassedInSeconds, secondsToEmpty);
             }
 
             // ...or before the storage space is packed

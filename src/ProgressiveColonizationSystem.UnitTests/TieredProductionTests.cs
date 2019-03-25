@@ -10,9 +10,7 @@ namespace ProgressiveColonizationSystem.UnitTests
     public class TieredProductionTests
     {
         public const double SecondsPerKerbanDay = 6.0 * 60.0 * 60.0;
-
-        public const double TestTolerance = TieredProduction.AcceptableError;
-
+        public const double TestTolerance = .001 / SecondsPerKerbanDay;
 
         // These are mirrored in StubColonizatinoResource - reproduced here to make it easier to read
         private const double Tier0AgroponicMaxDietRatio = .2;
@@ -27,7 +25,7 @@ namespace ProgressiveColonizationSystem.UnitTests
         {
             var colonizationResearchScenario = new StubColonizationResearchScenario(TechTier.Tier0);
             Dictionary<string, double> available = new Dictionary<string, double>();
-            available.Add("Snacks", 1.0); // One days' worth
+            available.Add("Snacks-Tier4", 1.0); // One days' worth
             Dictionary<string, double> noStorage = new Dictionary<string, double>();
             TieredProduction.CalculateResourceUtilization(
                 5 /* kerbals */, 1.0 /* seconds*/, new List<ITieredProducer>(),
@@ -101,8 +99,8 @@ namespace ProgressiveColonizationSystem.UnitTests
             };
             var colonizationResearchScenario = new StubColonizationResearchScenario(TechTier.Tier0);
             Dictionary<string, double> available = new Dictionary<string, double>();
-            available.Add("Snacks", 1.0); // One days' worth of food
-            available.Add("Fertilizer", 1.0); // And one days' worth of running the agroponics
+            available.Add("Snacks-Tier4", 1.0); // One days' worth of food
+            available.Add("Fertilizer-Tier4", 1.0); // And one days' worth of running the agroponics
             Dictionary<string, double> noStorage = new Dictionary<string, double>();
 
             // First we test when we have more than enough production
@@ -144,7 +142,7 @@ namespace ProgressiveColonizationSystem.UnitTests
 
             // Now let's take that last test and give it a twist that they run out of fertilizer halfway
             // through the second of time
-            available["Fertilizer"] = 1.5 / SecondsPerKerbanDay;
+            available["Fertilizer-Tier4"] = 1.5 / SecondsPerKerbanDay;
             TieredProduction.CalculateResourceUtilization(
                 20 /* kerbals */, 1.0 /* seconds*/, agroponicModules, new List<ITieredCombiner>(),
                 colonizationResearchScenario, available, noStorage,
@@ -198,8 +196,8 @@ namespace ProgressiveColonizationSystem.UnitTests
             var colonizationResearchScenario = new StubColonizationResearchScenario(TechTier.Tier0);
 
             Dictionary<string, double> inStorage = new Dictionary<string, double>();
-            inStorage["Fertilizer"] = 1.0;
-            inStorage["Snacks"] = 1.0;
+            inStorage["Fertilizer-Tier4"] = 1.0;
+            inStorage["Snacks-Tier4"] = 1.0;
             Dictionary<string, double> storageSpace = new Dictionary<string, double>();
             storageSpace.Add("Snacks-Tier0", double.MaxValue);
             storageSpace.Add("Fertilizer-Tier0", double.MaxValue);
@@ -219,7 +217,7 @@ namespace ProgressiveColonizationSystem.UnitTests
 
             // Okay, now let's say we run out of that sweet sweet Tier4 fertilizer - it should max out the snack production
             colonizationResearchScenario.Reset();
-            inStorage.Remove("Fertilizer");
+            inStorage.Remove("Fertilizer-Tier4");
 
             TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, landedModules, new List<ITieredCombiner>(),
@@ -234,7 +232,7 @@ namespace ProgressiveColonizationSystem.UnitTests
 
             // Let's say we fill up the snacks storage midway through:
             colonizationResearchScenario.Reset();
-            inStorage.Remove("Fertilizer");
+            inStorage.Remove("Fertilizer-Tier4");
             const double expectedTimePassed = 0.25;
             storageSpace["Snacks-Tier0"] = (15.0 - 4 * Tier0AgricultureMaxDietRatio) * expectedTimePassed / SecondsPerKerbanDay;
 
@@ -294,8 +292,8 @@ namespace ProgressiveColonizationSystem.UnitTests
             Dictionary<string, double> noStorage = new Dictionary<string, double>();
 
             // Kerbal->Duna scenario - plenty of maxtier stuff
-            available["Fertilizer"] = 1.0;
-            available["Snacks"] = 1.0;
+            available["Fertilizer-Tier4"] = 1.0;
+            available["Snacks-Tier4"] = 1.0;
             TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, enRouteModules, new List<ITieredCombiner>(),
                 colonizationResearchScenario, available, noStorage,
@@ -337,7 +335,7 @@ namespace ProgressiveColonizationSystem.UnitTests
             Assert.AreEqual(TechTier.Tier3, colonizationResearchScenario.AgroponicsMaxTier); // Next tier is up
 
             // And we run out of our KSP-provided fertilizer
-            available.Remove("Fertilizer");
+            available.Remove("Fertilizer-Tier4");
             TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, enRouteModules, new List<ITieredCombiner>(),
                 colonizationResearchScenario, available, noStorage,
