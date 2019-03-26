@@ -96,10 +96,9 @@ namespace ProgressiveColonizationSystem
             List<ITieredProducer> producers = parts
                 .Select(p => p.FindModuleImplementing<ITieredProducer>())
                 .Where(p => p != null).ToList();
-            List<ITieredContainer> containers = TieredContainer.FindAllTieredResourceContainers(parts).ToList();
 
             if (!producers.Any(p => p.Output.IsSnacks && p.Tier == TechTier.Tier4)
-                && !containers.Any(c => c.Content.IsSnacks && c.Tier == TechTier.Tier4 && c.Amount > 0))
+                && !parts.Any(p => p.Resources.Any(r => r.resourceName == "Snacks-Tier4" && r.amount > 0)))
             {
                 return new DialogGUILabel("There is no source of top-tier Snacks on this vessel - only well-fed and happy Kerbals will produce things");
             }
@@ -183,36 +182,29 @@ namespace ProgressiveColonizationSystem
                 .Select(p => p.FindModuleImplementing<ITieredCombiner>())
                 .Where(p => p != null)
                 .ToList();
-            List<ITieredContainer> containers = TieredContainer.FindAllTieredResourceContainers(parts).ToList();
-
+            Dictionary<string, double> amountAvailable = parts
+                .SelectMany(p => p.Resources)
+                .GroupBy(r => r.resourceName)
+                .ToDictionary(g => g.Key, g => g.Sum(r => r.amount));
+            Dictionary<string, double> storageAvailable = parts
+                .SelectMany(p => p.Resources)
+                .GroupBy(r => r.resourceName)
+                .ToDictionary(g => g.Key, g => g.Sum(r => r.maxAmount - r.amount));
             const double aWholeLot = 10000.0;
-            Dictionary<string, double> unlimitedInputs = containers
-                .Select(c => c.Content.TieredName(c.Tier))
-                .Distinct()
-                .ToDictionary(n => n, n => aWholeLot);
-            Dictionary<string, double> unlimitedOutputs = containers
-                .Select(c => c.Content.TieredName(c.Tier))
-                .Distinct()
-                .ToDictionary(n => n, n => aWholeLot);
+            Dictionary<string, double> unlimitedAmounts = amountAvailable.ToDictionary(pair => pair.Key, pair => aWholeLot);
 
             foreach (var producer in producers)
             {
                 if (producer.Input != null && producer.Input.IsHarvestedLocally)
                 {
-                    unlimitedInputs[producer.Input.TieredName(producer.Tier)] = aWholeLot;
+                    unlimitedAmounts[producer.Input.TieredName(producer.Tier)] = aWholeLot;
                 }
-            }
-
-#error in here, it didn't give it any of the rocket parts in the mock craft.  Probably wasn't in outputs either.
-            foreach (var combiner in combiners)
-            {
-
             }
 
             int crewCount = KSP.UI.CrewAssignmentDialog.Instance.GetManifest(false).CrewCount;
             ResearchSink researchSink = new ResearchSink();
             TieredProduction.CalculateResourceUtilization(
-                crewCount, 1.0, producers, combiners, researchSink, unlimitedInputs, unlimitedOutputs,
+                crewCount, 1.0, producers, combiners, researchSink, unlimitedAmounts, unlimitedAmounts,
                 out double timePassed, out var _, out Dictionary<string, double> resourcesConsumedPerSecond,
                 out Dictionary<string, double> resourcesProducedPerSecond);
             if (timePassed < 1.0)
@@ -221,13 +213,6 @@ namespace ProgressiveColonizationSystem
                 this.productionInfo = "-";
                 return;
             }
-
-            Dictionary<string, double> actualInputs = containers
-                .GroupBy(c => c.Content.TieredName(c.Tier))
-                .ToDictionary(c => c.Key, c => c.Sum(x => (double)x.Amount));
-            Dictionary<string, double> actualStorage = containers
-                .GroupBy(c => c.Content.TieredName(c.Tier))
-                .ToDictionary(c => c.Key, c => c.Sum(x => (double)(x.MaxAmount - x.Amount)));
 
             StringBuilder consumption = new StringBuilder();
             foreach (var pair in resourcesConsumedPerSecond.OrderBy(pair => pair.Key))
@@ -244,7 +229,7 @@ namespace ProgressiveColonizationSystem
                 else
                 {
                     double available = 0;
-                    actualInputs.TryGetValue(name, out available);
+                    amountAvailable.TryGetValue(name, out available);
                     string availableBlurb = $"{amountPerDay * this.plannedMissionDuration:N0} needed, {available:N0} available";
                     if (available < amountPerDay * this.plannedMissionDuration)
                     {
@@ -264,7 +249,7 @@ namespace ProgressiveColonizationSystem
                 var amountPerDay = TieredProduction.UnitsPerSecondToUnitsPerDay(pair.Value);
 
                 double available = 0;
-                actualStorage.TryGetValue(name, out available);
+                storageAvailable.TryGetValue(name, out available);
                 string availableBlurb = $"{amountPerDay * this.plannedMissionDuration:N0} produced, {available:N0} max capacity";
                 if (available < amountPerDay * this.plannedMissionDuration)
                 {
@@ -319,25 +304,32 @@ namespace ProgressiveColonizationSystem
             List<ITieredProducer> producers = parts
                 .Select(p => p.FindModuleImplementing<ITieredProducer>())
                 .Where(p => p != null).ToList();
-            List<ITieredContainer> containers = TieredContainer.FindAllTieredResourceContainers(parts).ToList();
             List<IPksCrewRequirement> crewedParts = parts
                 .Select(p => p.FindModuleImplementing<IPksCrewRequirement>())
                 .Where(p => p != null)
                 .ToList();
+            Dictionary<string, double> amountAvailable = parts
+                .SelectMany(p => p.Resources)
+                .GroupBy(r => r.resourceName)
+                .ToDictionary(g => g.Key, g => g.Sum(r => r.amount));
+            Dictionary<string, double> storageAvailable = parts
+                .SelectMany(p => p.Resources)
+                .GroupBy(r => r.resourceName)
+                .ToDictionary(g => g.Key, g => g.Sum(r => r.maxAmount - r.amount));
 
             List<SkilledCrewman> crew = this.FindCrew().Select(c => new SkilledCrewman(c)).ToList();
             int crewCount = parts.Sum(p => p.CrewCapacity);
             this.lastWarningList =
-                StaticAnalysis.CheckBodyIsSet(ColonizationResearchScenario.Instance, producers, containers)
-                .Union(StaticAnalysis.CheckHasCrushinStorage(ColonizationResearchScenario.Instance, producers, containers))
-                .Union(StaticAnalysis.CheckTieredProduction(ColonizationResearchScenario.Instance, producers, containers))
-                .Union(StaticAnalysis.CheckTieredProductionStorage(ColonizationResearchScenario.Instance, producers, containers))
-                .Union(StaticAnalysis.CheckCorrectCapacity(ColonizationResearchScenario.Instance, producers, containers))
-                .Union(StaticAnalysis.CheckExtraBaggage(ColonizationResearchScenario.Instance, producers, containers))
-                .Union(StaticAnalysis.CheckHasSomeFood(ColonizationResearchScenario.Instance, producers, containers, crew))
-                .Union(StaticAnalysis.CheckHasRoverPilot(ColonizationResearchScenario.Instance, producers, containers, crew))
+                StaticAnalysis.CheckBodyIsSet(ColonizationResearchScenario.Instance, producers, amountAvailable, storageAvailable)
+                .Union(StaticAnalysis.CheckHasCrushinStorage(ColonizationResearchScenario.Instance, producers, amountAvailable, storageAvailable))
+                .Union(StaticAnalysis.CheckTieredProduction(ColonizationResearchScenario.Instance, producers, amountAvailable, storageAvailable))
+                .Union(StaticAnalysis.CheckTieredProductionStorage(ColonizationResearchScenario.Instance, producers, amountAvailable, storageAvailable))
+                .Union(StaticAnalysis.CheckCorrectCapacity(ColonizationResearchScenario.Instance, producers, amountAvailable, storageAvailable))
+                .Union(StaticAnalysis.CheckExtraBaggage(ColonizationResearchScenario.Instance, producers, amountAvailable, storageAvailable))
+                .Union(StaticAnalysis.CheckHasSomeFood(ColonizationResearchScenario.Instance, producers, amountAvailable, storageAvailable, crew))
+                .Union(StaticAnalysis.CheckHasRoverPilot(ColonizationResearchScenario.Instance, producers, amountAvailable, storageAvailable, crew))
                 .Union(StaticAnalysis.CheckHasProperCrew(crewedParts, crew))
-                .Union(StaticAnalysis.CheckRoverHasTwoSeats(ColonizationResearchScenario.Instance, producers, containers, crewCount))
+                .Union(StaticAnalysis.CheckRoverHasTwoSeats(ColonizationResearchScenario.Instance, producers, amountAvailable, storageAvailable, crewCount))
                 .ToList();
 
             // See if anything's actually changed

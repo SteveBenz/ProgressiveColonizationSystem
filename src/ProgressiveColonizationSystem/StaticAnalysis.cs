@@ -14,7 +14,7 @@ namespace ProgressiveColonizationSystem
             public Action FixIt { get; set; }
         }
 
-        internal static IEnumerable<WarningMessage> CheckBodyIsSet(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, List<ITieredContainer> containers)
+        internal static IEnumerable<WarningMessage> CheckBodyIsSet(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, Dictionary<string, double> amountAvailable, Dictionary<string, double> storageAvailable)
         {
             // Check for body parts
             List<ITieredProducer> bodySpecific = producers.Where(c => c.Output.ProductionRestriction != ProductionRestriction.Orbit).ToList();
@@ -58,7 +58,7 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        internal static IEnumerable<WarningMessage> CheckTieredProduction(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, List<ITieredContainer> containers)
+        internal static IEnumerable<WarningMessage> CheckTieredProduction(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, Dictionary<string, double> amountAvailable, Dictionary<string, double> storageAvailable)
         {
             TechTier minimumSensibleOrbitalTechTier = colonizationResearch.AllResourcesTypes
                 .Where(resource => resource.ProductionRestriction == ProductionRestriction.Orbit)
@@ -175,7 +175,7 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        internal static IEnumerable<WarningMessage> CheckCorrectCapacity(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, List<ITieredContainer> containers)
+        internal static IEnumerable<WarningMessage> CheckCorrectCapacity(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, Dictionary<string, double> amountAvailable, Dictionary<string, double> storageAvailable)
         {
             var production = producers
                 .GroupBy(p => p.Output)
@@ -197,7 +197,9 @@ namespace ProgressiveColonizationSystem
                     // Okay, there's no producer for this - complain if there's no storage that either contains the
                     // required tier or could contain it if it's gathered locally.
                     TechTier requiredTier = producers.Where(p => p.Input == inputResource).Select(p => p.Tier).Min();
-                    if (!containers.Any(c => c.Content == inputResource && c.Tier >= requiredTier && (c.Content.IsHarvestedLocally || c.Amount > 0)))
+                    bool anyInStorage = Enumerable.Range((int)requiredTier, (int)TechTier.Tier4)
+                        .Any(i => amountAvailable.TryGetValue(inputResource.TieredName((TechTier)i), out var amount) && amount > 0);
+                    if (!inputResource.IsHarvestedLocally && !anyInStorage)
                     {
                         yield return new WarningMessage()
                         {
@@ -219,12 +221,14 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        internal static IEnumerable<WarningMessage> CheckTieredProductionStorage(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, List<ITieredContainer> containers)
+        internal static IEnumerable<WarningMessage> CheckTieredProductionStorage(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, Dictionary<string, double> amountAvailable, Dictionary<string, double> storageAvailable)
         {
             HashSet<string> missingStorageComplaints = new HashSet<string>();
             foreach (ITieredProducer producer in producers)
             {
-                if (!containers.Any(c => c.Content == producer.Output && c.Tier == producer.Tier) && producer.Output.CanBeStored)
+                if (producer.Output.CanBeStored &&
+                    (!storageAvailable.TryGetValue(producer.Output.TieredName(producer.Tier), out var available) 
+                  || available == 0))
                 {
                     missingStorageComplaints.Add($"This craft is producing {producer.Output.TieredName(producer.Tier)} but there's no storage for it.");
                 }
@@ -232,24 +236,28 @@ namespace ProgressiveColonizationSystem
             return missingStorageComplaints.OrderBy(s => s).Select(s => new WarningMessage { Message = s, FixIt = null, IsClearlyBroken = false });
         }
 
-        internal static IEnumerable<WarningMessage> CheckExtraBaggage(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, List<ITieredContainer> containers)
+        internal static IEnumerable<WarningMessage> CheckExtraBaggage(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, Dictionary<string, double> amountAvailable, Dictionary<string, double> storageAvailable)
         {
             HashSet<string> extraBaggageComplaints = new HashSet<string>();
-            foreach (var container in containers)
+            foreach (var pair in amountAvailable)
             {
-                if ((container.Tier != TechTier.Tier4 || container.Content.BaseName == "Shinies") && container.Amount > 0)
+                if (pair.Value == 0)
                 {
-                    extraBaggageComplaints.Add($"This vessel is carrying {container.Content.TieredName(container.Tier)}.  That kind of cargo that should just be produced - that's fine for testing mass & delta-v, but you wouldn't really want to fly this way.");
+                    continue;
+                }
+
+                if (pair.Value > 0 && colonizationResearch.TryParseTieredResourceName(pair.Key, out var resource, out var tier)
+                    && (tier != TechTier.Tier4 || resource.BaseName == "Shinies"))
+                {
+                    extraBaggageComplaints.Add($"This vessel is carrying {pair.Key}.  That kind of cargo that should just be produced - that's fine for testing mass & delta-v, but you wouldn't really want to fly this way.");
                 }
             }
             return extraBaggageComplaints.OrderBy(s => s).Select(s => new WarningMessage { Message = s, FixIt = null, IsClearlyBroken = false });
         }
 
-        internal static IEnumerable<WarningMessage> CheckHasSomeFood(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, List<ITieredContainer> containers, List<SkilledCrewman> crew)
+        internal static IEnumerable<WarningMessage> CheckHasSomeFood(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, Dictionary<string, double> amountAvailable, Dictionary<string, double> storageAvailable, List<SkilledCrewman> crew)
         {
-            if (crew.Count > 0
-                && !containers.Any(c => c.Content.IsSnacks && c.Tier == TechTier.Tier4 && c.Amount > 0)
-                && !producers.Any(p => p.Output.IsSnacks && p.Tier == TechTier.Tier4))
+            if (crew.Count > 0 && (!amountAvailable.TryGetValue("Snacks-Tier4", out var amount) || amount == 0))
             {
                 yield return new WarningMessage
                 {
@@ -281,47 +289,45 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        internal static IEnumerable<WarningMessage> CheckHasCrushinStorage(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, List<ITieredContainer> containers)
+        internal static IEnumerable<WarningMessage> CheckHasCrushinStorage(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, Dictionary<string, double> amountAvailable, Dictionary<string, double> storageAvailable)
         {
-            double totalDrillCapacity = producers
+            var drills = producers
                 .Where(p => p.Input == colonizationResearch.CrushInsResource)
-                .Sum(p => p.ProductionRate);
-            double crushinsRequired = totalDrillCapacity * SnackConsumption.DrillCapacityMultiplierForAutomaticMiningQualification;
-            double totalCrushinStorage = containers
-                .Where(c => c.Content == colonizationResearch.CrushInsResource)
-                .Sum(c => c.MaxAmount);
+                .ToArray();
+            if (drills.Length > 0)
+            {
+                double totalDrillCapacity = drills.Sum(p => p.ProductionRate);
+                double crushinsRequired = totalDrillCapacity * SnackConsumption.DrillCapacityMultiplierForAutomaticMiningQualification;
+                storageAvailable.TryGetValue(drills[0].Input.TieredName(drills[0].Tier), out double totalCrushinStorage);
 
-            if (crushinsRequired == 0)
-            {
-                // Nothing to say
-            }
-            else if (totalCrushinStorage < crushinsRequired)
-            {
-                // not enough storage
-                yield return new WarningMessage
+                if (totalCrushinStorage < crushinsRequired)
                 {
-                    Message = $"To ensure you can use automated mining (via a separate mining craft), you need to have "
-                            + $"storage for at least {crushinsRequired} {colonizationResearch.CrushInsResource.BaseName}.  "
-                            + "You will also need to send a craft capable of mining it (which will be found in "
-                            + "scattered locations around the body using your orbital scanner) and bringing them "
-                            + "back to the base.",
-                    IsClearlyBroken = false,
-                    FixIt = null
-                };
-            }
-            else
-            {
-                yield return new WarningMessage
+                    // not enough storage
+                    yield return new WarningMessage
+                    {
+                        Message = $"To ensure you can use automated mining (via a separate mining craft), you need to have "
+                                + $"storage for at least {crushinsRequired} {colonizationResearch.CrushInsResource.BaseName}.  "
+                                + "You will also need to send a craft capable of mining it (which will be found in "
+                                + "scattered locations around the body using your orbital scanner) and bringing them "
+                                + "back to the base.",
+                        IsClearlyBroken = false,
+                        FixIt = null
+                    };
+                }
+                else
                 {
-                    Message = $"To ensure you can use automated mining (via a separate mining craft), you need to have "
-                            + $"a craft capable of mining and delivering {crushinsRequired} {colonizationResearch.CrushInsResource.BaseName}.",
-                    IsClearlyBroken = false,
-                    FixIt = null
-                };
+                    yield return new WarningMessage
+                    {
+                        Message = $"To ensure you can use automated mining (via a separate mining craft), you need to have "
+                                + $"a craft capable of mining and delivering {crushinsRequired} {colonizationResearch.CrushInsResource.BaseName}.",
+                        IsClearlyBroken = false,
+                        FixIt = null
+                    };
+                }
             }
         }
 
-        internal static IEnumerable<WarningMessage> CheckHasRoverPilot(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, List<ITieredContainer> containers, List<SkilledCrewman> crew)
+        internal static IEnumerable<WarningMessage> CheckHasRoverPilot(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, Dictionary<string, double> amountAvailable, Dictionary<string, double> storageAvailable, List<SkilledCrewman> crew)
         {
             bool needsRoverPilot = producers.Any(p => p.Input == colonizationResearch.CrushInsResource);
             if (needsRoverPilot && !crew.Any(c => c.CanPilotRover()))
@@ -336,7 +342,7 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        internal static IEnumerable<WarningMessage> CheckRoverHasTwoSeats(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, List<ITieredContainer> containers, int maxCrewCapacity)
+        internal static IEnumerable<WarningMessage> CheckRoverHasTwoSeats(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, Dictionary<string, double> amountAvailable, Dictionary<string, double> storageAvailable, int maxCrewCapacity)
         {
             bool isCrushinRover = producers.Any(p => p.Output == colonizationResearch.CrushInsResource);
             if (isCrushinRover && maxCrewCapacity < 2)

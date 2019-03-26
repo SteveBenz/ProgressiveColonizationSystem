@@ -75,7 +75,6 @@
     <Compile Include="PksScanner.cs" />
     <Compile Include="PksCrushInsScrounger.cs" />
     <Compile Include="PksToolbarDialog.cs" />
-    <Compile Include="ITieredContainer.cs" />
     <Compile Include="LifeSupportCalculator.cs" />
     <Compile Include="PopupMessageWithKerbal.cs" />
     <Compile Include="ColonizationResearchScenario.cs" />
@@ -90,10 +89,8 @@
     <Compile Include="ResearchSink.cs" />
     <Compile Include="ResourceLodeScenario.cs" />
     <Compile Include="StaticAnalysis.cs" />
-    <Compile Include="TieredContainer.cs" />
     <Compile Include="TieredResource.cs" />
     <Compile Include="EdibleResource.cs" />
-    <Compile Include="PksTieredContainer.cs" />
     <Compile Include="ITieredProducer.cs" />
     <Compile Include="LifeSupportStatusMonitor.cs" />
     <Compile Include="AssemblyVersion.cs">
