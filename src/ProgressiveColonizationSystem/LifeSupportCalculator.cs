@@ -221,8 +221,8 @@ namespace ProgressiveColonizationSystem
                 var amountPerDay = TieredProduction.UnitsPerSecondToUnitsPerDay(pair.Value);
                 consumption.Append($"{amountPerDay:N1} {name}/day");
 
-                ColonizationResearchScenario.Instance.TryParseTieredResourceName(name, out TieredResource resource, out TechTier tier);
-                if (resource.IsHarvestedLocally)
+                if (ColonizationResearchScenario.Instance.TryParseTieredResourceName(name, out TieredResource resource, out TechTier tier)
+                 && resource.IsHarvestedLocally)
                 {
                     consumption.Append(" - will need to be fetched from a resource lode");
                 }
