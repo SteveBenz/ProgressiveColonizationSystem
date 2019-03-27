@@ -280,15 +280,15 @@ namespace ProgressiveColonizationSystem
         {
         }
 
-        public override string DisplayName => "Construction";
+        public override string DisplayName => "Off-World Construction";
 
         public override bool CanDoResearch(Vessel vessel, TechTier currentTier, out string reasonWhyNot)
             => NoResearchLimits(vessel, currentTier, out reasonWhyNot);
 
         public override string BreakthroughMessage(TechTier newTier)
-            => CrewBlurbs.ShiniesBreakthrough(newTier, c => c.trait == "Engineer" || c.trait == "Mechanic");
+            => CrewBlurbs.ConstructionBreakthrough(newTier, c => c.trait == "Engineer" || c.trait == "Mechanic");
 
         public override string BoringBreakthroughMessage(TechTier newTier)
-            => CrewBlurbs.BoringShiniesBreakthrough(newTier);
+            => CrewBlurbs.BoringConstructionBreakthrough(newTier);
     }
 }

@@ -242,6 +242,34 @@ namespace ProgressiveColonizationSystem
             }
         }
 
+
+        public static string ConstructionBreakthrough(TechTier tier, Func<ProtoCrewMember, bool> isInstrumental)
+            => ConstructionBreakthrough(GetCrewDescriptors(isInstrumental), FlightGlobals.ActiveVessel.lastBody.name, tier);
+
+        internal static string ConstructionBreakthrough(List<CrewDescriptor> crew, string bodyName, TechTier tier)
+        {
+            CrewDescriptor perp = ChoosePerpetrator(crew);
+
+            switch (tier)
+            {
+                default:
+                case TechTier.Tier1:
+                case TechTier.Tier2:
+                case TechTier.Tier3:
+                case TechTier.Tier4:
+                    return "Rocket Science.  Turns out it's really not that hard.";
+            }
+        }
+
+        internal static string BoringConstructionBreakthrough(TechTier tier)
+        {
+            return $"You can now set the tier of Rocket Part Factories to {tier.DisplayName()} in the VAB.  "
+                   + "You cannot retrofit this part to be a higher tier than it is.  You can keep using it, but it won't "
+                   + "be as effective as a new part and you can't do research with it.  The new part will be able to "
+                   + "use a greater percentage of locally-produced parts to make a single rocket part.  Construction "
+                   + " is a body-specific thing - this breakthrough only applies to the body you're landed at.";
+        }
+
         internal static string HungryKerbals(List<ProtoCrewMember> crewInBucket, double daysToGrouchy, bool anyFoodProduction)
             => HungryKerbals(crewInBucket.Select(k => FromKsp(k, _ => false)).ToList(), daysToGrouchy, anyFoodProduction);
 
