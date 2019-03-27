@@ -356,5 +356,41 @@ namespace ProgressiveColonizationSystem
                 };
             }
         }
+
+        internal static IEnumerable<WarningMessage> CheckCombiners(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, List<ITieredCombiner> combiners, Dictionary<string, double> amountAvailable, Dictionary<string, double> storageAvailable)
+        {
+            foreach (ITieredCombiner combinerWithMissingInput in combiners
+                .Where(n => !amountAvailable.TryGetValue(n.NonTieredInputResourceName, out var amount) || amount == 0))
+            {
+                yield return new WarningMessage
+                {
+                    Message = $"To produce {combinerWithMissingInput.NonTieredOutputResourceName} you will need to bring some {combinerWithMissingInput.NonTieredInputResourceName}.",
+                    IsClearlyBroken = false,
+                    FixIt = null
+                };
+            }
+
+            foreach (ITieredCombiner combinerWithNoOutputStorage in combiners
+                .Where(n => !storageAvailable.TryGetValue(n.NonTieredOutputResourceName, out var amount) || amount == 0))
+            {
+                yield return new WarningMessage
+                {
+                    Message = $"There's no place to put the {combinerWithNoOutputStorage.NonTieredOutputResourceName} this base is producing.",
+                    IsClearlyBroken = false,
+                    FixIt = null
+                };
+            }
+
+            foreach (ITieredCombiner combinerWithNoTieredInput in 
+                combiners.Where(c => !producers.Any(p => p.Output == c.TieredInput)))
+            {
+                yield return new WarningMessage
+                {
+                    Message = $"To produce {combinerWithNoTieredInput.NonTieredOutputResourceName}, you need produce {combinerWithNoTieredInput.TieredInput.BaseName} as input.",
+                    IsClearlyBroken = false,
+                    FixIt = null
+                };
+            }
+        }
     }
 }

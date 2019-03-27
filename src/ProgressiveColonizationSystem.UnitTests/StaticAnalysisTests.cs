@@ -11,15 +11,17 @@ namespace ProgressiveColonizationSystem.UnitTests
     public class StaticAnalysisTests
     {
         private StubColonizationResearchScenario colonizationResearch;
-        private StubProducer drill1 = new StubProducer(StubColonizationResearchScenario.Stuff, null, 11, TechTier.Tier1);
-        private StubProducer fertFactory1 = new StubProducer(StubColonizationResearchScenario.Fertilizer, StubColonizationResearchScenario.Stuff, 6, TechTier.Tier1);
-        private StubProducer farm1 = new StubProducer(StubColonizationResearchScenario.Snacks, StubColonizationResearchScenario.Fertilizer, 3, TechTier.Tier1);
-        private StubProducer farm2 = new StubProducer(StubColonizationResearchScenario.Snacks, StubColonizationResearchScenario.Fertilizer, 3, TechTier.Tier1);
-        private StubProducer shinies1 = new StubProducer(StubColonizationResearchScenario.Shinies, StubColonizationResearchScenario.Stuff, 5, TechTier.Tier1);
-        private StubProducer hydro1 = new StubProducer(StubColonizationResearchScenario.HydroponicSnacks, StubColonizationResearchScenario.Fertilizer, 1, TechTier.Tier2);
-        private StubProducer hydro2 = new StubProducer(StubColonizationResearchScenario.HydroponicSnacks, StubColonizationResearchScenario.Fertilizer, 2, TechTier.Tier2);
-        private Dictionary<string, double> emptyContainers = new Dictionary<string, double>();
-        private Dictionary<string, double> basicHydroponicSupplies = new Dictionary<string, double>()
+        private readonly StubProducer drill1 = new StubProducer(StubColonizationResearchScenario.Stuff, null, 11, TechTier.Tier1);
+        private readonly StubProducer fertFactory1 = new StubProducer(StubColonizationResearchScenario.Fertilizer, StubColonizationResearchScenario.Stuff, 6, TechTier.Tier1);
+        private readonly StubProducer farm1 = new StubProducer(StubColonizationResearchScenario.Snacks, StubColonizationResearchScenario.Fertilizer, 3, TechTier.Tier1);
+        private readonly StubProducer farm2 = new StubProducer(StubColonizationResearchScenario.Snacks, StubColonizationResearchScenario.Fertilizer, 3, TechTier.Tier1);
+        private readonly StubProducer shinies1 = new StubProducer(StubColonizationResearchScenario.Shinies, StubColonizationResearchScenario.Stuff, 5, TechTier.Tier1);
+        private readonly StubProducer hydro1 = new StubProducer(StubColonizationResearchScenario.HydroponicSnacks, StubColonizationResearchScenario.Fertilizer, 1, TechTier.Tier2);
+        private readonly StubProducer hydro2 = new StubProducer(StubColonizationResearchScenario.HydroponicSnacks, StubColonizationResearchScenario.Fertilizer, 2, TechTier.Tier2);
+        private readonly StubRocketPartCombiner combiner = new StubRocketPartCombiner();
+        private readonly StubPartFactory partFactory = new StubPartFactory();
+        private readonly Dictionary<string, double> emptyContainers = new Dictionary<string, double>();
+        private readonly Dictionary<string, double> basicHydroponicSupplies = new Dictionary<string, double>()
             {
                 { "Snacks-Tier4", 100.0 },
                 { "Fertilizer-Tier4", 100.0 },
@@ -265,6 +267,40 @@ namespace ProgressiveColonizationSystem.UnitTests
             Assert.AreEqual($"This vessel is carrying Fertilizer-Tier3.  That kind of cargo that should just be produced - that's fine for testing mass & delta-v, but you wouldn't really want to fly this way.", actual[0].Message);
             Assert.IsFalse(actual[0].IsClearlyBroken);
             Assert.IsNull(actual[0].FixIt);
+        }
+
+        [TestMethod]
+        public void WarningsTest_ChecksCombiners()
+        {
+            var partProducers = new List<ITieredProducer>() { this.drill1, this.partFactory };
+            var combiners = new List<ITieredCombiner>() { this.combiner };
+            Dictionary<string, double> availableMixins = new Dictionary<string, double>()
+            {
+                {  StubRocketPartCombiner.ExpectedInputResource, 100.0 }
+            };
+            Dictionary<string, double> placeForOutput = new Dictionary<string, double>()
+            {
+                { StubRocketPartCombiner.ExpectedOutputResource, 100.0 }
+            };
+
+            // Verify no false-positives.
+            var actual = StaticAnalysis.CheckCombiners(colonizationResearch, partProducers, combiners, availableMixins, placeForOutput).ToList();
+            Assert.AreEqual(0, actual.Count);
+
+            // Verify finds missing untiered input
+            actual = StaticAnalysis.CheckCombiners(colonizationResearch, partProducers, combiners, this.emptyContainers, placeForOutput).ToList();
+            Assert.AreEqual(1, actual.Count);
+            Assert.AreEqual("To produce Rocket Parts you will need to bring some Complex Parts.", actual[0].Message);
+
+            // Verify finds missing tiered input
+            actual = StaticAnalysis.CheckCombiners(colonizationResearch, new List<ITieredProducer>(), combiners, availableMixins, placeForOutput).ToList();
+            Assert.AreEqual(1, actual.Count);
+            Assert.AreEqual("To produce Rocket Parts, you need produce LocalParts as input.", actual[0].Message);
+
+            // Verify checks storage for output
+            actual = StaticAnalysis.CheckCombiners(colonizationResearch, partProducers, combiners, availableMixins, new Dictionary<string, double>()).ToList();
+            Assert.AreEqual(1, actual.Count);
+            Assert.AreEqual("There's no place to put the Rocket Parts this base is producing.", actual[0].Message);
         }
     }
 }

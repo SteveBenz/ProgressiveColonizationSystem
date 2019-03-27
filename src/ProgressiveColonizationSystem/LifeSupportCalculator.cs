@@ -300,9 +300,12 @@ namespace ProgressiveColonizationSystem
         private void CalculateWarnings()
         {
             List<Part> parts = EditorLogic.fetch.ship.Parts; // EditorLogic.FindPartsInChildren(EditorLogic.RootPart);
-            
+
             List<ITieredProducer> producers = parts
                 .Select(p => p.FindModuleImplementing<ITieredProducer>())
+                .Where(p => p != null).ToList();
+            List<ITieredCombiner> combiners = parts
+                .Select(p => p.FindModuleImplementing<ITieredCombiner>())
                 .Where(p => p != null).ToList();
             List<IPksCrewRequirement> crewedParts = parts
                 .Select(p => p.FindModuleImplementing<IPksCrewRequirement>())
@@ -327,6 +330,7 @@ namespace ProgressiveColonizationSystem
                 .Union(StaticAnalysis.CheckCorrectCapacity(ColonizationResearchScenario.Instance, producers, amountAvailable, storageAvailable))
                 .Union(StaticAnalysis.CheckExtraBaggage(ColonizationResearchScenario.Instance, producers, amountAvailable, storageAvailable))
                 .Union(StaticAnalysis.CheckHasSomeFood(ColonizationResearchScenario.Instance, producers, amountAvailable, storageAvailable, crew))
+                .Union(StaticAnalysis.CheckCombiners(ColonizationResearchScenario.Instance, producers, combiners, amountAvailable, storageAvailable))
                 .Union(StaticAnalysis.CheckHasRoverPilot(ColonizationResearchScenario.Instance, producers, amountAvailable, storageAvailable, crew))
                 .Union(StaticAnalysis.CheckHasProperCrew(crewedParts, crew))
                 .Union(StaticAnalysis.CheckRoverHasTwoSeats(ColonizationResearchScenario.Instance, producers, amountAvailable, storageAvailable, crewCount))
