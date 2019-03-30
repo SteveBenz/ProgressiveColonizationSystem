@@ -68,6 +68,7 @@ namespace ProgressiveColonizationSystem.ProductionChain
             MatchProducersWithSourceProducers(producerInfos);
 
             Dictionary<TieredResource, AmalgamatedCombiners> inputToCombinerMap = combiners
+                .Where(c => c.IsProductionEnabled)
                 .GroupBy(c => c.TieredInput)
                 .ToDictionary(pair => pair.Key, pair => new AmalgamatedCombiners(pair));
 

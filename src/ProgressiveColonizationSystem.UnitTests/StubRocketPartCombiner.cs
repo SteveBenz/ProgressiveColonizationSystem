@@ -38,5 +38,7 @@ namespace ProgressiveColonizationSystem.UnitTests
                 case TechTier.Tier4: return ExpectedTier4Ratio;
             }
         }
+
+        public bool IsProductionEnabled { get; set; } = true;
     }
 }

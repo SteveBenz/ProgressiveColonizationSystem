@@ -16,5 +16,7 @@ namespace ProgressiveColonizationSystem
         string NonTieredInputResourceName { get; }
 
         double GetRatioForTier(TechTier tier);
+
+        bool IsProductionEnabled { get; }
     }
 }
