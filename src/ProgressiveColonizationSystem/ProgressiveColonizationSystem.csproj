@@ -66,6 +66,7 @@
     <Compile Include="ExperienceEffects\PksScroungingSkill.cs" />
     <Compile Include="ExperienceEffects\PksManufacturingSkill.cs" />
     <Compile Include="ExperienceEffects\PksScanningSkill.cs" />
+    <Compile Include="PksTabbedDialog.cs" />
     <Compile Include="PksTieredCombiner.cs" />
     <Compile Include="ProductionChain\AmalgamatedCombiners.cs" />
     <Compile Include="ITieredCombiner.cs" />

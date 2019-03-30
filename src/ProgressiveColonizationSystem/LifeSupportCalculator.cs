@@ -15,24 +15,14 @@ namespace ProgressiveColonizationSystem
     /// </summary>
     [KSPScenario(ScenarioCreationOptions.AddToAllGames, GameScenes.EDITOR)]
     public class LifeSupportCalculator
-        : PksToolbarDialog
+        : PksTabbedDialog
     {
-        private enum Tab {
-            Warnings,
-            Calculator,
-        };
-
-        private Tab tab = Tab.Warnings;
-
         private List<StaticAnalysis.WarningMessage> lastWarningList;
 
         protected override MultiOptionDialog DrawDialog(Rect rect)
         {
             return new MultiOptionDialog("LifeSupportCalculator", "", "Life Support Calculator", HighLogic.UISkin, rect, this.DrawTabbedDialog());
         }
-
-        private float buttonWidth = 80f; // Shenanigans - Can't figure out how to calculate this, but these numbers work somehow.
-        private float buttonHeight = 30f;
 
         private int warningsHash = 0;
 
@@ -63,25 +53,21 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        private DialogGUIBase DrawTabbedDialog()
+        public LifeSupportCalculator()
+            : base(new string[] { "Warnings", "Calculator" })
         {
-            DialogGUIBase content;
-            switch(this.tab)
-            {
-                default:
-                case Tab.Warnings:
-                    content = DrawWarningsDialog();
-                    break;
-                case Tab.Calculator:
-                    content = DrawCalculatorDialog();
-                    break;
-            }
+        }
 
-            return new DialogGUIVerticalLayout(
-                new DialogGUIHorizontalLayout(
-                    new DialogGUIToggleButton(this.tab == Tab.Warnings, "Warnings", (isSet) => { this.tab = Tab.Warnings; this.Redraw(); }, w: buttonWidth, h: buttonHeight),
-                    new DialogGUIToggleButton(this.tab == Tab.Calculator, "Calculator", (isSet) => { this.tab = Tab.Calculator; this.Redraw(); }, w: buttonWidth, h: buttonHeight)),
-                content);
+        protected override DialogGUIBase DrawTab(string tab)
+        {
+            switch(tab)
+            {
+                case "Warnings":
+                    return DrawWarningsDialog();
+                case "Calculator":
+                default:
+                    return DrawCalculatorDialog();
+            }
         }
 
         private static string ColorRed(string message)
