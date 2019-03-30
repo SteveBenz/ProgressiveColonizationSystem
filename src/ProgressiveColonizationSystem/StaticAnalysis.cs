@@ -360,6 +360,8 @@ namespace ProgressiveColonizationSystem
         internal static IEnumerable<WarningMessage> CheckCombiners(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, List<ITieredCombiner> combiners, Dictionary<string, double> amountAvailable, Dictionary<string, double> storageAvailable)
         {
             foreach (ITieredCombiner combinerWithMissingInput in combiners
+                .GroupBy(c => c.NonTieredInputResourceName + c.NonTieredOutputResourceName)
+                .Select(pair => pair.First())
                 .Where(n => !amountAvailable.TryGetValue(n.NonTieredInputResourceName, out var amount) || amount == 0))
             {
                 yield return new WarningMessage
@@ -371,6 +373,8 @@ namespace ProgressiveColonizationSystem
             }
 
             foreach (ITieredCombiner combinerWithNoOutputStorage in combiners
+                .GroupBy(c => c.NonTieredOutputResourceName)
+                .Select(pair => pair.First())
                 .Where(n => !storageAvailable.TryGetValue(n.NonTieredOutputResourceName, out var amount) || amount == 0))
             {
                 yield return new WarningMessage
@@ -381,8 +385,10 @@ namespace ProgressiveColonizationSystem
                 };
             }
 
-            foreach (ITieredCombiner combinerWithNoTieredInput in 
-                combiners.Where(c => !producers.Any(p => p.Output == c.TieredInput)))
+            foreach (ITieredCombiner combinerWithNoTieredInput in combiners
+                .GroupBy(c => c.NonTieredInputResourceName + c.NonTieredOutputResourceName)
+                .Select(pair => pair.First())
+                .Where(c => !producers.Any(p => p.Output == c.TieredInput)))
             {
                 yield return new WarningMessage
                 {
