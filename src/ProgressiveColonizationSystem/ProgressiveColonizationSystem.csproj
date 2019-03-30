@@ -62,7 +62,7 @@
   <ItemGroup>
     <Compile Include="ExperienceEffects\PksFarmingSkill.cs" />
     <Compile Include="ExperienceEffects\PksHydroponicsSkill.cs" />
-    <Compile Include="ExperienceEffects\PksScanningSkill - Copy.cs" />
+    <Compile Include="ExperienceEffects\PksConstructionSkill.cs" />
     <Compile Include="ExperienceEffects\PksScroungingSkill.cs" />
     <Compile Include="ExperienceEffects\PksManufacturingSkill.cs" />
     <Compile Include="ExperienceEffects\PksScanningSkill.cs" />

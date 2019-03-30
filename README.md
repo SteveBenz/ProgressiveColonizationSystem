@@ -94,7 +94,10 @@ This mod is still in early days, with a few big parts missing.
    7.  (complete) Integrate with the other base parts mod whose name I forget?
    8.  (complete) Either reskin the stolen parts or depend on their sources and re-configure them
    9.  Write PDF help
-8. BUG: Things that change the size of the colony status window cause it to move back the center
+8. Bugs:
+   1.  BUG: Things that change the size of the colony status window cause it to move back the center
+   2.  BUG: If you have two of the same type, you can't seem to turn just one off.
+   3.  BUG: Something has broken the Minmus base.
 
    
 Rambling About The Numbers

@@ -108,7 +108,7 @@ namespace ProgressiveColonizationSystem.UnitTests
                 5 /* kerbals */, 1.0 /* seconds*/, agroponicModules, new List<ITieredCombiner>(),
                 colonizationResearchScenario, available, noStorage,
                 out double timePassedInSeconds, out List<TieredResource> breakthroughs,
-                out Dictionary<string, double> consumptionPerSecond, out Dictionary<string,double> productionPerSecond);
+                out Dictionary<string, double> consumptionPerSecond, out Dictionary<string, double> productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
             Assert.AreEqual(false, breakthroughs.Any());
             Assert.IsNotNull(consumptionPerSecond);
@@ -136,7 +136,7 @@ namespace ProgressiveColonizationSystem.UnitTests
             // With 20 kerbals aboard, our 3 working agroponics farms are more than enough because
             // they can produce 3 snacks per day, but our crew will only eat .2*5=1 of them.
             // So they're running at 1/3 capacity.
-            Assert.AreEqual(20.0-3.0 /* working facilities */, consumptionPerSecond["Snacks-Tier4"] * SecondsPerKerbanDay);
+            Assert.AreEqual(20.0 - 3.0 /* working facilities */, consumptionPerSecond["Snacks-Tier4"] * SecondsPerKerbanDay);
             Assert.AreEqual(3.0, consumptionPerSecond["Fertilizer-Tier4"] * SecondsPerKerbanDay);
             Assert.AreEqual(1.0 /* previous test */ + 1.0 /* current test */, colonizationResearchScenario.AgroponicResearchProgress);
 
@@ -260,6 +260,71 @@ namespace ProgressiveColonizationSystem.UnitTests
             Assert.AreEqual(4 * Tier0AgricultureMaxDietRatio, colonizationResearchScenario.AgricultureResearchProgress, TestTolerance);
             Assert.AreEqual(4 * Tier0AgricultureMaxDietRatio, colonizationResearchScenario.ProductionResearchProgress, TestTolerance);
             Assert.AreEqual(0, productionPerSecond.Count);
+        }
+
+
+        /// <summary>
+        ///   Validates that initial agriculture production works with delivered fertilizer.
+        /// </summary>
+        [TestMethod]
+        public void TieredProduction_MixedTiers()
+        {
+            // Just landed - for grins this validates that it can pull some fertilizer down from storage since
+            // our production won't be enough.
+            var landedModules = new List<ITieredProducer>()
+            {
+                new StubFarm
+                {
+                    Tier = TechTier.Tier0,
+                    ProductionRate = 1,
+                    IsProductionEnabled = true,
+                    IsResearchEnabled = true,
+                },
+                new StubFarm
+                {
+                    Tier = TechTier.Tier2,
+                    ProductionRate = 1,
+                    IsProductionEnabled = true,
+                    IsResearchEnabled = true,
+                },
+                new StubFertilizerProducer()
+                {
+                    Tier = TechTier.Tier0,
+                    ProductionRate = 1,
+                    IsProductionEnabled = true,
+                    IsResearchEnabled = true,
+                },
+                new StubFertilizerProducer()
+                {
+                    Tier = TechTier.Tier2,
+                    ProductionRate = 1,
+                    IsProductionEnabled = true,
+                    IsResearchEnabled = true,
+                }
+            };
+            var colonizationResearchScenario = new StubColonizationResearchScenario(TechTier.Tier2);
+
+            Dictionary<string, double> inStorage = new Dictionary<string, double>();
+            inStorage["Snacks-Tier4"] = 1.0;
+            Dictionary<string, double> storageSpace = new Dictionary<string, double>();
+            storageSpace.Add("Fertilizer-Tier0", double.MaxValue);
+            storageSpace.Add("Fertilizer-Tier2", double.MaxValue);
+            storageSpace.Add("Snacks-Tier0", double.MaxValue);
+            storageSpace.Add("Snacks-Tier2", double.MaxValue);
+
+            TieredProduction.CalculateResourceUtilization(
+                1 /* kerbals */, 1.0 /* seconds*/, landedModules, new List<ITieredCombiner>(),
+                colonizationResearchScenario, inStorage, storageSpace,
+                out double timePassedInSeconds, out List<TieredResource> breakthroughs,
+                out Dictionary<string, double> consumptionPerSecond, out Dictionary<string, double> productionPerSecond);
+            Assert.AreEqual(timePassedInSeconds, 1.0);
+            Assert.AreEqual(2, productionPerSecond.Keys.Count);
+            // Tier2 is 95% edible, so remainder is .05
+            Assert.AreEqual(0.05, consumptionPerSecond["Snacks-Tier4"] * SecondsPerKerbanDay, TestTolerance);
+            // Tier0 is 60% edible, and is eaten first, so we eat .6 and save .4 of Tier0
+            Assert.AreEqual(0.4, productionPerSecond["Snacks-Tier0"] * SecondsPerKerbanDay, TestTolerance);
+            // .95-.6= .35 eaten, so .65 left over
+            Assert.AreEqual(0.65, productionPerSecond["Snacks-Tier2"] * SecondsPerKerbanDay, TestTolerance);
         }
 
         /// <summary>
