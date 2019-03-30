@@ -79,7 +79,7 @@ namespace ProgressiveColonizationSystem
                 resourceLode.WaypointRecreated(waypoint);
             }
 
-            return Waypoints.StraightLineDistanceInMetersFromWaypoint(vessel, waypoint) < 150.0;
+            return Waypoints.StraightLineDistanceInMeters(vessel, waypoint) < 150.0;
         }
 
         public bool TryConsume(ResourceLode resourceLode, double amountRequested, out double amountReceived)

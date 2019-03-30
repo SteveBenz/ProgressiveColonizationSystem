@@ -46,7 +46,7 @@ namespace ProgressiveColonizationSystem
                 waypoint.height = WaypointHeight(waypoint);
                 waypoint.altitude = 0;
 
-                double thisWaypointDistance = StraightLineDistanceInMetersFromWaypoint(near, waypoint);
+                double thisWaypointDistance = StraightLineDistanceInMeters(near, waypoint);
 
                 if (i == 0 || thisWaypointDistance < bestWaypointDistance )
                 {
@@ -105,10 +105,15 @@ namespace ProgressiveColonizationSystem
         ///   Calculates a straight-line distance between a vessel and a waypoint - only really accurate at short-range
         ///   or when the waypoint is on another body.
         /// </summary>
-        public static double StraightLineDistanceInMetersFromWaypoint(Vessel vessel, Waypoint waypoint)
+        public static double StraightLineDistanceInMeters(Vessel vessel, Waypoint waypoint)
         {
             Vector3 wpPosition = waypoint.celestialBody.GetWorldSurfacePosition(waypoint.latitude, waypoint.longitude, waypoint.height + waypoint.altitude);
             return Vector3.Distance(wpPosition, vessel.transform.position);
+        }
+
+        public static double StraightLineDistanceInMeters(Vessel vessel, Vessel otherVessel)
+        {
+            return Vector3.Distance(otherVessel.transform.position, vessel.transform.position);
         }
 
         private static double WaypointHeight(Waypoint w)

@@ -98,7 +98,8 @@ namespace ProgressiveColonizationSystem
                 {
                     Guid vesselId = new Guid(this.supplierMinerCraftId);
                     Vessel vessel = FlightGlobals.Vessels.FirstOrDefault(v => v.id == vesselId);
-                    return vessel != null && vessel.loaded
+                    return vessel != null
+                        && Waypoints.StraightLineDistanceInMeters(this.vessel, vessel) < 2200
                         && (vessel.situation == Vessel.Situations.LANDED || vessel.situation == Vessel.Situations.SPLASHED)
                         && this.vessel.GetVesselCrew().Any(c => c.trait == KerbalRoster.pilotTrait);
                 }
