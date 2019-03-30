@@ -82,9 +82,10 @@ This mod is still in early days, with a few big parts missing.
 7. Play Nice With Others
    1.  Integrate with Extraplanetary Launchpads
        1. (complete) Refactor the world to support mix of trucked-in parts and locally created parts
-       2. Add static analysis warning for not having ComplexParts and a factory
-       3. Add static analysis warning for not having Rocket Parts storage
+       2. (complete) Add static analysis warning for not having ComplexParts and a factory
+       3. (complete) Add static analysis warning for not having Rocket Parts storage
        4. Add Mechanic Kerbal type
+       5. Modify the K&K Construction part
    2.  Integrate with Kerbal Alarm Clock?
    3.  (cut - sticking with the game one) Integrate with Toolbar?
    4.  (complete) Integrate with ModuleManager
