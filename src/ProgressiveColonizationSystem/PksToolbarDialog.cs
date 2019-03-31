@@ -69,7 +69,7 @@ namespace ProgressiveColonizationSystem
                 this.dialog = PopupDialog.SpawnPopupDialog(
                     new Vector2(.5f, .5f),
                     new Vector2(.5f, .5f),
-                    DrawDialog(new Rect(this.xPosition, this.yPosition, width: 400f, height: 300f)),
+                    DrawDialog(new Rect(this.xPosition, this.yPosition, width: 430f, height: 300f)),
                     persistAcrossScenes: false,
                     skin: HighLogic.UISkin,
                     isModal: false,

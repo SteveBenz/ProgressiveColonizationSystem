@@ -14,8 +14,14 @@ namespace ProgressiveColonizationSystem
     /// </summary>
     [KSPScenario(ScenarioCreationOptions.AddToAllGames, GameScenes.FLIGHT)]
     public class LifeSupportStatusMonitor
-        : PksToolbarDialog
+        : PksTabbedDialog
     {
+        const string ProductionTab = "Production";
+        const string SnacksTab = "Snacks";
+        const string ProgressionTab = "Progression";
+        const string TransferTab = "Transfer";
+        const string CrewTab = "Crew";
+
         // If simulating + or - crewman, this becomes positive or negative.
         private int crewDelta = 0;
         // CrewDelta gets reset when lastActiveVessel no longer equals the current vessel.
@@ -26,8 +32,69 @@ namespace ProgressiveColonizationSystem
 
         private IntervesselResourceTransfer resourceTransfer = new IntervesselResourceTransfer();
 
+        public LifeSupportStatusMonitor()
+            : base(new string[] { SnacksTab, ProductionTab, ProgressionTab, TransferTab, CrewTab })
+        {
+        }
+
+        protected override DialogGUIBase DrawTab(string tab)
+        {
+            switch(tab)
+            {
+                default:
+                case SnacksTab:
+                    return DrawSnacksTab();
+                case ProductionTab:
+                    return DrawProductionTab();
+                case ProgressionTab:
+                    return DrawProgressionTab();
+                case TransferTab:
+                    return DrawTransferTab();
+                case CrewTab:
+                    return DrawCrewTab();
+            }
+        }
+
         protected override bool IsRelevant => FlightGlobals.ActiveVessel.GetCrewCount() > 0 && !FlightGlobals.ActiveVessel.isEVA;
         protected override ApplicationLauncher.AppScenes VisibleInScenes { get; } = ApplicationLauncher.AppScenes.FLIGHT;
+
+        private DialogGUIBase DrawSnacksTab()
+        {
+            var body = new DialogGUILabel(() => this.consumptionAndProductionInformation);
+            var whatif = new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
+                            new DialogGUILabel("What if we"),
+                            new DialogGUIButton("Add", () => { ++crewDelta; }, () => true, false),
+                            new DialogGUILabel("/"),
+                            new DialogGUIButton("Remove", () => { --crewDelta; }, () => FlightGlobals.ActiveVessel.GetCrewCount() + this.crewDelta > 1, false),
+                            new DialogGUILabel("a kerbal?"));
+            return new DialogGUIVerticalLayout(body, whatif);
+        }
+
+        private DialogGUIBase DrawProductionTab()
+        {
+            return new DialogGUILabel(() => this.consumptionAndProductionInformation);
+        }
+
+        private DialogGUIBase DrawProgressionTab()
+        {
+            return new DialogGUILabel(() => this.consumptionAndProductionInformation);
+        }
+
+        private DialogGUIBase DrawTransferTab()
+        {
+            return new DialogGUIVerticalLayout(
+                new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
+                    new DialogGUILabel("Target: "),
+                    new DialogGUILabel(resourceTransfer.TargetVessel?.GetDisplayName())),
+                new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
+                    new DialogGUIButton("Start", resourceTransfer.StartTransfer, () => resourceTransfer.TargetVessel != null && !resourceTransfer.IsTransferUnderway, dismissOnSelect: false),
+                    new DialogGUISlider(() => (float)resourceTransfer.TransferPercent, 0, 1, false, 100, 20, null)));
+        }
+
+        private DialogGUIBase DrawCrewTab()
+        {
+            return new DialogGUILabel("TODO");
+        }
 
         protected override MultiOptionDialog DrawDialog(Rect rect)
         {
@@ -35,41 +102,13 @@ namespace ProgressiveColonizationSystem
             // var myStyle = new UIStyle(UISkinManager.defaultSkin.label) { wordWrap = false};
             //
             // Too bad wordWrap doesn't get paid attention to.
-
-            List<DialogGUIBase> parts = new List<DialogGUIBase>();
-            parts.Add(new DialogGUILabel(() => this.consumptionAndProductionInformation));
-            parts.Add(new DialogGUIFlexibleSpace());
-            if (showingWhatIfButtons)
-            {
-                parts.Add(new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
-                            new DialogGUILabel("What if we"),
-                            new DialogGUIButton("Add", () => { ++crewDelta; }, () => true, false),
-                            new DialogGUILabel("/"),
-                            new DialogGUIButton("Remove", () => { --crewDelta; }, () => FlightGlobals.ActiveVessel.GetCrewCount() + this.crewDelta > 1, false),
-                            new DialogGUILabel("a kerbal?")));
-            }
-
-            if (showingResourceTransfer)
-            {
-                parts.Add(
-                    new DialogGUIVerticalLayout(
-                        new DialogGUILabel("<color #c0c0c0>______________________________________________</color>"),
-                        new DialogGUILabel("<b>Resource Transfer</b>"),
-                        new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
-                            new DialogGUILabel("Target: "),
-                            new DialogGUILabel(resourceTransfer.TargetVessel?.GetDisplayName())),
-                        new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
-                            new DialogGUIButton("Start", resourceTransfer.StartTransfer, () => resourceTransfer.TargetVessel != null && !resourceTransfer.IsTransferUnderway, dismissOnSelect: false),
-                            new DialogGUISlider(() => (float)resourceTransfer.TransferPercent, 0, 1, false, 100, 20, null))));
-            }
-
             return new MultiOptionDialog(
                         "LifeSupportMonitor",  // <- no idea what this does.
                         "",
                         "Colony Status",
                         HighLogic.UISkin,
                         rect,
-                        new DialogGUIVerticalLayout(parts.ToArray()));
+                        DrawTabbedDialog());
         }
 
         protected override void OnFixedUpdate()

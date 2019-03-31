@@ -18,8 +18,6 @@ namespace ProgressiveColonizationSystem
         private string selectedTabTitle;
         private string[] allTabTitles;
 
-        private List<StaticAnalysis.WarningMessage> lastWarningList;
-
         protected PksTabbedDialog(IEnumerable<string> tabs, string selectedTab = null)
         {
             this.allTabTitles = tabs.ToArray();
