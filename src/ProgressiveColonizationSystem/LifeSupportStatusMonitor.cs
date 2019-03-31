@@ -1,4 +1,5 @@
-﻿using KSP.UI.Screens;
+﻿using Experience;
+using KSP.UI.Screens;
 using ProgressiveColonizationSystem.ProductionChain;
 using System;
 using System.Collections.Generic;
@@ -116,9 +117,73 @@ namespace ProgressiveColonizationSystem
                     new DialogGUISlider(() => (float)resourceTransfer.TransferPercent, 0, 1, false, 100, 20, null)));
         }
 
+        private class RequirementAndQuantity
+        {
+            public string Trait;
+            public int SkillLevel;
+            public double Quantity;
+
+            public string GetTraitDescription(List<ProtoCrewMember> crew)
+            {
+                List<ExperienceTraitConfig> careers = GameDatabase.Instance.ExperienceConfigs
+                    .GetTraitsWithEffect(this.Trait)
+                    .Select(name => GameDatabase.Instance.ExperienceConfigs.GetExperienceTraitConfig(name))
+                    .ToList();
+
+                StringBuilder info = new StringBuilder();
+                info.Append($"{this.Quantity:N1}: ");
+                for (int i = 0; i < careers.Count; ++i)
+                {
+                    ExperienceEffectConfig effectConfig = careers[i].Effects.First(effect => effect.Name == this.Trait);
+                    int numStars = SkillLevel - int.Parse(effectConfig.Config.GetValue("level"));
+
+                    if (i == careers.Count - 1)
+                    {
+                        info.Append(" or a ");
+                    }
+                    else if (i > 0)
+                    {
+                        info.Append(", ");
+                    }
+
+                    info.Append(PksCrewRequirement.DescribeKerbalTrait(numStars, careers[i].Title));
+                    info.Append($"({crew.Count(c => c.trait == careers[i].Title && c.experienceLevel >= numStars)})");
+                }
+
+                return info.ToString();
+            }
+        }
+
         private DialogGUIBase DrawCrewTab()
         {
-            return new DialogGUILabel("TODO");
+            // Goal:
+            // Show how many crew are required to run the thing
+            List<IPksCrewRequirement> activatedParts = FlightGlobals.ActiveVessel
+                .FindPartModulesImplementing<IPksCrewRequirement>()
+                .ToList();
+            List<ProtoCrewMember> kspCrew = FlightGlobals.ActiveVessel.GetVesselCrew();
+
+            var requirements = activatedParts
+                .GroupBy(p => p.RequiredEffect + p.RequiredLevel.ToString())
+                .OrderBy(g => g.Key)
+                .ToArray()
+                .Select(g => new RequirementAndQuantity()
+                {
+                    Trait = g.First().RequiredEffect,
+                    SkillLevel = g.First().RequiredLevel,
+                    Quantity = g.Sum(p => p.CapacityRequired)
+                })
+                .Select(randq => randq.GetTraitDescription(kspCrew))
+                .ToList();
+            var snackConsumption = FlightGlobals.ActiveVessel.vesselModules
+                .OfType<SnackConsumption>().FirstOrDefault();
+            if (!string.IsNullOrEmpty(snackConsumption?.supplierMinerCraftId))
+            {
+                int numPilots = kspCrew.Count(c => c.trait == KerbalRoster.pilotTrait);
+                requirements.Add($"1 Rover Pilot({numPilots})");
+            }
+
+            return new DialogGUILabel(string.Join("\r\n", requirements.ToArray()));
         }
 
         protected override MultiOptionDialog DrawDialog(Rect rect)
@@ -176,8 +241,6 @@ namespace ProgressiveColonizationSystem
                 .OfType<SnackConsumption>()
                 .FirstOrDefault()
                 ?.GetMinerStatusMessage(out isHookedUp, out minerStatusMessage);
-
-
 
             BuildStatusStrings(isHookedUp, activeSnackConsumption, availableResources, availableStorage, tieredProducers, tieredCombiners, crewCount, crewDelta
                 , out string productionMessage, out List<ResearchData> progress);

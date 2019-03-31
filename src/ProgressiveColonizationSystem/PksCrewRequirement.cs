@@ -76,14 +76,14 @@ namespace ProgressiveColonizationSystem
                         info.Append(", ");
                     }
 
-                    info.Append(this.DescribeKerbalTrait(numStars, careers[i].Title));
+                    info.Append(DescribeKerbalTrait(numStars, careers[i].Title));
                 }
                 info.AppendLine();
             }
             return info.ToString();
         }
 
-        private string DescribeKerbalTrait(int numStars, string trait)
+        public static string DescribeKerbalTrait(int numStars, string trait)
         {
             string result = "";
             if (numStars > 0)
