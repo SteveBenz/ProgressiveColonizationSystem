@@ -109,31 +109,40 @@ namespace ProgressiveColonizationSystem
         /// <summary>
         ///   This gets a string that summarizes the state of the miner for the <see cref="LifeSupportStatusMonitor"/>
         /// </summary>
-        public string GetMinerStatusMessage()
+        public void GetMinerStatusMessage(out bool isHookedUp, out string message)
         {
             if (string.IsNullOrEmpty(this.supplierMinerCraftId))
             {
-                return null;
+                isHookedUp = false;
+                message = null;
+                return;
             }
 
             Guid vesselId = new Guid(this.supplierMinerCraftId);
             Vessel minerVessel = FlightGlobals.Vessels.FirstOrDefault(v => v.id == vesselId);
             if (minerVessel == null)
             {
-                return null;
+                isHookedUp = false;
+                message = null;
+                return;
             }
 
             if (!minerVessel.loaded || (minerVessel.situation != Vessel.Situations.LANDED && minerVessel.situation != Vessel.Situations.SPLASHED))
             {
-                return $"{minerVessel.vesselName} is set up to automatically fetch Crush-Ins for this base, but it's not present.";
+                isHookedUp = false;
+                message = $"{minerVessel.vesselName} is set up to automatically fetch Crush-Ins for this base, but it's not present.";
+                return;
             }
 
             if (!this.vessel.GetVesselCrew().Any(c => c.trait == KerbalRoster.pilotTrait))
             {
-                return $"{minerVessel.vesselName} is set up to automatically fetch Crush-Ins for this base, but there's no pilot here to drive it.";
+                isHookedUp = false;
+                message = $"{minerVessel.vesselName} is set up to automatically fetch Crush-Ins for this base, but there's no pilot here to drive it.";
+                return;
             }
 
-            return $"{minerVessel.vesselName} is automatically fetching Crush-Ins for this base.";
+            isHookedUp = true;
+            message = $"{minerVessel.vesselName} is automatically fetching Crush-Ins for this base.";
         }
 
         internal void MiningMissionFinished(Vessel sourceVessel, double amountSent)

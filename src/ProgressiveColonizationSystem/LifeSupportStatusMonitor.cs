@@ -17,7 +17,6 @@ namespace ProgressiveColonizationSystem
         : PksTabbedDialog
     {
         const string ProductionTab = "Production";
-        const string SnacksTab = "Snacks";
         const string ProgressionTab = "Progression";
         const string TransferTab = "Transfer";
         const string CrewTab = "Crew";
@@ -26,14 +25,15 @@ namespace ProgressiveColonizationSystem
         private int crewDelta = 0;
         // CrewDelta gets reset when lastActiveVessel no longer equals the current vessel.
         private Vessel lastActiveVessel;
-        private string consumptionAndProductionInformation;
+        private string productionMessage;
+        private string progressMessage;
         private bool showingWhatIfButtons;
         private bool showingResourceTransfer;
 
         private IntervesselResourceTransfer resourceTransfer = new IntervesselResourceTransfer();
 
         public LifeSupportStatusMonitor()
-            : base(new string[] { SnacksTab, ProductionTab, ProgressionTab, TransferTab, CrewTab })
+            : base(new string[] { ProductionTab, ProgressionTab, TransferTab, CrewTab })
         {
         }
 
@@ -42,8 +42,6 @@ namespace ProgressiveColonizationSystem
             switch(tab)
             {
                 default:
-                case SnacksTab:
-                    return DrawSnacksTab();
                 case ProductionTab:
                     return DrawProductionTab();
                 case ProgressionTab:
@@ -58,26 +56,21 @@ namespace ProgressiveColonizationSystem
         protected override bool IsRelevant => FlightGlobals.ActiveVessel.GetCrewCount() > 0 && !FlightGlobals.ActiveVessel.isEVA;
         protected override ApplicationLauncher.AppScenes VisibleInScenes { get; } = ApplicationLauncher.AppScenes.FLIGHT;
 
-        private DialogGUIBase DrawSnacksTab()
+        private DialogGUIBase DrawProductionTab()
         {
-            var body = new DialogGUILabel(() => this.consumptionAndProductionInformation);
+            var body = new DialogGUILabel(() => this.productionMessage);
             var whatif = new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
                             new DialogGUILabel("What if we"),
                             new DialogGUIButton("Add", () => { ++crewDelta; }, () => true, false),
                             new DialogGUILabel("/"),
                             new DialogGUIButton("Remove", () => { --crewDelta; }, () => FlightGlobals.ActiveVessel.GetCrewCount() + this.crewDelta > 1, false),
                             new DialogGUILabel("a kerbal?"));
-            return new DialogGUIVerticalLayout(body, whatif);
-        }
-
-        private DialogGUIBase DrawProductionTab()
-        {
-            return new DialogGUILabel(() => this.consumptionAndProductionInformation);
+            return new DialogGUIVerticalLayout(body, new DialogGUIFlexibleSpace(), whatif);
         }
 
         private DialogGUIBase DrawProgressionTab()
         {
-            return new DialogGUILabel(() => this.consumptionAndProductionInformation);
+            return new DialogGUILabel(() => this.progressMessage);
         }
 
         private DialogGUIBase DrawTransferTab()
@@ -145,15 +138,23 @@ namespace ProgressiveColonizationSystem
             List<ITieredProducer> tieredProducers = activeSnackConsumption.Vessel.FindPartModulesImplementing<ITieredProducer>();
             List<ITieredCombiner> tieredCombiners = activeSnackConsumption.Vessel.FindPartModulesImplementing<ITieredCombiner>();
 
-            string minerStatusMessage = FlightGlobals.ActiveVessel.vesselModules
+            bool isHookedUp = false;
+            string minerStatusMessage = null;
+            FlightGlobals.ActiveVessel.vesselModules
                 .OfType<SnackConsumption>()
                 .FirstOrDefault()
-                ?.GetMinerStatusMessage();
-            BuildStatusString(activeSnackConsumption, availableResources, availableStorage, tieredProducers, tieredCombiners, crewCount, crewDelta, out string message);
-            this.consumptionAndProductionInformation = (minerStatusMessage == null ? "" : minerStatusMessage + "\r\n\r\n") + message;
+                ?.GetMinerStatusMessage(out isHookedUp, out minerStatusMessage);
+
+
+
+            BuildStatusStrings(isHookedUp, activeSnackConsumption, availableResources, availableStorage, tieredProducers, tieredCombiners, crewCount, crewDelta
+                , out string productionMessage, out string progressMessage);
+            this.productionMessage = (minerStatusMessage == null ? "" : minerStatusMessage + "\r\n\r\n") + productionMessage;
+            this.progressMessage = progressMessage;
         }
 
-        internal static void BuildStatusString(
+        internal static void BuildStatusStrings(
+            bool hasAutoCrushinSupply,
             SnackConsumption activeSnackConsumption,
             Dictionary<string, double> resources,
             Dictionary<string, double> storage,
@@ -161,9 +162,11 @@ namespace ProgressiveColonizationSystem
             List<ITieredCombiner> tieredCombiners,
             int crewCount,
             int crewDelta,
-            out string message)
+            out string productionMessage,
+            out string progressMessage)
         {
-            StringBuilder text = new StringBuilder();
+            StringBuilder productionMessageBuilder = new StringBuilder();
+            StringBuilder progressMessageBuilder = new StringBuilder();
 
             ResearchSink researchSink = new ResearchSink();
             TieredProduction.CalculateResourceUtilization(
@@ -172,7 +175,8 @@ namespace ProgressiveColonizationSystem
                 out Dictionary<string, double> resourcesProduced);
             if (timePassed == 0)
             {
-                text.AppendLine("There aren't enough supplies or producers here to feed any kerbals.");
+                productionMessageBuilder.AppendLine("There aren't enough supplies or producers here to feed any kerbals.");
+                progressMessageBuilder.AppendLine("Unfed kerbals don't do research.");
 
                 if (!activeSnackConsumption.IsAtHome)
                 {
@@ -202,15 +206,15 @@ namespace ProgressiveColonizationSystem
                         LifeSupportScenario.Instance.TryGetStatus(crewInBucket[0], out double daysSinceMeal, out double daysToGrouchy, out bool isGrouchy);
                         if (isGrouchy)
                         {
-                            text.AppendLine(CrewBlurbs.StarvingKerbals(crewInBucket));
+                            productionMessageBuilder.AppendLine(CrewBlurbs.StarvingKerbals(crewInBucket));
                         }
                         else if (daysToGrouchy < 2)
                         {
-                            text.AppendLine(CrewBlurbs.GrumpyKerbals(crewInBucket, daysToGrouchy, tieredProducers.Any()));
+                            productionMessageBuilder.AppendLine(CrewBlurbs.GrumpyKerbals(crewInBucket, daysToGrouchy, tieredProducers.Any()));
                         }
                         else
                         {
-                            text.AppendLine(CrewBlurbs.HungryKerbals(crewInBucket, daysToGrouchy, tieredProducers.Any()));
+                            productionMessageBuilder.AppendLine(CrewBlurbs.HungryKerbals(crewInBucket, daysToGrouchy, tieredProducers.Any()));
                         }
                     }
                 }
@@ -219,28 +223,31 @@ namespace ProgressiveColonizationSystem
             {
                 if (crewDelta == 0)
                 {
-                    text.AppendLine($"To sustain its crew of {crewCount + crewDelta}, this vessel is using:");
+                    productionMessageBuilder.AppendLine($"To sustain its crew of {crewCount + crewDelta}, this vessel is using:");
                 }
                 else
                 {
-                    text.AppendLine($"To sustain a crew of {crewCount + crewDelta} this vessel would use:");
+                    productionMessageBuilder.AppendLine($"To sustain a crew of {crewCount + crewDelta} this vessel would use:");
                 }
 
                 foreach (var resourceName in resourcesConsumed.Keys.OrderBy(n => n))
                 {
-                    double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(resourcesConsumed[resourceName]);
-                    double daysLeft = resources[resourceName] / perDay;
-                    text.AppendLine($"{perDay:N1} {resourceName} per day ({daysLeft:N1} days left)");
+                    if (!IsCrushinResource(researchSink, resourceName))
+                    {
+                        double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(resourcesConsumed[resourceName]);
+                        double daysLeft = resources[resourceName] / perDay;
+                        productionMessageBuilder.AppendLine($"{perDay:N1} {resourceName} per day ({daysLeft:N1} days left)");
+                    }
                 }
 
                 if (resourcesProduced != null && resourcesProduced.Count > 0)
                 {
-                    text.AppendLine();
-                    text.AppendLine("The crew is also producing:");
+                    productionMessageBuilder.AppendLine();
+                    productionMessageBuilder.AppendLine("The crew is also producing:");
                     foreach (var resourceName in resourcesProduced.Keys.OrderBy(n => n))
                     {
                         double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(resourcesProduced[resourceName]);
-                        text.AppendLine($"{perDay:N1} {resourceName} per day");
+                        productionMessageBuilder.AppendLine($"{perDay:N1} {resourceName} per day");
                     }
                 }
 
@@ -249,15 +256,22 @@ namespace ProgressiveColonizationSystem
                 {
                     if (!addedResearchLineBreak)
                     {
-                        text.AppendLine();
+                        progressMessageBuilder.AppendLine();
                         addedResearchLineBreak = true;
                     }
 
-                    text.AppendLine($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {pair.Value.KerbalDaysContributedPerDay:N1} units of {pair.Key.DisplayName} research per day.  ({pair.Value.KerbalDaysUntilNextTier:N} are needed to reach the next tier).");
+                    progressMessageBuilder.AppendLine($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {pair.Value.KerbalDaysContributedPerDay:N1} units of {pair.Key.DisplayName} research per day.  ({pair.Value.KerbalDaysUntilNextTier:N} are needed to reach the next tier).");
                 }
             }
 
-            message = text.ToString();
+            productionMessage = productionMessageBuilder.ToString();
+            progressMessage = progressMessageBuilder.ToString();
+        }
+
+        private static bool IsCrushinResource(IColonizationResearchScenario researchScenario, string resourceName)
+        {
+            return researchScenario.TryParseTieredResourceName(resourceName, out TieredResource tieredResource, out var _)
+                && tieredResource == researchScenario.CrushInsResource;
         }
     }
 }
