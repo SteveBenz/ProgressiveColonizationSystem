@@ -13,14 +13,16 @@ namespace ProgressiveColonizationSystem
 
         internal class ResearchData
         {
-            public ResearchData(double contributionInKerbalDaysPerDay, double kerbalDaysUntilNextTier)
+            public ResearchData(double contributionInKerbalDaysPerDay, double accumulatedKerbalDays, double kerbalDaysRequired)
             {
                 this.KerbalDaysContributedPerDay = contributionInKerbalDaysPerDay;
-                this.KerbalDaysUntilNextTier = kerbalDaysUntilNextTier;
+                this.AccumulatedKerbalDays = accumulatedKerbalDays;
+                this.KerbalDaysRequired = kerbalDaysRequired;
             }
 
             public double KerbalDaysContributedPerDay { get; }
-            public double KerbalDaysUntilNextTier { get; }
+            public double AccumulatedKerbalDays { get; }
+            public double KerbalDaysRequired { get; }
         }
 
         IEnumerable<TieredResource> IColonizationResearchScenario.AllResourcesTypes => ColonizationResearchScenario.Instance.AllResourcesTypes;
@@ -34,11 +36,15 @@ namespace ProgressiveColonizationSystem
             // we passed into the production engine), so it's really kerbalSecondsContributedPerKerbalSecond.
             if (this.Data.TryGetValue(source.ResearchCategory, out ResearchData data))
             {
-                this.Data[source.ResearchCategory] = new ResearchData(researchInKerbalsecondsPerSecond + data.KerbalDaysContributedPerDay, data.KerbalDaysUntilNextTier);
+                this.Data[source.ResearchCategory] = new ResearchData(
+                    researchInKerbalsecondsPerSecond + data.KerbalDaysContributedPerDay,
+                    data.AccumulatedKerbalDays,
+                    data.KerbalDaysRequired);
             }
             else
             {
-                data = new ResearchData(researchInKerbalsecondsPerSecond, ColonizationResearchScenario.Instance.GetKerbalDaysUntilNextTier(source, atBody));
+                ColonizationResearchScenario.Instance.GetResearchProgress(source, atBody, out double accumulated, out double required);
+                data = new ResearchData(researchInKerbalsecondsPerSecond, accumulated, required);
                 this.Data.Add(source.ResearchCategory, data);
             }
 

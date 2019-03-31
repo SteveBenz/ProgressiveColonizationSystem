@@ -26,9 +26,18 @@ namespace ProgressiveColonizationSystem
         // CrewDelta gets reset when lastActiveVessel no longer equals the current vessel.
         private Vessel lastActiveVessel;
         private string productionMessage;
-        private string progressMessage;
+        private List<ResearchData> progress;
         private bool showingWhatIfButtons;
         private bool showingResourceTransfer;
+
+        internal class ResearchData
+        {
+            public string Category;
+            public TechTier Tier;
+            public double ProgressPerDay;
+            public double AccumulatedProgress;
+            public double NextTier;
+        }
 
         private IntervesselResourceTransfer resourceTransfer = new IntervesselResourceTransfer();
 
@@ -70,7 +79,30 @@ namespace ProgressiveColonizationSystem
 
         private DialogGUIBase DrawProgressionTab()
         {
-            return new DialogGUILabel(() => this.progressMessage);
+            if (this.progress.Count == 0)
+            {
+                return new DialogGUILabel("No technologies are being researched here.");
+            }
+
+            DialogGUIBase[] rows = new DialogGUIBase[this.progress.Count + 1];
+            rows[0] = new DialogGUIHorizontalLayout(
+                    new DialogGUILabel("<B><U>Field:</U></B>", 170),
+                    new DialogGUILabel("<B><U>Progress:</U></B>", 70),
+                    new DialogGUILabel("<B><U>Days To Go:</U></B>", 70)
+                );
+            
+            for (int i = 0; i < this.progress.Count; ++i)
+            {
+                var field = this.progress[i];
+                double progress = field.AccumulatedProgress / field.NextTier;
+                double daysToGo = (field.NextTier - field.AccumulatedProgress) / field.ProgressPerDay;
+                rows[i + 1] = new DialogGUIHorizontalLayout(
+                    new DialogGUILabel(field.Category, 170),
+                    new DialogGUILabel($"{100*progress:N}%", 70),
+                    new DialogGUILabel(daysToGo.ToString("N"), 70));
+            }
+
+            return new DialogGUIVerticalLayout(rows);
         }
 
         private DialogGUIBase DrawTransferTab()
@@ -148,9 +180,9 @@ namespace ProgressiveColonizationSystem
 
 
             BuildStatusStrings(isHookedUp, activeSnackConsumption, availableResources, availableStorage, tieredProducers, tieredCombiners, crewCount, crewDelta
-                , out string productionMessage, out string progressMessage);
+                , out string productionMessage, out List<ResearchData> progress);
             this.productionMessage = (minerStatusMessage == null ? "" : minerStatusMessage + "\r\n\r\n") + productionMessage;
-            this.progressMessage = progressMessage;
+            this.progress = progress;
         }
 
         internal static void BuildStatusStrings(
@@ -163,10 +195,9 @@ namespace ProgressiveColonizationSystem
             int crewCount,
             int crewDelta,
             out string productionMessage,
-            out string progressMessage)
+            out List<ResearchData> progress)
         {
             StringBuilder productionMessageBuilder = new StringBuilder();
-            StringBuilder progressMessageBuilder = new StringBuilder();
 
             ResearchSink researchSink = new ResearchSink();
             TieredProduction.CalculateResourceUtilization(
@@ -176,7 +207,7 @@ namespace ProgressiveColonizationSystem
             if (timePassed == 0)
             {
                 productionMessageBuilder.AppendLine("There aren't enough supplies or producers here to feed any kerbals.");
-                progressMessageBuilder.AppendLine("Unfed kerbals don't do research.");
+                progress = new List<ResearchData>();
 
                 if (!activeSnackConsumption.IsAtHome)
                 {
@@ -251,21 +282,18 @@ namespace ProgressiveColonizationSystem
                     }
                 }
 
-                bool addedResearchLineBreak = false;
-                foreach (var pair in researchSink.Data)
-                {
-                    if (!addedResearchLineBreak)
+                progress = researchSink.Data
+                    .Select(pair => new ResearchData()
                     {
-                        progressMessageBuilder.AppendLine();
-                        addedResearchLineBreak = true;
-                    }
-
-                    progressMessageBuilder.AppendLine($"This vessel {(crewDelta == 0 ? "is contributing" : "would contribute")} {pair.Value.KerbalDaysContributedPerDay:N1} units of {pair.Key.DisplayName} research per day.  ({pair.Value.KerbalDaysUntilNextTier:N} are needed to reach the next tier).");
-                }
+                        Category = pair.Key.DisplayName,
+                        NextTier = pair.Value.KerbalDaysRequired,
+                        AccumulatedProgress = pair.Value.AccumulatedKerbalDays,
+                        ProgressPerDay = pair.Value.KerbalDaysContributedPerDay
+                    })
+                    .ToList();
             }
 
             productionMessage = productionMessageBuilder.ToString();
-            progressMessage = progressMessageBuilder.ToString();
         }
 
         private static bool IsCrushinResource(IColonizationResearchScenario researchScenario, string resourceName)

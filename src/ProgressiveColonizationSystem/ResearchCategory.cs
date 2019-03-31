@@ -7,7 +7,7 @@ namespace ProgressiveColonizationSystem
 {
     public abstract class ResearchCategory
     {
-        private double kerbalYearsToTier1, kerbalYearsToTier2, kerbalYearsToTier3, kerbalYearsToTier4;
+        private readonly double kerbalYearsToTier1, kerbalYearsToTier2, kerbalYearsToTier3, kerbalYearsToTier4;
 
         protected ResearchCategory(double kerbalYearsToTier1, double kerbalYearsToTier2, double kerbalYearsToTier3, double kerbalYearsToTier4)
         {

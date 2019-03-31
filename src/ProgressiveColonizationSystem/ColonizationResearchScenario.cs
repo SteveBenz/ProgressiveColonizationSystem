@@ -127,8 +127,10 @@ namespace ProgressiveColonizationSystem
         public IEnumerable<TieredResource> AllResourcesTypes => AllTieredResources;
 
         public static double KerbalYearsToSeconds(double years) => KerbalDaysToSeconds(years * 426.0);
+        public static double KerbalYearsToDays(double years) => years * 426.0;
         public static double SecondsToKerbalDays(double seconds) => seconds / (6.0 * 60.0 * 60.0);
         public static double KerbalDaysToSeconds(double days) => days * (6.0 * 60.0 * 60.0);
+        public static double KerbalSecondsToDays(double days) => days / (6.0 * 60.0 * 60.0);
 
         public TechTier GetMaxUnlockedTier(TieredResource forResource, string atBody)
         {
@@ -151,7 +153,7 @@ namespace ProgressiveColonizationSystem
             return this.GetMaxUnlockedTier(scanningResource, atBody);
         }
 
-        public double GetKerbalDaysUntilNextTier(TieredResource forResource, string atBody)
+        public void GetResearchProgress(TieredResource forResource, string atBody, out double accumulatedKerbalDays, out double requiredKerbalDays)
         {
             double kerbalSecondsSoFar = 0;
             TechTier currentTier = TechTier.Tier0;
@@ -165,8 +167,8 @@ namespace ProgressiveColonizationSystem
                 }
             }
 
-            double kerbalSecondsToGo = KerbalYearsToSeconds(forResource.ResearchCategory.KerbalYearsToNextTier(currentTier));
-            return SecondsToKerbalDays(kerbalSecondsToGo-kerbalSecondsSoFar);
+            accumulatedKerbalDays = KerbalSecondsToDays(kerbalSecondsSoFar);
+            requiredKerbalDays = KerbalYearsToDays(forResource.ResearchCategory.KerbalYearsToNextTier(currentTier));
         }
         
         public override void OnLoad(ConfigNode node)
