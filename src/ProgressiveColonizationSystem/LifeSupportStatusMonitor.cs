@@ -30,6 +30,7 @@ namespace ProgressiveColonizationSystem
         private List<ResearchData> progress;
         private bool showingWhatIfButtons;
         private bool showingResourceTransfer;
+        private bool showPartsInCrewDialog = false;
 
         internal class ResearchData
         {
@@ -128,7 +129,7 @@ namespace ProgressiveColonizationSystem
             public double Quantity;
             public string[] PartNames;
 
-            public IEnumerable<DialogGUIBase> GetTraitDescription(List<ProtoCrewMember> crew)
+            public IEnumerable<DialogGUIBase> GetTraitDescription(bool showParts, List<ProtoCrewMember> crew)
             {
                 List<ExperienceTraitConfig> careers = GameDatabase.Instance.ExperienceConfigs
                     .GetTraitsWithEffect(this.Trait)
@@ -145,7 +146,8 @@ namespace ProgressiveColonizationSystem
                 for (int i = 0; i < careers.Count; ++i)
                 {
                     ExperienceEffectConfig effectConfig = careers[i].Effects.First(effect => effect.Name == this.Trait);
-                    int numStars = SkillLevel - int.Parse(effectConfig.Config.GetValue("level"));
+                    var levelString = effectConfig.Config.GetValue("level");
+                    int numStars = SkillLevel - int.Parse(levelString ?? "0");
 
                     requirementRow.AddChild(new DialogGUILabel(
                         PksCrewRequirement.DescribeKerbalTrait(numStars, careers[i].Title), ProfessionColumnWidth));
@@ -155,24 +157,22 @@ namespace ProgressiveColonizationSystem
                 }
                 yield return requirementRow;
 
-                var partsRow = new DialogGUIHorizontalLayout();
-                partsRow.AddChild(new DialogGUISpace(15));
-                partsRow.AddChild(new DialogGUILabel($"<I>{string.Join(", ", this.PartNames)}</I>"));
-                yield return partsRow;
+                if (showParts)
+                {
+                    var partsRow = new DialogGUIHorizontalLayout();
+                    partsRow.AddChild(new DialogGUISpace(15));
+                    partsRow.AddChild(new DialogGUILabel($"<I>{string.Join(", ", this.PartNames)}</I>"));
+                    yield return partsRow;
+                }
             }
         }
 
         private DialogGUIBase DrawCrewTab()
         {
-            // Goal:
-            // Show how many crew are required to run the thing
-            //
-            // Issues:  What do the (3)'s mean?  Not clear - tabular would be better.
-            //  It'd be nice if it showed the parts that are in the bucket in a row underneath
-            //
-            //  #Needed    Specialist   #Crew    Generalist   #Crew
-            //  1.5        Miner        2        3*Engineer   0
-            //    Scrounger Drill-
+            // TODO:
+            //   Normalize the 'Rover Pilot' row
+            //   Make a 'show parts' toggle
+            //   Make it list the redundant crew
             List<PksCrewRequirement> activatedParts = FlightGlobals.ActiveVessel
                 .FindPartModulesImplementing<PksCrewRequirement>()
                 .ToList();
@@ -188,6 +188,9 @@ namespace ProgressiveColonizationSystem
                     new DialogGUILabel("<B><U>#Avail</U></B>", NumberColumnWidth)
                 ));
 
+            var snackConsumption = FlightGlobals.ActiveVessel.vesselModules
+                .OfType<SnackConsumption>().FirstOrDefault();
+
             rows.AddRange(activatedParts
                 .GroupBy(p => p.RequiredEffect + p.RequiredLevel.ToString())
                 .OrderBy(g => g.Key)
@@ -198,16 +201,25 @@ namespace ProgressiveColonizationSystem
                     SkillLevel = g.First().RequiredLevel,
                     PartNames = g.Select(p => p.part.name).Distinct().ToArray(),
                     Quantity = g.Sum(p => p.CapacityRequired)
-                })
-                .SelectMany(randq => randq.GetTraitDescription(kspCrew)));
-
-            var snackConsumption = FlightGlobals.ActiveVessel.vesselModules
-                .OfType<SnackConsumption>().FirstOrDefault();
-            if (!string.IsNullOrEmpty(snackConsumption?.supplierMinerCraftId))
+                }).
+                Union(string.IsNullOrEmpty(snackConsumption?.supplierMinerCraftId)
+                    ? new RequirementAndQuantity[0]
+                    : new RequirementAndQuantity[] {
+                        new RequirementAndQuantity
+                        {
+                            PartNames = new string[] { "Crushins Rover" },
+                            Quantity = 1,
+                            SkillLevel = 0,
+                            Trait = "FullVesselControlSkill"
+                        }
+                    })
+                .SelectMany(randq => randq.GetTraitDescription(this.showPartsInCrewDialog, kspCrew)));
+            rows.Add(new DialogGUIFlexibleSpace());
+            rows.Add(new DialogGUIToggle(this.showPartsInCrewDialog, "Show parts", (x) =>
             {
-                int numPilots = kspCrew.Count(c => c.trait == KerbalRoster.pilotTrait);
-                rows.Add(new DialogGUILabel($"1 Rover Pilot({numPilots})"));
-            }
+                this.showPartsInCrewDialog = x;
+                this.Redraw();
+            }));
 
             return new DialogGUIVerticalLayout(rows.ToArray());
         }
