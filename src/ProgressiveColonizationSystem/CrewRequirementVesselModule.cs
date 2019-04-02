@@ -36,7 +36,7 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
-            List<IPksCrewRequirement> unstaffableParts = TestIfCrewRequirementsAreMet(activatedParts, crew);
+            List<IPksCrewRequirement> unstaffableParts = FindUnstaffableParts(activatedParts, crew);
             if (unstaffableParts.Count > 0)
             {
                 foreach (var part in activatedParts)
@@ -62,11 +62,37 @@ namespace ProgressiveColonizationSystem
             public int crewHash;
         }
 
-        public static List<IPksCrewRequirement> TestIfCrewRequirementsAreMet(List<IPksCrewRequirement> parts, List<SkilledCrewman> crew)
+
+        public static List<IPksCrewRequirement> FindUnstaffableParts(List<IPksCrewRequirement> parts, List<SkilledCrewman> crew)
+        {
+            var incompletelyStaffedCategories = FindUnderstaffedCategories(parts, crew);
+            List<IPksCrewRequirement> unstaffedParts = new List<IPksCrewRequirement>();
+            foreach (var category in incompletelyStaffedCategories)
+            {
+                // Staff the largest number of parts, so sort the list by capacity
+                category.parts.Sort((a, b) => b.CapacityRequired.CompareTo(a.CapacityRequired));
+                float unfilledCapacity = category.unfilledCapacity;
+                foreach (var part in category.parts)
+                {
+                    unstaffedParts.Add(part);
+                    unfilledCapacity -= part.CapacityRequired;
+                    if (unfilledCapacity < 0.01)
+                    {
+                        break;
+                    }
+                }
+            }
+            return unstaffedParts;
+        }
+
+        public static IEnumerable<IPksCrewRequirement> FindUnderstaffedParts(List<IPksCrewRequirement> parts, List<SkilledCrewman> crew)
+            => FindUnderstaffedCategories(parts, crew).SelectMany(c => c.parts);
+
+        private static List<PartCategory> FindUnderstaffedCategories(List<IPksCrewRequirement> parts, List<SkilledCrewman> crew)
         {
             if (parts.Count == 0)
             {
-                return parts;
+                return new List<PartCategory>();
             }
 
             HashSet<SkilledCrewman> unassignedCrew = new HashSet<SkilledCrewman>();
@@ -177,8 +203,8 @@ namespace ProgressiveColonizationSystem
                     {
                         if (categories[i].crewHash == categories[j].crewHash && categories[i].crew.SetEquals(categories[j].crew))
                         {
-                            categories[i].crew.UnionWith(categories[j].crew);
-                            categories[i].crewHash ^= categories[j].crewHash;
+                            categories[i].parts.AddRange(categories[j].parts);
+                            categories[i].unfilledCapacity += categories[j].unfilledCapacity;
                             categories.RemoveAt(j);
                             makingProgress = true;
                         }
@@ -206,24 +232,7 @@ namespace ProgressiveColonizationSystem
                 }
             } while (categories.Any());
 
-            List<IPksCrewRequirement> unstaffedParts = new List<IPksCrewRequirement>();
-            foreach (var category in incompletelyStaffedCategories)
-            {
-                // Staff the largest number of parts, so sort the list by capacity
-                category.parts.Sort((a, b) => b.CapacityRequired.CompareTo(a.CapacityRequired));
-                float unfilledCapacity = category.unfilledCapacity;
-                foreach (var part in category.parts)
-                {
-                    unstaffedParts.Add(part);
-                    unfilledCapacity -= part.CapacityRequired;
-                    if (unfilledCapacity < 0.01)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            return unstaffedParts;
+            return incompletelyStaffedCategories;
         }
 
         private static void AssignKerbalToPart(List<PartCategory> categories, List<PartCategory> incompletelyStaffedCategories, List<SkilledCrewman> kerbalsThatBecameAssigned, PartCategory singleCategory, SkilledCrewman kerbal)

@@ -99,6 +99,7 @@ This mod is still in early days, with a few big parts missing.
    2.  (fixed) BUG: If you have two of the same type, you can't seem to turn just one off.
    3.  (fixed) BUG: Two rocket producers end up producing two warnings
    4.  (fixed) BUG: If you arrive at a crushin-supplied base in another craft, it can fail to recognize the mining lander (depending on how you approach it)
+   5.  Bug: Crew Calculator is not correct for Duna T2 Base -- should be requiring 4 engineers, but not
 
    
 Rambling About The Numbers

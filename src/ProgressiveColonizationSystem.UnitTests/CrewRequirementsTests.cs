@@ -22,7 +22,7 @@ namespace ProgressiveColonizationSystem.UnitTests
         [TestMethod]
         public void Crew_NoCrewNoRequirement()
         {
-            List<IPksCrewRequirement> shouldBeEmpty = CrewRequirementVesselModule.TestIfCrewRequirementsAreMet(new List<IPksCrewRequirement>(), new List<SkilledCrewman>());
+            List<IPksCrewRequirement> shouldBeEmpty = CrewRequirementVesselModule.FindUnstaffableParts(new List<IPksCrewRequirement>(), new List<SkilledCrewman>());
             Assert.IsNotNull(shouldBeEmpty);
             Assert.AreEqual(0, shouldBeEmpty.Count);
         }
@@ -130,7 +130,7 @@ namespace ProgressiveColonizationSystem.UnitTests
         {
             var crew = partsAndCrew.OfType<SkilledCrewman>().ToList();
             var parts = partsAndCrew.OfType<IPksCrewRequirement>().ToList();
-            return CrewRequirementVesselModule.TestIfCrewRequirementsAreMet(parts, crew);
+            return CrewRequirementVesselModule.FindUnstaffableParts(parts, crew);
         }
 
         public List<T> NewList<T>(params T[] args) => args.ToList();
