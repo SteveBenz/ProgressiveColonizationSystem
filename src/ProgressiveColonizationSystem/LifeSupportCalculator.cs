@@ -24,6 +24,8 @@ namespace ProgressiveColonizationSystem
             return new MultiOptionDialog("LifeSupportCalculator", "", "Life Support Calculator", HighLogic.UISkin, rect, this.DrawTabbedDialog());
         }
 
+        private bool isShowingPartsInCrewWindow = false;
+
         private int warningsHash = 0;
 
         private int plannedMissionDuration = 100;
@@ -54,7 +56,7 @@ namespace ProgressiveColonizationSystem
         }
 
         public LifeSupportCalculator()
-            : base(new string[] { "Warnings", "Calculator" })
+            : base(new string[] { "Warnings", "Calculator", "Crew" })
         {
         }
 
@@ -67,6 +69,8 @@ namespace ProgressiveColonizationSystem
                 case "Calculator":
                 default:
                     return DrawCalculatorDialog();
+                case "Crew":
+                    return DrawCrewDialog();
             }
         }
 
@@ -266,6 +270,31 @@ namespace ProgressiveColonizationSystem
             return new DialogGUIVerticalLayout(warningLines.ToArray());
         }
 
+        private DialogGUIBase DrawCrewDialog()
+        {
+            List<Part> parts = EditorLogic.fetch.ship.Parts;
+            List<PksCrewRequirement> partsWithCrewRequirements = parts
+                .Select(p => p.FindModuleImplementing<PksCrewRequirement>())
+                .Where(p => p != null)
+                .ToList();
+            List<ProtoCrewMember> crew = this.FindCrew();
+            bool needsRoverPilot = parts
+                .Select(p => p.FindModuleImplementing<ITieredProducer>())
+                .Where(p => p != null)
+                .Any(p => p.Input == ColonizationResearchScenario.CrushInsResource);
+
+            return LifeSupportStatusMonitor.DrawCrewDialog(
+                partsWithCrewRequirements,
+                crew,
+                needsRoverPilot,
+                () => this.isShowingPartsInCrewWindow,
+                (newValue) =>
+                {
+                    this.isShowingPartsInCrewWindow = newValue;
+                    this.Redraw();
+                });
+        }
+
         protected override void OnFixedUpdate()
         {
             if (EditorLogic.RootPart == null)
@@ -334,7 +363,7 @@ namespace ProgressiveColonizationSystem
         private List<ProtoCrewMember> FindCrew()
         {
             VesselCrewManifest crewManifest = KSP.UI.CrewAssignmentDialog.Instance.GetManifest(false);
-            return crewManifest.GetAllCrew(false);
+            return crewManifest == null ? new List<ProtoCrewMember>() : crewManifest.GetAllCrew(false);
         }
 
         protected override ApplicationLauncher.AppScenes VisibleInScenes { get; } = ApplicationLauncher.AppScenes.SPH | ApplicationLauncher.AppScenes.VAB;

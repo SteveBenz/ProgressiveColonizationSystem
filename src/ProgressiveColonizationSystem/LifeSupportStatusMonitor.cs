@@ -169,15 +169,40 @@ namespace ProgressiveColonizationSystem
 
         private DialogGUIBase DrawCrewTab()
         {
-            // TODO:
-            //   Normalize the 'Rover Pilot' row
-            //   Make a 'show parts' toggle
-            //   Make it list the redundant crew
             List<PksCrewRequirement> activatedParts = FlightGlobals.ActiveVessel
                 .FindPartModulesImplementing<PksCrewRequirement>()
                 .ToList();
             List<ProtoCrewMember> kspCrew = FlightGlobals.ActiveVessel.GetVesselCrew();
+            var snackConsumption = FlightGlobals.ActiveVessel.vesselModules
+                .OfType<SnackConsumption>().FirstOrDefault();
+            bool needsRoverPilot = !string.IsNullOrEmpty(snackConsumption?.supplierMinerCraftId);
 
+            return DrawCrewDialog(
+                activatedParts,
+                kspCrew,
+                needsRoverPilot,
+                () => this.showPartsInCrewDialog,
+                (bool value) =>
+                {
+                    this.showPartsInCrewDialog = value;
+                    this.Redraw();
+                });
+        }
+
+        internal static DialogGUIBase DrawCrewDialog(
+            List<PksCrewRequirement> activatedParts,
+            List<ProtoCrewMember> kspCrew,
+            bool needsRoverPilot,
+            Func<bool> getIsShowingParts,
+            Action<bool> setIsShowingParts)
+        {
+            // The factoring on this method is, well, forced...  But it's straightforward to do.  I'm not
+            // clear on what the factoring really should be right now -- it seems to me that the crew management
+            // could be split into its own mod.  If you did that, then it'd be worth it to consider whether
+            // the same dialog applies to EDITOR and FLIGHT scenarios...  Then you wouldn't have a problem.
+
+            // TODO:
+            //   Make it list the redundant crew
             List<DialogGUIBase> rows = new List<DialogGUIBase>();
 
             rows.Add(new DialogGUIHorizontalLayout(
@@ -188,8 +213,6 @@ namespace ProgressiveColonizationSystem
                     new DialogGUILabel("<B><U>#Avail</U></B>", NumberColumnWidth)
                 ));
 
-            var snackConsumption = FlightGlobals.ActiveVessel.vesselModules
-                .OfType<SnackConsumption>().FirstOrDefault();
 
             rows.AddRange(activatedParts
                 .GroupBy(p => p.RequiredEffect + p.RequiredLevel.ToString())
@@ -202,9 +225,8 @@ namespace ProgressiveColonizationSystem
                     PartNames = g.Select(p => p.part.name).Distinct().ToArray(),
                     Quantity = g.Sum(p => p.CapacityRequired)
                 }).
-                Union(string.IsNullOrEmpty(snackConsumption?.supplierMinerCraftId)
-                    ? new RequirementAndQuantity[0]
-                    : new RequirementAndQuantity[] {
+                Union(needsRoverPilot
+                    ? new RequirementAndQuantity[] {
                         new RequirementAndQuantity
                         {
                             PartNames = new string[] { "Crushins Rover" },
@@ -212,14 +234,11 @@ namespace ProgressiveColonizationSystem
                             SkillLevel = 0,
                             Trait = "FullVesselControlSkill"
                         }
-                    })
-                .SelectMany(randq => randq.GetTraitDescription(this.showPartsInCrewDialog, kspCrew)));
+                    }
+                    : new RequirementAndQuantity[0])
+                .SelectMany(randq => randq.GetTraitDescription(getIsShowingParts(), kspCrew)));
             rows.Add(new DialogGUIFlexibleSpace());
-            rows.Add(new DialogGUIToggle(this.showPartsInCrewDialog, "Show parts", (x) =>
-            {
-                this.showPartsInCrewDialog = x;
-                this.Redraw();
-            }));
+            rows.Add(new DialogGUIToggle(getIsShowingParts(), "Show parts", (x) => setIsShowingParts(!getIsShowingParts())));
 
             return new DialogGUIVerticalLayout(rows.ToArray());
         }
