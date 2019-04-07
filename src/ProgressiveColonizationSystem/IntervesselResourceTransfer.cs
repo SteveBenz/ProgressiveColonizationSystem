@@ -39,9 +39,8 @@ namespace ProgressiveColonizationSystem
                 }
             }
         }
-            
 
-        public Vessel TargetVessel { get; private set; }
+        public Vessel TargetVessel { get; set; }
 
         public void StartTransfer()
         {
@@ -159,24 +158,6 @@ namespace ProgressiveColonizationSystem
 
                 return;
             }
-
-            // Abort any other activity
-            Reset();
-
-            // Hunt for another vessel to trade with
-            List<Vessel> candidates = FlightGlobals.VesselsLoaded.Where(v => v != FlightGlobals.ActiveVessel && v.situation == Vessel.Situations.LANDED && HasStuffToTrade(v)).ToList();
-            if (!candidates.Any())
-            {
-                // no takers
-                this.TargetVessel = null;
-                return;
-            }
-
-            // Don't swap the target vessel if it's still a candidate
-            if (this.TargetVessel == null || !candidates.Contains(this.TargetVessel))
-            {
-                this.TargetVessel = candidates[0];
-            }
         }
 
         private static HashSet<string> GetVesselsProducers(Vessel vessel)
@@ -226,7 +207,7 @@ namespace ProgressiveColonizationSystem
             Neither,
         }
 
-        private static bool TryFindResourceToTransfer(Vessel sourceVessel, Vessel otherVessel, out Dictionary<string, double> toSend, out Dictionary<string, double> toReceive)
+        public static bool TryFindResourceToTransfer(Vessel sourceVessel, Vessel otherVessel, out Dictionary<string, double> toSend, out Dictionary<string, double> toReceive)
         {
             SnackConsumption.ResourceQuantities(sourceVessel, 1, out Dictionary<string, double> thisShipCanSupply, out Dictionary<string, double> thisShipCanStore);
             SnackConsumption.ResourceQuantities(otherVessel, 1, out Dictionary<string, double> otherShipCanSupply, out Dictionary<string, double> otherShipCanStore);

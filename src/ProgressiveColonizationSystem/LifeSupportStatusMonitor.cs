@@ -109,13 +109,56 @@ namespace ProgressiveColonizationSystem
 
         private DialogGUIBase DrawTransferTab()
         {
-            return new DialogGUIVerticalLayout(
+            if (FlightGlobals.ActiveVessel.situation != Vessel.Situations.LANDED)
+            {
+                return new DialogGUILabel("Resource transfer only works for landed vessels.");
+            }
+
+            List<Vessel> candidates = FlightGlobals.VesselsLoaded
+                .Where(v => v != FlightGlobals.ActiveVessel && v.situation == Vessel.Situations.LANDED)
+                .ToList();
+
+            if (!candidates.Any())
+            {
+                return new DialogGUILabel("No nearby vessels to trade with.");
+            }
+
+            var vertical = new DialogGUIVerticalLayout();
+            if (candidates.Count == 1)
+            {
+                this.resourceTransfer.TargetVessel = candidates[0];
+                vertical.AddChild(new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
+                            new DialogGUILabel("Target: "),
+                            new DialogGUILabel(resourceTransfer.TargetVessel?.GetDisplayName())));
+            }
+            else
+            {
+                vertical.AddChild(new DialogGUILabel("Target:"));
+                vertical.AddChildren(candidates
+                    .Select(c =>
+                        new DialogGUIHorizontalLayout(
+                            new DialogGUISpace(10),
+                            new DialogGUIToggle(
+                                set: () => (c == resourceTransfer.TargetVessel), // actually more of an isSet
+                                lbel: c.vesselName, //  label
+                                selected: (value) =>
+                                {
+                                    if (value)
+                                    {
+                                        resourceTransfer.TargetVessel = c;
+                                    }
+                                }))
+                        {
+                            OptionInteractableCondition = () => !resourceTransfer.IsTransferUnderway
+                        })
+                    .ToArray());
+            }
+            vertical.AddChild(
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
-                    new DialogGUILabel("Target: "),
-                    new DialogGUILabel(resourceTransfer.TargetVessel?.GetDisplayName())),
-                new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
-                    new DialogGUIButton("Start", resourceTransfer.StartTransfer, () => resourceTransfer.TargetVessel != null && !resourceTransfer.IsTransferUnderway, dismissOnSelect: false),
-                    new DialogGUISlider(() => (float)resourceTransfer.TransferPercent, 0, 1, false, 100, 20, null)));
+                        new DialogGUIButton("Start", resourceTransfer.StartTransfer, () => resourceTransfer.TargetVessel != null && !resourceTransfer.IsTransferUnderway, dismissOnSelect: false),
+                        new DialogGUISlider(() => (float)resourceTransfer.TransferPercent, 0, 1, false, 100, 20, null)));
+
+            return vertical;
         }
 
         const float NumberColumnWidth = 50;
