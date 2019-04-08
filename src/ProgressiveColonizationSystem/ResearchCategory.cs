@@ -236,7 +236,7 @@ namespace ProgressiveColonizationSystem
         : ResearchCategory
     {
         public ScanningResearchCategory()
-            : base(.8, 1.6, 3.0, 3.0)
+            : base(.4, .8, 1.5, 1.5)
         {
         }
 
