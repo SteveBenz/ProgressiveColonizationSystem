@@ -32,6 +32,8 @@ namespace ProgressiveColonizationSystem
         private bool showingResourceTransfer;
         private bool showPartsInCrewDialog = false;
 
+        private string transferringMessage;
+
         internal class ResearchData
         {
             public string Category;
@@ -127,6 +129,7 @@ namespace ProgressiveColonizationSystem
             if (candidates.Count == 1)
             {
                 this.resourceTransfer.TargetVessel = candidates[0];
+                this.OnTargetChanged();
                 vertical.AddChild(new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
                             new DialogGUILabel("Target: "),
                             new DialogGUILabel(resourceTransfer.TargetVessel?.GetDisplayName())));
@@ -141,24 +144,63 @@ namespace ProgressiveColonizationSystem
                             new DialogGUIToggle(
                                 set: () => (c == resourceTransfer.TargetVessel), // actually more of an isSet
                                 lbel: c.vesselName, //  label
-                                selected: (value) =>
-                                {
-                                    if (value)
-                                    {
-                                        resourceTransfer.TargetVessel = c;
-                                    }
-                                }))
+                                selected: (value) => OnTargetShipClicked(c, value)))
                         {
-                            OptionInteractableCondition = () => !resourceTransfer.IsTransferUnderway
+                            OptionInteractableCondition = () => !resourceTransfer.IsTransferUnderway && !resourceTransfer.IsTransferComplete
                         })
                     .ToArray());
             }
+
             vertical.AddChild(
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
                         new DialogGUIButton("Start", resourceTransfer.StartTransfer, () => resourceTransfer.TargetVessel != null && !resourceTransfer.IsTransferUnderway, dismissOnSelect: false),
                         new DialogGUISlider(() => (float)resourceTransfer.TransferPercent, 0, 1, false, 100, 20, null)));
+            vertical.AddChild(new DialogGUILabel(() => this.transferringMessage));
 
             return vertical;
+        }
+
+        private void OnTargetShipClicked(Vessel c, bool value)
+        {
+            if (!value || resourceTransfer.IsTransferUnderway || resourceTransfer.TargetVessel == c)
+            {
+                return;
+            }
+
+            resourceTransfer.TargetVessel = c;
+            resourceTransfer.Reset();
+            this.OnTargetChanged();
+        }
+
+        private void OnTargetChanged()
+        {
+            IntervesselResourceTransfer.TryFindResourceToTransfer(
+                FlightGlobals.ActiveVessel,
+                resourceTransfer.TargetVessel,
+                out var toSend,
+                out var toRecieve);
+            if (!toSend.Any() && !toRecieve.Any())
+            {
+                this.transferringMessage = "Nothing to transfer";
+                return;
+            }
+
+            string text = "";
+            if (toSend.Any())
+            {
+                text = "<B>Sending:</B> " + string.Join(", ", toSend.Keys.OrderBy(k => k).ToArray());
+            }
+
+            if (toRecieve.Any())
+            {
+                if (text != "")
+                {
+                    text += "\r\n";
+                }
+                text += "<B>Receiving:</B> " + string.Join(", ", toRecieve.Keys.OrderBy(k => k).ToArray());
+            }
+
+            this.transferringMessage = text;
         }
 
         const float NumberColumnWidth = 50;
@@ -308,6 +350,7 @@ namespace ProgressiveColonizationSystem
             if (this.lastActiveVessel != FlightGlobals.ActiveVessel)
             {
                 this.crewDelta = 0;
+                this.Redraw();
             }
 
             this.lastActiveVessel = FlightGlobals.ActiveVessel;

@@ -114,9 +114,8 @@ namespace ProgressiveColonizationSystem
             return true;
         }
 
-        private void Reset()
+        public void Reset()
         {
-            this.TargetVessel = null;
             this.sourceVessel = null;
             this.resourceConverter = null;
             this.otherVesselConversionRecipe = null;
