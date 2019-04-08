@@ -296,7 +296,7 @@ namespace ProgressiveColonizationSystem
             }
             else
             {
-                return Yellow($"{GetGroupDescription(crewInBucket)} {isare(crewInBucket)} can't find any more food!  {capitalize(heshethey(crewInBucket))} need to get home soon!");
+                return Yellow($"{GetGroupDescription(crewInBucket)} can't find any more food!  {capitalize(heshethey(crewInBucket))} need to get home soon!");
             }
         }
 

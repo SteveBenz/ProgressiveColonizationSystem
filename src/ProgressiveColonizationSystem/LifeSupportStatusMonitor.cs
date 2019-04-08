@@ -146,7 +146,7 @@ namespace ProgressiveColonizationSystem
                                 lbel: c.vesselName, //  label
                                 selected: (value) => OnTargetShipClicked(c, value)))
                         {
-                            OptionInteractableCondition = () => !resourceTransfer.IsTransferUnderway && !resourceTransfer.IsTransferComplete
+                            OptionInteractableCondition = () => !resourceTransfer.IsTransferUnderway || resourceTransfer.IsTransferComplete
                         })
                     .ToArray());
             }
