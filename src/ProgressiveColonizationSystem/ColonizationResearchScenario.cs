@@ -182,6 +182,7 @@ namespace ProgressiveColonizationSystem
                 new KeyValuePair<string, ResearchCategory>("production", productionResearchCategory),
                 new KeyValuePair<string, ResearchCategory>("scanning", scanningResearchCategory),
                 new KeyValuePair<string, ResearchCategory>("shinies", shiniesResearchCategory),
+                new KeyValuePair<string, ResearchCategory>("construction", rocketPartsResearchCategory),
             })
             {
                 ConfigNode childNode = null;
@@ -229,6 +230,7 @@ namespace ProgressiveColonizationSystem
                 new KeyValuePair<string, ResearchCategory>("production", productionResearchCategory),
                 new KeyValuePair<string, ResearchCategory>("scanning", scanningResearchCategory),
                 new KeyValuePair<string, ResearchCategory>("shinies", shiniesResearchCategory),
+                new KeyValuePair<string, ResearchCategory>("construction", rocketPartsResearchCategory),
             })
             {
                 if (this.categoryToBodyToProgressMap.TryGetValue(pair.Value, out var stringToProgressMap))
