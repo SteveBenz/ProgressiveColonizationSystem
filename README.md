@@ -10,7 +10,7 @@ for the full story.
 
 # Development plan
 
-This mod is still in early days, with a few big parts missing.
+All of the big bits are done, with some rough spots to smooth out.
 
 1. (complete)  Hello World - figure out how to get a mod set up & compiled
 2. (complete)  Minimum playability - the ability to launch Kerbals into space that eat food and complain when they don't get it.
@@ -34,8 +34,8 @@ This mod is still in early days, with a few big parts missing.
    4.  (complete) Actually enforce the crew counts, types & stars (see 2.v)
    5.  (complete) Make the reporting of when you make a tier breakthrough more informative and fun
    6.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
-   7.  IDEA: Bag all these different categories of research and just have one number for every body
-   8.  The Colony Status window is getting too big - it should get broken up
+   7.  (cut) IDEA: Bag all these different categories of research and just have one number for every body
+   8.  (complete) The Colony Status window is getting too big - it should get broken up
 5. Release prep
    1.  (complete) De-fugly the dialogs
    2.  (complete) Get non-dumb name - Progressive Kolonization System?  PKS
@@ -44,7 +44,7 @@ This mod is still in early days, with a few big parts missing.
    5.  (complete) Release to CKAN
    6.  Automate release preparation
 6. Advanced Progression - the ability to have extended missions on Duna
-   1.  Create the resource gathering mechanic
+   1.  (complete) Create the resource gathering mechanic
        1.  (complete) Create a configurable part for storing Stuff
        2.  (complete) Create a KSP Resource for Tiered Stuff resource
        3.  (complete) Readjust the numbers
@@ -99,7 +99,7 @@ This mod is still in early days, with a few big parts missing.
    2.  (fixed) BUG: If you have two of the same type, you can't seem to turn just one off.
    3.  (fixed) BUG: Two rocket producers end up producing two warnings
    4.  (fixed) BUG: If you arrive at a crushin-supplied base in another craft, it can fail to recognize the mining lander (depending on how you approach it)
-   5.  Bug: Crew Calculator is not correct for Duna T2 Base -- should be requiring 4 engineers, but not
+   5.  (fixed) Bug: Crew Calculator is not correct for Duna T2 Base -- should be requiring 4 engineers, but not
 
    
 Rambling About The Numbers
