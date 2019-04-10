@@ -218,7 +218,7 @@ namespace ProgressiveColonizationSystem
         /// <summary>
         ///   Returns true if the part has electrical power
         /// </summary>
-		private bool IsPowered(ModuleResourceConverter resourceConverter)
+        private bool IsPowered(ModuleResourceConverter resourceConverter)
         {
             if (resourceConverter == null)
             {

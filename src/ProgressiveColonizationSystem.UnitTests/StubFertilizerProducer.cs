@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace ProgressiveColonizationSystem.UnitTests
 {
-	public class StubFertilizerProducer
+    public class StubFertilizerProducer
         : ITieredProducer
-	{
-		public TechTier Tier { get; set; }
-		public double ProductionRate { get; set; }
-		public bool IsResearchEnabled { get; set; }
-		public bool IsProductionEnabled { get; set; }
+    {
+        public TechTier Tier { get; set; }
+        public double ProductionRate { get; set; }
+        public bool IsResearchEnabled { get; set; }
+        public bool IsProductionEnabled { get; set; }
         public TieredResource Output => StubColonizationResearchScenario.GetTieredResourceByName("Fertilizer");
         public TieredResource Input => null;
         public bool ContributeResearch(IColonizationResearchScenario target, double amount)

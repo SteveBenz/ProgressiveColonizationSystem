@@ -88,7 +88,7 @@ namespace ProgressiveColonizationSystem
         [KSPField(isPersistant = true)]
         public string unlockedBodies = "";
 
-		public ColonizationResearchScenario()
+        public ColonizationResearchScenario()
         {
             Instance = this;
         }

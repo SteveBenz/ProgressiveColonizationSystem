@@ -15,11 +15,11 @@ namespace ProgressiveColonizationSystem.UnitTests
 
         public double AgroponicResearchProgress { get; set; }
 
-		public double AgricultureResearchProgress { get; set; }
+        public double AgricultureResearchProgress { get; set; }
 
-		public double ProductionResearchProgress { get; set; }
+        public double ProductionResearchProgress { get; set; }
 
-		public TechTier AgroponicsMaxTier { get; private set; }
+        public TechTier AgroponicsMaxTier { get; private set; }
 
         public IEnumerable<TieredResource> AllResourcesTypes => AllTieredResources;
 

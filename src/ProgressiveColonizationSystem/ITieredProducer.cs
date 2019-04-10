@@ -19,7 +19,7 @@ namespace ProgressiveColonizationSystem
         /// <returns>True if there was a research breakthrough as a result of this.</returns>
         bool ContributeResearch(IColonizationResearchScenario target, double amount);
 
-		TieredResource Output { get; }
+        TieredResource Output { get; }
 
         /// <summary>
         ///   If this producer needs something to make what it's making, this is set to what it needs.

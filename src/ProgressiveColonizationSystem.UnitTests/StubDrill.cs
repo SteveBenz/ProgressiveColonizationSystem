@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace ProgressiveColonizationSystem.UnitTests
 {
-	public class StubDrill
+    public class StubDrill
         : ITieredProducer
-	{
+    {
         public const double DefaultProductionRate = 10.0;
 
         public TechTier Tier { get; set; } = TechTier.Tier0;

@@ -26,5 +26,5 @@ namespace ProgressiveColonizationSystem
 
         public static string DisplayName(this TechTier techTier)
             => techTier.ToString();
-	}
+    }
 }

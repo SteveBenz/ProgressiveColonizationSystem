@@ -9,7 +9,7 @@ namespace ProgressiveColonizationSystem
     {
         double ProductionRate { get; }
 
-		string NonTieredOutputResourceName { get; }
+        string NonTieredOutputResourceName { get; }
 
         TieredResource TieredInput { get; }
 

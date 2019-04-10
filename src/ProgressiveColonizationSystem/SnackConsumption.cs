@@ -198,7 +198,7 @@ namespace ProgressiveColonizationSystem
         {
             var snackProducers = this.vessel.FindPartModulesImplementing<ITieredProducer>();
             var combiners = this.vessel.FindPartModulesImplementing<ITieredCombiner>();
-			this.ResourceQuantities(out var availableResources, out var availableStorage);
+            this.ResourceQuantities(out var availableResources, out var availableStorage);
             var crewPart = vessel.parts.FirstOrDefault(p => p.CrewCapacity > 0);
             double remainingTime = deltaTime;
 
@@ -211,7 +211,7 @@ namespace ProgressiveColonizationSystem
                     combiners,
                     ColonizationResearchScenario.Instance,
                     availableResources,
-					availableStorage,
+                    availableStorage,
                     out double elapsedTime,
                     out List<TieredResource> breakthroughCategories,
                     out Dictionary<string,double> resourceConsumptionPerSecond,
