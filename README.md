@@ -33,9 +33,11 @@ All of the big bits are done, with some rough spots to smooth out.
    3.  (complete) Agroponic and Ag modules consume some electricity
    4.  (complete) Actually enforce the crew counts, types & stars (see 2.v)
    5.  (complete) Make the reporting of when you make a tier breakthrough more informative and fun
-   6.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
+   6.  (meh) IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
    7.  (cut) IDEA: Bag all these different categories of research and just have one number for every body
    8.  (complete) The Colony Status window is getting too big - it should get broken up
+   9.  Make a K&K drill
+   10. Modify the smallest storage pack to be available earlier in the tech tree
 5. Release prep
    1.  (complete) De-fugly the dialogs
    2.  (complete) Get non-dumb name - Progressive Kolonization System?  PKS
@@ -80,13 +82,13 @@ All of the big bits are done, with some rough spots to smooth out.
    5.  (complete) Make the GetInfo()'s show the electric utilization
    6.  (complete) Support some form of resource transfer (resupply / salvage)
 7. Play Nice With Others
-   1.  Integrate with Extraplanetary Launchpads
+   1.  (complete) Integrate with Extraplanetary Launchpads
        1. (complete) Refactor the world to support mix of trucked-in parts and locally created parts
        2. (complete) Add static analysis warning for not having ComplexParts and a factory
        3. (complete) Add static analysis warning for not having Rocket Parts storage
        4. (complete) Add Mechanic Kerbal type
-       5. Modify the K&K Construction part
-   2.  Integrate with Kerbal Alarm Clock?
+       5. (complete) Modify the K&K Construction part
+   2.  (meh) Integrate with Kerbal Alarm Clock?
    3.  (cut - sticking with the game one) Integrate with Toolbar?
    4.  (complete) Integrate with ModuleManager
    5.  (complete) Integrate with Community Resource Kit?
@@ -95,7 +97,7 @@ All of the big bits are done, with some rough spots to smooth out.
    8.  (complete) Either reskin the stolen parts or depend on their sources and re-configure them
    9.  Write PDF help
 8. Bugs:
-   1.  BUG: Things that change the size of the colony status window cause it to move back the center
+   1.  BUG: Something seems to reset the dialog box to center from time to time
    2.  (fixed) BUG: If you have two of the same type, you can't seem to turn just one off.
    3.  (fixed) BUG: Two rocket producers end up producing two warnings
    4.  (fixed) BUG: If you arrive at a crushin-supplied base in another craft, it can fail to recognize the mining lander (depending on how you approach it)
