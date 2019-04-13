@@ -18,9 +18,9 @@
     //
     //        %textTemplatingPath% "$(ProjectDir)AssemblyFileVersion.tt"
 
-    int major = 0; 
-    int minor = 1;     
-    int build = 7; 
+    int major = 1;
+    int minor = 0;     
+    int build = 8; 
     int patch = 0;
     bool versionSection = false;
 
