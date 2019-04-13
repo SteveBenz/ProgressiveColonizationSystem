@@ -256,6 +256,7 @@ namespace ProgressiveColonizationSystem
         {
             List<PksCrewRequirement> activatedParts = FlightGlobals.ActiveVessel
                 .FindPartModulesImplementing<PksCrewRequirement>()
+                .Where(p => p.IsRunning)
                 .ToList();
             List<ProtoCrewMember> kspCrew = FlightGlobals.ActiveVessel.GetVesselCrew();
             var snackConsumption = FlightGlobals.ActiveVessel.vesselModules
@@ -307,7 +308,10 @@ namespace ProgressiveColonizationSystem
                 {
                     Trait = g.First().RequiredEffect,
                     SkillLevel = g.First().RequiredLevel,
-                    PartNames = g.Select(p => p.part.name).Distinct().ToArray(),
+                    PartNames = g.OrderBy(p => p.part.partInfo.title)
+                                 .GroupBy(p => p.part.partInfo.title)
+                                 .Select(p => $"{p.Count()}x{p.Key}")
+                                 .ToArray(),
                     Quantity = g.Sum(p => p.CapacityRequired)
                 }).
                 Union(needsRoverPilot
