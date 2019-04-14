@@ -23,8 +23,8 @@ for the full story.
    9.  Delete the parts supporting EL's production chain
    10. Make the shinies boost your rep on landing - remember to add checks to make sure Shinies don't actually come from Kerbin
 3. Things that don't seem worth doing
-   1.  (meh) Integrate with Kerbal Alarm Clock?
-   2.  (meh) IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
+   1.  Integrate with Kerbal Alarm Clock?
+   2.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
 
 # Rambling About The Numbers
 
