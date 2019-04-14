@@ -162,7 +162,9 @@ namespace ProgressiveColonizationSystem
 
         private void OnTargetShipClicked(Vessel c, bool value)
         {
-            if (!value || resourceTransfer.IsTransferUnderway || resourceTransfer.TargetVessel == c)
+            if (!value
+             || (resourceTransfer.IsTransferUnderway && !resourceTransfer.IsTransferComplete)
+             || resourceTransfer.TargetVessel == c)
             {
                 return;
             }

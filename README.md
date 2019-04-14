@@ -10,7 +10,10 @@ for the full story.
 # TODO
 
 1. Bugs:
-   1.  BUG: Something seems to reset the dialog box to center from time to time
+   1.  Something seems to reset the dialog box to center from time to time
+   2.  (fixed) Once you transfer something, you can't switch to a different transfer target
+   3.  Cupcake not available in map mode?
+   4.  Cupcake disabled for ships carrying tiered stuff
 2. Rounding things out
    1.  Write PDF help and or create a github wiki
    2.  Make a K&K drill (Reuse "K&K Metal Ore Drill")
