@@ -7,104 +7,26 @@ your production rates will be, and it requires incremental exploration.
 [See the forum thread](https://forum.kerbalspaceprogram.com/index.php?/topic/181852-15x~16x-progressivecolonizationsystem-life-support-colonization-for-more-fun-in-late-game/)
 for the full story.
 
+# TODO
 
-# Development plan
-
-All of the big bits are done, with some rough spots to smooth out.
-
-1. (complete)  Hello World - figure out how to get a mod set up & compiled
-2. (complete)  Minimum playability - the ability to launch Kerbals into space that eat food and complain when they don't get it.
-   1.  (complete) The ability to research some new parts that do agriponics.
-   2.  (complete) The ability to create a station in kerban's SOI and rank up the "Tiers" of agriponics
-   3.  (complete) The ability for Kerbals to run out of supply and get grumpy (turn into Tourists)
-   4.  (complete) Grumpy Kerbals will get happy again upon return to Kerban
-   5.  (complete) Need appropriate crew to do agroponics and research
-   6.  (complete) Can't do research on Agriponics T3 in Kerbin's SoI
-3. (complete)Basic Progression - the ability to plan a mission to Duna
-   1.  (complete) Kerbals can do agriculture on the Mun or Minmus
-       1.  (complete) Adapt an Agriculture part from USI
-       2.  (complete) Extend the research model to Agriculture & update the editor to show it
-       3.  (complete) Can set target body in Editors for an agriculture part
-   2.  (complete) Can change resource types for canisters
-   3.  (complete) Can manufacture T0 fertilizer
-4. Basic Progression - the execution of a mission to Duna
-   1.  (complete) Editors can show good data to guide the construction of ships (see GetInfo())
-   2.  (complete) Tweak the mass and density of Fertilizer & Supplies
-   3.  (complete) Agroponic and Ag modules consume some electricity
-   4.  (complete) Actually enforce the crew counts, types & stars (see 2.v)
-   5.  (complete) Make the reporting of when you make a tier breakthrough more informative and fun
-   6.  (meh) IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
-   7.  (cut) IDEA: Bag all these different categories of research and just have one number for every body
-   8.  (complete) The Colony Status window is getting too big - it should get broken up
-   9.  Make a K&K drill
-   10. Modify the smallest storage pack to be available earlier in the tech tree
-5. Release prep
-   1.  (complete) De-fugly the dialogs
-   2.  (complete) Get non-dumb name - Progressive Kolonization System?  PKS
-   3.  (complete) Figure out how to Release
-   4.  (complete) Fix .version file
-   5.  (complete) Release to CKAN
-   6.  Automate release preparation
-6. Advanced Progression - the ability to have extended missions on Duna
-   1.  (complete) Create the resource gathering mechanic
-       1.  (complete) Create a configurable part for storing Stuff
-       2.  (complete) Create a KSP Resource for Tiered Stuff resource
-       3.  (complete) Readjust the numbers
-       4.  (complete) Create a scanning lab (using skin from infrared telescope?)
-       5.  (complete) Figure out how to make magic spots and waypoints to them
-       6.  (complete) Make the Tier-1+ drill require being at a magic spot to work
-       7.  (complete) Actually require that a scanner of the appriate tier be in orbit
-       8.  (complete) Rename to "Crush-ins", "Loose Crush-ins"
-       9.  (complete) Be able to transfer Crushins to a base
-       10. (complete) Make the base able to consume them to make stuff
-       11. (complete) Put the find resource thing on the scanner
-       12. (complete) The Crush-Ins warning should be more explicit about what's needed
-       13. (complete) The Trip-Duration calculator should not be limited by Crush-Ins
-       15. (complete) Make the scanner require a network of scanner satelites (and range the crushins appropriately)
-       16. (complete) Automate crush-in collection after two successful trips
-       17. (complete) Bug: Find Resources button activated for Tier 0 and Tier 1.
-       18. (complete) Make the flight dialog show mining ship assignment
-       20. (complete) BUG: Find Loose Stuff doesn't require part to be crewed
-       21. (complete) Find Loose Stuff should put up a dialog on success
-       22. (complete) Make it insist on having a pilot for the rover
-       23. (complete) Make it insist on two seats on the rover
-       24. (complete) Make it require a minimum amount of resources
-       25. (complete) 22-24 should be visible in the VAB
-   2.  Create shinies resource chain
-       1.  (complete) Create shinies factory
-       2.  (complete) Create a basic shinies container
-       3.  (complete) Create shinies containers that don't let you fill them at the KSP
-       4.  (complete) Mun/Minmus shinies peak at T2, Duna/Ike/Gilly at T3, T5 only at Dres/Eloo/Moho/Eve
-       5.  Make the shinies boost your rep on landing
-       6.  Re-implement the checks to make sure Shinies don't actually come from Kerbin
-   3.  (complete) Support USI kerbal types
-   4.  (complete) Life support dialog works nicely in the editors - can estimate usage and ag production
-   5.  (complete) Make the GetInfo()'s show the electric utilization
-   6.  (complete) Support some form of resource transfer (resupply / salvage)
-7. Play Nice With Others
-   1.  (complete) Integrate with Extraplanetary Launchpads
-       1. (complete) Refactor the world to support mix of trucked-in parts and locally created parts
-       2. (complete) Add static analysis warning for not having ComplexParts and a factory
-       3. (complete) Add static analysis warning for not having Rocket Parts storage
-       4. (complete) Add Mechanic Kerbal type
-       5. (complete) Modify the K&K Construction part
-   2.  (meh) Integrate with Kerbal Alarm Clock?
-   3.  (cut - sticking with the game one) Integrate with Toolbar?
-   4.  (complete) Integrate with ModuleManager
-   5.  (complete) Integrate with Community Resource Kit?
-   6.  (complete) Integrate with Community Categories?
-   7.  (complete) Integrate with the other base parts mod whose name I forget?
-   8.  (complete) Either reskin the stolen parts or depend on their sources and re-configure them
-   9.  Write PDF help
-8. Bugs:
+1. Bugs:
    1.  BUG: Something seems to reset the dialog box to center from time to time
-   2.  (fixed) BUG: If you have two of the same type, you can't seem to turn just one off.
-   3.  (fixed) BUG: Two rocket producers end up producing two warnings
-   4.  (fixed) BUG: If you arrive at a crushin-supplied base in another craft, it can fail to recognize the mining lander (depending on how you approach it)
-   5.  (fixed) Bug: Crew Calculator is not correct for Duna T2 Base -- should be requiring 4 engineers, but not
+2. Rounding things out
+   1.  Write PDF help and or create a github wiki
+   2.  Make a K&K drill (Reuse "K&K Metal Ore Drill")
+   3.  Make a "K&K Storage [KIS]" that works with B9
+   4.  De-fugly the part tweakable displays
+   5.  Automate release preparation
+   6.  Create or hijack a part for storing Snacks - just snacks
+   7.  Rearrange the parts VAB tabs so there's not a pile of random in "Life Support"
+   8.  Get a better scanner part
+   9.  Delete the parts supporting EL's production chain
+   10. Make the shinies boost your rep on landing - remember to add checks to make sure Shinies don't actually come from Kerbin
+3. Things that don't seem worth doing
+   1.  (meh) Integrate with Kerbal Alarm Clock?
+   2.  (meh) IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
 
-   
-Rambling About The Numbers
+# Rambling About The Numbers
 
 There are a number of bits that need to be tweaked with care.  The following or more or less
 a justification of the current state of affairs.
