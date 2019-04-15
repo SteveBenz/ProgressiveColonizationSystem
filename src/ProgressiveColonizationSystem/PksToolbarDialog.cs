@@ -29,11 +29,23 @@ namespace ProgressiveColonizationSystem
         [KSPField(isPersistant = true)]
         public float yPosition = .5f; // .5 => the middle
 
+        private static PksToolbarDialog instance;
+
+        public static void Show()
+        {
+            if (instance != null)
+            {
+                instance.toolbarButton.toggleButton.Value = true;
+                instance.ShowDialog();
+            }
+        }
+
         public override void OnAwake()
         {
             base.OnAwake();
 
             AttachToToolbar();
+            instance = this;
         }
 
         protected abstract ApplicationLauncher.AppScenes VisibleInScenes { get; }

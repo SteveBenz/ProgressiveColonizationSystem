@@ -1,22 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
 
 namespace ProgressiveColonizationSystem
 {
     public class PksTieredResourceConverter
         : PartModule, ITieredProducer
     {
+        public const string NotSet = "<not set>";
+
         private double firstNoPowerIndicator = -1.0;
+        private double firstNotInSituationIndicator = -1.0;
 
         [KSPField(advancedTweakable = false, category = "Nermables", guiActive = true, guiName = "Tier", isPersistant = true, guiActiveEditor = true)]
         public int tier;
 
-        public const string NotSet = "<not set>";
-
-        [KSPField(advancedTweakable = false, category = "Nermables", guiActive = true, guiName = "Target Body", isPersistant = true, guiActiveEditor = true)]
+        [KSPField(advancedTweakable = false, category = "Nermables", guiName = "Target Body", isPersistant = true, guiActiveEditor = true)]
         public string body = NotSet;
 
         [KSPEvent(guiActive = false, guiActiveEditor = true, guiName = "Change Tier")]
@@ -24,6 +23,13 @@ namespace ProgressiveColonizationSystem
         {
             this.tier = (this.tier + 1) % ((int)this.MaxTechTierResearched + 1);
         }
+
+        [KSPField(guiActive = false, guiActiveEditor = false, isPersistant = false, guiName = "status")]
+        public string reasonWhyDisabled;
+
+        // Apparently, the 'bool enabled' field on the resource converter itself is not to be trusted...
+        // we'll keep our own record of what was done.
+        bool? resourceConverterIsEnabled = null;
 
         [KSPEvent(guiActive = false, guiActiveEditor = true, guiName = "Change Body")]
         public void ChangeBody()
@@ -51,6 +57,13 @@ namespace ProgressiveColonizationSystem
             this.tier = (int)ColonizationResearchScenario.Instance.GetMaxUnlockedTier(this.Output, this.body);
         }
 
+        [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Show PKS UI")]
+        public void ShowDialog()
+        {
+            PksToolbarDialog.Show();
+        }
+
+
         /// <summary>
         ///   The name of the output resource (as a Tier4 resource)
         /// </summary>
@@ -69,9 +82,6 @@ namespace ProgressiveColonizationSystem
         [KSPField]
         public float capacity;
 
-        [KSPField(guiActive = true, guiActiveEditor = false, guiName = "Research")]
-        public string researchStatus;
-
         private bool isInitialized = false;
 
         protected virtual TechTier MaxTechTierResearched
@@ -85,6 +95,36 @@ namespace ProgressiveColonizationSystem
                 this.body = value;
                 this.tier = (int)ColonizationResearchScenario.Instance.GetMaxUnlockedTier(this.Output, this.body);
             }
+        }
+
+        private bool IsSituationCorrect(out string reasonWhyNotMessage)
+        {
+
+            if (this.Output.ProductionRestriction == ProductionRestriction.LandedOnBody
+             && (this.vessel.situation != Vessel.Situations.LANDED || this.body != this.vessel.mainBody.name))
+            {
+                reasonWhyNotMessage = $"Not landed on {this.body}";
+                return false;
+            }
+
+            if (this.Output.ProductionRestriction == ProductionRestriction.OrbitOfBody
+             && (this.vessel.situation != Vessel.Situations.ORBITING || this.body != this.vessel.mainBody.name))
+            {
+                reasonWhyNotMessage = $"Not orbiting {this.body}";
+                return false;
+            }
+
+            if (this.Output.ProductionRestriction == ProductionRestriction.Orbit
+             && this.vessel.situation != Vessel.Situations.ORBITING
+             && this.vessel.situation != Vessel.Situations.SUB_ORBITAL
+             && this.vessel.situation != Vessel.Situations.ESCAPING)
+            {
+                reasonWhyNotMessage = $"Not in space";
+                return false;
+            }
+
+            reasonWhyNotMessage = null;
+            return true;
         }
 
         protected virtual bool CanDoProduction(ModuleResourceConverter resourceConverter, out string reasonWhyNotMessage)
@@ -107,17 +147,8 @@ namespace ProgressiveColonizationSystem
                 return false;
             }
 
-            if (this.Output.ProductionRestriction == ProductionRestriction.LandedOnBody
-             && (this.vessel.situation != Vessel.Situations.LANDED || this.body != this.vessel.mainBody.name))
+            if (!this.IsSituationCorrect(out reasonWhyNotMessage))
             {
-                reasonWhyNotMessage = $"Not landed on {this.body}";
-                return false;
-            }
-
-            if (this.Output.ProductionRestriction == ProductionRestriction.OrbitOfBody
-             && (this.vessel.situation != Vessel.Situations.ORBITING || this.body != this.vessel.mainBody.name))
-            {
-                reasonWhyNotMessage = $"Not orbiting {this.body}";
                 return false;
             }
 
@@ -125,20 +156,18 @@ namespace ProgressiveColonizationSystem
             return true;
         }
 
-        private bool CanDoResearch(out string reasonWhyNotMessage)
+        private bool CanDoResearch()
         {
             if (this.tier < (int)this.MaxTechTierResearched)
             {
-                reasonWhyNotMessage = $"Disabled - Not cutting edge gear";
                 return false;
             }
 
-            if (!this.Output.ResearchCategory.CanDoResearch(this.vessel, this.Tier, out reasonWhyNotMessage))
+            if (!this.Output.ResearchCategory.CanDoResearch(this.vessel, this.Tier, out var _))
             {
                 return false;
             }
 
-            reasonWhyNotMessage = null;
             return true;
         }
 
@@ -163,25 +192,50 @@ namespace ProgressiveColonizationSystem
             {
                 this.IsProductionEnabled = true;
                 this.IsResearchEnabled = true;
-                this.researchStatus = "Active";
                 return;
             }
 
             ModuleResourceConverter resourceConverter = this.GetComponent<ModuleResourceConverter>();
 
-            if (this.CanDoProduction(resourceConverter, out string reasonWhyNotMessage))
+            bool isEnableable = this.IsSituationCorrect(out string reasonWhyNotMessage);
+            // remember resourceConverterIsEnabled is a 3-way -- true, false, and null for I haven't done anything yet.
+            // It's important to not call EnableModule every time through FixedUpdate, as it's very slow.
+            if (isEnableable && this.resourceConverterIsEnabled != true)
+            {
+                this.reasonWhyDisabled = null;
+                this.Fields["reasonWhyDisabled"].guiActive = false;
+                resourceConverter.EnableModule();
+                this.resourceConverterIsEnabled = true;
+                this.firstNotInSituationIndicator = -1.0;
+            }
+            else if (!isEnableable && this.resourceConverterIsEnabled != false)
+            {
+                // Enabling instantly is okay, but lots of times the base will bounce a bit on loading
+                // into a scene, so give 10 seconds before shutting the module down.
+                if (this.firstNotInSituationIndicator < 0)
+                {
+                    this.firstNotInSituationIndicator = Planetarium.GetUniversalTime();
+                }
+                else if (Planetarium.GetUniversalTime() - this.firstNotInSituationIndicator > 10.0)
+                {
+                    this.reasonWhyDisabled = RedInfo(reasonWhyNotMessage);
+                    this.Fields["reasonWhyDisabled"].guiActive = true;
+                    resourceConverter.DisableModule();
+                    this.resourceConverterIsEnabled = false;
+                }
+            }
+
+            if (isEnableable && this.CanDoProduction(resourceConverter, out reasonWhyNotMessage))
             {
                 this.IsProductionEnabled = true;
 
-                if (this.CanDoResearch(out reasonWhyNotMessage))
+                if (this.CanDoResearch())
                 {
                     this.IsResearchEnabled = true;
-                    this.researchStatus = "Active";
                 }
                 else
                 {
                     this.IsResearchEnabled = false;
-                    this.researchStatus = reasonWhyNotMessage;
                 }
             }
             else
@@ -195,7 +249,6 @@ namespace ProgressiveColonizationSystem
                 //}
                 this.IsProductionEnabled = false;
                 this.IsResearchEnabled = false;
-                this.researchStatus = reasonWhyNotMessage;
             }
         }
 
@@ -272,6 +325,11 @@ namespace ProgressiveColonizationSystem
         public static string GreenInfo(string info)
         {
             return $"<color=#99FF00>{info}</color>";
+        }
+
+        public static string RedInfo(string info)
+        {
+            return $"<color=#FF2222>{info}</color>";
         }
 
         private TieredResource inputAsTieredResource;

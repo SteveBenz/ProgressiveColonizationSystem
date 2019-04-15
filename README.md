@@ -14,11 +14,14 @@ for the full story.
    2.  (fixed) Once you transfer something, you can't switch to a different transfer target
    3.  Cupcake not available in map mode?
    4.  Cupcake disabled for ships carrying tiered stuff
+   5.  Fertilizer really is too expensive
+   6.  (fixed) Hydroponics works at the launchpad
+   7.  Bad warning - Bug7 craft type complains that all parts should be set to Tier2
 2. Rounding things out
    1.  Write PDF help and or create a github wiki
    2.  Make a K&K drill (Reuse "K&K Metal Ore Drill")
    3.  Make a "K&K Storage [KIS]" that works with B9
-   4.  De-fugly the part tweakable displays
+   4.  (fixed) De-fugly the part tweakable displays
    5.  Automate release preparation
    6.  Create or hijack a part for storing Snacks - just snacks
    7.  Rearrange the parts VAB tabs so there's not a pile of random in "Life Support"
