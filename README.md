@@ -16,12 +16,13 @@ for the full story.
    4.  Cupcake disabled for ships carrying tiered stuff
    5.  Fertilizer really is too expensive
    6.  (fixed) Hydroponics works at the launchpad
-   7.  Bad warning - Bug7 craft type complains that all parts should be set to Tier2
+   7.  On worlds where Shines production is capped, the max-tier warning ("All production parts should be set to") incorrectly wants to set the level to the capped value
+   8.  All the parts that are landed should be touched by the max scanning level warning
 2. Rounding things out
    1.  Write PDF help and or create a github wiki
-   2.  Make a K&K drill (Reuse "K&K Metal Ore Drill")
+   2.  (done) Make a K&K drill (Reuse "K&K Metal Ore Drill")
    3.  Make a "K&K Storage [KIS]" that works with B9
-   4.  (fixed) De-fugly the part tweakable displays
+   4.  (done) De-fugly the part tweakable displays
    5.  Automate release preparation
    6.  Create or hijack a part for storing Snacks - just snacks
    7.  Rearrange the parts VAB tabs so there's not a pile of random in "Life Support"

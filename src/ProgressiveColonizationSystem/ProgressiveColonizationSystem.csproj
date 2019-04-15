@@ -193,6 +193,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\PKS_KandK_Scrounger.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">
     <Error Condition="!Exists('..\..\ksplocations.props')" Text="You need to copy ksplocations_example.props to ksplocations.props and edit it with paths to a couple things on your machine" />
