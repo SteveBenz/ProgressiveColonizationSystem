@@ -12,9 +12,9 @@ for the full story.
 1. Bugs:
    1.  Something seems to reset the dialog box to center from time to time
    2.  (fixed) Once you transfer something, you can't switch to a different transfer target
-   3.  Cupcake not available in map mode?
-   4.  Cupcake disabled for ships carrying tiered stuff
-   5.  Fertilizer really is too expensive
+   3.  (fixed) Cupcake not available in map mode
+   4.  (fixed) Cupcake disabled for ships carrying tiered stuff - made it available for landed ships or crewed ships
+   5.  (fixed) Fertilizer really is too expensive
    6.  (fixed) Hydroponics works at the launchpad
    7.  On worlds where Shines production is capped, the max-tier warning ("All production parts should be set to") incorrectly wants to set the level to the capped value
    8.  All the parts that are landed should be touched by the max scanning level warning
