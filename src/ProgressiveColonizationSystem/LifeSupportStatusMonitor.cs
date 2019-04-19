@@ -66,8 +66,13 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        protected override bool IsRelevant => FlightGlobals.ActiveVessel.GetCrewCount() > 0 && !FlightGlobals.ActiveVessel.isEVA;
-        protected override ApplicationLauncher.AppScenes VisibleInScenes { get; } = ApplicationLauncher.AppScenes.FLIGHT;
+        protected override bool IsRelevant =>
+               !FlightGlobals.ActiveVessel.isEVA
+               && (FlightGlobals.ActiveVessel.situation == Vessel.Situations.LANDED
+                || FlightGlobals.ActiveVessel.situation == Vessel.Situations.SPLASHED
+                || FlightGlobals.ActiveVessel.GetCrewCount() > 0);
+
+        protected override ApplicationLauncher.AppScenes VisibleInScenes { get; } = ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW;
 
         private DialogGUIBase DrawProductionTab()
         {
