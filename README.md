@@ -18,6 +18,10 @@ for the full story.
    6.  (fixed) Hydroponics works at the launchpad
    7.  On worlds where Shines production is capped, the max-tier warning ("All production parts should be set to") incorrectly wants to set the level to the capped value
    8.  All the parts that are landed should be touched by the max scanning level warning
+   9.  Production dialog doesn't tell you that it's lacking CrushIns
+   10. Production dialog should show excess production capacity for stuff & fertilizer
+   11. If there's more than one manned base, it should ask you where you want to look for crushins
+   12. Resource transfer seems not to work for some ships -- perhaps because of staging
 2. Rounding things out
    1.  Write PDF help and or create a github wiki
    2.  (done) Make a K&K drill (Reuse "K&K Metal Ore Drill")
