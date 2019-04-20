@@ -22,6 +22,10 @@ for the full story.
    10. Production dialog should show excess production capacity for stuff & fertilizer
    11. If there's more than one manned base, it should ask you where you want to look for crushins
    12. Resource transfer seems not to work for some ships -- perhaps because of staging
+   13. Dialog should show Crushin usage when the rover isn't automated (showcrushin)
+   14. Production dialog shows LooseCrushins for rover (noloose)
+   15. Doesn't tell you that it used up all the local loose crushins
+   16. Doesn't tell you that production is blocked by lack of crew (shortoncrew)
 2. Rounding things out
    1.  Write PDF help and or create a github wiki
    2.  (done) Make a K&K drill (Reuse "K&K Metal Ore Drill")
