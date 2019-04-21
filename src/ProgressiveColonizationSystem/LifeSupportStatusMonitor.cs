@@ -218,7 +218,9 @@ namespace ProgressiveColonizationSystem
         {
             public string Trait;
             public int SkillLevel;
-            public double Quantity;
+            public double TotalQuantity;
+            public double UncrewedQuantity;
+            public double DisabledQuantity;
             public string[] PartNames;
 
             public IEnumerable<DialogGUIBase> GetTraitDescription(bool showParts, List<ProtoCrewMember> crew)
@@ -234,7 +236,18 @@ namespace ProgressiveColonizationSystem
 
                 var requirementRow = new DialogGUIHorizontalLayout();
 
-                requirementRow.AddChild(new DialogGUILabel(this.Quantity.ToString("N1"), width: NumberColumnWidth));
+                string quantity = UncrewedQuantity + DisabledQuantity > 0.001
+                    ? $"{this.TotalQuantity - UncrewedQuantity - DisabledQuantity:N1}/{this.TotalQuantity:N1}"
+                    : this.TotalQuantity.ToString("N1");
+                if (UncrewedQuantity > 0.001)
+                {
+                    quantity = TextEffects.Red(quantity);
+                }
+                else if (DisabledQuantity > 0.001)
+                {
+                    quantity = TextEffects.Yellow(quantity);
+                }
+                requirementRow.AddChild(new DialogGUILabel(quantity, width: NumberColumnWidth));
                 for (int i = 0; i < careers.Count; ++i)
                 {
                     ExperienceEffectConfig effectConfig = careers[i].Effects.First(effect => effect.Name == this.Trait);
@@ -263,7 +276,6 @@ namespace ProgressiveColonizationSystem
         {
             List<PksCrewRequirement> activatedParts = FlightGlobals.ActiveVessel
                 .FindPartModulesImplementing<PksCrewRequirement>()
-                .Where(p => p.IsRunning)
                 .ToList();
             List<ProtoCrewMember> kspCrew = FlightGlobals.ActiveVessel.GetVesselCrew();
             var snackConsumption = FlightGlobals.ActiveVessel.vesselModules
@@ -283,7 +295,7 @@ namespace ProgressiveColonizationSystem
         }
 
         internal static DialogGUIBase DrawCrewDialog(
-            List<PksCrewRequirement> activatedParts,
+            List<PksCrewRequirement> crewedParts,
             List<ProtoCrewMember> kspCrew,
             bool needsRoverPilot,
             Func<bool> getIsShowingParts,
@@ -294,8 +306,9 @@ namespace ProgressiveColonizationSystem
             // could be split into its own mod.  If you did that, then it'd be worth it to consider whether
             // the same dialog applies to EDITOR and FLIGHT scenarios...  Then you wouldn't have a problem.
 
-            // TODO:
-            //   Make it list the redundant crew
+            // It'd be nice if this thing could show you directly how many redundant crew and which crew are
+            // redundant, but given the specialist/generalist thing, there's no good way to do this that I can
+            // think of.
             List<DialogGUIBase> rows = new List<DialogGUIBase>();
 
             rows.Add(new DialogGUIHorizontalLayout(
@@ -307,7 +320,7 @@ namespace ProgressiveColonizationSystem
                 ));
 
 
-            rows.AddRange(activatedParts
+            rows.AddRange(crewedParts
                 .GroupBy(p => p.RequiredEffect + p.RequiredLevel.ToString())
                 .OrderBy(g => g.Key)
                 .ToArray()
@@ -317,16 +330,18 @@ namespace ProgressiveColonizationSystem
                     SkillLevel = g.First().RequiredLevel,
                     PartNames = g.OrderBy(p => p.part.partInfo.title)
                                  .GroupBy(p => p.part.partInfo.title)
-                                 .Select(p => $"{p.Count()}x{p.Key}")
+                                 .Select(p => MakePartCountString(p.Key, p))
                                  .ToArray(),
-                    Quantity = g.Sum(p => p.CapacityRequired)
+                    TotalQuantity = g.Sum(p => p.CapacityRequired),
+                    DisabledQuantity = g.Where(p => !p.IsRunning).Sum(p => p.CapacityRequired),
+                    UncrewedQuantity = g.Where(p => p.IsRunning && !p.IsStaffed).Sum(p => p.CapacityRequired),
                 }).
                 Union(needsRoverPilot
                     ? new RequirementAndQuantity[] {
                         new RequirementAndQuantity
                         {
                             PartNames = new string[] { "Crushins Rover" },
-                            Quantity = 1,
+                            TotalQuantity = 1,
                             SkillLevel = 0,
                             Trait = "FullVesselControlSkill"
                         }
@@ -337,6 +352,29 @@ namespace ProgressiveColonizationSystem
             rows.Add(new DialogGUIToggle(getIsShowingParts(), "Show parts", (x) => setIsShowingParts(!getIsShowingParts())));
 
             return new DialogGUIVerticalLayout(rows.ToArray());
+        }
+
+        private static string MakePartCountString(string partName, IEnumerable<PksCrewRequirement> parts)
+        {
+            var partsArray = parts.ToArray();
+            int numUncrewed = parts.Count(p => p.IsRunning && !p.IsStaffed);
+            int numTurnedOff = parts.Count(p => !p.IsRunning);
+            if (numUncrewed == 0 && numTurnedOff == 0)
+            {
+                return $"{partsArray.Length}x{partName}";
+            }
+            else if (numUncrewed > 0 && numTurnedOff == 0)
+            {
+                return $"{partsArray.Length - numUncrewed}x{partName} {TextEffects.Red($"({numUncrewed} unstaffed)")}";
+            }
+            else if (numUncrewed == 0 && numTurnedOff > 0)
+            {
+                return $"{partsArray.Length - numTurnedOff}x{partName} {TextEffects.Yellow($"({numTurnedOff} disabled)")}";
+            }
+            else
+            {
+                return $"{partsArray.Length - numUncrewed - numTurnedOff}x{partName} {TextEffects.Red($"({numUncrewed} unstaffed, {numTurnedOff} disabled)")}";
+            }
         }
 
         protected override MultiOptionDialog DrawDialog(Rect rect)

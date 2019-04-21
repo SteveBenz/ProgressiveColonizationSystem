@@ -55,9 +55,9 @@ namespace ProgressiveColonizationSystem
                 .ToList();
 
             StringBuilder info = new StringBuilder();
-            info.AppendLine(PksTieredResourceConverter.GreenInfo("Required Crew:"));
+            info.AppendLine(TextEffects.Green("Required Crew:"));
             info.AppendLine($"Staffing Level: {this.requiredCrew}");
-            info.AppendLine(PksTieredResourceConverter.GreenInfo("Traits:"));
+            info.AppendLine(TextEffects.Green("Traits:"));
             foreach (TechTier tier in TechTierExtensions.AllTiers)
             {
                 info.Append($"{tier}: ");

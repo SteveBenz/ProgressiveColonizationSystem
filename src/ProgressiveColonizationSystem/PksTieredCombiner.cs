@@ -31,13 +31,13 @@ namespace ProgressiveColonizationSystem
 
             if (this.Input != null)
             {
-                info.AppendLine($"{GreenInfo("Input:")} {this.Input.BaseName}");
+                info.AppendLine($"{TextEffects.Green("Input:")} {this.Input.BaseName}");
             }
 
-            info.AppendLine($"{GreenInfo("Capacity:")} {this.capacity} {this.Output.CapacityUnits}");
-            info.AppendLine($"{GreenInfo("Output:")} {this.untieredOutput}");
+            info.AppendLine($"{TextEffects.Green("Capacity:")} {this.capacity} {this.Output.CapacityUnits}");
+            info.AppendLine($"{TextEffects.Green("Output:")} {this.untieredOutput}");
 
-            info.AppendLine($"{GreenInfo("%Local:")}");
+            info.AppendLine($"{TextEffects.Green("%Local:")}");
             foreach (TechTier tier in TechTierExtensions.AllTiers)
             {
                 info.AppendLine($" {tier.ToString()}: {(int)(combinationRates[(int)tier] * 100)}%");

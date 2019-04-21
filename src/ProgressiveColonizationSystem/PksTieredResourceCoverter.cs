@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Text;
 
+using static ProgressiveColonizationSystem.TextEffects;
+
 namespace ProgressiveColonizationSystem
 {
     public class PksTieredResourceConverter
@@ -218,7 +220,7 @@ namespace ProgressiveColonizationSystem
                 }
                 else if (Planetarium.GetUniversalTime() - this.firstNotInSituationIndicator > 10.0)
                 {
-                    this.reasonWhyDisabled = RedInfo(reasonWhyNotMessage);
+                    this.reasonWhyDisabled = Red(reasonWhyNotMessage);
                     this.Fields["reasonWhyDisabled"].guiActive = true;
                     resourceConverter.DisableModule();
                     this.resourceConverterIsEnabled = false;
@@ -322,16 +324,6 @@ namespace ProgressiveColonizationSystem
         public virtual bool ContributeResearch(IColonizationResearchScenario target, double amount)
             => target.ContributeResearch(this.Output, this.body, amount);
 
-        public static string GreenInfo(string info)
-        {
-            return $"<color=#99FF00>{info}</color>";
-        }
-
-        public static string RedInfo(string info)
-        {
-            return $"<color=#FF2222>{info}</color>";
-        }
-
         private TieredResource inputAsTieredResource;
         private TieredResource outputAsTieredResource;
 
@@ -365,19 +357,19 @@ namespace ProgressiveColonizationSystem
 
             if (this.Input != null)
             {
-                info.AppendLine($"{GreenInfo("Input:")} {this.Input.BaseName}");
+                info.AppendLine($"{Green("Input:")} {this.Input.BaseName}");
             }
 
-            info.AppendLine($"{GreenInfo("Capacity:")} {this.capacity} {this.Output.CapacityUnits}");
+            info.AppendLine($"{Green("Capacity:")} {this.capacity} {this.Output.CapacityUnits}");
 
             if (this.Output.CanBeStored)
             {
-                info.AppendLine($"{GreenInfo("Output:")} {this.Output.BaseName}");
+                info.AppendLine($"{Green("Output:")} {this.Output.BaseName}");
             }
 
             if (this.Output is EdibleResource edible)
             {
-                info.AppendLine($"{GreenInfo("Quality:")}");
+                info.AppendLine($"{Green("Quality:")}");
                 foreach (TechTier tier in TechTierExtensions.AllTiers)
                 {
                     info.AppendLine($" {tier.ToString()}: {(int)(edible.GetPercentOfDietByTier(tier) * 100)}%");
