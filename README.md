@@ -37,6 +37,7 @@ for the full story.
    8.  Get a better scanner part
    9.  Delete the parts supporting EL's production chain
    10. Make the shinies boost your rep on landing - remember to add checks to make sure Shinies don't actually come from Kerbin
+   11. Add .version to output per guidance: https://github.com/KSP-CKAN/NetKAN/pull/7147
 3. Things that don't seem worth doing
    1.  Integrate with Kerbal Alarm Clock?
    2.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
