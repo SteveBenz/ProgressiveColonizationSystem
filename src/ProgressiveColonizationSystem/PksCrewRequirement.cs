@@ -24,7 +24,7 @@ namespace ProgressiveColonizationSystem
         [KSPField]
         public float requiredCrew;
 
-        [KSPField(isPersistant = true)]
+        [KSPField(isPersistant = true, guiActive = true, guiActiveEditor = false, guiName = "Has Crew")]
         private bool isStaffed = true;
 
         private bool isInitialized = false;

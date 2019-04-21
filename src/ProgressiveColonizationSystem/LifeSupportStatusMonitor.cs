@@ -312,7 +312,7 @@ namespace ProgressiveColonizationSystem
             List<DialogGUIBase> rows = new List<DialogGUIBase>();
 
             rows.Add(new DialogGUIHorizontalLayout(
-                    new DialogGUILabel("<B><U>#Rqd</U></B>", NumberColumnWidth),
+                    new DialogGUILabel("<B><U>#Crew</U></B>", NumberColumnWidth),
                     new DialogGUILabel("<B><U>Specialist</U></B>", ProfessionColumnWidth),
                     new DialogGUILabel("<B><U>#Avail</U></B>", NumberColumnWidth),
                     new DialogGUILabel("<B><U>Generalist</U></B>", ProfessionColumnWidth),
