@@ -458,7 +458,9 @@ namespace ProgressiveColonizationSystem
             TieredProduction.CalculateResourceUtilization(
                 crewCount + crewDelta, 1, tieredProducers, tieredCombiners, researchSink, resources, storage,
                 out double timePassed, out var _, out Dictionary<string, double> resourcesConsumed,
-                out Dictionary<string, double> resourcesProduced);
+                out Dictionary<string, double> resourcesProduced,
+                out IEnumerable<string> limitingResources,
+                out Dictionary<string, double> unusedProduction);
             if (timePassed == 0)
             {
                 productionMessageBuilder.AppendLine("There aren't enough supplies or producers here to feed any kerbals.");

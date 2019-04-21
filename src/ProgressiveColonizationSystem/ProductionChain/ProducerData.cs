@@ -32,7 +32,7 @@ namespace ProgressiveColonizationSystem.ProductionChain
         /// <param name="tier">The Tier which must be produced - this routine does not substitute Tier4 for Tier1.</param>
         /// <param name="amountPerDay">The required amount in units per day</param>
         /// <returns>The amount that this production tree can actually produce in a day</returns>
-        public double TryToProduce(double amountPerDay)
+        public double TryToProduce(double amountPerDay, Dictionary<string,string> limitMap)
         {
             if (this.WastedCapacity > 0)
             {
@@ -49,18 +49,24 @@ namespace ProgressiveColonizationSystem.ProductionChain
             else
             {
                 double sourcesObtainedSoFar = 0;
+                string limitedBy = null;
                 foreach (ProducerData supplier in this.Suppliers)
                 {
-                    sourcesObtainedSoFar += supplier.TryToProduce(capacityLimitedRequest - sourcesObtainedSoFar);
+                    sourcesObtainedSoFar += supplier.TryToProduce(capacityLimitedRequest - sourcesObtainedSoFar, limitMap);
                     if (sourcesObtainedSoFar >= capacityLimitedRequest - TieredProduction.AcceptableError)
                     {
                         // We got all we asked for
                         this.AllottedCapacity += capacityLimitedRequest;
                         return capacityLimitedRequest;
                     }
+                    else
+                    {
+                        limitedBy = supplier.SourceTemplate.Output.TieredName(supplier.SourceTemplate.Tier);
+                    }
                 }
 
                 // We can't completely fulfil the request.
+                limitMap[this.SourceTemplate.Output.TieredName(this.SourceTemplate.Tier)] = limitedBy;
                 this.AllottedCapacity += sourcesObtainedSoFar;
                 this.WastedCapacity = this.TotalProductionCapacity - this.AllottedCapacity;
                 return sourcesObtainedSoFar;

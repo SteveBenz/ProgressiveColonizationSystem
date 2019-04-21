@@ -215,7 +215,8 @@ namespace ProgressiveColonizationSystem
                     out double elapsedTime,
                     out List<TieredResource> breakthroughCategories,
                     out Dictionary<string,double> resourceConsumptionPerSecond,
-                    out Dictionary<string,double> resourceProductionPerSecond);
+                    out Dictionary<string,double> resourceProductionPerSecond,
+                    out var _, out var _);
 
                 if (elapsedTime == 0)
                 {

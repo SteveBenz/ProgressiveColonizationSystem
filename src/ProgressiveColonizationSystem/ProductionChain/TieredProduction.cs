@@ -52,7 +52,9 @@ namespace ProgressiveColonizationSystem.ProductionChain
             out double timePassedInSeconds,
             out List<TieredResource> breakthroughs,
             out Dictionary<string, double> resourceConsumptionPerSecond,
-            out Dictionary<string, double> resourceProductionPerSecond)
+            out Dictionary<string, double> resourceProductionPerSecond,
+            out IEnumerable<string> limitingFactors,
+            out Dictionary<string, double> unusedProduction)
         {
             // The mechanic we're after writes up pretty simple - Kerbals will try to use renewable
             // resources first, then they start in on the on-board stocks, taking as much of the low-tier
@@ -63,9 +65,12 @@ namespace ProgressiveColonizationSystem.ProductionChain
             //  see that 'availableResources.Keys' and 'availableStorage.Keys' are the same.
 
             // First just get a handle on what stuff we could produce.
+
+            var limitMap = new Dictionary<string, string>();
+            unusedProduction = new Dictionary<string, double>();
             List<ProducerData> producerInfos = FindProducers(producers, colonizationResearch, availableResources, availableStorage);
             SortProducerList(producerInfos);
-            MatchProducersWithSourceProducers(producerInfos);
+            MatchProducersWithSourceProducers(producerInfos, limitMap, unusedProduction);
 
             Dictionary<TieredResource, AmalgamatedCombiners> inputToCombinerMap = combiners
                 .Where(c => c.IsProductionEnabled)
@@ -79,7 +84,7 @@ namespace ProgressiveColonizationSystem.ProductionChain
                 if (foodProducer.MaxDietRatio > ratioFulfilled)
                 {
                     double amountAskedFor = numCrew * (foodProducer.MaxDietRatio - ratioFulfilled);
-                    double amountReceived = foodProducer.ProductionChain.TryToProduce(amountAskedFor);
+                    double amountReceived = foodProducer.ProductionChain.TryToProduce(amountAskedFor, limitMap);
                     ratioFulfilled += amountReceived / numCrew;
                 }
             }
@@ -92,7 +97,7 @@ namespace ProgressiveColonizationSystem.ProductionChain
                     if (foodProducer.MaxDietRatio > ratioFulfilled + AcceptableError)
                     {
                         double amountAskedFor = numCrew * (foodProducer.MaxDietRatio - ratioFulfilled);
-                        double amountReceived = foodProducer.ProductionChain.TryToProduce(amountAskedFor);
+                        double amountReceived = foodProducer.ProductionChain.TryToProduce(amountAskedFor, limitMap);
                         ratioFulfilled += amountReceived / numCrew;
                     }
                 }
@@ -106,6 +111,8 @@ namespace ProgressiveColonizationSystem.ProductionChain
                 resourceConsumptionPerSecond = null;
                 resourceProductionPerSecond = null;
                 breakthroughs = null;
+                limitingFactors = SquishLimitMap(limitMap);
+                unusedProduction = null;
                 return;
             }
 
@@ -117,19 +124,25 @@ namespace ProgressiveColonizationSystem.ProductionChain
             foreach (ProducerData producerData in producerInfos)
             {
                 if (inputToCombinerMap.TryGetValue(producerData.SourceTemplate.Output, out AmalgamatedCombiners combiner)
-                 && availableResources.ContainsKey(combiner.NonTieredInputResourceName)
                  && availableStorage.ContainsKey(combiner.NonTieredOutputResourceName))
                 {
-                    double productionRatio = combiner.GetRatioForTier(producerData.SourceTemplate.Tier);
-                    double suppliesWanted = (combiner.ProductionRate - combiner.UsedCapacity) * productionRatio;
-                    double applicableConverterCapacity = producerData.TryToProduce(suppliesWanted);
-                    combiner.UsedCapacity -= applicableConverterCapacity;
-                    double usedResourcesRate = combiner.ProductionRate * (applicableConverterCapacity / suppliesWanted) * (1 - productionRatio);
-                    combiner.RequiredMixins += usedResourcesRate;
-                    double producedResourcesRate = (applicableConverterCapacity / suppliesWanted) * combiner.ProductionRate;
+                    if (availableResources.ContainsKey(combiner.NonTieredInputResourceName))
+                    {
+                        double productionRatio = combiner.GetRatioForTier(producerData.SourceTemplate.Tier);
+                        double suppliesWanted = (combiner.ProductionRate - combiner.UsedCapacity) * productionRatio;
+                        double applicableConverterCapacity = producerData.TryToProduce(suppliesWanted, limitMap);
+                        combiner.UsedCapacity -= applicableConverterCapacity;
+                        double usedResourcesRate = combiner.ProductionRate * (applicableConverterCapacity / suppliesWanted) * (1 - productionRatio);
+                        combiner.RequiredMixins += usedResourcesRate;
+                        double producedResourcesRate = (applicableConverterCapacity / suppliesWanted) * combiner.ProductionRate;
 
-                    AddTo(resourceProductionPerSecond, combiner.NonTieredOutputResourceName, UnitsPerDayToUnitsPerSecond(producedResourcesRate));
-                    AddTo(resourceConsumptionPerSecond, combiner.NonTieredInputResourceName, UnitsPerDayToUnitsPerSecond(usedResourcesRate));
+                        AddTo(resourceProductionPerSecond, combiner.NonTieredOutputResourceName, UnitsPerDayToUnitsPerSecond(producedResourcesRate));
+                        AddTo(resourceConsumptionPerSecond, combiner.NonTieredInputResourceName, UnitsPerDayToUnitsPerSecond(usedResourcesRate));
+                    }
+                    else
+                    {
+                        limitMap.Add(combiner.NonTieredOutputResourceName, combiner.NonTieredInputResourceName);
+                    }
                 }
             }
 
@@ -139,14 +152,14 @@ namespace ProgressiveColonizationSystem.ProductionChain
                 string resourceName = producerData.SourceTemplate.Output.TieredName(producerData.SourceTemplate.Tier);
                 if (availableStorage.ContainsKey(resourceName) && !(producerData.SourceTemplate is StorageProducer))
                 {
-                    double stockpiledPerDay = producerData.TryToProduce(double.MaxValue);
+                    double stockpiledPerDay = producerData.TryToProduce(double.MaxValue, limitMap);
                     double stockpiledPerSecond = UnitsPerDayToUnitsPerSecond(stockpiledPerDay);
                     AddTo(resourceProductionPerSecond, resourceName, stockpiledPerSecond);
                 }
                 else if (producerData.SourceTemplate.Output.ExcessProductionCountsTowardsResearch)
                 {
                     // Just run the machine
-                    producerData.TryToProduce(double.MaxValue);
+                    producerData.TryToProduce(double.MaxValue, limitMap);
                 }
             }
             // <<-- end cacheable
@@ -200,6 +213,15 @@ namespace ProgressiveColonizationSystem.ProductionChain
                         breakthroughs.Add(producerData.SourceTemplate.Output);
                     }
                 }
+            }
+
+            limitingFactors = SquishLimitMap(limitMap);
+            foreach (var pi in producerInfos
+                .Where(pi => !(pi.SourceTemplate is StorageProducer))
+                .Where(pi => pi.TotalProductionCapacity - pi.AllottedCapacity > AcceptableError))
+            {
+                unusedProduction[pi.SourceTemplate.Output.TieredName(pi.SourceTemplate.Tier)]
+                    = pi.TotalProductionCapacity - pi.AllottedCapacity;
             }
         }
 
@@ -337,7 +359,10 @@ namespace ProgressiveColonizationSystem.ProductionChain
 
         }
 
-        private static void MatchProducersWithSourceProducers(List<ProducerData> producers)
+        private static void MatchProducersWithSourceProducers(
+            List<ProducerData> producers,
+            Dictionary<string,string> limitMap,
+            Dictionary<string,double> unusedProduction)
         {
             List<ProducerData> producersWithNoSupply = new List<ProducerData>();
             foreach (ProducerData producer in producers)
@@ -362,7 +387,10 @@ namespace ProgressiveColonizationSystem.ProductionChain
             {
                 foreach (ProducerData deadProducer in producersWithNoSupply)
                 {
-                    producers.RemoveAll(p => p == deadProducer);
+                    string output = deadProducer.SourceTemplate.Output.TieredName(deadProducer.SourceTemplate.Tier);
+                    limitMap.Add(output, deadProducer.SourceTemplate.Input.TieredName(deadProducer.SourceTemplate.Tier));
+                    unusedProduction.Add(output, deadProducer.TotalProductionCapacity);
+                    producers.Remove(deadProducer);
                     foreach (ProducerData producer in producers)
                     {
                         producer.Suppliers.RemoveAll(p => p == deadProducer);
@@ -388,5 +416,8 @@ namespace ProgressiveColonizationSystem.ProductionChain
                 dictionary.Add(key, amount);
             }
         }
+
+        private static IEnumerable<string> SquishLimitMap(Dictionary<string,string> map)
+            => map.Values.Except(map.Keys);
     }
 }

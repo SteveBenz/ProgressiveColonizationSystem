@@ -196,7 +196,9 @@ namespace ProgressiveColonizationSystem
             TieredProduction.CalculateResourceUtilization(
                 crewCount, 1.0, producers, combiners, researchSink, unlimitedAmounts, unlimitedAmounts,
                 out double timePassed, out var _, out Dictionary<string, double> resourcesConsumedPerSecond,
-                out Dictionary<string, double> resourcesProducedPerSecond);
+                out Dictionary<string, double> resourcesProducedPerSecond,
+                out IEnumerable<string> limitingResources,
+                out Dictionary<string, double> unusedProduction);
             if (timePassed < 1.0)
             {
                 this.consumptionInfo = "-";

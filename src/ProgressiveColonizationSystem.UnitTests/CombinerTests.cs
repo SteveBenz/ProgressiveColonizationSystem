@@ -42,7 +42,11 @@ namespace ProgressiveColonizationSystem.UnitTests
                 5 /* kerbals */, 1.0 /* seconds*/, producers, combiners,
                 colonizationResearchScenario, available, storage,
                 out double timePassedInSeconds, out List<TieredResource> breakthroughs,
-                out Dictionary<string, double> consumptionPerSecond, out Dictionary<string, double> productionPerSecond);
+                out Dictionary<string, double> consumptionPerSecond,
+                out Dictionary<string, double> productionPerSecond,
+                out IEnumerable<string> limitingResources,
+                out Dictionary<string, double> unusedProduction);
+
             Assert.AreEqual(timePassedInSeconds, 1.0);
             Assert.AreEqual(false, breakthroughs.Any());
             Assert.IsNotNull(consumptionPerSecond);
@@ -51,6 +55,10 @@ namespace ProgressiveColonizationSystem.UnitTests
             Assert.AreEqual(5.0 * (1.0 - StubRocketPartCombiner.ExpectedTier0Ratio) / SecondsPerKerbanDay, consumptionPerSecond[StubRocketPartCombiner.ExpectedInputResource], TestTolerance);
             Assert.AreEqual(1, productionPerSecond.Count);
             Assert.AreEqual(5.0 / SecondsPerKerbanDay, productionPerSecond[StubRocketPartCombiner.ExpectedOutputResource], TestTolerance);
+            Assert.IsFalse(limitingResources.Any());
+            Assert.AreEqual(2, unusedProduction.Count);
+            Assert.AreEqual(2.0, unusedProduction["LocalParts-Tier0"], TestTolerance);
+            Assert.AreEqual(8.0, unusedProduction["Stuff-Tier0"], TestTolerance);
         }
 
         /// <summary>
@@ -81,7 +89,10 @@ namespace ProgressiveColonizationSystem.UnitTests
                 5 /* kerbals */, 1.0 /* seconds*/, producers, combiners,
                 colonizationResearchScenario, available, storage,
                 out double timePassedInSeconds, out List<TieredResource> breakthroughs,
-                out Dictionary<string, double> consumptionPerSecond, out Dictionary<string, double> productionPerSecond);
+                out Dictionary<string, double> consumptionPerSecond,
+                out Dictionary<string, double> productionPerSecond,
+                out IEnumerable<string> limitingResources,
+                out Dictionary<string, double> unusedProduction);
             var consumptionPerDay = ConvertToPerDay(consumptionPerSecond);
             var productionPerDay = ConvertToPerDay(productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
@@ -92,6 +103,9 @@ namespace ProgressiveColonizationSystem.UnitTests
             Assert.AreEqual(10.0 * (1.0 - StubRocketPartCombiner.ExpectedTier0Ratio), consumptionPerDay[StubRocketPartCombiner.ExpectedInputResource], TestTolerance);
             Assert.AreEqual(1, productionPerSecond.Count);
             Assert.AreEqual(10.0, productionPerDay[StubRocketPartCombiner.ExpectedOutputResource], TestTolerance);
+            Assert.IsFalse(limitingResources.Any());
+            Assert.AreEqual(1, unusedProduction.Count);
+            Assert.AreEqual(6.0, unusedProduction["Stuff-Tier0"], TestTolerance);
         }
 
         /// <summary>
@@ -122,7 +136,10 @@ namespace ProgressiveColonizationSystem.UnitTests
                 5 /* kerbals */, 1.0 /* seconds*/, producers, combiners,
                 colonizationResearchScenario, available, storage,
                 out double timePassedInSeconds, out List<TieredResource> breakthroughs,
-                out Dictionary<string, double> consumptionPerSecond, out Dictionary<string, double> productionPerSecond);
+                out Dictionary<string, double> consumptionPerSecond,
+                out Dictionary<string, double> productionPerSecond,
+                out IEnumerable<string> limitingResources,
+                out Dictionary<string, double> unusedProduction);
             var consumptionPerDay = ConvertToPerDay(consumptionPerSecond);
             var productionPerDay = ConvertToPerDay(productionPerSecond);
             Assert.AreEqual(timePassedInSeconds, 1.0);
@@ -163,9 +180,15 @@ namespace ProgressiveColonizationSystem.UnitTests
                 5 /* kerbals */, 1.0 /* seconds*/, producers, combiners,
                 colonizationResearchScenario, available, storage,
                 out double timePassedInSeconds, out List<TieredResource> breakthroughs,
-                out Dictionary<string, double> consumptionPerSecond, out Dictionary<string, double> productionPerSecond);
+                out Dictionary<string, double> consumptionPerSecond,
+                out Dictionary<string, double> productionPerSecond,
+                out IEnumerable<string> limitingResources,
+                out Dictionary<string, double> unusedProduction);
             Assert.AreEqual(timePassedInSeconds, 0.0);
             available["Snacks-Tier4"] = PlentifulAmount;
+            Assert.AreEqual(.35, unusedProduction["LocalParts-Tier1"], TestTolerance);
+            Assert.AreEqual(.35, unusedProduction["Stuff-Tier1"], TestTolerance);
+            Assert.IsFalse(limitingResources.Any());
 
             // Limit by the input resource
             available[StubRocketPartCombiner.ExpectedInputResource] =  .25 * (1 - StubRocketPartCombiner.ExpectedTier1Ratio)/SecondsPerKerbanDay;
@@ -173,9 +196,13 @@ namespace ProgressiveColonizationSystem.UnitTests
                 5 /* kerbals */, 1.0 /* seconds*/, producers, combiners,
                 colonizationResearchScenario, available, storage,
                 out timePassedInSeconds, out breakthroughs,
-                out consumptionPerSecond, out productionPerSecond);
+                out consumptionPerSecond, out productionPerSecond,
+                out limitingResources, out unusedProduction);
             Assert.AreEqual(timePassedInSeconds, .25, TestTolerance);
             available[StubRocketPartCombiner.ExpectedInputResource] = PlentifulAmount;
+            Assert.AreEqual(.35, unusedProduction["LocalParts-Tier1"], TestTolerance);
+            Assert.AreEqual(.35, unusedProduction["Stuff-Tier1"], TestTolerance);
+            Assert.IsFalse(limitingResources.Any());
 
             // Limit by storage
             storage[StubRocketPartCombiner.ExpectedOutputResource] = .25 / SecondsPerKerbanDay;
@@ -183,8 +210,26 @@ namespace ProgressiveColonizationSystem.UnitTests
                 5 /* kerbals */, 1.0 /* seconds*/, producers, combiners,
                 colonizationResearchScenario, available, storage,
                 out timePassedInSeconds, out breakthroughs,
-                out consumptionPerSecond, out productionPerSecond);
+                out consumptionPerSecond, out productionPerSecond,
+                out limitingResources, out unusedProduction);
             Assert.AreEqual(timePassedInSeconds, .25, TestTolerance);
+            Assert.AreEqual(.35, unusedProduction["LocalParts-Tier1"], TestTolerance);
+            Assert.AreEqual(.35, unusedProduction["Stuff-Tier1"], TestTolerance);
+            Assert.IsFalse(limitingResources.Any());
+
+            // No Complex parts at all
+            available.Remove(StubRocketPartCombiner.ExpectedInputResource);
+            TieredProduction.CalculateResourceUtilization(
+                5 /* kerbals */, 1.0 /* seconds*/, producers, combiners,
+                colonizationResearchScenario, available, storage,
+                out timePassedInSeconds, out breakthroughs,
+                out consumptionPerSecond, out productionPerSecond,
+                out limitingResources, out unusedProduction);
+            Assert.AreEqual(timePassedInSeconds, 1.0, TestTolerance);
+            available[StubRocketPartCombiner.ExpectedInputResource] = PlentifulAmount;
+            Assert.AreEqual(1.0, unusedProduction["LocalParts-Tier1"], TestTolerance);
+            Assert.AreEqual(1.0, unusedProduction["Stuff-Tier1"], TestTolerance);
+            Assert.AreEqual(StubRocketPartCombiner.ExpectedInputResource, limitingResources.Single());
         }
 
         private static Dictionary<string, double> ConvertToPerDay(Dictionary<string, double> unitsPerSecond)
