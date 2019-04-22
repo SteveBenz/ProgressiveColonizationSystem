@@ -18,11 +18,11 @@ for the full story.
    6.  (fixed) Hydroponics works at the launchpad
    7.  On worlds where Shines production is capped, the max-tier warning ("All production parts should be set to") incorrectly wants to set the level to the capped value
    8.  All the parts that are landed should be touched by the max scanning level warning
-   9.  Production dialog doesn't tell you that it's lacking CrushIns
-   10. Production dialog should show excess production capacity for stuff & fertilizer
+   9.  (fixed) Production dialog doesn't tell you that it's lacking CrushIns
+   10. (fixed) Production dialog should show excess production capacity for stuff & fertilizer
    11. If there's more than one manned base, it should ask you where you want to look for crushins
    12. Resource transfer seems not to work for some ships -- perhaps because of staging
-   13. Dialog should show Crushin usage when the rover isn't automated (showcrushin)
+   13. (fixed) Dialog should show Crushin usage when the rover isn't automated (showcrushin)
    14. Production dialog shows LooseCrushins for rover (noloose)
    15. Doesn't tell you that it used up all the local loose crushins
    16. (fixed) Doesn't tell you that production is blocked by lack of crew (shortoncrew)

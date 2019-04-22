@@ -82,11 +82,18 @@ namespace ProgressiveColonizationSystem
         {
             return new DialogGUIVerticalLayout(
                 new DialogGUILabel(() => this.introLineMessage),
+                new DialogGUISpace(5),
                 new DialogGUIHorizontalLayout(
-                    new DialogGUILabel(() => this.productionMessage == null ? "" : "Production/day:\r\n" + this.productionMessage),
+                    new DialogGUILabel(
+                        () => $"{TextEffects.DialogHeading("Production/day:")}\r\n{this.productionMessage ?? "<none>"}"),
                     new DialogGUISpace(30),
-                    new DialogGUILabel(() => this.unusedCapacityMessage == null ? "" : "Unused Capacity:\r\n" + this.unusedCapacityMessage)),
-                new DialogGUILabel(() => this.limitedByMessage == null ? "" : "\r\nLimited by: " + this.limitedByMessage),
+                    new DialogGUILabel(() => this.unusedCapacityMessage == null
+                        ? ""
+                        : $"{TextEffects.DialogHeading("Unused Capacity:")}\r\n{this.unusedCapacityMessage}")),
+                new DialogGUISpace(5),
+                new DialogGUILabel(() => this.limitedByMessage == null
+                    ? ""
+                    : $"{TextEffects.DialogHeading("Limited by:")} {this.limitedByMessage}"),
                 new DialogGUIFlexibleSpace(),
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
                     new DialogGUILabel("What if we"),
@@ -322,13 +329,12 @@ namespace ProgressiveColonizationSystem
             List<DialogGUIBase> rows = new List<DialogGUIBase>();
 
             rows.Add(new DialogGUIHorizontalLayout(
-                    new DialogGUILabel("<B><U>#Crew</U></B>", NumberColumnWidth),
-                    new DialogGUILabel("<B><U>Specialist</U></B>", ProfessionColumnWidth),
-                    new DialogGUILabel("<B><U>#Avail</U></B>", NumberColumnWidth),
-                    new DialogGUILabel("<B><U>Generalist</U></B>", ProfessionColumnWidth),
-                    new DialogGUILabel("<B><U>#Avail</U></B>", NumberColumnWidth)
+                    new DialogGUILabel(TextEffects.DialogHeading("#Crew"), NumberColumnWidth),
+                    new DialogGUILabel(TextEffects.DialogHeading("Specialist"), ProfessionColumnWidth),
+                    new DialogGUILabel(TextEffects.DialogHeading("#Avail"), NumberColumnWidth),
+                    new DialogGUILabel(TextEffects.DialogHeading("Generalist"), ProfessionColumnWidth),
+                    new DialogGUILabel(TextEffects.DialogHeading("#Avail"), NumberColumnWidth)
                 ));
-
 
             rows.AddRange(crewedParts
                 .GroupBy(p => p.RequiredEffect + p.RequiredLevel.ToString())
@@ -443,10 +449,22 @@ namespace ProgressiveColonizationSystem
                 .OfType<SnackConsumption>()
                 .FirstOrDefault()
                 ?.GetMinerStatusMessage(out isHookedUp, out minerStatusMessage);
-            bool anyCrewDeficiencies = FlightGlobals.ActiveVessel
-                .FindPartModulesImplementing<PksCrewRequirement>()
-                .Any(cr => cr.IsRunning && !cr.IsStaffed);
-            BuildStatusStrings(minerStatusMessage, anyCrewDeficiencies, activeSnackConsumption, availableResources, availableStorage
+            bool anyCrewDeficiencies = false;
+            bool anyDisabledParts = false;
+            foreach (var cr in FlightGlobals.ActiveVessel.FindPartModulesImplementing<PksCrewRequirement>())
+            {
+                if (!cr.IsStaffed && cr.IsRunning)
+                {
+                    anyCrewDeficiencies = true;
+                }
+                else if (!cr.IsRunning)
+                {
+                    anyDisabledParts = true;
+                }
+            }
+
+            BuildStatusStrings(isHookedUp, minerStatusMessage, anyCrewDeficiencies, anyDisabledParts
+                , activeSnackConsumption, availableResources, availableStorage
                 , tieredProducers, tieredCombiners, crewCount, crewDelta
                 , out this.introLineMessage, out this.productionMessage, out this.unusedCapacityMessage
                 , out this.limitedByMessage, out List<ResearchData> progress);
@@ -454,8 +472,10 @@ namespace ProgressiveColonizationSystem
         }
 
         internal static void BuildStatusStrings(
+            bool isAutoMining,
             string minerStatusMessage,
             bool anyCrewDeficiencies,
+            bool anyDisabledParts,
             SnackConsumption activeSnackConsumption,
             Dictionary<string, double> resources,
             Dictionary<string, double> storage,
@@ -476,12 +496,23 @@ namespace ProgressiveColonizationSystem
                 out Dictionary<string, double> resourcesProduced,
                 out IEnumerable<string> limitingResources,
                 out Dictionary<string, double> unusedProduction);
+
+            // Because of the way PksTieredCombiners work, we'll often end up with the non-tiered stuff
+            // showing up as a rate-limiter.  While it's technically correct, it's not going to be a thing
+            // that the player will want to know about.
+            var localParts = ColonizationResearchScenario.Instance.TryGetTieredResourceByName("LocalParts");
+            if (localParts != null)
+            {
+                foreach (TechTier t in Enum.GetValues(typeof(TechTier)))
+                {
+                    unusedProduction.Remove(localParts.TieredName(t));
+                }
+            }
+
             if (timePassed == 0)
             {
                 var introMessageBuilder = new StringBuilder();
                 introMessageBuilder.Append(TextEffects.Red("There aren't enough supplies or producers here to feed any kerbals."));
-
-                progress = new List<ResearchData>();
 
                 if (!activeSnackConsumption.IsAtHome)
                 {
@@ -528,6 +559,15 @@ namespace ProgressiveColonizationSystem
                 productionMessage = null;
                 unusedCapacityMessage = null;
                 limitedByMessage = null;
+                progress = new List<ResearchData>();
+            }
+            else if (crewCount == 0)
+            {
+                introLineMessage = "No kerbals are aboard to produce anything.";
+                productionMessage = null;
+                unusedCapacityMessage = null;
+                limitedByMessage = null;
+                progress = new List<ResearchData>();
             }
             else
             {
@@ -540,12 +580,12 @@ namespace ProgressiveColonizationSystem
                         consumptionBuilder.AppendLine();
                     }
 
-                    consumptionBuilder.AppendLine(crewDelta == 0
-                        ? $"To sustain its crew of {crewCount + crewDelta}, this vessel is using:"
-                        : $"To sustain a crew of {crewCount + crewDelta} this vessel would use:");
+                    consumptionBuilder.AppendLine(TextEffects.DialogHeading(crewDelta == 0
+                        ? $"The crew of {crewCount + crewDelta} is using:"
+                        : $"A crew of {crewCount + crewDelta} would use:"));
                     foreach (var resourceName in resourcesConsumed.Keys.OrderBy(n => n))
                     {
-                        if (!IsCrushinResource(researchSink, resourceName))
+                        if (!isAutoMining || !IsCrushinResource(researchSink, resourceName))
                         {
                             double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(resourcesConsumed[resourceName]);
                             double daysLeft = resources[resourceName] / perDay;
@@ -563,11 +603,10 @@ namespace ProgressiveColonizationSystem
                 if (resourcesProduced != null && resourcesProduced.Count > 0)
                 {
                     var productionMessageBuilder = new StringBuilder();
-                    productionMessageBuilder.AppendLine("The crew is producing:");
                     foreach (var resourceName in resourcesProduced.Keys.OrderBy(n => n))
                     {
                         double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(resourcesProduced[resourceName]);
-                        productionMessageBuilder.AppendLine($"{perDay:N1} {resourceName} per day");
+                        productionMessageBuilder.AppendLine($"{perDay:N1} {resourceName}");
                     }
 
                     productionMessage = productionMessageBuilder.ToString();
@@ -586,12 +625,12 @@ namespace ProgressiveColonizationSystem
                 {
                     shortfalls.Add("uncrewed parts");
                 }
-                if (tieredProducers.Any(p => !p.IsProductionEnabled))
+                if (anyDisabledParts)
                 {
                     shortfalls.Add("disabled parts");
                 }
                 shortfalls.AddRange(limitingResources);
-                limitedByMessage = string.Join(", ", shortfalls.ToArray());
+                limitedByMessage = shortfalls.Count == 0 ? null : string.Join(", ", shortfalls.ToArray());
 
                 progress = researchSink.Data
                     .Select(pair => new ResearchData()
