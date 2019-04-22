@@ -23,8 +23,8 @@ for the full story.
    11. If there's more than one manned base, it should ask you where you want to look for crushins
    12. Resource transfer seems not to work for some ships -- perhaps because of staging
    13. (fixed) Dialog should show Crushin usage when the rover isn't automated (showcrushin)
-   14. Production dialog shows LooseCrushins for rover (noloose)
-   15. Doesn't tell you that it used up all the local loose crushins
+   14. (fixed) Production dialog shows LooseCrushins for rover (noloose)
+   15. (fixed) Doesn't tell you that it used up all the local loose crushins
    16. (fixed) Doesn't tell you that production is blocked by lack of crew (shortoncrew)
 2. Rounding things out
    1.  Write PDF help and or create a github wiki
