@@ -112,9 +112,9 @@ namespace ProgressiveColonizationSystem
 
             DialogGUIBase[] rows = new DialogGUIBase[this.progress.Count + 1];
             rows[0] = new DialogGUIHorizontalLayout(
-                    new DialogGUILabel("<B><U>Field:</U></B>", 170),
-                    new DialogGUILabel("<B><U>Progress:</U></B>", 70),
-                    new DialogGUILabel("<B><U>Days To Go:</U></B>", 70)
+                    new DialogGUILabel(TextEffects.DialogHeading("Field:"), 170),
+                    new DialogGUILabel(TextEffects.DialogHeading("Progress:"), 70),
+                    new DialogGUILabel(TextEffects.DialogHeading("Days To Go:"), 70)
                 );
             
             for (int i = 0; i < this.progress.Count; ++i)
