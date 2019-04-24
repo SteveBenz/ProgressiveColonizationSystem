@@ -66,6 +66,9 @@
     <Compile Include="ExperienceEffects\PksScroungingSkill.cs" />
     <Compile Include="ExperienceEffects\PksManufacturingSkill.cs" />
     <Compile Include="ExperienceEffects\PksScanningSkill.cs" />
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\KKOAS_B9_TankLarge.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Compile Include="PksTabbedDialog.cs" />
     <Compile Include="PksTieredCombiner.cs" />
     <Compile Include="ProductionChain\AmalgamatedCombiners.cs" />

@@ -16,7 +16,7 @@ for the full story.
    4.  (fixed) Cupcake disabled for ships carrying tiered stuff - made it available for landed ships or crewed ships
    5.  (fixed) Fertilizer really is too expensive
    6.  (fixed) Hydroponics works at the launchpad
-   7.  On worlds where Shines production is capped, the max-tier warning ("All production parts should be set to") incorrectly wants to set the level to the capped value
+   7.  On worlds where Shinies production is capped, the max-tier warning ("All production parts should be set to") incorrectly wants to set the level to the capped value
    8.  All the parts that are landed should be touched by the max scanning level warning
    9.  (fixed) Production dialog doesn't tell you that it's lacking CrushIns
    10. (fixed) Production dialog should show excess production capacity for stuff & fertilizer
@@ -26,6 +26,7 @@ for the full story.
    14. (fixed) Production dialog shows LooseCrushins for rover (noloose)
    15. (fixed) Doesn't tell you that it used up all the local loose crushins
    16. (fixed) Doesn't tell you that production is blocked by lack of crew (shortoncrew)
+   17. Revisit the SPH production dialog
 2. Rounding things out
    1.  Write PDF help and or create a github wiki
    2.  (done) Make a K&K drill (Reuse "K&K Metal Ore Drill")
