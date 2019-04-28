@@ -18,9 +18,9 @@
     //
     //        %textTemplatingPath% "$(ProjectDir)AssemblyFileVersion.tt"
 
-    int major = 1;
-    int minor = 0;     
-    int build = 8; 
+    int major = 0;
+    int minor = 0;
+    int build = 0; 
     int patch = 0;
     bool versionSection = false;
 
@@ -28,7 +28,7 @@
     int i2 = 0;
     string s;
 
-    string versionfile =  @"..\..\..\..\ProgressiveColonizationSystem.version";
+    string versionfile =  @"..\..\GameData\ProgressiveColonizationSystem\ProgressiveColonizationSystem.version";
     if (!File.Exists(versionfile))
     {
         Write("CWD: " + Environment.CurrentDirectory);
@@ -73,11 +73,10 @@
                 }
             }
         }
-         
      }
      catch
      {
-         major = 1; 
+         major = 0; 
          minor = 0; 
          patch = 0; 
          build = 0; 
