@@ -38,7 +38,8 @@ for the full story.
    6.  Create or hijack a part for storing Snacks - just snacks
    7.  Rearrange the parts VAB tabs so there's not a pile of random in "Life Support"
    8.  Get a better scanner part
-   9.  Delete the Community Resource Kit storage options on b9 tanks
+   9.  (completish)Delete the Community Resource Kit storage options on b9 tanks
+         Maybe we should use the existance of the simple
    10. Make the shinies boost your rep on landing - remember to add checks to make sure Shinies don't actually come from Kerbin
    11. Add .version to output per guidance: https://github.com/KSP-CKAN/NetKAN/pull/7147
 3. Things that don't seem worth doing

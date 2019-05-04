@@ -53,8 +53,6 @@ namespace ProgressiveColonizationSystem.UnitTests
             };
         }
 
-        // CheckBodyIsSet
-
         [TestMethod]
         public void WarningsTest_NoPartsTest()
         {
@@ -155,6 +153,22 @@ namespace ProgressiveColonizationSystem.UnitTests
             Assert.IsNotNull(actual[0].FixIt);
             actual[0].FixIt();
             actual = StaticAnalysis.CheckTieredProduction(colonizationResearch, this.producers, this.emptyContainers, this.emptyContainers).ToList();
+            Assert.AreEqual(0, actual.Count);
+        }
+
+        [TestMethod]
+        public void TestUnderstandsMaxTier()
+        {
+            colonizationResearch.SetMaxTier(StubColonizationResearchScenario.farmingResearchCategory, "munmuss", TechTier.Tier3);
+            colonizationResearch.SetMaxTier(StubColonizationResearchScenario.productionResearchCategory, "munmuss", TechTier.Tier3);
+            colonizationResearch.SetMaxTier(StubColonizationResearchScenario.scanningResearchCategory, "munmuss", TechTier.Tier3);
+            colonizationResearch.SetMaxTier(StubColonizationResearchScenario.shiniesResearchCategory, "munmuss", TechTier.Tier2);
+
+            StubProducer t3fertFactory = new StubProducer(StubColonizationResearchScenario.Fertilizer, StubColonizationResearchScenario.Stuff, 6, TechTier.Tier3);
+            StubProducer t3drill = new StubProducer(StubColonizationResearchScenario.Stuff, null, 6, TechTier.Tier3);
+            StubProducer t2shinies = new StubProducer(StubColonizationResearchScenario.Shinies, null, 6, TechTier.Tier2);
+
+            var actual = StaticAnalysis.CheckTieredProduction(colonizationResearch, this.producers, this.emptyContainers, this.emptyContainers).ToList();
             Assert.AreEqual(0, actual.Count);
         }
 
