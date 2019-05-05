@@ -104,7 +104,7 @@ namespace ProgressiveColonizationSystem
             }
 
             string requiredSituationString;
-            if (!producers.Any() || producers[0].Output.ProductionRestriction == ProductionRestriction.Orbit)
+            if (!producers.Any() || producers[0].Output.ProductionRestriction == ProductionRestriction.Space)
             {
                 requiredSituationString = "in space";
             }
@@ -283,7 +283,7 @@ namespace ProgressiveColonizationSystem
             bool needsRoverPilot = parts
                 .Select(p => p.FindModuleImplementing<ITieredProducer>())
                 .Where(p => p != null)
-                .Any(p => p.Input == ColonizationResearchScenario.CrushInsResource);
+                .Any(p => p.Input == ColonizationResearchScenario.Instance.CrushInsResource);
 
             return LifeSupportStatusMonitor.DrawCrewDialog(
                 partsWithCrewRequirements,

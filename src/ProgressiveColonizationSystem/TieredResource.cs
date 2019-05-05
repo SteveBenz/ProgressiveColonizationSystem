@@ -1,34 +1,115 @@
 ﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace ProgressiveColonizationSystem
 {
     public enum ProductionRestriction
     {
-        Orbit,
+        Space,
         OrbitOfBody,
         LandedOnBody,
     }
 
     public class TieredResource
     {
-        public TieredResource(string name, string capacityUnits, ProductionRestriction productionRestriction, ResearchCategory researchCategory, bool canBeStored, bool unstoredExcessCanGoToResearch, bool isHarvestedLocally)
+        private TieredResource(ConfigNode c, ResearchCategory researchCategory, TieredResource madeFrom, TechTier madeFromStartsAt)
+        {
+            this.BaseName = c.GetValue("name");
+            this.BaseName = c.GetValue("display_name");
+            this.CapacityUnits = c.GetValue("capacity_units");
+            bool canBeStored = false;
+            c.TryGetValue("can_be_stored", ref canBeStored);
+            this.CanBeStored = canBeStored;
+
+            bool unstoredExcessCanGoToResearch = false;
+            c.TryGetValue("unstored_excess_can_go_to_research", ref unstoredExcessCanGoToResearch);
+            this.ExcessProductionCountsTowardsResearch = unstoredExcessCanGoToResearch;
+
+            bool isHarvestedLocally = false;
+            c.TryGetValue("is_harvested_locally", ref isHarvestedLocally);
+            this.IsHarvestedLocally = isHarvestedLocally;
+
+            this.CrewSkill = c.GetValue("crew_skill");
+
+            this.ResearchCategory = researchCategory;
+        }
+
+        public static Dictionary<string, TieredResource> LoadAll(Dictionary<string, ResearchCategory> researchCategories)
+        {
+            ConfigNode[] resourceCategoryNodes = GameDatabase.Instance.GetConfigNodes("TIERED_RESOURCE_CATEGORY");
+            Dictionary<string, TieredResource> result = new Dictionary<string, TieredResource>();
+            while (result.Count != resourceCategoryNodes.Length)
+            {
+                bool madeProgress = false;
+                for (int i = 0; i < resourceCategoryNodes.Length; ++i)
+                {
+                    ConfigNode c = resourceCategoryNodes[i];
+                    string researchCategory = c.GetValue("research_category");
+                    if (researchCategory == null || !researchCategories.TryGetValue(researchCategory, out ResearchCategory category))
+                    {
+                        Debug.LogError($"TIERED_RESOURCE_CATEGORY.{c.GetValue("name")} misconfigured - missing or invalid research_category");
+                        resourceCategoryNodes[i] = null;
+                        madeProgress = true;
+                        continue;
+                    }
+
+                    string madeFrom = c.GetValue("made_from");
+                    string madeFromT2 = c.GetValue("made_from_tier2");
+                    TieredResource tieredResource = null;
+                    TieredResource madeFromResource;
+                    if (!string.IsNullOrEmpty(madeFrom) && result.TryGetValue(madeFrom, out madeFromResource))
+                    {
+                        tieredResource = new TieredResource(c, category, madeFromResource, TechTier.Tier0);
+                    }
+                    else if (!string.IsNullOrEmpty(madeFromT2) && result.TryGetValue(madeFromT2, out madeFromResource))
+                    {
+                        tieredResource = new TieredResource(c, category, madeFromResource, TechTier.Tier2);
+                    }
+                    else if (string.IsNullOrEmpty(madeFrom) && string.IsNullOrEmpty(madeFromT2))
+                    {
+                        tieredResource = new TieredResource(c, category, null, TechTier.Tier0);
+                    }
+
+                    if (tieredResource != null)
+                    {
+                        result.Add(tieredResource.BaseName, tieredResource);
+                        resourceCategoryNodes[i] = null;
+                        madeProgress = true;
+                    }
+                }
+
+                if (!madeProgress)
+                {
+                    Debug.LogError($"TIERED_RESOURCE_CATEGORY misconfigured - either a made_from or made_from_tier2 attribute is pointing to a non-existant node or there's a circularity.");
+                    break;
+                }
+            }
+
+            return result;
+        }
+
+        public TieredResource(string name, string capacityUnits, ResearchCategory researchCategory, bool canBeStored, bool unstoredExcessCanGoToResearch, bool isHarvestedLocally)
         {
             this.BaseName = name;
             this.CapacityUnits = capacityUnits;
             this.CanBeStored = canBeStored;
             this.ExcessProductionCountsTowardsResearch = unstoredExcessCanGoToResearch;
-            this.ProductionRestriction = productionRestriction;
             this.ResearchCategory = researchCategory;
             this.IsHarvestedLocally = isHarvestedLocally;
         }
 
-        public ProductionRestriction ProductionRestriction { get; }
+        public ProductionRestriction ProductionRestriction => this.ResearchCategory.Type;
 
         public ResearchCategory ResearchCategory { get; }
 
         public bool LimitedTierOnEasyBodies { get; }
 
         public string BaseName { get; }
+
+        public string DisplayName { get; }
+
+        public string CrewSkill { get; }
 
         /// <summary>
         ///    Gets the name of the resource as it is in the game configuration

@@ -154,7 +154,7 @@ namespace ProgressiveColonizationSystem
             }
 
             double totalCapacityAtBase = this.vessel.FindPartModulesImplementing<ITieredProducer>()
-                .Where(p => p.Input == ColonizationResearchScenario.CrushInsResource)
+                .Where(p => p.Input == ColonizationResearchScenario.Instance.CrushInsResource)
                 .Sum(p => p.ProductionRate);
             double minimumQualifyingAmount = totalCapacityAtBase * DrillCapacityMultiplierForAutomaticMiningQualification;
             if (amountSent < minimumQualifyingAmount)
@@ -309,7 +309,7 @@ namespace ProgressiveColonizationSystem
             if (this.IsMiningLanderPresent)
             {
                 ColonizationResearchScenario.Instance.TryParseTieredResourceName(tieredResourceName, out var resource, out _);
-                return resource == ColonizationResearchScenario.CrushInsResource;
+                return resource == ColonizationResearchScenario.Instance.CrushInsResource;
             }
             else
             {

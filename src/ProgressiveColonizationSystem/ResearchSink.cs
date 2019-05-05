@@ -27,7 +27,7 @@ namespace ProgressiveColonizationSystem
 
         IEnumerable<TieredResource> IColonizationResearchScenario.AllResourcesTypes => ColonizationResearchScenario.Instance.AllResourcesTypes;
 
-        TieredResource IColonizationResearchScenario.CrushInsResource => ColonizationResearchScenario.CrushInsResource;
+        TieredResource IColonizationResearchScenario.CrushInsResource => ColonizationResearchScenario.Instance.CrushInsResource;
 
         bool IColonizationResearchScenario.ContributeResearch(TieredResource source, string atBody, double researchInKerbalsecondsPerSecond)
         {

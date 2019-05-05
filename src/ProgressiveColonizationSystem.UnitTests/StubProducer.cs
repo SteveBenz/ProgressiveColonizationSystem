@@ -15,7 +15,7 @@ namespace ProgressiveColonizationSystem.UnitTests
             this.Input = input;
             this.ProductionRate = productionRate;
             this.Tier = tier;
-            this.Body = (output.ProductionRestriction == ProductionRestriction.Orbit) ? null : "munmuss";
+            this.Body = (output.ProductionRestriction == ProductionRestriction.Space) ? null : "munmuss";
         }
 
         public TechTier Tier { get; set; }

@@ -32,21 +32,21 @@ namespace ProgressiveColonizationSystem.UnitTests
 
         // The tests have their own copy of this table - the real one may get tweaked, and that could throw some of
         //  the tests off.
-        public static ResearchCategory hydroponicResearchCategory = new HydroponicResearchCategory();
-        public static ResearchCategory farmingResearchCategory = new FarmingResearchCategory();
-        public static ResearchCategory productionResearchCategory = new ProductionResearchCategory();
-        public static ResearchCategory scanningResearchCategory = new ScanningResearchCategory();
-        public static ResearchCategory shiniesResearchCategory = new ShiniesResearchCategory();
-        public static ResearchCategory rocketPartsResearchCategory = new RocketPartsResearchCategory();
+        public static ResearchCategory hydroponicResearchCategory = new ResearchCategory("hydroponics", ProductionRestriction.Space);
+        public static ResearchCategory farmingResearchCategory = new ResearchCategory("agriculture", ProductionRestriction.LandedOnBody);
+        public static ResearchCategory productionResearchCategory = new ResearchCategory("production", ProductionRestriction.LandedOnBody);
+        public static ResearchCategory scanningResearchCategory = new ResearchCategory("scanning", ProductionRestriction.OrbitOfBody);
+        public static ResearchCategory shiniesResearchCategory = new ResearchCategory("shinies", ProductionRestriction.LandedOnBody);
+        public static ResearchCategory rocketPartsResearchCategory = new ResearchCategory("construction", ProductionRestriction.LandedOnBody);
 
-        public static EdibleResource HydroponicSnacks = new EdibleResource("HydroponicSnacks", ProductionRestriction.Orbit, hydroponicResearchCategory, false, false, .2, .4, .55, .7, .95);
-        public static EdibleResource Snacks = new EdibleResource("Snacks", ProductionRestriction.LandedOnBody, farmingResearchCategory, true, false, .6, .85, .95, .98, 1.0);
-        public static TieredResource Fertilizer = new TieredResource("Fertilizer", "Kerbal-Days", ProductionRestriction.LandedOnBody, productionResearchCategory, true, false, false);
-        public static TieredResource Stuff = new TieredResource("Stuff", null, ProductionRestriction.LandedOnBody, productionResearchCategory, false, false, true);
-        public static TieredResource CrushIns = new TieredResource("CrushIns", null, ProductionRestriction.LandedOnBody, productionResearchCategory, false, false, true);
-        public static TieredResource Scanning = new TieredResource("ScanningData", "Kerbal-Days", ProductionRestriction.OrbitOfBody, scanningResearchCategory, false, false, true);
-        public static TieredResource Shinies = new TieredResource("Shinies", "Bling-per-day", ProductionRestriction.LandedOnBody, shiniesResearchCategory, true, false, false);
-        public static TieredResource LocalParts = new TieredResource("LocalParts", "Parts", ProductionRestriction.LandedOnBody, rocketPartsResearchCategory, false, false, false);
+        public static EdibleResource HydroponicSnacks = new EdibleResource("HydroponicSnacks", hydroponicResearchCategory, false, false, .2, .4, .55, .7, .95);
+        public static EdibleResource Snacks = new EdibleResource("Snacks", farmingResearchCategory, true, false, .6, .85, .95, .98, 1.0);
+        public static TieredResource Fertilizer = new TieredResource("Fertilizer", "Kerbal-Days", productionResearchCategory, true, false, false);
+        public static TieredResource Stuff = new TieredResource("Stuff", null, productionResearchCategory, false, false, true);
+        public static TieredResource CrushIns = new TieredResource("CrushIns", null, productionResearchCategory, false, false, true);
+        public static TieredResource Scanning = new TieredResource("ScanningData", "Kerbal-Days", scanningResearchCategory, false, false, true);
+        public static TieredResource Shinies = new TieredResource("Shinies", "Bling-per-day", shiniesResearchCategory, true, false, false);
+        public static TieredResource LocalParts = new TieredResource("LocalParts", "Parts", rocketPartsResearchCategory, false, false, false);
 
         private static TieredResource[] AllTieredResources =
         {

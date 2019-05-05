@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KSP.Localization;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,42 +13,31 @@ namespace ProgressiveColonizationSystem
         public static ColonizationResearchScenario Instance;
 
         private Dictionary<ResearchCategory, Dictionary<string, TechProgress>> categoryToBodyToProgressMap;
+        private static Dictionary<string, ResearchCategory> researchCategories;
+        private static Dictionary<string, TieredResource> resources;
 
-        private static ResearchCategory hydroponicResearchCategory = new HydroponicResearchCategory();
-        private static ResearchCategory farmingResearchCategory = new FarmingResearchCategory();
-        private static ResearchCategory productionResearchCategory = new ProductionResearchCategory();
-        private static ResearchCategory scanningResearchCategory = new ScanningResearchCategory();
-        private static ResearchCategory shiniesResearchCategory = new ShiniesResearchCategory();
-        private static ResearchCategory rocketPartsResearchCategory = new RocketPartsResearchCategory();
+        public static TieredResource LodeResource = new TieredResource("LooseCrushIns", "", null, false, false, false);
 
-        private static TieredResource scanningResource = new TieredResource("ScanningData", "Kerbal-Days", ProductionRestriction.OrbitOfBody, scanningResearchCategory, canBeStored: false, unstoredExcessCanGoToResearch: true, isHarvestedLocally: false);
-
-        public static TieredResource LodeResource = new TieredResource("LooseCrushIns", "", ProductionRestriction.OrbitOfBody, scanningResearchCategory, canBeStored: false, unstoredExcessCanGoToResearch: false, isHarvestedLocally: true);
-        public static TieredResource CrushInsResource = new TieredResource("CrushIns", null, ProductionRestriction.LandedOnBody, productionResearchCategory, false, false, isHarvestedLocally: true);
-
-        TieredResource IColonizationResearchScenario.CrushInsResource => ColonizationResearchScenario.CrushInsResource;
-
-        private static TieredResource[] AllTieredResources =
+        public TieredResource CrushInsResource
         {
-            new EdibleResource("HydroponicSnacks", ProductionRestriction.Orbit, hydroponicResearchCategory, false, false, .2, .4, .55, .7, .95),
-            new EdibleResource("Snacks", ProductionRestriction.LandedOnBody, farmingResearchCategory, true, false, .6, .85, .95, .98, 1.0),
-            new TieredResource("Fertilizer", "Kerbal-Days", ProductionRestriction.LandedOnBody, productionResearchCategory, true, false, false),
-            new TieredResource("Shinies", "Bling-per-day", ProductionRestriction.LandedOnBody, shiniesResearchCategory, true, false, false),
-            new TieredResource("LocalParts", "Parts/Day", ProductionRestriction.LandedOnBody, rocketPartsResearchCategory, false, false, false),
-            new TieredResource("Stuff", null, ProductionRestriction.LandedOnBody, productionResearchCategory, false, false, false),
-            CrushInsResource,
-            scanningResource,
-            LodeResource,
-        };
+            get
+            {
+                ColonizationResearchScenario.LoadResourcesIfNeeded();
+                return ColonizationResearchScenario.resources["CrushIns"];
+            }
+        }
 
         public static TieredResource GetTieredResourceByName(string name)
         {
-            return AllTieredResources.First(tr => tr.BaseName == name);
+            ColonizationResearchScenario.LoadResourcesIfNeeded();
+            return resources[name];
         }
 
         public TieredResource TryGetTieredResourceByName(string name)
         {
-            return AllTieredResources.FirstOrDefault(tr => tr.BaseName == name);
+            ColonizationResearchScenario.LoadResourcesIfNeeded();
+            resources.TryGetValue(name, out var resource);
+            return resource;
         }
 
         public bool TryParseTieredResourceName(string tieredResourceName, out TieredResource resource, out TechTier tier)
@@ -104,7 +94,7 @@ namespace ProgressiveColonizationSystem
                 this.categoryToBodyToProgressMap.Add(source.ResearchCategory, bodyToProgressMap);
             }
 
-            string bodyName = source.ProductionRestriction == ProductionRestriction.Orbit ? "" : atBody;
+            string bodyName = source.ProductionRestriction == ProductionRestriction.Space ? "" : atBody;
             if (!bodyToProgressMap.TryGetValue(bodyName, out TechProgress progress))
             {
                 progress = new TechProgress() { ProgressInKerbalSeconds = 0, Tier = TechTier.Tier0 };
@@ -124,7 +114,17 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        public IEnumerable<TieredResource> AllResourcesTypes => AllTieredResources;
+        public IEnumerable<TieredResource> AllResourcesTypes
+        {
+            get
+            {
+                if (ColonizationResearchScenario.resources == null)
+                {
+                    ColonizationResearchScenario.LoadResourcesIfNeeded();
+                }
+                return ColonizationResearchScenario.resources.Values;
+            }
+        }
 
         public static double KerbalYearsToSeconds(double years) => KerbalDaysToSeconds(years * 426.0);
         public static double KerbalYearsToDays(double years) => years * 426.0;
@@ -139,7 +139,7 @@ namespace ProgressiveColonizationSystem
                 return TechTier.Tier0;
             }
 
-            string bodyName = forResource.ProductionRestriction == ProductionRestriction.Orbit ? "" : atBody;
+            string bodyName = forResource.ProductionRestriction == ProductionRestriction.Space ? "" : atBody;
             if (!bodyToProgressMap.TryGetValue(bodyName, out TechProgress progress))
             {
                 return TechTier.Tier0;
@@ -150,7 +150,8 @@ namespace ProgressiveColonizationSystem
 
         public TechTier GetMaxUnlockedScanningTier(string atBody)
         {
-            return this.GetMaxUnlockedTier(scanningResource, atBody);
+            ColonizationResearchScenario.LoadResourcesIfNeeded();
+            return this.GetMaxUnlockedTier(ColonizationResearchScenario.resources["Scanning"], atBody);
         }
 
         public void GetResearchProgress(TieredResource forResource, string atBody, out double accumulatedKerbalDays, out double requiredKerbalDays)
@@ -159,7 +160,7 @@ namespace ProgressiveColonizationSystem
             TechTier currentTier = TechTier.Tier0;
             if (this.categoryToBodyToProgressMap.TryGetValue(forResource.ResearchCategory, out Dictionary<string, TechProgress> bodyToProgressMap))
             {
-                string bodyName = forResource.ProductionRestriction == ProductionRestriction.Orbit ? "" : atBody;
+                string bodyName = forResource.ProductionRestriction == ProductionRestriction.Space ? "" : atBody;
                 if (bodyToProgressMap.TryGetValue(bodyName, out TechProgress progress))
                 {
                     currentTier = progress.Tier;
@@ -175,35 +176,50 @@ namespace ProgressiveColonizationSystem
         {
             base.OnLoad(node);
 
+            ColonizationResearchScenario.LoadResourcesIfNeeded();
             this.categoryToBodyToProgressMap = new Dictionary<ResearchCategory, Dictionary<string, TechProgress>>();
-            foreach (var pair in new KeyValuePair<string, ResearchCategory>[]
+            foreach (var category in ColonizationResearchScenario.researchCategories.Values)
             {
-                new KeyValuePair<string, ResearchCategory>("agriculture", farmingResearchCategory),
-                new KeyValuePair<string, ResearchCategory>("production", productionResearchCategory),
-                new KeyValuePair<string, ResearchCategory>("scanning", scanningResearchCategory),
-                new KeyValuePair<string, ResearchCategory>("shinies", shiniesResearchCategory),
-                new KeyValuePair<string, ResearchCategory>("construction", rocketPartsResearchCategory),
-            })
-            {
-                ConfigNode childNode = null;
-                if (node.TryGetNode(pair.Key, ref childNode) && TryCreateFromNode(childNode, out Dictionary<string, TechProgress> map))
+                if (category.Type == ProductionRestriction.Space)
                 {
-                    this.categoryToBodyToProgressMap.Add(pair.Value, map);
+                    ConfigNode hydroponicsNode = null;
+                    if (node.TryGetNode(category.Name, ref hydroponicsNode) && TryCreateFromNode(hydroponicsNode, out TechProgress hydroponicsProgress))
+                    {
+                        this.categoryToBodyToProgressMap.Add(
+                            category,
+                            new Dictionary<string, TechProgress>() { { "", hydroponicsProgress } });
+                    }
+                }
+                else
+                {
+                    ConfigNode childNode = null;
+                    if (node.TryGetNode(category.Name, ref childNode) && TryCreateFromNode(childNode, out Dictionary<string, TechProgress> map))
+                    {
+                        this.categoryToBodyToProgressMap.Add(category, map);
+                    }
                 }
             }
+        }
 
-            ConfigNode hydroponicsNode = null;
-
-            if (node.TryGetNode("hydroponics", ref hydroponicsNode) && TryCreateFromNode(hydroponicsNode, out TechProgress hydroponicsProgress))
+        private static void LoadResourcesIfNeeded()
+        {
+            if (ColonizationResearchScenario.researchCategories == null)
             {
-                this.categoryToBodyToProgressMap.Add(
-                    hydroponicResearchCategory,
-                    new Dictionary<string, TechProgress>() { { "", hydroponicsProgress } });
+                ConfigNode[] researchDefinitionConfigs = GameDatabase.Instance.GetConfigNodes("TIERED_RESEARCH_DEFINITION");
+                ColonizationResearchScenario.researchCategories =
+                    GameDatabase.Instance.GetConfigNodes("TIERED_RESEARCH_DEFINITION")
+                        .Select(n => new ResearchCategory(n))
+                        .ToDictionary(rc => rc.Name, rc => rc);
+                ColonizationResearchScenario.resources = TieredResource.LoadAll(ColonizationResearchScenario.researchCategories);
             }
         }
 
         public override void OnSave(ConfigNode node)
         {
+            base.OnSave(node);
+
+            ColonizationResearchScenario.LoadResourcesIfNeeded();
+
             // Update valid bodies if possible
             if (ProgressTracking.Instance != null && ProgressTracking.Instance.celestialBodyNodes != null)
             {
@@ -222,27 +238,19 @@ namespace ProgressiveColonizationSystem
                 this.unlockedBodies = validBodies.ToString();
             }
 
-            base.OnSave(node);
-
-            foreach (var pair in new KeyValuePair<string, ResearchCategory>[]
+            foreach (var category in ColonizationResearchScenario.researchCategories.Values)
             {
-                new KeyValuePair<string, ResearchCategory>("agriculture", farmingResearchCategory),
-                new KeyValuePair<string, ResearchCategory>("production", productionResearchCategory),
-                new KeyValuePair<string, ResearchCategory>("scanning", scanningResearchCategory),
-                new KeyValuePair<string, ResearchCategory>("shinies", shiniesResearchCategory),
-                new KeyValuePair<string, ResearchCategory>("construction", rocketPartsResearchCategory),
-            })
-            {
-                if (this.categoryToBodyToProgressMap.TryGetValue(pair.Value, out var stringToProgressMap))
+                if (category.Type == ProductionRestriction.Space
+                    && this.categoryToBodyToProgressMap.TryGetValue(category, out var progress)
+                    && progress.TryGetValue("", out TechProgress techProgress))
                 {
-                    node.AddNode(pair.Key, ToNode(stringToProgressMap));
+                    node.AddNode(category.Name, ToNode(techProgress));
                 }
-            }
-
-            if (this.categoryToBodyToProgressMap.TryGetValue(hydroponicResearchCategory, out var hydroponicProgress)
-             && hydroponicProgress.TryGetValue("", out TechProgress techProgress))
-            {
-                node.AddNode("hydroponics", ToNode(techProgress));
+                else if (category.Type != ProductionRestriction.Space
+                         && this.categoryToBodyToProgressMap.TryGetValue(category, out var stringToProgressMap))
+                {
+                    node.AddNode(category.Name, ToNode(stringToProgressMap));
+                }
             }
         }
 

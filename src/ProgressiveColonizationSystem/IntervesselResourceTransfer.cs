@@ -105,7 +105,7 @@ namespace ProgressiveColonizationSystem
         private bool IsResourceSatisfyingMiningRequirement(ResourceRatio resource)
         {
             if (!ColonizationResearchScenario.Instance.TryParseTieredResourceName(resource.ResourceName, out TieredResource tieredResource, out TechTier tier)
-             || tieredResource != ColonizationResearchScenario.CrushInsResource)
+             || tieredResource != ColonizationResearchScenario.Instance.CrushInsResource)
             {
                 return false;
             }

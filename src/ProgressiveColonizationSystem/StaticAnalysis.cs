@@ -17,7 +17,7 @@ namespace ProgressiveColonizationSystem
         internal static IEnumerable<WarningMessage> CheckBodyIsSet(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, Dictionary<string, double> amountAvailable, Dictionary<string, double> storageAvailable)
         {
             // Check for body parts
-            List<ITieredProducer> bodySpecific = producers.Where(c => c.Output.ProductionRestriction != ProductionRestriction.Orbit).ToList();
+            List<ITieredProducer> bodySpecific = producers.Where(c => c.Output.ProductionRestriction != ProductionRestriction.Space).ToList();
             var mostUsedBodyAndCount = bodySpecific
                 .Where(c => c.Body != null)
                 .GroupBy(c => c.Body)
@@ -29,7 +29,7 @@ namespace ProgressiveColonizationSystem
             int numNotSet = bodySpecific.Count(c => c.Body == null);
             Action fixIt = mostUsedBody == null ? (Action)null : () =>
             {
-                foreach (var producer in producers.Where(c => c.Output.ProductionRestriction != ProductionRestriction.Orbit))
+                foreach (var producer in producers.Where(c => c.Output.ProductionRestriction != ProductionRestriction.Space))
                 {
                     if (producer.Body != mostUsedBody)
                     {
@@ -61,10 +61,10 @@ namespace ProgressiveColonizationSystem
         internal static IEnumerable<WarningMessage> CheckTieredProduction(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, Dictionary<string, double> amountAvailable, Dictionary<string, double> storageAvailable)
         {
             TechTier minimumSensibleOrbitalTechTier = colonizationResearch.AllResourcesTypes
-                .Where(resource => resource.ProductionRestriction == ProductionRestriction.Orbit)
+                .Where(resource => resource.ProductionRestriction == ProductionRestriction.Space)
                 .Min(resource => colonizationResearch.GetMaxUnlockedTier(resource, null));
             var subTierOrbitalParts = producers
-                .Where(producer => producer.Output.ProductionRestriction == ProductionRestriction.Orbit)
+                .Where(producer => producer.Output.ProductionRestriction == ProductionRestriction.Space)
                 .Where(producer => producer.Tier < minimumSensibleOrbitalTechTier)
                 .ToArray();
             if (subTierOrbitalParts.Any())
@@ -84,7 +84,7 @@ namespace ProgressiveColonizationSystem
             }
 
             var mostUsedBodyAndCount = producers
-                .Where(c => c.Output.ProductionRestriction != ProductionRestriction.Orbit)
+                .Where(c => c.Output.ProductionRestriction != ProductionRestriction.Space)
                 .Where(c => c.Body != null)
                 .GroupBy(c => c.Body)
                 .Select(g => new { body = g.Key, count = g.Count() })
@@ -94,10 +94,10 @@ namespace ProgressiveColonizationSystem
             {
                 // Only do this test if we have a single body to speak to
                 TechTier minimumAtBodyTechTier = colonizationResearch.AllResourcesTypes
-                    .Where(resource => resource.ProductionRestriction != ProductionRestriction.Orbit)
+                    .Where(resource => resource.ProductionRestriction != ProductionRestriction.Space)
                     .Min(resource => colonizationResearch.GetMaxUnlockedTier(resource, mostUsedBodyAndCount[0].body));
                 var subTierPlanetaryParts = producers
-                    .Where(producer => producer.Output.ProductionRestriction != ProductionRestriction.Orbit)
+                    .Where(producer => producer.Output.ProductionRestriction != ProductionRestriction.Space)
                     .Where(producer => producer.Tier < minimumAtBodyTechTier)
                     .ToArray();
                 if (subTierPlanetaryParts.Any())

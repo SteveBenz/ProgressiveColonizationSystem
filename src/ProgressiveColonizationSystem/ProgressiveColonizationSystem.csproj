@@ -90,6 +90,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="ResearchLimit.cs" />
     <Compile Include="ResearchCategory.cs" />
     <Compile Include="ResearchSink.cs" />
     <Compile Include="ResourceLodeScenario.cs" />
@@ -204,6 +205,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="GameData\ProgressiveColonizationSystem\ProgressiveColonizationSystem.version">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GameData\ProgressiveColonizationSystem\TieredResources.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

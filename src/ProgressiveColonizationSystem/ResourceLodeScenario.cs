@@ -1,4 +1,5 @@
 ﻿using FinePrint;
+using ProgressiveColonizationSystem.ExperienceEffects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,7 +48,7 @@ namespace ProgressiveColonizationSystem
 
                 PopupMessageWithKerbal.ShowPopup(
                     "Lookie What I Found!",
-                    CrewBlurbs.ResourceLocated(scannerNetQuality),
+                    CrewBlurbs.CreateMessage("LOC_KPBS_SCANNER_FIND", new string[] { nameof(PksScanningSkill) }, tier),
                     "A waypoint has been created - you need to land a ship or drive a rover with a portable digger "
                     + "to within 150m of the waypoint, deploy the drill, fill your tanks with CrushIns, haul the "
                     + "load back to the base and unload it using the resource-transfer mechanism on the colony "

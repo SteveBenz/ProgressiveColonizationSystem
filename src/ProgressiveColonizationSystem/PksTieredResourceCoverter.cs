@@ -116,7 +116,7 @@ namespace ProgressiveColonizationSystem
                 return false;
             }
 
-            if (this.Output.ProductionRestriction == ProductionRestriction.Orbit
+            if (this.Output.ProductionRestriction == ProductionRestriction.Space
              && this.vessel.situation != Vessel.Situations.ORBITING
              && this.vessel.situation != Vessel.Situations.SUB_ORBITAL
              && this.vessel.situation != Vessel.Situations.ESCAPING)
@@ -381,7 +381,7 @@ namespace ProgressiveColonizationSystem
 
         private void initializeEventsAndFields()
         {
-            if (this.Output.ProductionRestriction == ProductionRestriction.Orbit)
+            if (this.Output.ProductionRestriction == ProductionRestriction.Space)
             {
                 Events["ChangeBody"].guiActive = false;
                 Events["ChangeBody"].guiActiveEditor = false;

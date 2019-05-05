@@ -13,7 +13,6 @@ namespace ProgressiveColonizationSystem
 
         public EdibleResource(
             string name,
-            ProductionRestriction productionRestriction,
             ResearchCategory researchCategory,
             bool canBeStored,
             bool unstoredExcessCanGoToResearch,
@@ -22,7 +21,7 @@ namespace ProgressiveColonizationSystem
             double maxPercentTier2,
             double maxPercentTier3,
             double maxPercentTier4)
-            : base(name, "Kerbal-Days", productionRestriction, researchCategory, canBeStored, unstoredExcessCanGoToResearch, isHarvestedLocally: false)
+            : base(name, "Kerbal-Days", researchCategory, canBeStored, unstoredExcessCanGoToResearch, isHarvestedLocally: false)
         {
             this.maxPercentTier0 = maxPercentTier0;
             this.maxPercentTier1 = maxPercentTier1;
