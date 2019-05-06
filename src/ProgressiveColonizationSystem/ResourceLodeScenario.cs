@@ -23,7 +23,7 @@ namespace ProgressiveColonizationSystem
         {
             // There's only allowed one resource load - you have to harvest it until it's gone
             // So find the thing first.
-            var lode = this.activeLodes.FirstOrDefault(rl => rl.bodyName == nearVessel.mainBody.name);
+            var lode = this.activeLodes.FirstOrDefault(rl => rl.bodyName == nearVessel.mainBody.name && rl.Tier == tier);
 
             if (lode != null)
             {
@@ -34,14 +34,14 @@ namespace ProgressiveColonizationSystem
                 }
                 else
                 {
-                    Waypoints.CreateWaypointAt("Loose Crushins", nearVessel.mainBody, lode.Latitude, lode.Longitude);
+                    Waypoints.CreateWaypointAt($"Loose Crushins ({tier.DisplayName()})", nearVessel.mainBody, lode.Latitude, lode.Longitude);
                     ScreenMessages.PostScreenMessage("A lode has already been identified - the waypoint was recreated");
                 }
             }
             else
             {
                 var waypoint = Waypoints.CreateWaypointNear(
-                    "Loose Crushins", nearVessel, 10000, 500000, 
+                    $"Loose Crushins ({tier.DisplayName()})", nearVessel, 10000, 500000, 
                     scannerNetQuality, nearVessel.situation == Vessel.Situations.SPLASHED);
                 lode = new ResourceLode(waypoint, tier);
                 activeLodes.Add(lode);

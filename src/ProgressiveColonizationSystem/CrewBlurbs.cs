@@ -175,7 +175,7 @@ namespace ProgressiveColonizationSystem
 
             int i = 0;
             List<string> possibleMessages = new List<string>();
-            while (Localizer.TryGetStringByTag(messageTagPrefix, out var indexedMessage))
+            while (Localizer.TryGetStringByTag($"#{messageTagPrefix}_{i}", out var indexedMessage))
             {
                 possibleMessages.Add(indexedMessage);
                 ++i;
