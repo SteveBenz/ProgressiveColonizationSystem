@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace ProgressiveColonizationSystem
@@ -16,7 +17,7 @@ namespace ProgressiveColonizationSystem
         private TieredResource(ConfigNode c, ResearchCategory researchCategory, TieredResource madeFrom, TechTier madeFromStartsAt)
         {
             this.BaseName = c.GetValue("name");
-            this.BaseName = c.GetValue("display_name");
+            this.DisplayName = c.GetValue("display_name");
             this.CapacityUnits = c.GetValue("capacity_units");
             bool canBeStored = false;
             c.TryGetValue("can_be_stored", ref canBeStored);
@@ -37,7 +38,7 @@ namespace ProgressiveColonizationSystem
 
         public static Dictionary<string, TieredResource> LoadAll(Dictionary<string, ResearchCategory> researchCategories)
         {
-            ConfigNode[] resourceCategoryNodes = GameDatabase.Instance.GetConfigNodes("TIERED_RESOURCE_CATEGORY");
+            ConfigNode[] resourceCategoryNodes = GameDatabase.Instance.GetConfigNodes("TIERED_RESOURCE_DEFINITION");
             Dictionary<string, TieredResource> result = new Dictionary<string, TieredResource>();
             while (result.Count != resourceCategoryNodes.Length)
             {
@@ -45,10 +46,15 @@ namespace ProgressiveColonizationSystem
                 for (int i = 0; i < resourceCategoryNodes.Length; ++i)
                 {
                     ConfigNode c = resourceCategoryNodes[i];
+                    if (c == null)
+                    {
+                        continue;
+                    }
+
                     string researchCategory = c.GetValue("research_category");
                     if (researchCategory == null || !researchCategories.TryGetValue(researchCategory, out ResearchCategory category))
                     {
-                        Debug.LogError($"TIERED_RESOURCE_CATEGORY.{c.GetValue("name")} misconfigured - missing or invalid research_category");
+                        Debug.LogError($"TIERED_RESOURCE_DEFINITION.{c.GetValue("name")} misconfigured - missing or invalid research_category");
                         resourceCategoryNodes[i] = null;
                         madeProgress = true;
                         continue;
@@ -81,8 +87,9 @@ namespace ProgressiveColonizationSystem
 
                 if (!madeProgress)
                 {
-                    Debug.LogError($"TIERED_RESOURCE_CATEGORY misconfigured - either a made_from or made_from_tier2 attribute is pointing to a non-existant node or there's a circularity.");
-                    break;
+                    throw new Exception($"Leftovers {string.Join("|", resourceCategoryNodes.Where(cn => cn != null).Select(cn => cn.GetValue("name")).ToArray())}");
+                    //Debug.LogError($"TIERED_RESOURCE_DEFINITION misconfigured - either a made_from or made_from_tier2 attribute is pointing to a non-existant node or there's a circularity.");
+                    //break;
                 }
             }
 

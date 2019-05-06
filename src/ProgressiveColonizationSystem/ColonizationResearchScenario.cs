@@ -16,7 +16,14 @@ namespace ProgressiveColonizationSystem
         private static Dictionary<string, ResearchCategory> researchCategories;
         private static Dictionary<string, TieredResource> resources;
 
-        public static TieredResource LodeResource = new TieredResource("LooseCrushIns", "", null, false, false, false);
+        public static TieredResource LodeResource
+        {
+            get
+            {
+                ColonizationResearchScenario.LoadResourcesIfNeeded();
+                return ColonizationResearchScenario.resources["LooseCrushIns"];
+            }
+        }
 
         public TieredResource CrushInsResource
         {
@@ -30,7 +37,11 @@ namespace ProgressiveColonizationSystem
         public static TieredResource GetTieredResourceByName(string name)
         {
             ColonizationResearchScenario.LoadResourcesIfNeeded();
-            return resources[name];
+            if (!resources.ContainsKey(name))
+            {
+                throw new Exception($"Key not found: {name}");
+            }
+            return ColonizationResearchScenario.resources[name];
         }
 
         public TieredResource TryGetTieredResourceByName(string name)
@@ -205,9 +216,8 @@ namespace ProgressiveColonizationSystem
         {
             if (ColonizationResearchScenario.researchCategories == null)
             {
-                ConfigNode[] researchDefinitionConfigs = GameDatabase.Instance.GetConfigNodes("TIERED_RESEARCH_DEFINITION");
                 ColonizationResearchScenario.researchCategories =
-                    GameDatabase.Instance.GetConfigNodes("TIERED_RESEARCH_DEFINITION")
+                    GameDatabase.Instance.GetConfigNodes("TIERED_RESEARCH_CATEGORY")
                         .Select(n => new ResearchCategory(n))
                         .ToDictionary(rc => rc.Name, rc => rc);
                 ColonizationResearchScenario.resources = TieredResource.LoadAll(ColonizationResearchScenario.researchCategories);

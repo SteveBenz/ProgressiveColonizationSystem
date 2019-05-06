@@ -497,18 +497,6 @@ namespace ProgressiveColonizationSystem
                 out IEnumerable<string> limitingResources,
                 out Dictionary<string, double> unusedProduction);
 
-            // Because of the way PksTieredCombiners work, we'll often end up with the non-tiered stuff
-            // showing up as a rate-limiter.  While it's technically correct, it's not going to be a thing
-            // that the player will want to know about.
-            var localParts = ColonizationResearchScenario.Instance.TryGetTieredResourceByName("LocalParts");
-            if (localParts != null)
-            {
-                foreach (TechTier t in Enum.GetValues(typeof(TechTier)))
-                {
-                    unusedProduction.Remove(localParts.TieredName(t));
-                }
-            }
-
             if (timePassed == 0)
             {
                 var introMessageBuilder = new StringBuilder();
@@ -614,6 +602,18 @@ namespace ProgressiveColonizationSystem
                 else
                 {
                     productionMessage = null;
+                }
+
+                // Because of the way PksTieredCombiners work, we'll often end up with the non-tiered stuff
+                // showing up as a rate-limiter.  While it's technically correct, it's not going to be a thing
+                // that the player will want to know about.
+                var localParts = ColonizationResearchScenario.Instance.TryGetTieredResourceByName("LocalParts");
+                if (localParts != null)
+                {
+                    foreach (TechTier t in Enum.GetValues(typeof(TechTier)))
+                    {
+                        unusedProduction.Remove(localParts.TieredName(t));
+                    }
                 }
 
                 unusedCapacityMessage = unusedProduction.Any()
