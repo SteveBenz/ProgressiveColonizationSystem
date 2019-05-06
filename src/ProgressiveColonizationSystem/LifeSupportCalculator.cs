@@ -87,7 +87,7 @@ namespace ProgressiveColonizationSystem
                 .Select(p => p.FindModuleImplementing<ITieredProducer>())
                 .Where(p => p != null).ToList();
 
-            if (!producers.Any(p => p.Output.IsSnacks && p.Tier == TechTier.Tier4)
+            if (!producers.Any(p => p.Output.IsEdible && p.Tier == TechTier.Tier4 && p.Output.GetPercentOfDietByTier(TechTier.Tier4) == 1)
                 && !parts.Any(p => p.Resources.Any(r => r.resourceName == "Snacks-Tier4" && r.amount > 0)))
             {
                 return new DialogGUILabel("There is no source of top-tier Snacks on this vessel - only well-fed and happy Kerbals will produce things");

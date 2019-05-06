@@ -14,6 +14,8 @@ namespace ProgressiveColonizationSystem
 
     public class TieredResource
     {
+        private double[] effectiveNessAtTier = null;
+
         private TieredResource(ConfigNode c, ResearchCategory researchCategory, TieredResource madeFrom, TechTier madeFromStartsAt)
         {
             this.BaseName = c.GetValue("name");
@@ -34,6 +36,25 @@ namespace ProgressiveColonizationSystem
             this.CrewSkill = c.GetValue("crew_skill");
 
             this.ResearchCategory = researchCategory;
+
+            // If it's edible, it'll have these set
+            bool allSet = true;
+            double[] effectiveness = new double[1+(int)TechTier.Tier4];
+            for (TechTier tech = TechTier.Tier0; tech <= TechTier.Tier4; ++tech )
+            {
+                string name = $"effectiveness_at_tier{(int)tech}";
+                if (!c.TryGetValue(name, ref effectiveness[(int)tech]) || effectiveness[(int)tech] > 1 || effectiveness[(int)tech] < 0)
+                {
+                    allSet = false;
+                    break;
+                }
+            }
+
+            if (allSet)
+            {
+                this.effectiveNessAtTier = effectiveness;
+            }
+            // effectiveness_at_tier0
         }
 
         public static Dictionary<string, TieredResource> LoadAll(Dictionary<string, ResearchCategory> researchCategories)
@@ -106,6 +127,23 @@ namespace ProgressiveColonizationSystem
             this.IsHarvestedLocally = isHarvestedLocally;
         }
 
+        public TieredResource(string name, string capacityUnits, ResearchCategory researchCategory, bool canBeStored, bool unstoredExcessCanGoToResearch, bool isHarvestedLocally
+            , double effT0, double effT1, double effT2, double effT3, double effT4)
+        {
+            this.BaseName = name;
+            this.CapacityUnits = capacityUnits;
+            this.CanBeStored = canBeStored;
+            this.ExcessProductionCountsTowardsResearch = unstoredExcessCanGoToResearch;
+            this.ResearchCategory = researchCategory;
+            this.IsHarvestedLocally = isHarvestedLocally;
+            this.effectiveNessAtTier = new double[5];
+            this.effectiveNessAtTier[0] = effT0;
+            this.effectiveNessAtTier[1] = effT1;
+            this.effectiveNessAtTier[2] = effT2;
+            this.effectiveNessAtTier[3] = effT3;
+            this.effectiveNessAtTier[4] = effT4;
+        }
+
         public ProductionRestriction ProductionRestriction => this.ResearchCategory.Type;
 
         public ResearchCategory ResearchCategory { get; }
@@ -136,6 +174,9 @@ namespace ProgressiveColonizationSystem
 
         public bool IsHarvestedLocally { get; }
 
-        public bool IsSnacks => BaseName == "Snacks"; // TODO: Is there a nicer way to do this?
+        public bool IsEdible => effectiveNessAtTier != null;
+
+        public double GetPercentOfDietByTier(TechTier tier)
+            => this.effectiveNessAtTier[(int)tier];
     }
 }

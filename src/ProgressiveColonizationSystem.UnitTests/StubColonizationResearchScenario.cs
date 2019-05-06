@@ -39,8 +39,8 @@ namespace ProgressiveColonizationSystem.UnitTests
         public static ResearchCategory shiniesResearchCategory = new ResearchCategory("shinies", ProductionRestriction.LandedOnBody);
         public static ResearchCategory rocketPartsResearchCategory = new ResearchCategory("construction", ProductionRestriction.LandedOnBody);
 
-        public static EdibleResource HydroponicSnacks = new EdibleResource("HydroponicSnacks", hydroponicResearchCategory, false, false, .2, .4, .55, .7, .95);
-        public static EdibleResource Snacks = new EdibleResource("Snacks", farmingResearchCategory, true, false, .6, .85, .95, .98, 1.0);
+        public static TieredResource HydroponicSnacks = new TieredResource("HydroponicSnacks", "kerbal-days", hydroponicResearchCategory, false, false, false, .2, .4, .55, .7, .95);
+        public static TieredResource Snacks = new TieredResource("Snacks", "kerbal-days", farmingResearchCategory, true, false, false, .6, .85, .95, .98, 1.0);
         public static TieredResource Fertilizer = new TieredResource("Fertilizer", "Kerbal-Days", productionResearchCategory, true, false, false);
         public static TieredResource Stuff = new TieredResource("Stuff", null, productionResearchCategory, false, false, true);
         public static TieredResource CrushIns = new TieredResource("CrushIns", null, productionResearchCategory, false, false, true);

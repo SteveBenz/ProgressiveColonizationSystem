@@ -367,12 +367,12 @@ namespace ProgressiveColonizationSystem
                 info.AppendLine($"{Green("Output:")} {this.Output.BaseName}");
             }
 
-            if (this.Output is EdibleResource edible)
+            if (this.Output.IsEdible)
             {
                 info.AppendLine($"{Green("Quality:")}");
                 foreach (TechTier tier in TechTierExtensions.AllTiers)
                 {
-                    info.AppendLine($" {tier.ToString()}: {(int)(edible.GetPercentOfDietByTier(tier) * 100)}%");
+                    info.AppendLine($" {tier.ToString()}: {(int)(this.Output.GetPercentOfDietByTier(tier) * 100)}%");
                 }
             }
 

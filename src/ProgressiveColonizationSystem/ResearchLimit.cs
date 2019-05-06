@@ -11,10 +11,10 @@ namespace ProgressiveColonizationSystem
         private readonly HashSet<string> bodies;
         private bool maxTierLimit;
 
-        private static double awayFromHomeMinDistanceFromSun;
-        private static double awayFromHomeMaxDistanceFromSun;
-        private static double farAwayFromHomeMinDistanceFromSun;
-        private static double farAwayFromHomeMaxDistanceFromSun;
+        private static double awayFromHomeMinDistanceFromSun = -1;
+        private static double awayFromHomeMaxDistanceFromSun = -1;
+        private static double farAwayFromHomeMinDistanceFromSun = -1;
+        private static double farAwayFromHomeMaxDistanceFromSun = -1;
 
         public static ResearchLimit MaxTierLimit = new ResearchLimit(null) { maxTierLimit = true };
 

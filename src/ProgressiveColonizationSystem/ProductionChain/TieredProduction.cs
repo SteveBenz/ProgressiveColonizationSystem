@@ -236,16 +236,16 @@ namespace ProgressiveColonizationSystem.ProductionChain
         private static List<FoodProducer> GetFoodProducers(List<ProducerData> producers)
             => producers
                .Where(producer => !(producer.SourceTemplate is StorageProducer))
-               .Where(producer => producer.SourceTemplate.Output is EdibleResource)
-               .Select(producer => new FoodProducer { ProductionChain = producer, MaxDietRatio = ((EdibleResource)(producer.SourceTemplate.Output)).GetPercentOfDietByTier(producer.SourceTemplate.Tier) })
+               .Where(producer => producer.SourceTemplate.Output.IsEdible)
+               .Select(producer => new FoodProducer { ProductionChain = producer, MaxDietRatio = producer.SourceTemplate.Output.GetPercentOfDietByTier(producer.SourceTemplate.Tier) })
                .OrderBy(p => p.MaxDietRatio)
                .ToList();
 
         private static List<FoodProducer> GetFoodStorage(List<ProducerData> producers)
             => producers
                .Where(producer => producer.SourceTemplate is StorageProducer)
-               .Where(producer => producer.SourceTemplate.Output is EdibleResource)
-               .Select(producer => new FoodProducer { ProductionChain = producer, MaxDietRatio = ((EdibleResource)(producer.SourceTemplate.Output)).GetPercentOfDietByTier(producer.SourceTemplate.Tier) })
+               .Where(producer => producer.SourceTemplate.Output.IsEdible)
+               .Select(producer => new FoodProducer { ProductionChain = producer, MaxDietRatio = producer.SourceTemplate.Output.GetPercentOfDietByTier(producer.SourceTemplate.Tier) })
                .OrderBy(p => p.MaxDietRatio)
                .ToList();
 
@@ -336,8 +336,8 @@ namespace ProgressiveColonizationSystem.ProductionChain
                         // we're stockpiling both snacks and fertilizer.  This choice means that if we've only
                         // got a little bit of excess fertilizer capacity, it'll go towards making extra snacks
                         // rather than stacking up the fertilizer.
-                        bool leftIsSnacks = left.SourceTemplate.Output is EdibleResource;
-                        bool rightIsSnacks = right.SourceTemplate.Output is EdibleResource;
+                        bool leftIsSnacks = left.SourceTemplate.Output.IsEdible;
+                        bool rightIsSnacks = right.SourceTemplate.Output.IsEdible;
                         if (leftIsSnacks && rightIsSnacks)
                         {
                             return 0;

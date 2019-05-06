@@ -97,7 +97,6 @@
     <Compile Include="StaticAnalysis.cs" />
     <Compile Include="TextEffects.cs" />
     <Compile Include="TieredResource.cs" />
-    <Compile Include="EdibleResource.cs" />
     <Compile Include="ITieredProducer.cs" />
     <Compile Include="LifeSupportStatusMonitor.cs" />
     <Compile Include="AssemblyVersion.cs">
