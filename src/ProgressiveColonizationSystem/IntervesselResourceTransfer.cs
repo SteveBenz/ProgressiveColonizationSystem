@@ -297,14 +297,14 @@ namespace ProgressiveColonizationSystem
              && ( thisShipsProducts.Contains("Snacks-Tier4")   // Always send if we produce it
                || snackDirectionBasedOnVesselType == SnacksDirection.Send))
             {
-                toSend.Add("Snacks-Tier4", Math.Min(thisShipCanSupply["Snacks-Tier4"], otherShipCanStore["Snacks-Tier4"]));
+                toSend["Snacks-Tier4"] = Math.Min(thisShipCanSupply["Snacks-Tier4"], otherShipCanStore["Snacks-Tier4"]);
             }
             else if (otherShipCanSupply.ContainsKey("Snacks-Tier4")
              && thisShipCanStore.ContainsKey("Snacks-Tier4")
              && (otherShipsProducts.Contains("Snacks-Tier4")   // Always take if the other guy produces it
                || snackDirectionBasedOnVesselType == SnacksDirection.Receive))
             {
-                toReceive.Add("Snacks-Tier4", Math.Min(thisShipCanStore["Snacks-Tier4"], otherShipCanSupply["Snacks-Tier4"]));
+                toReceive["Snacks-Tier4"] = Math.Min(thisShipCanStore["Snacks-Tier4"], otherShipCanSupply["Snacks-Tier4"]);
             }
 
             return toReceive.Any() || toSend.Any();
