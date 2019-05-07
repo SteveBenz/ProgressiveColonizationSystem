@@ -21,6 +21,11 @@ namespace ProgressiveColonizationSystem
         : PartModule
     {
         /// <summary>
+        ///  The number below which it's safe to say the user doesn't know how to create a scanner network.
+        /// </summary>
+        public const double BadScannerNetQualityThreshold = 1.0;
+
+        /// <summary>
         ///   The minimum tier where grabbing crushins is required.  See also <see cref="PksTieredResourceConverter.inputRequirementStartingTier"/>
         ///   which is set for drills
         /// </summary>

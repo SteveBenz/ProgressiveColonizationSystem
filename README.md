@@ -29,12 +29,14 @@ for the full story.
    17. Revisit the SPH production dialog
    18. Didn't get warning for not being maxtier on Minmus T4 -- perhaps because maxtier is 4?
    19. Find a way to automatically set body & tier
+   20. Can bring CrushIns from Kerbin or other bodies and fake out the resource auto-collection mechanic.  It should be happy
+       to take the crushins, but disallow it as an auto-collector.
 2. Rounding things out
    1.  Write PDF help and or create a github wiki
    2.  (done) Make a K&K drill (Reuse "K&K Metal Ore Drill")
    3.  (in test) Make a "K&K Storage [KIS]" that works with B9 -- need to figure out how to do the decals and push it to K&K
    4.  (done) De-fugly the part tweakable displays
-   5.  Automate release preparation
+   5.  Fully automate release preparation
    6.  Create or hijack a part for storing Snacks - just snacks
    7.  Rearrange the parts VAB tabs so there's not a pile of random in "Life Support"
    8.  Get a better scanner part
@@ -42,6 +44,7 @@ for the full story.
          Maybe we should use the existance of the simple
    10. Make the shinies boost your rep on landing - remember to add checks to make sure Shinies don't actually come from Kerbin
    11. Add .version to output per guidance: https://github.com/KSP-CKAN/NetKAN/pull/7147
+       ^-- added the version file, but CKAN doesn't know about it yet.  Fix it at the next version update.
 3. Things that don't seem worth doing
    1.  Integrate with Kerbal Alarm Clock?
    2.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
