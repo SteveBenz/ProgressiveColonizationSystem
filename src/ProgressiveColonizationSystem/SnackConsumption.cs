@@ -228,25 +228,24 @@ namespace ProgressiveColonizationSystem
                     ConversionRecipe consumptionRecipe = new ConversionRecipe();
                     if (resourceConsumptionPerSecond != null)
                     {
-                        // ISSUE 2019/2: This isn't really ideal, since finding nearby lodes is not a cheap operation
-                        //   and it gets done twice.  But perhaps it's all mute because the whole resource chain calculation
-                        //   is expensive as well and perhaps there's a way to compute it less than once a frame.
-                        if (ResourceLodeScenario.Instance.TryFindResourceLodeInRange(vessel, out var resourceLode)
-                         && resourceConsumptionPerSecond.TryGetValue(ColonizationResearchScenario.LodeResource.TieredName(resourceLode.Tier), out double lodeConsumptionPerSecond))
+                        foreach (var pair in resourceConsumptionPerSecond)
                         {
-                            ResourceLodeScenario.Instance.TryConsume(resourceLode, lodeConsumptionPerSecond * elapsedTime, out _);
-                        }
-                        else
-                        {
-                            consumptionRecipe.Inputs.AddRange(resourceConsumptionPerSecond
-                                .Where(pair => !resourceIsAutosupplied(pair.Key))
-                                .Select(pair => new ResourceRatio()
+                            ColonizationResearchScenario.Instance.TryParseTieredResourceName(pair.Key, out var consumedResource, out var consumedResourceTier);
+                            if (consumedResource == ColonizationResearchScenario.LodeResource &&
+                                ResourceLodeScenario.Instance.TryFindResourceLodeInRange(vessel, consumedResourceTier, out var resourceLode))
+                            {
+                                ResourceLodeScenario.Instance.TryConsume(resourceLode, pair.Value * elapsedTime, out _);
+                            }
+                            else if (!ResourceIsAutosupplied(pair.Key))
+                            {
+                                consumptionRecipe.Inputs.Add(new ResourceRatio()
                                 {
                                     ResourceName = pair.Key,
                                     Ratio = pair.Value,
                                     DumpExcess = false,
                                     FlowMode = ResourceFlowMode.ALL_VESSEL
-                                }));
+                                });
+                            }
                         }
                     }
                     if (resourceProductionPerSecond != null)
@@ -304,7 +303,7 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        private bool resourceIsAutosupplied(string tieredResourceName)
+        private bool ResourceIsAutosupplied(string tieredResourceName)
         {
             if (this.IsMiningLanderPresent)
             {
@@ -349,7 +348,7 @@ namespace ProgressiveColonizationSystem
             }
 
             // Add a magic container that has whatever stuff the planet has
-            if (ResourceLodeScenario.Instance.TryFindResourceLodeInRange(vessel, out var resourceLode))
+            foreach (var resourceLode in ResourceLodeScenario.Instance.FindResourceLodesInRange(vessel))
             {
                 availableResources.Add(ColonizationResearchScenario.LodeResource.TieredName(resourceLode.Tier), resourceLode.Quantity);
             }

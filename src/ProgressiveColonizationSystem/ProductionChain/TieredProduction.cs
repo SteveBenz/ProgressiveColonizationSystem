@@ -418,6 +418,6 @@ namespace ProgressiveColonizationSystem.ProductionChain
         }
 
         private static IEnumerable<string> SquishLimitMap(Dictionary<string,string> map)
-            => map.Values.Except(map.Keys);
+            => map.Values.Except(map.Keys).Distinct();
     }
 }

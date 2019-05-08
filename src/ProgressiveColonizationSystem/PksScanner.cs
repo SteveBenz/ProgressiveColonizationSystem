@@ -117,7 +117,8 @@ namespace ProgressiveColonizationSystem
 
         private double ScannerNetQuality()
         {
-            var scansats = FlightGlobals.Vessels.Where(v => v.mainBody == this.vessel.mainBody && v.GetCrewCapacity() == 0);
+            var scansats = FlightGlobals.Vessels.Where(v => v.mainBody == this.vessel.mainBody && v.GetCrewCapacity() == 0 && v.situation == Vessel.Situations.ORBITING);
+            scansats = scansats.ToArray();
             return scansats.Sum(v => (v.orbit.inclination > 80.0 && v.orbit.inclination  < 100.0) ? 1 : .3);
         }
     }

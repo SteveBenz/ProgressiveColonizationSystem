@@ -168,6 +168,11 @@ namespace ProgressiveColonizationSystem
 
         private static string GetMessage(string messageTagPrefix)
         {
+            if (!messageTagPrefix.StartsWith("#"))
+            {
+                messageTagPrefix = "#" + messageTagPrefix;
+            }
+
             if (Localizer.TryGetStringByTag(messageTagPrefix, out var exactMessage))
             {
                 return exactMessage;
@@ -175,7 +180,7 @@ namespace ProgressiveColonizationSystem
 
             int i = 0;
             List<string> possibleMessages = new List<string>();
-            while (Localizer.TryGetStringByTag($"#{messageTagPrefix}_{i}", out var indexedMessage))
+            while (Localizer.TryGetStringByTag($"{messageTagPrefix}_{i}", out var indexedMessage))
             {
                 possibleMessages.Add(indexedMessage);
                 ++i;

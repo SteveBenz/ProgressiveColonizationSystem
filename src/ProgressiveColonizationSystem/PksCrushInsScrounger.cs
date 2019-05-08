@@ -20,7 +20,7 @@ namespace ProgressiveColonizationSystem
                 return false;
             }
 
-            if (!ResourceLodeScenario.Instance.TryFindResourceLodeInRange(this.vessel, out _))
+            if (!ResourceLodeScenario.Instance.TryFindResourceLodeInRange(this.vessel, this.Tier, out _))
             {
                 if (this.isEnabled)
                 {
