@@ -47,7 +47,7 @@ namespace ProgressiveColonizationSystem
             n.TryGetValue("kerbal_years_to_tier4", ref this.kerbalYearsToTier4);
 
             this.researchLimits = new ResearchLimit[1 + (int)TechTier.Tier4];
-            for (TechTier tier = TechTier.Tier1; tier < TechTier.Tier4; ++tier)
+            for (TechTier tier = TechTier.Tier0; tier < TechTier.Tier4; ++tier)
             {
                 this.researchLimits[(int)tier] = new ResearchLimit(n.GetValue($"tier{(int)tier}_limit"));
             }
