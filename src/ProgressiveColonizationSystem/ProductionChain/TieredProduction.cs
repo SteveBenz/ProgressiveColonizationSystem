@@ -365,13 +365,14 @@ namespace ProgressiveColonizationSystem.ProductionChain
             Dictionary<string,double> unusedProduction)
         {
             List<ProducerData> producersWithNoSupply = new List<ProducerData>();
-            foreach (ProducerData producer in producers)
+            foreach (ProducerData producer in producers.Where(p => !(p.SourceTemplate is StorageProducer)))
             {
-                if (producer.SourceTemplate.Input != null)
+                var input = producer.SourceTemplate.Input;
+                if (input != null)
                 {
                     producer.Suppliers = producers
                         // We can use anything that produces our kind of thing at our tier and up
-                        .Where(potentialSupplier => potentialSupplier.SourceTemplate.Output == producer.SourceTemplate.Input
+                        .Where(potentialSupplier => potentialSupplier.SourceTemplate.Output == input
                                                  && potentialSupplier.SourceTemplate.Tier >= producer.SourceTemplate.Tier)
                         .ToList();
 

@@ -72,15 +72,6 @@ namespace ProgressiveColonizationSystem
         [KSPField]
         public string output;
 
-        /// <summary>
-        ///   The name of the input resource (as a Tier4 resource)
-        /// </summary>
-        [KSPField]
-        public string input;
-
-        [KSPField]
-        public int inputRequirementStartingTier;
-
         [KSPField]
         public float capacity;
 
@@ -324,20 +315,7 @@ namespace ProgressiveColonizationSystem
         public virtual bool ContributeResearch(IColonizationResearchScenario target, double amount)
             => target.ContributeResearch(this.Output, this.body, amount);
 
-        private TieredResource inputAsTieredResource;
         private TieredResource outputAsTieredResource;
-
-        public TieredResource Input
-        {
-            get
-            {
-                if (this.inputAsTieredResource == null && !string.IsNullOrEmpty(this.input) && this.tier >= inputRequirementStartingTier)
-                {
-                    this.inputAsTieredResource = ColonizationResearchScenario.GetTieredResourceByName(this.input);
-                }
-                return this.inputAsTieredResource;
-            }
-        }
 
         public TieredResource Output
         {
@@ -351,13 +329,16 @@ namespace ProgressiveColonizationSystem
             }
         }
 
+        public TieredResource Input => this.Output.MadeFrom(this.Tier);
+
         public override string GetInfo()
         {
             StringBuilder info = new StringBuilder();
 
-            if (this.Input != null)
+            var madeFrom = this.Input;
+            if (madeFrom != null)
             {
-                info.AppendLine($"{Green("Input:")} {this.Input.BaseName}");
+                info.AppendLine($"{Green("Input:")} {madeFrom.BaseName}");
             }
 
             info.AppendLine($"{Green("Capacity:")} {this.capacity} {this.Output.CapacityUnits}");

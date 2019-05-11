@@ -21,9 +21,6 @@ namespace ProgressiveColonizationSystem
 
         TieredResource Output { get; }
 
-        /// <summary>
-        ///   If this producer needs something to make what it's making, this is set to what it needs.
-        /// </summary>
         TieredResource Input { get; }
 
         string Body { get; set; }

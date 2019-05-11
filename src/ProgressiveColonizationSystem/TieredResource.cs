@@ -14,7 +14,9 @@ namespace ProgressiveColonizationSystem
 
     public class TieredResource
     {
-        private double[] effectiveNessAtTier = null;
+        private double[] effectivenessAtTier;
+        private TieredResource madeFrom;
+        private TechTier madeFromStartsAt;
 
         private TieredResource(ConfigNode c, ResearchCategory researchCategory, TieredResource madeFrom, TechTier madeFromStartsAt)
         {
@@ -50,11 +52,9 @@ namespace ProgressiveColonizationSystem
                 }
             }
 
-            if (allSet)
-            {
-                this.effectiveNessAtTier = effectiveness;
-            }
-            // effectiveness_at_tier0
+            this.effectivenessAtTier = allSet ? effectiveness : null;
+            this.madeFrom = madeFrom;
+            this.madeFromStartsAt = madeFromStartsAt;
         }
 
         public static Dictionary<string, TieredResource> LoadAll(Dictionary<string, ResearchCategory> researchCategories)
@@ -117,7 +117,15 @@ namespace ProgressiveColonizationSystem
             return result;
         }
 
-        public TieredResource(string name, string capacityUnits, ResearchCategory researchCategory, bool canBeStored, bool unstoredExcessCanGoToResearch, bool isHarvestedLocally)
+        public TieredResource(
+            string name,
+            string capacityUnits,
+            ResearchCategory researchCategory,
+            bool canBeStored,
+            bool unstoredExcessCanGoToResearch,
+            bool isHarvestedLocally,
+            TieredResource madeFrom,
+            TechTier madeFromStartsAt)
         {
             this.BaseName = name;
             this.CapacityUnits = capacityUnits;
@@ -125,10 +133,20 @@ namespace ProgressiveColonizationSystem
             this.ExcessProductionCountsTowardsResearch = unstoredExcessCanGoToResearch;
             this.ResearchCategory = researchCategory;
             this.IsHarvestedLocally = isHarvestedLocally;
+            this.madeFrom = madeFrom;
+            this.madeFromStartsAt = madeFromStartsAt;
         }
 
-        public TieredResource(string name, string capacityUnits, ResearchCategory researchCategory, bool canBeStored, bool unstoredExcessCanGoToResearch, bool isHarvestedLocally
-            , double effT0, double effT1, double effT2, double effT3, double effT4)
+        public TieredResource(
+            string name,
+            string capacityUnits,
+            ResearchCategory researchCategory,
+            bool canBeStored,
+            bool unstoredExcessCanGoToResearch,
+            bool isHarvestedLocally,
+            TieredResource madeFrom,
+            TechTier madeFromStartsAt,
+            double effT0, double effT1, double effT2, double effT3, double effT4)
         {
             this.BaseName = name;
             this.CapacityUnits = capacityUnits;
@@ -136,12 +154,14 @@ namespace ProgressiveColonizationSystem
             this.ExcessProductionCountsTowardsResearch = unstoredExcessCanGoToResearch;
             this.ResearchCategory = researchCategory;
             this.IsHarvestedLocally = isHarvestedLocally;
-            this.effectiveNessAtTier = new double[5];
-            this.effectiveNessAtTier[0] = effT0;
-            this.effectiveNessAtTier[1] = effT1;
-            this.effectiveNessAtTier[2] = effT2;
-            this.effectiveNessAtTier[3] = effT3;
-            this.effectiveNessAtTier[4] = effT4;
+            this.madeFrom = madeFrom;
+            this.madeFromStartsAt = madeFromStartsAt;
+            this.effectivenessAtTier = new double[5];
+            this.effectivenessAtTier[0] = effT0;
+            this.effectivenessAtTier[1] = effT1;
+            this.effectivenessAtTier[2] = effT2;
+            this.effectivenessAtTier[3] = effT3;
+            this.effectivenessAtTier[4] = effT4;
         }
 
         public ProductionRestriction ProductionRestriction => this.ResearchCategory.Type;
@@ -155,6 +175,9 @@ namespace ProgressiveColonizationSystem
         public string DisplayName { get; }
 
         public string CrewSkill { get; }
+
+        public TieredResource MadeFrom(TechTier tier)
+            => tier >= this.madeFromStartsAt ? this.madeFrom : null;
 
         /// <summary>
         ///    Gets the name of the resource as it is in the game configuration
@@ -174,9 +197,9 @@ namespace ProgressiveColonizationSystem
 
         public bool IsHarvestedLocally { get; }
 
-        public bool IsEdible => effectiveNessAtTier != null;
+        public bool IsEdible => effectivenessAtTier != null;
 
         public double GetPercentOfDietByTier(TechTier tier)
-            => this.effectiveNessAtTier[(int)tier];
+            => this.effectivenessAtTier[(int)tier];
     }
 }

@@ -39,24 +39,37 @@ namespace ProgressiveColonizationSystem.UnitTests
         public static ResearchCategory shiniesResearchCategory = new ResearchCategory("shinies", ProductionRestriction.LandedOnBody);
         public static ResearchCategory rocketPartsResearchCategory = new ResearchCategory("construction", ProductionRestriction.LandedOnBody);
 
-        public static TieredResource HydroponicSnacks = new TieredResource("HydroponicSnacks", "kerbal-days", hydroponicResearchCategory, false, false, false, .2, .4, .55, .7, .95);
-        public static TieredResource Snacks = new TieredResource("Snacks", "kerbal-days", farmingResearchCategory, true, false, false, .6, .85, .95, .98, 1.0);
-        public static TieredResource Fertilizer = new TieredResource("Fertilizer", "Kerbal-Days", productionResearchCategory, true, false, false);
-        public static TieredResource Stuff = new TieredResource("Stuff", null, productionResearchCategory, false, false, true);
-        public static TieredResource CrushIns = new TieredResource("CrushIns", null, productionResearchCategory, false, false, true);
-        public static TieredResource Scanning = new TieredResource("ScanningData", "Kerbal-Days", scanningResearchCategory, false, false, true);
-        public static TieredResource Shinies = new TieredResource("Shinies", "Bling-per-day", shiniesResearchCategory, true, false, false);
-        public static TieredResource LocalParts = new TieredResource("LocalParts", "Parts", rocketPartsResearchCategory, false, false, false);
+        public static TieredResource Stuff;
+        public static TieredResource HydroponicSnacks;
+        public static TieredResource Snacks;
+        public static TieredResource Fertilizer;
+        public static TieredResource CrushIns;
+        public static TieredResource Scanning;
+        public static TieredResource Shinies;
+        public static TieredResource LocalParts;
 
-        private static TieredResource[] AllTieredResources =
+        static StubColonizationResearchScenario()
         {
-            HydroponicSnacks,
-            Snacks,
-            Fertilizer,
-            Shinies,
-            Stuff,
-            Scanning
-        };
+            Stuff = new TieredResource("Stuff", null, productionResearchCategory, false, false, true, null, TechTier.Tier0);
+            Fertilizer = new TieredResource("Fertilizer", "Kerbal-Days", productionResearchCategory, true, false, false, null, TechTier.Tier0);
+            HydroponicSnacks = new TieredResource("HydroponicSnacks", "kerbal-days", hydroponicResearchCategory, false, false, false, Fertilizer, TechTier.Tier0, .2, .4, .55, .7, .95);
+            Snacks = new TieredResource("Snacks", "kerbal-days", farmingResearchCategory, true, false, false, Fertilizer, TechTier.Tier0, .6, .85, .95, .98, 1.0);
+            CrushIns = new TieredResource("CrushIns", null, productionResearchCategory, false, false, true, null, TechTier.Tier0);
+            Scanning = new TieredResource("ScanningData", "Kerbal-Days", scanningResearchCategory, false, false, true, null, TechTier.Tier0);
+            Shinies = new TieredResource("Shinies", "Bling-per-day", shiniesResearchCategory, true, false, false, null, TechTier.Tier0);
+            LocalParts = new TieredResource("LocalParts", "Parts", rocketPartsResearchCategory, false, false, false, Stuff, TechTier.Tier0);
+            AllTieredResources = new TieredResource[]
+            {
+                HydroponicSnacks,
+                Snacks,
+                Fertilizer,
+                Shinies,
+                Stuff,
+                Scanning
+            };
+        }
+
+        private static TieredResource[] AllTieredResources;
 
         public static TieredResource GetTieredResourceByName(string name)
         {

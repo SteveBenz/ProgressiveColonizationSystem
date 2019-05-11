@@ -144,8 +144,9 @@ namespace ProgressiveColonizationSystem
                 }
 
                 // Supplier parts should be at least maxTier
-                TieredResource input = parts.First().Input;
-                if (input == null && output.IsHarvestedLocally && targetBody != null)
+                var firstPart = parts.First();
+                TieredResource input = firstPart.Input;
+                if (parts.First().Input == null && output.IsHarvestedLocally && targetBody != null)
                 {
                     // then it depends on scanning
                     TechTier maxScanningTier = colonizationResearch.GetMaxUnlockedScanningTier(targetBody);
