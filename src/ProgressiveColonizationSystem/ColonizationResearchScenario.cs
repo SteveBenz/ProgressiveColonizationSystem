@@ -162,7 +162,7 @@ namespace ProgressiveColonizationSystem
         public TechTier GetMaxUnlockedScanningTier(string atBody)
         {
             ColonizationResearchScenario.LoadResourcesIfNeeded();
-            return this.GetMaxUnlockedTier(ColonizationResearchScenario.resources["Scanning"], atBody);
+            return this.GetMaxUnlockedTier(ColonizationResearchScenario.resources["ScanningData"], atBody);
         }
 
         public void GetResearchProgress(TieredResource forResource, string atBody, out double accumulatedKerbalDays, out double requiredKerbalDays)

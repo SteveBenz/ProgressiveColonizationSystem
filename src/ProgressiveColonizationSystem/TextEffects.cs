@@ -22,6 +22,11 @@ namespace ProgressiveColonizationSystem
             return $"<color=#F0F000>{info}</color>";
         }
 
+        public static string Grey(string info)
+        {
+            return $"<color=#c0c0c0>{info}</color>";
+        }
+
         public static string DialogHeading(string info)
         {
             return $"<color=#40f000><B><U>{info}</U></B></color>";

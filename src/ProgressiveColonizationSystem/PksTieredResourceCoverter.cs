@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -14,16 +15,31 @@ namespace ProgressiveColonizationSystem
         private double firstNoPowerIndicator = -1.0;
         private double firstNotInSituationIndicator = -1.0;
 
+        private static TierSuitability RiskTolerance = TierSuitability.Ideal;
+        private static Part DefaultPartSetFor = null;
+        private static TechTier LastTierSelected;
+
         [KSPField(advancedTweakable = false, category = "Nermables", guiActive = true, guiName = "Tier", isPersistant = true, guiActiveEditor = true)]
         public int tier;
 
         [KSPField(advancedTweakable = false, category = "Nermables", guiName = "Target Body", isPersistant = true, guiActiveEditor = true)]
         public string body = NotSet;
 
-        [KSPEvent(guiActive = false, guiActiveEditor = true, guiName = "Change Tier")]
+        [KSPEvent(guiActive = false, guiActiveEditor = true, guiName = "Change Setup")]
         public void ChangeTier()
+            => PartSetupDialog.Show(this.outputAsTieredResource, this.Body, this.Tier, this.OnSetupSelected);
+
+        public void OnSetupSelected(PartSetupDialog dialog)
         {
-            this.tier = (this.tier + 1) % ((int)this.MaxTechTierResearched + 1);
+            this.tier = (int)dialog.Tier;
+            this.body = dialog.Body ?? NotSet;
+            PksTieredResourceConverter.RiskTolerance = dialog.RiskLevel;
+            PksTieredResourceConverter.DefaultPartSetFor = this.part;
+            PksTieredResourceConverter.LastTierSelected = dialog.Tier;
+            if (dialog.Applicability == PartSetupDialog.DecisionImpact.AllParts)
+            {
+                this.SetupAllParts();
+            }
         }
 
         [KSPField(guiActive = false, guiActiveEditor = false, isPersistant = false, guiName = "status")]
@@ -32,32 +48,6 @@ namespace ProgressiveColonizationSystem
         // Apparently, the 'bool enabled' field on the resource converter itself is not to be trusted...
         // we'll keep our own record of what was done.
         bool? resourceConverterIsEnabled = null;
-
-        [KSPEvent(guiActive = false, guiActiveEditor = true, guiName = "Change Body")]
-        public void ChangeBody()
-        {
-            var validBodies = ColonizationResearchScenario.Instance.UnlockedBodies.ToList();
-            validBodies.Sort();
-
-            if (string.IsNullOrEmpty(body) && validBodies.Count == 0)
-            {
-                // Shouldn't be possible without cheating...  Unless this is sandbox
-                return;
-            }
-
-            if (string.IsNullOrEmpty(body))
-            {
-                body = validBodies[0];
-            }
-            else
-            {
-                int i = validBodies.IndexOf(this.body);
-                i = (i + 1) % validBodies.Count;
-                body = validBodies[i];
-            }
-
-            this.tier = (int)ColonizationResearchScenario.Instance.GetMaxUnlockedTier(this.Output, this.body);
-        }
 
         [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Show PKS UI")]
         public void ShowDialog()
@@ -92,7 +82,6 @@ namespace ProgressiveColonizationSystem
 
         private bool IsSituationCorrect(out string reasonWhyNotMessage)
         {
-
             if (this.Output.ProductionRestriction == ProductionRestriction.LandedOnBody
              && (this.vessel.situation != Vessel.Situations.LANDED || this.body != this.vessel.mainBody.name))
             {
@@ -169,6 +158,55 @@ namespace ProgressiveColonizationSystem
             this.OnFixedUpdate();
         }
 
+        private void SetupFromDefault()
+        {
+            if (DefaultPartSetFor == null || !EditorLogic.fetch.ship.Parts.Contains(DefaultPartSetFor))
+            {
+                // Either we are new in the editor, or we are editing a new ship, so reset to default
+                DefaultPartSetFor = null;
+                RiskTolerance = TierSuitability.Ideal;
+            }
+
+            string body = null;
+            if (this.outputAsTieredResource.ResearchCategory.Type != ProductionRestriction.Space)
+            {
+                body = DefaultPartSetFor == null ? null : EditorLogic.fetch.ship.Parts
+                    .Select(p => p.FindModuleImplementing<PksTieredResourceConverter>())
+                    .Select(trc => trc?.body)
+                    .FirstOrDefault(b => b != null && b != "" && b != NotSet);
+                if (body == null)
+                {
+                    // Can't fix it.
+                    return;
+                }
+            }
+
+            for (TechTier tier = (RiskTolerance == TierSuitability.UnderTier ? LastTierSelected : TechTier.Tier4)
+                ; tier >= TechTier.Tier0; --tier)
+            {
+                var suitability = StaticAnalysis.GetTierSuitability(ColonizationResearchScenario.Instance, this.outputAsTieredResource, tier, body);
+                if (suitability <= RiskTolerance)
+                {
+                    this.tier = (int)tier;
+                    this.body = body ?? NotSet;
+                    return;
+                }
+            }
+        }
+
+        private void SetupAllParts()
+        {
+            List<Part> parts = EditorLogic.fetch.ship.Parts;
+            foreach (var part in EditorLogic.fetch.ship.Parts)
+            {
+                var module = part.FindModuleImplementing<PksTieredResourceConverter>();
+                if (module != null)
+                {
+                    module.SetupFromDefault();
+                }
+            }
+        }
+
         public override void OnFixedUpdate()
         {
             base.OnFixedUpdate();
@@ -179,6 +217,20 @@ namespace ProgressiveColonizationSystem
             {
                 isInitialized = true;
                 initializeEventsAndFields();
+
+                // We can tell the difference between a part that's been initialized (in a save file) by whether the
+                // body has been set -- for parts that are landed or orbiting.  But for space, there's no sure way to
+                // tell (although maybe there would be if the 'tier' field was initialized to -1?)  Anyway, with this,
+                // if we load a ship that was saved as a Tier0 ship with just hydroponics, and we load it up after
+                // we've advanced to Tier1, this will update it to Tier1, but if we then advance to tier 2 and load
+                // the Tier1-version of the ship, it'll stay at Tier1 until the user clicks the dialog.  Meh, I can live
+                // with that bug.
+                bool partIsUninitialized = (this.outputAsTieredResource.ResearchCategory.Type == ProductionRestriction.Space
+                     ? this.tier == 0 : (string.IsNullOrEmpty(this.body) || this.body == NotSet));
+                if (HighLogic.LoadedSceneIsEditor && partIsUninitialized)
+                {
+                    SetupFromDefault();
+                }
             }
 
             if (!HighLogic.LoadedSceneIsFlight)
@@ -364,8 +416,6 @@ namespace ProgressiveColonizationSystem
         {
             if (this.Output.ProductionRestriction == ProductionRestriction.Space)
             {
-                Events["ChangeBody"].guiActive = false;
-                Events["ChangeBody"].guiActiveEditor = false;
                 Fields["body"].guiActive = false;
                 Fields["body"].guiActiveEditor = false;
             }

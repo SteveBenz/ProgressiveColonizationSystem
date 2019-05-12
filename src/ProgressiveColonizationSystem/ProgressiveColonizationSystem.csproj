@@ -69,6 +69,7 @@
     <Content Include="GameData\ProgressiveColonizationSystem\Parts\KKOAS_B9_TankLarge.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Compile Include="PartSetupDialog.cs" />
     <Compile Include="PksTabbedDialog.cs" />
     <Compile Include="PksTieredCombiner.cs" />
     <Compile Include="ProductionChain\AmalgamatedCombiners.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="TechTier.cs" />
     <Compile Include="ProductionChain\TieredProduction.cs" />
     <Compile Include="PksTieredResourceCoverter.cs" />
+    <Compile Include="TierSuitability.cs" />
     <Compile Include="Waypoints.cs" />
   </ItemGroup>
   <ItemGroup>

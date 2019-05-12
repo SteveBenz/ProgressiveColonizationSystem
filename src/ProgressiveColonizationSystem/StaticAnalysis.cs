@@ -14,6 +14,58 @@ namespace ProgressiveColonizationSystem
             public Action FixIt { get; set; }
         }
 
+        internal static TierSuitability GetTierSuitability(
+            IColonizationResearchScenario colonizationResearchScenario,
+            TieredResource tieredResource,
+            TechTier tier,
+            string body)
+        {
+            if (body == null && tieredResource.ResearchCategory.Type != ProductionRestriction.Space)
+            {
+                return TierSuitability.BodyNotSelected;
+            }
+
+            var maxTier = colonizationResearchScenario.GetMaxUnlockedTier(tieredResource, body);
+            if (tier > maxTier)
+            {
+                return TierSuitability.NotResearched;
+            }
+
+            bool subordinateTechIsCapping = false;
+            for (TieredResource requiredResource = tieredResource.MadeFrom(tier); requiredResource != null; requiredResource = requiredResource.MadeFrom(tier))
+            {
+                if (requiredResource.ResearchCategory.Type != tieredResource.ResearchCategory.Type)
+                {
+                    // This would be a case where the made-from is produced in one situation (e.g. landed) and consumed
+                    // in another (in space).  We don't know where the stuff is produced, so we'll just have to assume
+                    // we can get the stuff from somewhere.
+                    break;
+                }
+
+                var t = colonizationResearchScenario.GetMaxUnlockedTier(requiredResource, body);
+                if (tier > t)
+                {
+                    return TierSuitability.LacksSubordinateResearch;
+                }
+                else if (tier == t)
+                {
+                    subordinateTechIsCapping = true;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(body) && tier > colonizationResearchScenario.GetMaxUnlockedScanningTier(body))
+            {
+                return TierSuitability.LacksScanner;
+            }
+
+            if (tier < maxTier && !subordinateTechIsCapping)
+            {
+                return TierSuitability.UnderTier;
+            }
+
+            return TierSuitability.Ideal;
+        }
+
         internal static IEnumerable<WarningMessage> CheckBodyIsSet(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, Dictionary<string, double> amountAvailable, Dictionary<string, double> storageAvailable)
         {
             // Check for body parts

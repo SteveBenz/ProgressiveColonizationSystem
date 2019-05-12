@@ -22,6 +22,34 @@ namespace ProgressiveColonizationSystem
             ShowPopup(() => _ShowPopup(title, content, boringContent, okayButton));
         }
 
+        public static void ShowPopup(string title, string content, string okayButton)
+        {
+            PopupDialog.SpawnPopupDialog(
+                new Vector2(x1, y1),
+                new Vector2(x2, y2),
+                new MultiOptionDialog(
+                    "Okay",
+                    "",
+                    title,
+                    HighLogic.UISkin,
+                    new DialogGUIVerticalLayout(
+                        new DialogGUIHorizontalLayout(
+                            new DialogGUIVerticalLayout(
+                                new DialogGUIFlexibleSpace(),
+                                makePictureOfAKerbal(160, 160, isGoodNews: false),
+                                new DialogGUIFlexibleSpace()),
+                            new DialogGUILabel(content, true, true)),
+                        new DialogGUIHorizontalLayout(
+                            new DialogGUIFlexibleSpace(),
+                            new DialogGUIButton(okayButton, () => OnDismiss(), dismissOnSelect: true),
+                            new DialogGUIFlexibleSpace()
+                        ))),
+                persistAcrossScenes: false,
+                skin: HighLogic.UISkin,
+                isModal: true,
+                titleExtra: "TITLE EXTRA!");
+        }
+
         public static void ShowOkayCancel(string title, string content, string okayButton, string cancelButton, Action onOkay)
         {
             PopupDialog.SpawnPopupDialog(
