@@ -18,6 +18,57 @@ namespace ProgressiveColonizationSystem
         private TieredResource madeFrom;
         private TechTier madeFromStartsAt;
 
+
+        public TieredResource(
+            string name,
+            string capacityUnits,
+            ResearchCategory researchCategory,
+            bool canBeStored,
+            bool unstoredExcessCanGoToResearch,
+            bool isHarvestedLocally,
+            TieredResource madeFrom,
+            TechTier madeFromStartsAt)
+        {
+            this.BaseName = name;
+            this.DisplayName = name;
+            this.CapacityUnits = capacityUnits;
+            this.CanBeStored = canBeStored;
+            this.ExcessProductionCountsTowardsResearch = unstoredExcessCanGoToResearch;
+            this.ResearchCategory = researchCategory;
+            this.IsHarvestedLocally = isHarvestedLocally;
+            this.madeFrom = madeFrom;
+            this.madeFromStartsAt = madeFromStartsAt;
+        }
+
+        public TieredResource(
+            string name,
+            string capacityUnits,
+            ResearchCategory researchCategory,
+            bool canBeStored,
+            bool unstoredExcessCanGoToResearch,
+            bool isHarvestedLocally,
+            TieredResource madeFrom,
+            TechTier madeFromStartsAt,
+            double effT0, double effT1, double effT2, double effT3, double effT4)
+        {
+            this.BaseName = name;
+            this.DisplayName = name;
+            this.CapacityUnits = capacityUnits;
+            this.CanBeStored = canBeStored;
+            this.ExcessProductionCountsTowardsResearch = unstoredExcessCanGoToResearch;
+            this.ResearchCategory = researchCategory;
+            this.IsHarvestedLocally = isHarvestedLocally;
+            this.madeFrom = madeFrom;
+            this.madeFromStartsAt = madeFromStartsAt;
+            this.effectivenessAtTier = new double[5];
+            this.effectivenessAtTier[0] = effT0;
+            this.effectivenessAtTier[1] = effT1;
+            this.effectivenessAtTier[2] = effT2;
+            this.effectivenessAtTier[3] = effT3;
+            this.effectivenessAtTier[4] = effT4;
+        }
+
+
         private TieredResource(ConfigNode c, ResearchCategory researchCategory, TieredResource madeFrom, TechTier madeFromStartsAt)
         {
             this.BaseName = c.GetValue("name");
@@ -41,8 +92,8 @@ namespace ProgressiveColonizationSystem
 
             // If it's edible, it'll have these set
             bool allSet = true;
-            double[] effectiveness = new double[1+(int)TechTier.Tier4];
-            for (TechTier tech = TechTier.Tier0; tech <= TechTier.Tier4; ++tech )
+            double[] effectiveness = new double[1 + (int)TechTier.Tier4];
+            for (TechTier tech = TechTier.Tier0; tech <= TechTier.Tier4; ++tech)
             {
                 string name = $"effectiveness_at_tier{(int)tech}";
                 if (!c.TryGetValue(name, ref effectiveness[(int)tech]) || effectiveness[(int)tech] > 1 || effectiveness[(int)tech] < 0)
@@ -116,54 +167,6 @@ namespace ProgressiveColonizationSystem
 
             return result;
         }
-
-        public TieredResource(
-            string name,
-            string capacityUnits,
-            ResearchCategory researchCategory,
-            bool canBeStored,
-            bool unstoredExcessCanGoToResearch,
-            bool isHarvestedLocally,
-            TieredResource madeFrom,
-            TechTier madeFromStartsAt)
-        {
-            this.BaseName = name;
-            this.CapacityUnits = capacityUnits;
-            this.CanBeStored = canBeStored;
-            this.ExcessProductionCountsTowardsResearch = unstoredExcessCanGoToResearch;
-            this.ResearchCategory = researchCategory;
-            this.IsHarvestedLocally = isHarvestedLocally;
-            this.madeFrom = madeFrom;
-            this.madeFromStartsAt = madeFromStartsAt;
-        }
-
-        public TieredResource(
-            string name,
-            string capacityUnits,
-            ResearchCategory researchCategory,
-            bool canBeStored,
-            bool unstoredExcessCanGoToResearch,
-            bool isHarvestedLocally,
-            TieredResource madeFrom,
-            TechTier madeFromStartsAt,
-            double effT0, double effT1, double effT2, double effT3, double effT4)
-        {
-            this.BaseName = name;
-            this.CapacityUnits = capacityUnits;
-            this.CanBeStored = canBeStored;
-            this.ExcessProductionCountsTowardsResearch = unstoredExcessCanGoToResearch;
-            this.ResearchCategory = researchCategory;
-            this.IsHarvestedLocally = isHarvestedLocally;
-            this.madeFrom = madeFrom;
-            this.madeFromStartsAt = madeFromStartsAt;
-            this.effectivenessAtTier = new double[5];
-            this.effectivenessAtTier[0] = effT0;
-            this.effectivenessAtTier[1] = effT1;
-            this.effectivenessAtTier[2] = effT2;
-            this.effectivenessAtTier[3] = effT3;
-            this.effectivenessAtTier[4] = effT4;
-        }
-
         public ProductionRestriction ProductionRestriction => this.ResearchCategory.Type;
 
         public ResearchCategory ResearchCategory { get; }

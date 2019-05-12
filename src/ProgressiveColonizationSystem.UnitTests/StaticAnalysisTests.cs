@@ -127,7 +127,7 @@ namespace ProgressiveColonizationSystem.UnitTests
             hydroProducers[1].Tier = TechTier.Tier2;
             actual = StaticAnalysis.CheckTieredProduction(colonizationResearch, hydroProducers, this.basicHydroponicSupplies, this.emptyContainers).ToList();
             Assert.AreEqual(2, actual.Count);
-            Assert.AreEqual($"All orbital-production parts should be set to {TechTier.Tier2.DisplayName()}", actual[0].Message);
+            Assert.AreEqual($"This base is not taking advantage of the latest tech for producing HydroponicSnacks", actual[0].Message);
             Assert.IsNotNull(actual[0].FixIt);
             actual[0].FixIt();
             Assert.AreEqual(TechTier.Tier2, hydroProducers[0].Tier);
@@ -149,7 +149,7 @@ namespace ProgressiveColonizationSystem.UnitTests
             foreach (var p in this.producers) p.Tier = TechTier.Tier0;
             actual = StaticAnalysis.CheckTieredProduction(colonizationResearch, this.producers, this.emptyContainers, this.emptyContainers).ToList();
             Assert.AreEqual(1, actual.Count);
-            Assert.AreEqual(actual[0].Message, $"All production parts should be set to {TechTier.Tier1.DisplayName()}");
+            Assert.AreEqual("This base is not taking advantage of the latest tech for producing Stuff", actual[0].Message);
             Assert.IsNotNull(actual[0].FixIt);
             actual[0].FixIt();
             actual = StaticAnalysis.CheckTieredProduction(colonizationResearch, this.producers, this.emptyContainers, this.emptyContainers).ToList();
@@ -157,18 +157,21 @@ namespace ProgressiveColonizationSystem.UnitTests
         }
 
         [TestMethod]
-        public void TestUnderstandsMaxTier()
+        public void UnderstandsMaxTier()
         {
             colonizationResearch.SetMaxTier(StubColonizationResearchScenario.farmingResearchCategory, "munmuss", TechTier.Tier3);
             colonizationResearch.SetMaxTier(StubColonizationResearchScenario.productionResearchCategory, "munmuss", TechTier.Tier3);
             colonizationResearch.SetMaxTier(StubColonizationResearchScenario.scanningResearchCategory, "munmuss", TechTier.Tier3);
             colonizationResearch.SetMaxTier(StubColonizationResearchScenario.shiniesResearchCategory, "munmuss", TechTier.Tier2);
 
-            StubProducer t3fertFactory = new StubProducer(StubColonizationResearchScenario.Fertilizer, StubColonizationResearchScenario.Stuff, 6, TechTier.Tier3);
-            StubProducer t3drill = new StubProducer(StubColonizationResearchScenario.Stuff, null, 6, TechTier.Tier3);
-            StubProducer t2shinies = new StubProducer(StubColonizationResearchScenario.Shinies, null, 6, TechTier.Tier2);
+            var producers = new List<ITieredProducer>()
+            {
+                new StubProducer(StubColonizationResearchScenario.Fertilizer, StubColonizationResearchScenario.Stuff, 6, TechTier.Tier3),
+                new StubProducer(StubColonizationResearchScenario.Stuff, null, 6, TechTier.Tier3),
+                new StubProducer(StubColonizationResearchScenario.Shinies, null, 6, TechTier.Tier2)
+            };
 
-            var actual = StaticAnalysis.CheckTieredProduction(colonizationResearch, this.producers, this.emptyContainers, this.emptyContainers).ToList();
+            var actual = StaticAnalysis.CheckTieredProduction(colonizationResearch, producers, this.emptyContainers, this.emptyContainers).ToList();
             Assert.AreEqual(0, actual.Count);
         }
 
@@ -179,7 +182,7 @@ namespace ProgressiveColonizationSystem.UnitTests
             farm1.Tier = TechTier.Tier0;
             var actual = StaticAnalysis.CheckTieredProduction(colonizationResearch, this.producers, this.emptyContainers, this.emptyContainers).ToList();
             Assert.AreEqual(2, actual.Count);
-            Assert.AreEqual(actual[0].Message, $"All production parts should be set to {TechTier.Tier1.DisplayName()}");
+            Assert.AreEqual(actual[0].Message, $"This base is not taking advantage of the latest tech for producing Snacks");
             Assert.AreEqual(actual[1].Message, $"Not all of the parts producing {farm1.Output.BaseName} are set at {farm2.Tier}");
             Assert.IsNotNull(actual[1].FixIt);
             actual[1].FixIt();
@@ -197,19 +200,31 @@ namespace ProgressiveColonizationSystem.UnitTests
             farm1.Tier = TechTier.Tier2;
             farm2.Tier = TechTier.Tier2;
             var actual = StaticAnalysis.CheckTieredProduction(colonizationResearch, this.producers, this.emptyContainers, this.emptyContainers).ToList();
-            Assert.AreEqual(1, actual.Count);
-            Assert.AreEqual(actual[0].Message, $"There are {TechTier.Tier2.DisplayName()} producers of Snacks, but it requires equal-tier {StubColonizationResearchScenario.Fertilizer.BaseName} production in order to work.");
+            Assert.AreEqual(2, actual.Count);
+            Assert.AreEqual("Not all the products in the production chain for Snacks have advanced to Tier2.", actual[0].Message);
             Assert.IsTrue(actual[0].IsClearlyBroken);
-            Assert.IsNull(actual[0].FixIt);
+            Assert.IsNotNull(actual[0].FixIt);
+            Assert.AreEqual("There are Tier2 producers of Snacks, but it requires equal-tier Fertilizer production in order to work.", actual[1].Message);
+            actual[0].FixIt();
+            Assert.AreEqual(TechTier.Tier1, farm1.Tier);
+            Assert.AreEqual(TechTier.Tier1, farm2.Tier);
 
             colonizationResearch.SetMaxTier(StubColonizationResearchScenario.productionResearchCategory, "munmuss", TechTier.Tier2);
             fertFactory1.Tier = TechTier.Tier2;
             drill1.Tier = TechTier.Tier2;
+            fertFactory1.Tier = TechTier.Tier2;
+            farm1.Tier = TechTier.Tier2;
+            farm2.Tier = TechTier.Tier2;
             actual = StaticAnalysis.CheckTieredProduction(colonizationResearch, this.producers, this.emptyContainers, this.emptyContainers).ToList();
             Assert.AreEqual(1, actual.Count);
-            Assert.AreEqual(actual[0].Message, $"Scanning technology at munmuss has not progressed beyond {TechTier.Tier1.DisplayName()} - scroungers won't produce if a scanner at their tier is present in-orbit.");
+            Assert.AreEqual(actual[0].Message, $"Scanning technology at munmuss has not kept up with production technologies - Tier2 parts will not function until you deploy an equal-tier scanner to orbit around munmuss.");
             Assert.IsTrue(actual[0].IsClearlyBroken);
-            Assert.IsNull(actual[0].FixIt);
+            Assert.IsNotNull(actual[0].FixIt);
+            actual[0].FixIt();
+            Assert.AreEqual(drill1.Tier, TechTier.Tier1);
+            Assert.AreEqual(fertFactory1.Tier, TechTier.Tier1);
+            Assert.AreEqual(farm1.Tier, TechTier.Tier1);
+            Assert.AreEqual(farm2.Tier, TechTier.Tier1);
         }
 
         [TestMethod]

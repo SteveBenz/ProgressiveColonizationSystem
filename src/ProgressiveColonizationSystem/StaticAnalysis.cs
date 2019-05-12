@@ -32,6 +32,7 @@ namespace ProgressiveColonizationSystem
             }
 
             bool subordinateTechIsCapping = false;
+            TechTier maxScanningTier = colonizationResearchScenario.GetMaxUnlockedScanningTier(body);
             for (TieredResource requiredResource = tieredResource.MadeFrom(tier); requiredResource != null; requiredResource = requiredResource.MadeFrom(tier))
             {
                 if (requiredResource.ResearchCategory.Type != tieredResource.ResearchCategory.Type)
@@ -53,12 +54,12 @@ namespace ProgressiveColonizationSystem
                 }
             }
 
-            if (!string.IsNullOrEmpty(body) && tier > colonizationResearchScenario.GetMaxUnlockedScanningTier(body))
+            if (!string.IsNullOrEmpty(body) && tier > maxScanningTier)
             {
                 return TierSuitability.LacksScanner;
             }
 
-            if (tier < maxTier && !subordinateTechIsCapping)
+            if (tier < maxTier && !subordinateTechIsCapping && tier < maxScanningTier)
             {
                 return TierSuitability.UnderTier;
             }
@@ -110,28 +111,82 @@ namespace ProgressiveColonizationSystem
             }
         }
 
+        private static void SetToIdealTier(IColonizationResearchScenario colonizationResearch, ITieredProducer producer)
+        {
+            for (TechTier tier = TechTier.Tier4; tier >= TechTier.Tier0; --tier)
+            {
+                var suitability = StaticAnalysis.GetTierSuitability(colonizationResearch, producer.Output, tier, producer.Body);
+                if (suitability == TierSuitability.Ideal)
+                {
+                    producer.Tier = tier;
+                    break;
+                }
+            }
+        }
+
+        private static void SetToIdealTier(IColonizationResearchScenario colonizationResearch, IEnumerable<ITieredProducer> producers)
+        {
+            foreach (var producer in producers)
+            {
+                StaticAnalysis.SetToIdealTier(colonizationResearch, producer);
+            }
+        }
+
         internal static IEnumerable<WarningMessage> CheckTieredProduction(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, Dictionary<string, double> amountAvailable, Dictionary<string, double> storageAvailable)
         {
-            TechTier minimumSensibleOrbitalTechTier = colonizationResearch.AllResourcesTypes
-                .Where(resource => resource.ProductionRestriction == ProductionRestriction.Space)
-                .Min(resource => colonizationResearch.GetMaxUnlockedTier(resource, null));
-            var subTierOrbitalParts = producers
-                .Where(producer => producer.Output.ProductionRestriction == ProductionRestriction.Space)
-                .Where(producer => producer.Tier < minimumSensibleOrbitalTechTier)
-                .ToArray();
-            if (subTierOrbitalParts.Any())
+            List<ITieredProducer> noScannerParts = new List<ITieredProducer>();
+            List<ITieredProducer> noSubResearchParts = new List<ITieredProducer>();
+            List<ITieredProducer> underTier = new List<ITieredProducer>();
+
+            foreach (var producer in producers)
             {
+                var suitability = StaticAnalysis.GetTierSuitability(colonizationResearch, producer.Output, producer.Tier, producer.Body);
+                switch(suitability)
+                {
+                    case TierSuitability.LacksScanner:
+                        noScannerParts.Add(producer);
+                        break;
+                    case TierSuitability.LacksSubordinateResearch:
+                        noSubResearchParts.Add(producer);
+                        break;
+                    case TierSuitability.UnderTier:
+                        underTier.Add(producer);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if (noScannerParts.Any())
+            {
+                var examplePart = noScannerParts[0];
                 yield return new WarningMessage
                 {
-                    Message = $"All orbital-production parts should be set to {minimumSensibleOrbitalTechTier}",
-                    IsClearlyBroken = false,
-                    FixIt = () =>
-                    {
-                        foreach (var part in subTierOrbitalParts)
-                        {
-                            part.Tier = minimumSensibleOrbitalTechTier;
-                        }
-                    }
+                    Message = $"Scanning technology at {examplePart.Body} has not kept up with production technologies - {examplePart.Tier.DisplayName()} parts will not function until you deploy an equal-tier scanner to orbit around {examplePart.Body}.",
+                    IsClearlyBroken = true,
+                    FixIt = () => SetToIdealTier(colonizationResearch, noScannerParts)
+                };
+            }
+
+            if (noSubResearchParts.Any())
+            {
+                var examplePart = noSubResearchParts[0];
+                yield return new WarningMessage
+                {
+                    Message = $"Not all the products in the production chain for {examplePart.Output.DisplayName} have advanced to {examplePart.Tier}.",
+                    IsClearlyBroken = true,
+                    FixIt = () => SetToIdealTier(colonizationResearch, noSubResearchParts)
+                };
+            }
+
+            if (underTier.Any())
+            {
+                var examplePart = underTier[0];
+                yield return new WarningMessage
+                {
+                    Message = $"This base is not taking advantage of the latest tech for producing {examplePart.Output.DisplayName}",
+                    IsClearlyBroken = true,
+                    FixIt = () => SetToIdealTier(colonizationResearch, underTier)
                 };
             }
 
@@ -142,32 +197,6 @@ namespace ProgressiveColonizationSystem
                 .Select(g => new { body = g.Key, count = g.Count() })
                 .OrderByDescending(o => o.count)
                 .ToArray();
-            if (mostUsedBodyAndCount.Length == 1)
-            {
-                // Only do this test if we have a single body to speak to
-                TechTier minimumAtBodyTechTier = colonizationResearch.AllResourcesTypes
-                    .Where(resource => resource.ProductionRestriction != ProductionRestriction.Space)
-                    .Min(resource => colonizationResearch.GetMaxUnlockedTier(resource, mostUsedBodyAndCount[0].body));
-                var subTierPlanetaryParts = producers
-                    .Where(producer => producer.Output.ProductionRestriction != ProductionRestriction.Space)
-                    .Where(producer => producer.Tier < minimumAtBodyTechTier)
-                    .ToArray();
-                if (subTierPlanetaryParts.Any())
-                {
-                    yield return new WarningMessage
-                    {
-                        Message = $"All production parts should be set to {minimumAtBodyTechTier}",
-                        IsClearlyBroken = false,
-                        FixIt = () =>
-                        {
-                            foreach (var part in subTierPlanetaryParts)
-                            {
-                                part.Tier = minimumAtBodyTechTier;
-                            }
-                        }
-                    };
-                }
-            }
             string targetBody = mostUsedBodyAndCount.Length > 0 ? mostUsedBodyAndCount[0].body : null;
 
             foreach (var pair in producers.GroupBy(producer => producer.Output))
@@ -204,12 +233,6 @@ namespace ProgressiveColonizationSystem
                     TechTier maxScanningTier = colonizationResearch.GetMaxUnlockedScanningTier(targetBody);
                     if (maxTier > maxScanningTier)
                     {
-                        yield return new WarningMessage
-                        {
-                            Message = $"Scanning technology at {targetBody} has not progressed beyond {maxScanningTier.DisplayName()} - scroungers won't produce if a scanner at their tier is present in-orbit.",
-                            IsClearlyBroken = true,
-                            FixIt = null
-                        };
                     }
                 }
                 else if (input != null)

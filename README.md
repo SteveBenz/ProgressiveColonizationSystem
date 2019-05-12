@@ -16,8 +16,8 @@ for the full story.
    4.  (fixed) Cupcake disabled for ships carrying tiered stuff - made it available for landed ships or crewed ships
    5.  (fixed) Fertilizer really is too expensive
    6.  (fixed) Hydroponics works at the launchpad
-   7.  On worlds where Shinies production is capped, the max-tier warning ("All production parts should be set to") incorrectly wants to set the level to the capped value
-   8.  All the parts that are landed should be touched by the max scanning level warning
+   7.  (fixed) On worlds where Shinies production is capped, the max-tier warning ("All production parts should be set to") incorrectly wants to set the level to the capped value
+   8.  (fixed) All the parts that are landed should be touched by the max scanning level warning
    9.  (fixed) Production dialog doesn't tell you that it's lacking CrushIns
    10. (fixed) Production dialog should show excess production capacity for stuff & fertilizer
    11. If there's more than one manned base, it should ask you where you want to look for crushins
@@ -27,8 +27,8 @@ for the full story.
    15. (fixed) Doesn't tell you that it used up all the local loose crushins
    16. (fixed) Doesn't tell you that production is blocked by lack of crew (shortoncrew)
    17. Revisit the SPH production dialog
-   18. Didn't get warning for not being maxtier on Minmus T4 -- perhaps because maxtier is 4?
-   19. Find a way to automatically set body & tier
+   18. (fixed) Didn't get warning for not being maxtier on Minmus T4 -- perhaps because maxtier is 4?
+   19. (fixed) Find a way to automatically set body & tier
    20. Can bring CrushIns from Kerbin or other bodies and fake out the resource auto-collection mechanic.  It should be happy
        to take the crushins, but disallow it as an auto-collector.
    21. Progression doesn't show why research is disabled.
