@@ -40,7 +40,7 @@ namespace ProgressiveColonizationSystem
 
         private void Show(Action<PartSetupDialog> onSet)
         {
-            this.CalculateTierLabels();
+            this.CalculateTierLabels(false);
             var tierSelector = new DialogGUIVerticalLayout(this.tierToggles);
 
             DialogGUIBase mainForm;
@@ -83,7 +83,7 @@ namespace ProgressiveColonizationSystem
         private void SetBody(string body)
         {
             this.Body = body;
-            CalculateTierLabels();
+            this.CalculateTierLabels(true);
 
             this.Tier = TechTier.Tier0;
 
@@ -112,7 +112,7 @@ namespace ProgressiveColonizationSystem
 
         public TierSuitability RiskLevel { get; private set; }
 
-        private void CalculateTierLabels()
+        private void CalculateTierLabels(bool setTier)
         {
             for (TechTier tier = TechTier.Tier0; tier <= TechTier.Tier4; ++tier)
             {
@@ -127,7 +127,10 @@ namespace ProgressiveColonizationSystem
                         transform = TextEffects.Green;
                         toolTipTag = "#LOC_KPBS_IDEAL_TIER";
                         isEnabled = true;
-                        this.Tier = tier;
+                        if (setTier)
+                        {
+                            this.Tier = tier;
+                        }
                         break;
                     case TierSuitability.LacksScanner:
                         transform = TextEffects.Yellow;
