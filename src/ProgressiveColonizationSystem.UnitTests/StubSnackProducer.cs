@@ -12,6 +12,7 @@ namespace ProgressiveColonizationSystem.UnitTests
         public TechTier Tier { get; set; }
         public double ProductionRate { get; set; }
         public bool IsResearchEnabled { get; set; }
+        public string ReasonWhyResearchIsDisabled { get; set; }
         public bool IsProductionEnabled { get; set; }
         public bool CanStockpileProduce { get; set; }
         public abstract TieredResource Output { get; }

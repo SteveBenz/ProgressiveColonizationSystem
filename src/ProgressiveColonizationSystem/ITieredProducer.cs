@@ -24,24 +24,7 @@ namespace ProgressiveColonizationSystem
         TieredResource Input { get; }
 
         string Body { get; set; }
-    }
 
-    public static class TieredProducerExtensions
-    {
-        public static TechTier GetOptimumTier(this ITieredProducer _this, IColonizationResearchScenario colonizationResearchScenario)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static TechTier GetMaximumTier(this ITieredProducer _this, IColonizationResearchScenario colonizationResearchScenario)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static TechTier GetOptimumTier(this ITieredProducer _this)
-            => _this.GetOptimumTier(ColonizationResearchScenario.Instance);
-
-        public static TechTier GetMaximumTier(this ITieredProducer _this)
-            => _this.GetMaximumTier(ColonizationResearchScenario.Instance);
+        string ReasonWhyResearchIsDisabled { get; }
     }
 }

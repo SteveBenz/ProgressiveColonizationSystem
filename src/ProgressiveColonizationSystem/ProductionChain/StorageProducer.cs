@@ -18,6 +18,8 @@ namespace ProgressiveColonizationSystem.ProductionChain
 
         public bool IsResearchEnabled => false;
 
+        public string ReasonWhyResearchIsDisabled => null;
+
         public bool IsProductionEnabled => true;
 
         public bool CanStockpileProduce => false;

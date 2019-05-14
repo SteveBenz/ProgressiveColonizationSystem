@@ -138,21 +138,6 @@ namespace ProgressiveColonizationSystem
             return true;
         }
 
-        private bool CanDoResearch()
-        {
-            if (this.tier < (int)this.MaxTechTierResearched)
-            {
-                return false;
-            }
-
-            if (!this.Output.ResearchCategory.CanDoResearch(this.vessel, this.Tier, out var _))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
         public void FixedUpdate()
         {
             this.OnFixedUpdate();
@@ -274,13 +259,20 @@ namespace ProgressiveColonizationSystem
             {
                 this.IsProductionEnabled = true;
 
-                if (this.CanDoResearch())
+                if (this.tier < (int)this.MaxTechTierResearched)
                 {
-                    this.IsResearchEnabled = true;
+                    this.ReasonWhyResearchIsDisabled = "Not cutting edge gear";
+                    this.IsResearchEnabled = false;
+                }
+                else if (!this.Output.ResearchCategory.CanDoResearch(this.vessel, this.Tier, out var reason))
+                {
+                    this.ReasonWhyResearchIsDisabled = reason;
+                    this.IsResearchEnabled = false;
                 }
                 else
                 {
-                    this.IsResearchEnabled = false;
+                    this.ReasonWhyResearchIsDisabled = null;
+                    this.IsResearchEnabled = true;
                 }
             }
             else
@@ -294,6 +286,7 @@ namespace ProgressiveColonizationSystem
                 //}
                 this.IsProductionEnabled = false;
                 this.IsResearchEnabled = false;
+                this.ReasonWhyResearchIsDisabled = "Production disabled";
             }
         }
 
@@ -359,6 +352,8 @@ namespace ProgressiveColonizationSystem
         }
 
         public bool IsResearchEnabled { get; private set; }
+
+        public string ReasonWhyResearchIsDisabled { get; private set; }
 
         public bool IsProductionEnabled { get; private set; }
 

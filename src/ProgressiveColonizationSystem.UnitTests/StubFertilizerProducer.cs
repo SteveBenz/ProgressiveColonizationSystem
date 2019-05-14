@@ -12,6 +12,7 @@ namespace ProgressiveColonizationSystem.UnitTests
         public TechTier Tier { get; set; }
         public double ProductionRate { get; set; }
         public bool IsResearchEnabled { get; set; }
+        public string ReasonWhyResearchIsDisabled { get; } = null;
         public bool IsProductionEnabled { get; set; }
         public TieredResource Output => StubColonizationResearchScenario.GetTieredResourceByName("Fertilizer");
         public TieredResource Input => null;

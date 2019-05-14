@@ -31,7 +31,7 @@ for the full story.
    19. (fixed) Find a way to automatically set body & tier
    20. Can bring CrushIns from Kerbin or other bodies and fake out the resource auto-collection mechanic.  It should be happy
        to take the crushins, but disallow it as an auto-collector.
-   21. Progression doesn't show why research is disabled.
+   21. (fixed) Progression doesn't show why research is disabled.
 2. Rounding things out
    1.  Write PDF help and or create a github wiki
    2.  (done) Make a K&K drill (Reuse "K&K Metal Ore Drill")

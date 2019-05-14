@@ -45,6 +45,7 @@ namespace ProgressiveColonizationSystem
             public double ProgressPerDay;
             public double AccumulatedProgress;
             public double NextTier;
+            public string WhyBlocked;
         }
 
         private IntervesselResourceTransfer resourceTransfer = new IntervesselResourceTransfer();
@@ -120,12 +121,22 @@ namespace ProgressiveColonizationSystem
             for (int i = 0; i < this.progress.Count; ++i)
             {
                 var field = this.progress[i];
-                double progress = field.AccumulatedProgress / field.NextTier;
-                double daysToGo = (field.NextTier - field.AccumulatedProgress) / field.ProgressPerDay;
-                rows[i + 1] = new DialogGUIHorizontalLayout(
-                    new DialogGUILabel(field.Category, 170),
-                    new DialogGUILabel($"{100*progress:N}%", 70),
-                    new DialogGUILabel(daysToGo.ToString("N"), 70));
+
+                if (field.WhyBlocked == null)
+                {
+                    double progress = field.AccumulatedProgress / field.NextTier;
+                    double daysToGo = (field.NextTier - field.AccumulatedProgress) / field.ProgressPerDay;
+                    rows[i + 1] = new DialogGUIHorizontalLayout(
+                        new DialogGUILabel(field.Category, 170),
+                        new DialogGUILabel($"{100 * progress:N}%", 70),
+                        new DialogGUILabel(daysToGo.ToString("N"), 70));
+                }
+                else
+                {
+                    rows[i + 1] = new DialogGUIHorizontalLayout(
+                        new DialogGUILabel(field.Category, 170),
+                        new DialogGUILabel(TextEffects.Red("Blocked: " + field.WhyBlocked)));
+                }
             }
 
             return new DialogGUIVerticalLayout(rows);
@@ -632,15 +643,34 @@ namespace ProgressiveColonizationSystem
                 shortfalls.AddRange(limitingResources);
                 limitedByMessage = shortfalls.Count == 0 ? null : string.Join(", ", shortfalls.ToArray());
 
-                progress = researchSink.Data
-                    .Select(pair => new ResearchData()
+                var positiveProgress = researchSink.Data
+                    .Select(pair => new ResearchData
                     {
                         Category = pair.Key.DisplayName,
                         NextTier = pair.Value.KerbalDaysRequired,
                         AccumulatedProgress = pair.Value.AccumulatedKerbalDays,
-                        ProgressPerDay = pair.Value.KerbalDaysContributedPerDay
+                        ProgressPerDay = pair.Value.KerbalDaysContributedPerDay,
+                        WhyBlocked = null
                     })
                     .ToList();
+
+                var progressLimits = tieredProducers
+                    .Where(tp => !tp.IsResearchEnabled)
+                    .Where(tp => !positiveProgress.Any(p => p.Category == tp.Output.ResearchCategory.DisplayName))
+                    .GroupBy(tp => tp.Output)
+                    .Select(group => group.First())
+                    .Select(tp => new ResearchData
+                    {
+                        Category = tp.Output.ResearchCategory.DisplayName,
+                        NextTier = double.PositiveInfinity,
+                        AccumulatedProgress = 0, // Not true - okay now because we don't display it.
+                        ProgressPerDay = 0,
+                        WhyBlocked = tp.ReasonWhyResearchIsDisabled
+                    })
+                    .ToArray();
+                positiveProgress.AddRange(progressLimits);
+
+                progress = positiveProgress;
             }
         }
 

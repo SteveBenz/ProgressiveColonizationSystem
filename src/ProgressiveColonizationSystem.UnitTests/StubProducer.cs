@@ -22,6 +22,7 @@ namespace ProgressiveColonizationSystem.UnitTests
         public double ProductionRate { get; set; }
         public bool IsResearchEnabled { get; set; } = true;
         public bool IsProductionEnabled { get; set; } = true;
+        public string ReasonWhyResearchIsDisabled { get; set; }
         public TieredResource Output { get; }
         public TieredResource Input { get; }
         public bool ContributeResearch(IColonizationResearchScenario target, double amount)
