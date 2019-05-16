@@ -84,22 +84,6 @@ namespace ProgressiveColonizationSystem
         {
             this.Body = body;
             this.CalculateTierLabels(true);
-
-            this.Tier = TechTier.Tier0;
-
-            // Use the highest tier that matches the suitability
-            for (TechTier tier = TechTier.Tier4; tier >= TechTier.Tier0; --tier)
-            {
-                var suitability = StaticAnalysis.GetTierSuitability(ColonizationResearchScenario.Instance, this.Product, tier, this.Body);
-                if (suitability <= this.RiskLevel)
-                {
-                    this.Tier = tier;
-                    this.RiskLevel = suitability;
-                    break;
-                }
-            }
-
-            // It should always hit one of the above because at least one tier is guaranteed to be Ideal.
         }
 
         public TieredResource Product { get; }
