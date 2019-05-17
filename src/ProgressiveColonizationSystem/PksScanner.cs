@@ -74,7 +74,7 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
-            ResourceLodeScenario.Instance.GetOrCreateResourceLoad(onPlanetBase, tier, this.ScannerNetQuality());
+            ResourceLodeScenario.Instance.GetOrCreateResourceLoad(this.vessel, onPlanetBase, tier, this.ScannerNetQuality());
         }
 
         private void GetTargetInfo(out TechTier tier, out string targetBody)

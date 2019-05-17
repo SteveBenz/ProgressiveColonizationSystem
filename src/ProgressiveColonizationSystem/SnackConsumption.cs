@@ -269,8 +269,8 @@ namespace ProgressiveColonizationSystem
                 {
                     TechTier newTier = ColonizationResearchScenario.Instance.GetMaxUnlockedTier(resource, this.vessel.lastBody.name);
                     string title = $"{resource.ResearchCategory.DisplayName} has progressed to {newTier.DisplayName()}!";
-                    string message = resource.ResearchCategory.BreakthroughMessage(newTier);
-                    string boringMessage = resource.ResearchCategory.BoringBreakthroughMessage(newTier);
+                    string message = resource.ResearchCategory.BreakthroughMessage(crew, newTier);
+                    string boringMessage = resource.ResearchCategory.BoringBreakthroughMessage(crew, newTier);
                     PopupMessageWithKerbal.ShowPopup(title, message, boringMessage, "That's Just Swell");
                 }
 

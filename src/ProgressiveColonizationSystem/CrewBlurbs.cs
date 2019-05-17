@@ -53,13 +53,13 @@ namespace ProgressiveColonizationSystem
             return TextEffects.Red($"{GetGroupDescription(crewInBucket)} {isare(crewInBucket)} refusing to do any more work and {isare(crewInBucket)} contemplating legal action against KSP!  Get {himherthem(crewInBucket)} home or get some food out here right away!");
         }
 
-        public static string CreateMessage(string baseMessageTag, IEnumerable<string> experienceEffects, TechTier tier)
+        public static string CreateMessage(string baseMessageTag, List<ProtoCrewMember> crew, IEnumerable<string> experienceEffects, TechTier tier)
         {
             HashSet<string> possibleTraits = new HashSet<string>(
                 experienceEffects.SelectMany(effect => GameDatabase.Instance
                     .ExperienceConfigs
                     .GetTraitsWithEffect(effect)));
-            var crewDescriptors = FlightGlobals.ActiveVessel.GetVesselCrew().Select(c => FromKsp(c, protocrew => possibleTraits.Contains(protocrew.trait))).ToList();
+            var crewDescriptors = crew.Select(c => FromKsp(c, protocrew => possibleTraits.Contains(protocrew.trait))).ToList();
             var perp = ChoosePerpetrator(crewDescriptors);
             var victim = ChooseVictim(crewDescriptors);
 

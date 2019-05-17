@@ -19,7 +19,7 @@ namespace ProgressiveColonizationSystem
             Instance = this;
         }
 
-        public ResourceLode GetOrCreateResourceLoad(Vessel nearVessel, TechTier tier, double scannerNetQuality)
+        public ResourceLode GetOrCreateResourceLoad(Vessel scannerVessel, Vessel nearVessel, TechTier tier, double scannerNetQuality)
         {
             // There's only allowed one resource load - you have to harvest it until it's gone
             // So find the thing first.
@@ -50,6 +50,7 @@ namespace ProgressiveColonizationSystem
                     "Lookie What I Found!",
                     CrewBlurbs.CreateMessage(
                         scannerNetQuality < PksScanner.BadScannerNetQualityThreshold ? "#LOC_KPBS_SCANNER_FIND_NOSATS" : "#LOC_KPBS_SCANNER_FIND_SATS",
+                        scannerVessel.GetVesselCrew(),
                         new string[] { nameof(PksScanningSkill) }, tier),
                     "A waypoint has been created - you need to land a ship or drive a rover with a portable digger "
                     + "to within 150m of the waypoint, deploy the drill, fill your tanks with CrushIns, haul the "

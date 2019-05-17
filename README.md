@@ -32,6 +32,7 @@ for the full story.
    20. Can bring CrushIns from Kerbin or other bodies and fake out the resource auto-collection mechanic.  It should be happy
        to take the crushins, but disallow it as an auto-collector.
    21. (fixed) Progression doesn't show why research is disabled.
+   22. (fixed) No breakthru message from construction (nocrushins T3 Mun base)
 2. Rounding things out
    1.  Write PDF help and or create a github wiki
    2.  (done) Make a K&K drill (Reuse "K&K Metal Ore Drill")

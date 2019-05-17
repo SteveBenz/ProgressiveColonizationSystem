@@ -85,10 +85,10 @@ namespace ProgressiveColonizationSystem
             this.crewSkills.Add(crewSkill);
         }
 
-        public string BreakthroughMessage(TechTier newTier)
-            => CrewBlurbs.CreateMessage(this.breakThroughMessageTag, this.crewSkills, newTier);
+        public string BreakthroughMessage(List<ProtoCrewMember> crew, TechTier newTier)
+            => CrewBlurbs.CreateMessage(this.breakThroughMessageTag, crew, this.crewSkills, newTier);
 
-        public string BoringBreakthroughMessage(TechTier newTier)
-            => CrewBlurbs.CreateMessage(this.breakThroughExplanationTag, this.crewSkills, newTier);
+        public string BoringBreakthroughMessage(List<ProtoCrewMember> crew, TechTier newTier)
+            => CrewBlurbs.CreateMessage(this.breakThroughExplanationTag, crew, this.crewSkills, newTier);
     }
 }

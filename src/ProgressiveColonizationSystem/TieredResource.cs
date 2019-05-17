@@ -87,6 +87,7 @@ namespace ProgressiveColonizationSystem
             this.IsHarvestedLocally = isHarvestedLocally;
 
             this.CrewSkill = c.GetValue("crew_skill");
+            researchCategory.AddCrewSkill(this.CrewSkill);
 
             this.ResearchCategory = researchCategory;
 
@@ -133,7 +134,7 @@ namespace ProgressiveColonizationSystem
                     }
 
                     string madeFrom = c.GetValue("made_from");
-                    string madeFromT2 = c.GetValue("made_from_tier2");
+                    string madeFromT2 = c.GetValue("made_from_at_tier2");
                     TieredResource tieredResource = null;
                     TieredResource madeFromResource;
                     if (!string.IsNullOrEmpty(madeFrom) && result.TryGetValue(madeFrom, out madeFromResource))
