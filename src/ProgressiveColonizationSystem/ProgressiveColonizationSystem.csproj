@@ -210,7 +210,18 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="GameData\ProgressiveColonizationSystem\Textures\icon_filter_n.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ProgressiveColonizationSystem\Textures\icon_filter_s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="GameData\ProgressiveColonizationSystem\TieredResources.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GameData\ProgressiveColonizationSystem\CCK.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
