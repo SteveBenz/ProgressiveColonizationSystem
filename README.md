@@ -40,7 +40,7 @@ for the full story.
    4.  (done) De-fugly the part tweakable displays
    5.  Fully automate release preparation
    6.  Create or hijack a part for storing Snacks - just snacks
-   7.  Rearrange the parts VAB tabs so there's not a pile of random in "Life Support"
+   7.  (done) Rearrange the parts VAB tabs so there's not a pile of random in "Life Support"
    8.  Get a better scanner part
    9.  (completish)Delete the Community Resource Kit storage options on b9 tanks
          Maybe we should use the existance of the simple
