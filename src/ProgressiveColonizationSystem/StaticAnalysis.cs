@@ -323,7 +323,7 @@ namespace ProgressiveColonizationSystem
                 }
 
                 if (pair.Value > 0 && colonizationResearch.TryParseTieredResourceName(pair.Key, out var resource, out var tier)
-                    && (tier != TechTier.Tier4 || resource.BaseName == "Shinies"))
+                    && (tier != TechTier.Tier4 || resource.GetReputationGain(tier, 100) != 0))
                 {
                     extraBaggageComplaints.Add($"This vessel is carrying {pair.Key}.  That kind of cargo that should just be produced - that's fine for testing mass & delta-v, but you wouldn't really want to fly this way.");
                 }

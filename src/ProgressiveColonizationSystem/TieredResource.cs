@@ -39,6 +39,7 @@ namespace ProgressiveColonizationSystem
             this.IsHarvestedLocally = isHarvestedLocally;
             this.madeFrom = madeFrom;
             this.madeFromStartsAt = madeFromStartsAt;
+            this.reputationPerUnitAtTier = name == "Shinies" ? new float[] { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f } : new float[5];
         }
 
         public TieredResource(
@@ -67,6 +68,7 @@ namespace ProgressiveColonizationSystem
             this.effectivenessAtTier[2] = effT2;
             this.effectivenessAtTier[3] = effT3;
             this.effectivenessAtTier[4] = effT4;
+            this.reputationPerUnitAtTier = new float[5];
         }
 
 
