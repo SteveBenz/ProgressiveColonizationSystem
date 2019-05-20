@@ -15,6 +15,7 @@ namespace ProgressiveColonizationSystem
     public class TieredResource
     {
         private double[] effectivenessAtTier;
+        private float[] reputationPerUnitAtTier;
         private TieredResource madeFrom;
         private TechTier madeFromStartsAt;
 
@@ -107,6 +108,19 @@ namespace ProgressiveColonizationSystem
             this.effectivenessAtTier = allSet ? effectiveness : null;
             this.madeFrom = madeFrom;
             this.madeFromStartsAt = madeFromStartsAt;
+
+            float[] repGains = new float[1 + (int)TechTier.Tier4];
+            allSet = true;
+            for (TechTier tech = TechTier.Tier0; tech <= TechTier.Tier4; ++tech)
+            {
+                string name = $"reputation_per_unit_at_tier{(int)tech}";
+                if (!c.TryGetValue(name, ref repGains[(int)tech]))
+                {
+                    allSet = false;
+                    break;
+                }
+            }
+            this.reputationPerUnitAtTier = allSet ? repGains : new float[1 + (int)TechTier.Tier4];
         }
 
         public static Dictionary<string, TieredResource> LoadAll(Dictionary<string, ResearchCategory> researchCategories)
@@ -180,6 +194,8 @@ namespace ProgressiveColonizationSystem
 
         public string CrewSkill { get; }
 
+        public double BaseRepPerUnit { get; }
+
         public TieredResource MadeFrom(TechTier tier)
             => tier >= this.madeFromStartsAt ? this.madeFrom : null;
 
@@ -205,5 +221,8 @@ namespace ProgressiveColonizationSystem
 
         public double GetPercentOfDietByTier(TechTier tier)
             => this.effectivenessAtTier[(int)tier];
+
+        public float GetReputationGain(TechTier tier, float amount)
+            => this.reputationPerUnitAtTier[(int)tier] * amount;
     }
 }

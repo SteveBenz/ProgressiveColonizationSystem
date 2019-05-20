@@ -95,6 +95,7 @@
     <Compile Include="ResearchCategory.cs" />
     <Compile Include="ResearchSink.cs" />
     <Compile Include="ResourceLodeScenario.cs" />
+    <Compile Include="ShiniesReputationRewards.cs" />
     <Compile Include="StaticAnalysis.cs" />
     <Compile Include="TextEffects.cs" />
     <Compile Include="TieredResource.cs" />

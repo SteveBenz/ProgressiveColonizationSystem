@@ -10,42 +10,20 @@ for the full story.
 # TODO
 
 1. Bugs:
-   1.  Something seems to reset the dialog box to center from time to time
-   2.  (fixed) Once you transfer something, you can't switch to a different transfer target
-   3.  (fixed) Cupcake not available in map mode
-   4.  (fixed) Cupcake disabled for ships carrying tiered stuff - made it available for landed ships or crewed ships
-   5.  (fixed) Fertilizer really is too expensive
-   6.  (fixed) Hydroponics works at the launchpad
-   7.  (fixed) On worlds where Shinies production is capped, the max-tier warning ("All production parts should be set to") incorrectly wants to set the level to the capped value
-   8.  (fixed) All the parts that are landed should be touched by the max scanning level warning
-   9.  (fixed) Production dialog doesn't tell you that it's lacking CrushIns
-   10. (fixed) Production dialog should show excess production capacity for stuff & fertilizer
-   11. If there's more than one manned base, it should ask you where you want to look for crushins
-   12. Resource transfer seems not to work for some ships -- perhaps because of staging
-   13. (fixed) Dialog should show Crushin usage when the rover isn't automated (showcrushin)
-   14. (fixed) Production dialog shows LooseCrushins for rover (noloose)
-   15. (fixed) Doesn't tell you that it used up all the local loose crushins
-   16. (fixed) Doesn't tell you that production is blocked by lack of crew (shortoncrew)
-   17. Revisit the SPH production dialog
-   18. (fixed) Didn't get warning for not being maxtier on Minmus T4 -- perhaps because maxtier is 4?
-   19. (fixed) Find a way to automatically set body & tier
-   20. Can bring CrushIns from Kerbin or other bodies and fake out the resource auto-collection mechanic.  It should be happy
+   1.  Resource transfer seems not to work for some ships -- perhaps because of staging
+   5.  Can bring CrushIns from Kerbin or other bodies and fake out the resource auto-collection mechanic.  It should be happy
        to take the crushins, but disallow it as an auto-collector.
-   21. (fixed) Progression doesn't show why research is disabled.
-   22. (fixed) No breakthru message from construction (nocrushins T3 Mun base)
+   4.  If there's more than one manned base, it should ask you where you want to look for crushins
+   3.  Something seems to reset the dialog box to center from time to time
+   2.  Revisit the SPH production dialog
 2. Rounding things out
-   1.  Write PDF help and or create a github wiki
-   2.  (done) Make a K&K drill (Reuse "K&K Metal Ore Drill")
-   3.  (in test) Make a "K&K Storage [KIS]" that works with B9 -- need to figure out how to do the decals and push it to K&K
-   4.  (done) De-fugly the part tweakable displays
-   5.  Fully automate release preparation
-   6.  Create or hijack a part for storing Snacks - just snacks
-   7.  (done) Rearrange the parts VAB tabs so there's not a pile of random in "Life Support"
-   8.  Get a better scanner part
-   9.  (completish)Delete the Community Resource Kit storage options on b9 tanks
-         Maybe we should use the existance of the simple
-   10. Make the shinies boost your rep on landing - remember to add checks to make sure Shinies don't actually come from Kerbin
-   11. Add .version to output per guidance: https://github.com/KSP-CKAN/NetKAN/pull/7147
+   1.  Create or hijack a part for storing Snacks - just snacks
+   2.  Write PDF help and or create a github wiki
+   3.  Make the shinies boost your rep on landing - remember to add checks to make sure Shinies don't actually come from Kerbin
+   4.  Get a better scanner part
+   5.  (in test) Make a "K&K Storage [KIS]" that works with B9 -- need to figure out how to do the decals and push it to K&K
+   6.  Fully automate release preparation
+   7.  Add .version to output per guidance: https://github.com/KSP-CKAN/NetKAN/pull/7147
        ^-- added the version file, but CKAN doesn't know about it yet.  Fix it at the next version update.
 3. Things that don't seem worth doing
    1.  Integrate with Kerbal Alarm Clock?
