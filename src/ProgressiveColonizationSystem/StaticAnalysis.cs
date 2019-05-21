@@ -141,7 +141,7 @@ namespace ProgressiveColonizationSystem
             foreach (var producer in producers)
             {
                 var suitability = StaticAnalysis.GetTierSuitability(colonizationResearch, producer.Output, producer.Tier, producer.Body);
-                switch(suitability)
+                switch (suitability)
                 {
                     case TierSuitability.LacksScanner:
                         noScannerParts.Add(producer);
@@ -303,7 +303,7 @@ namespace ProgressiveColonizationSystem
             foreach (ITieredProducer producer in producers)
             {
                 if (producer.Output.CanBeStored &&
-                    (!storageAvailable.TryGetValue(producer.Output.TieredName(producer.Tier), out var available) 
+                    (!storageAvailable.TryGetValue(producer.Output.TieredName(producer.Tier), out var available)
                   || available == 0))
                 {
                     missingStorageComplaints.Add($"This craft is producing {producer.Output.TieredName(producer.Tier)} but there's no storage for it.");
@@ -314,6 +314,7 @@ namespace ProgressiveColonizationSystem
 
         internal static IEnumerable<WarningMessage> CheckExtraBaggage(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, Dictionary<string, double> amountAvailable, Dictionary<string, double> storageAvailable)
         {
+            HashSet<string> bannedBaggageComplaints = new HashSet<string>();
             HashSet<string> extraBaggageComplaints = new HashSet<string>();
             foreach (var pair in amountAvailable)
             {
@@ -322,13 +323,32 @@ namespace ProgressiveColonizationSystem
                     continue;
                 }
 
-                if (pair.Value > 0 && colonizationResearch.TryParseTieredResourceName(pair.Key, out var resource, out var tier)
-                    && (tier != TechTier.Tier4 || resource.GetReputationGain(tier, 100) != 0))
+                if (pair.Value > 0 && colonizationResearch.TryParseTieredResourceName(pair.Key, out var resource, out var tier))
                 {
-                    extraBaggageComplaints.Add($"This vessel is carrying {pair.Key}.  That kind of cargo that should just be produced - that's fine for testing mass & delta-v, but you wouldn't really want to fly this way.");
+                    if (resource.GetReputationGain(tier, 100) != 0 || resource.IsHarvestedLocally)
+                    {
+                        bannedBaggageComplaints.Add(pair.Key);
+                    }
+                    else if (tier != TechTier.Tier4)
+                    {
+                        extraBaggageComplaints.Add(pair.Key);
+                    }
                 }
             }
-            return extraBaggageComplaints.OrderBy(s => s).Select(s => new WarningMessage { Message = s, FixIt = null, IsClearlyBroken = false });
+            return extraBaggageComplaints
+                .OrderBy(s => s).Select(s => new WarningMessage
+                {
+                    Message = $"This vessel is carrying {s}.  Usually that kind of cargo is produced, so likely there's no point in carrying it into orbit with you.  You should probably empty those containers.",
+                    FixIt = () => UnloadCargo(s),
+                    IsClearlyBroken = false
+                })
+                .Union(bannedBaggageComplaints.OrderBy(s => s)
+                    .Select(s => new WarningMessage
+                    {
+                        Message = $"This vessel is carrying {s}.  That kind of cargo needs to be produced locally and can't be produced on Kerbin",
+                        FixIt = () => UnloadCargo(s),
+                        IsClearlyBroken = true
+                    }));
         }
 
         internal static IEnumerable<WarningMessage> CheckHasSomeFood(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, Dictionary<string, double> amountAvailable, Dictionary<string, double> storageAvailable, List<SkilledCrewman> crew)
@@ -426,7 +446,7 @@ namespace ProgressiveColonizationSystem
                 yield return new WarningMessage
                 {
                     Message = "For this craft to be useable as an automated miner, it needs at least two seats -- "
-                             +"one for a miner and one for a pilot.",
+                             + "one for a miner and one for a pilot.",
                     IsClearlyBroken = false,
                     FixIt = null
                 };
@@ -473,6 +493,38 @@ namespace ProgressiveColonizationSystem
                     FixIt = null
                 };
             }
+        }
+
+        private static void ForeachResource(Action<TieredResource, TechTier, PartResource> action)
+        {
+            List<Part> parts = EditorLogic.fetch.ship.Parts;
+            foreach (PartResource partResource in parts.SelectMany(p => p.Resources))
+            {
+                if (ColonizationResearchScenario.Instance.TryParseTieredResourceName(partResource.resourceName, out var resource, out var tier))
+                {
+                    action(resource, tier, partResource);
+                }
+            }
+        }
+
+        private static void UnloadCargo(string resourceName)
+        {
+            List<Part> parts = EditorLogic.fetch.ship.Parts;
+            foreach (PartResource partResource in parts.SelectMany(p => p.Resources).Where(pr => pr.resourceName == resourceName))
+            {
+                partResource.amount = 0;
+            }
+        }
+
+        public static void FixBannedCargos()
+        {
+            ForeachResource((resource, tier, partResource) =>
+            {
+                if (resource.GetReputationGain(TechTier.Tier0, 1) > 0 || resource.IsHarvestedLocally)
+                {
+                    partResource.amount = 0;
+                }
+            });
         }
     }
 }

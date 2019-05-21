@@ -293,9 +293,10 @@ namespace ProgressiveColonizationSystem.UnitTests
             };
             actual = StaticAnalysis.CheckExtraBaggage(colonizationResearch, this.producers, extraBaggage, emptyContainers).ToList();
             Assert.AreEqual(1, actual.Count);
-            Assert.AreEqual($"This vessel is carrying Fertilizer-Tier3.  That kind of cargo that should just be produced - that's fine for testing mass & delta-v, but you wouldn't really want to fly this way.", actual[0].Message);
+            Assert.AreEqual($"This vessel is carrying Fertilizer-Tier3.  Usually that kind of cargo is produced, so likely there's no point in carrying it into orbit with you.  You should probably empty those containers.", actual[0].Message);
             Assert.IsFalse(actual[0].IsClearlyBroken);
-            Assert.IsNull(actual[0].FixIt);
+            Assert.IsNotNull(actual[0].FixIt);
+            // We can't validate the FixIt routine because it reparses the vessel's parts
         }
 
         [TestMethod]

@@ -11,11 +11,11 @@ for the full story.
 
 1. Bugs:
    1.  Resource transfer seems not to work for some ships -- perhaps because of staging
-   5.  Can bring CrushIns from Kerbin or other bodies and fake out the resource auto-collection mechanic.  It should be happy
+   2.  (fix) Can bring CrushIns from Kerbin or other bodies and fake out the resource auto-collection mechanic.  It should be happy
        to take the crushins, but disallow it as an auto-collector.
-   4.  If there's more than one manned base, it should ask you where you want to look for crushins
-   3.  Something seems to reset the dialog box to center from time to time
-   2.  Revisit the SPH production dialog
+   3.  If there's more than one manned base, it should ask you where you want to look for crushins
+   4.  Something seems to reset the dialog box to center from time to time
+   5.  (not-busted)Revisit the SPH production dialog
 2. Rounding things out
    1.  Create or hijack a part for storing Snacks - just snacks
    2.  Write PDF help and or create a github wiki

@@ -47,7 +47,11 @@ namespace ProgressiveColonizationSystem
                 string message = "You might want to check this list of concerns the boys in the office have about this vessel:"
                                + Environment.NewLine
                                + string.Join(Environment.NewLine, this.lastWarningList.Select(w => w.Message).ToArray());
-                PopupMessageWithKerbal.ShowOkayCancel("You sure, boss?", message, "Don't worry, I have a plan!", "Good point", EditorLogic.fetch.launchVessel);
+                PopupMessageWithKerbal.ShowOkayCancel("You sure, boss?", message, "Don't worry, I have a plan!", "Good point", () =>
+                {
+                    StaticAnalysis.FixBannedCargos();
+                    EditorLogic.fetch.launchVessel();
+                });
             }
             else
             {
