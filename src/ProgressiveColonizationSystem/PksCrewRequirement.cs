@@ -103,13 +103,10 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        public bool IsRunning
-        {
-            get
-            {
-                return this.ResourceConverter == null ? true : this.ResourceConverter.IsActivated;
-            }
-        }
+        public bool IsRunning =>
+            HighLogic.LoadedSceneIsEditor
+            || this.ResourceConverter == null
+            || this.ResourceConverter.IsActivated;
 
         public bool IsStaffed
         {

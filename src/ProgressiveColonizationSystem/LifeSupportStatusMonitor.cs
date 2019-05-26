@@ -388,21 +388,28 @@ namespace ProgressiveColonizationSystem
             int numTurnedOff = parts.Count(p => !p.IsRunning);
             if (numUncrewed == 0 && numTurnedOff == 0)
             {
-                return $"{partsArray.Length}x{partName}";
+                return MakePartAndCountString(partsArray.Length, partName);
             }
             else if (numUncrewed > 0 && numTurnedOff == 0)
             {
-                return $"{partsArray.Length - numUncrewed}x{partName} {TextEffects.Red($"({numUncrewed} unstaffed)")}";
+                return $"{MakePartAndCountString(partsArray.Length - numUncrewed, partName)} {TextEffects.Red($"({numUncrewed} unstaffed)")}";
+            }
+            else if (numUncrewed == 0 && numTurnedOff == partsArray.Length)
+            {
+                return TextEffects.Yellow($"{MakePartAndCountString(numTurnedOff, partName)} (disabled)");
             }
             else if (numUncrewed == 0 && numTurnedOff > 0)
             {
-                return $"{partsArray.Length - numTurnedOff}x{partName} {TextEffects.Yellow($"({numTurnedOff} disabled)")}";
+                return $"{MakePartAndCountString(partsArray.Length - numTurnedOff, partName)} {TextEffects.Yellow($"({numTurnedOff} disabled)")}";
             }
             else
             {
-                return $"{partsArray.Length - numUncrewed - numTurnedOff}x{partName} {TextEffects.Red($"({numUncrewed} unstaffed, {numTurnedOff} disabled)")}";
+                return $"{MakePartAndCountString(partsArray.Length - numUncrewed - numTurnedOff, partName)} {TextEffects.Red($"({numUncrewed} unstaffed, {numTurnedOff} disabled)")}";
             }
         }
+
+        private static string MakePartAndCountString(int count, string partName)
+            => count == 1 ? partName : $"{count}x{partName}";
 
         protected override MultiOptionDialog DrawDialog(Rect rect)
         {
