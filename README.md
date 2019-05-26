@@ -21,7 +21,9 @@ for the full story.
    8.  No message outside of cupcake dialog when kerbals first run out of food
    9.  (fixed) Doesn't tell you that your ship has no food when you have parts that require kerbals and no kerbals
    10. (fixed) If you just set the body without setting the tier, it sets the parts to Tier 4
-   11. Crew dialog is busted in the SPH -- thinks all the parts are disabled and doesn't show any crew
+   11. (fixed) Crew dialog is busted in the SPH -- thinks all the parts are disabled and doesn't show any crew
+   12. (fixed) Complains about a lack of fertilizer when T4 fertilizer is present and there's a Hydroponics producer
+   13. Crew dialog does not update when kerbals are added in the Editor
 2. Rounding things out
    1.  Create or hijack a part for storing Snacks - just snacks
    2.  Write PDF help and or create a github wiki

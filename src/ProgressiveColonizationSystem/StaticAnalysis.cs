@@ -273,7 +273,7 @@ namespace ProgressiveColonizationSystem
                     // Okay, there's no producer for this - complain if there's no storage that either contains the
                     // required tier or could contain it if it's gathered locally.
                     TechTier requiredTier = producers.Where(p => p.Input == inputResource).Select(p => p.Tier).Min();
-                    bool anyInStorage = Enumerable.Range((int)requiredTier, (int)TechTier.Tier4)
+                    bool anyInStorage = Enumerable.Range((int)requiredTier, 1+(int)TechTier.Tier4)
                         .Any(i => amountAvailable.TryGetValue(inputResource.TieredName((TechTier)i), out var amount) && amount > 0);
                     if (!inputResource.IsHarvestedLocally && !anyInStorage)
                     {
