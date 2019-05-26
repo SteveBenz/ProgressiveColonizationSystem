@@ -11,11 +11,17 @@ for the full story.
 
 1. Bugs:
    1.  Resource transfer seems not to work for some ships -- perhaps because of staging
-   2.  (fix) Can bring CrushIns from Kerbin or other bodies and fake out the resource auto-collection mechanic.  It should be happy
+   2.  (fixed) Can bring CrushIns from Kerbin or other bodies and fake out the resource auto-collection mechanic.  It should be happy
        to take the crushins, but disallow it as an auto-collector.
    3.  If there's more than one manned base, it should ask you where you want to look for crushins
    4.  Something seems to reset the dialog box to center from time to time
-   5.  (not-busted)Revisit the SPH production dialog
+   5.  Maybe it's not consuming the crushins out of the ground.
+   6.  K&K Workshop part is not in the PKS tab
+   7.  Messy text when kerbals run out of food
+   8.  No message outside of cupcake dialog when kerbals first run out of food
+   9.  No T4-snacks message should appear if there are parts requiring kerbals
+   10. It's showing the "Crushins" & automated warnings even on Tier0 craft
+   11. Crew dialog is busted in the SPH -- thinks all the parts are disabled and doesn't show any crew
 2. Rounding things out
    1.  Create or hijack a part for storing Snacks - just snacks
    2.  Write PDF help and or create a github wiki
@@ -25,6 +31,7 @@ for the full story.
    6.  Fully automate release preparation
    7.  Add .version to output per guidance: https://github.com/KSP-CKAN/NetKAN/pull/7147
        ^-- added the version file, but CKAN doesn't know about it yet.  Fix it at the next version update.
+   8.  Maybe allow some warnings to show a "Don't care" button (Particularly the storage ones)
 3. Things that don't seem worth doing
    1.  Integrate with Kerbal Alarm Clock?
    2.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.

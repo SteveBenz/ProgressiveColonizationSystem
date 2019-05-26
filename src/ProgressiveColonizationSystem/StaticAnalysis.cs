@@ -353,7 +353,11 @@ namespace ProgressiveColonizationSystem
 
         internal static IEnumerable<WarningMessage> CheckHasSomeFood(IColonizationResearchScenario colonizationResearch, List<ITieredProducer> producers, Dictionary<string, double> amountAvailable, Dictionary<string, double> storageAvailable, List<SkilledCrewman> crew)
         {
-            if (crew.Count > 0 && (!amountAvailable.TryGetValue("Snacks-Tier4", out var amount) || amount == 0))
+            bool needsFood = crew.Any() || producers.Any();
+            bool hasStoredFood = (amountAvailable.TryGetValue("Snacks-Tier4", out var amount) && amount > 0);
+            bool producesFood = producers.Any(p => p.Output.IsEdible && p.Output.GetPercentOfDietByTier(p.Tier) == 1);
+
+            if (needsFood && !hasStoredFood && !producesFood)
             {
                 yield return new WarningMessage
                 {

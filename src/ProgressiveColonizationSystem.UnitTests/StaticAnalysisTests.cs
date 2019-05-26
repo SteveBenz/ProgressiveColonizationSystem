@@ -332,5 +332,43 @@ namespace ProgressiveColonizationSystem.UnitTests
             Assert.AreEqual(1, actual.Count);
             Assert.AreEqual("There's no place to put the Rocket Parts this base is producing.", actual[0].Message);
         }
+
+
+        [TestMethod]
+        public void WarningsTest_ChecksSnacks()
+        {
+            List<SkilledCrewman> noCrew = new List<SkilledCrewman>();
+            List<SkilledCrewman> someCrew = new List<SkilledCrewman> { new StubSkilledCrewman("Tourist", 0) };
+
+            // Control - it shouldn't warn if there's no crew
+            var actual = StaticAnalysis.CheckHasSomeFood(
+                colonizationResearch, new List<ITieredProducer>(), this.emptyContainers, this.emptyContainers, noCrew).ToArray();
+            Assert.AreEqual(0, actual.Length);
+
+            // When we add crew, it complains
+            actual = StaticAnalysis.CheckHasSomeFood(
+                colonizationResearch, new List<ITieredProducer>(), this.emptyContainers, this.emptyContainers, someCrew).ToArray();
+            Assert.AreEqual(1, actual.Length);
+
+            // When we add snack storage, it shuts up
+            actual = StaticAnalysis.CheckHasSomeFood(
+                colonizationResearch, new List<ITieredProducer>(), this.snacksOnly, this.emptyContainers, someCrew).ToArray();
+            Assert.AreEqual(0, actual.Length);
+
+            // When we add snack storage, it shuts up
+            actual = StaticAnalysis.CheckHasSomeFood(
+                colonizationResearch, new List<ITieredProducer>(), this.snacksOnly, this.emptyContainers, someCrew).ToArray();
+            Assert.AreEqual(0, actual.Length);
+
+            // When we add a snack producer, it shuts up
+            actual = StaticAnalysis.CheckHasSomeFood(
+                colonizationResearch, new List<ITieredProducer>() { new StubFarm() { Tier = TechTier.Tier4 } }, this.emptyContainers, this.emptyContainers, someCrew).ToArray();
+            Assert.AreEqual(0, actual.Length);
+
+            // Given there are parts that produce on board - it should warn even if there aren't crew
+            actual = StaticAnalysis.CheckHasSomeFood(
+                colonizationResearch, new List<ITieredProducer>() { new StubDrill() }, this.emptyContainers, this.emptyContainers, noCrew).ToArray();
+            Assert.AreEqual(1, actual.Length);
+        }
     }
 }
