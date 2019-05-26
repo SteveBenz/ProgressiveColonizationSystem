@@ -32,7 +32,6 @@ namespace ProgressiveColonizationSystem
             }
 
             bool subordinateTechIsCapping = false;
-            TechTier maxScanningTier = colonizationResearchScenario.GetMaxUnlockedScanningTier(body);
             for (TieredResource requiredResource = tieredResource.MadeFrom(tier); requiredResource != null; requiredResource = requiredResource.MadeFrom(tier))
             {
                 if (requiredResource.ResearchCategory.Type != tieredResource.ResearchCategory.Type)
@@ -54,12 +53,13 @@ namespace ProgressiveColonizationSystem
                 }
             }
 
-            if (!string.IsNullOrEmpty(body) && tier > maxScanningTier)
+            TechTier maxScanningTier = string.IsNullOrEmpty(body) ? TechTier.Tier4 : colonizationResearchScenario.GetMaxUnlockedScanningTier(body);
+            if (tier > maxScanningTier)
             {
                 return TierSuitability.LacksScanner;
             }
 
-            if (tier < maxTier && !subordinateTechIsCapping && tier < maxScanningTier)
+            if (tier < maxTier && !subordinateTechIsCapping && (string.IsNullOrEmpty(body) || tier < maxScanningTier))
             {
                 return TierSuitability.UnderTier;
             }
