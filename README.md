@@ -19,8 +19,8 @@ for the full story.
    6.  K&K Workshop part is not in the PKS tab
    7.  Messy text when kerbals run out of food
    8.  No message outside of cupcake dialog when kerbals first run out of food
-   9.  No T4-snacks message should appear if there are parts requiring kerbals
-   10. It's showing the "Crushins" & automated warnings even on Tier0 craft
+   9.  (fixed) Doesn't tell you that your ship has no food when you have parts that require kerbals and no kerbals
+   10. (fixed) If you just set the body without setting the tier, it sets the parts to Tier 4
    11. Crew dialog is busted in the SPH -- thinks all the parts are disabled and doesn't show any crew
 2. Rounding things out
    1.  Create or hijack a part for storing Snacks - just snacks

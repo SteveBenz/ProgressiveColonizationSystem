@@ -113,6 +113,7 @@ namespace ProgressiveColonizationSystem
                         isEnabled = true;
                         if (setTier)
                         {
+                            this.RiskLevel = TierSuitability.Ideal;
                             this.Tier = tier;
                         }
                         break;
