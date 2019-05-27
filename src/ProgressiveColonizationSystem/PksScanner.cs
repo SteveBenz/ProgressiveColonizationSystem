@@ -121,5 +121,15 @@ namespace ProgressiveColonizationSystem
             scansats = scansats.ToArray();
             return scansats.Sum(v => (v.orbit.inclination > 80.0 && v.orbit.inclination  < 100.0) ? 1 : .3);
         }
+
+        public void FixedUpdate()
+        {
+            base.OnFixedUpdate();
+            GetTargetInfo(out TechTier tier, out string targetBody);
+            if (tier < (TechTier)minimumTier || this.vessel.mainBody.name != targetBody)
+            {
+                Events["FindResource"].guiActive = false;
+            }
+        }
     }
 }

@@ -25,17 +25,19 @@ for the full story.
    12. (fixed) Complains about a lack of fertilizer when T4 fertilizer is present and there's a Hydroponics producer
    13. Crew dialog does not update when kerbals are added in the Editor
    14. (fixed) On Progression pane, "Production" comes up twice at Mun Base 1
-   15. (fixed) Tooltips apparently don't get line-wrapperd.
+   15. (fixed) Tooltips apparently don't get line-wrapped.
+   16. Scan for Loose Crushins shouldn't be visible below T2
 2. Rounding things out
    1.  Create or hijack a part for storing Snacks - just snacks
    2.  Write PDF help and or create a github wiki
-   3.  Make the shinies boost your rep on landing - remember to add checks to make sure Shinies don't actually come from Kerbin
+   3.  (complete) Make the shinies boost your rep on landing - remember to add checks to make sure Shinies don't actually come from Kerbin
    4.  Get a better scanner part
-   5.  (in test) Make a "K&K Storage [KIS]" that works with B9 -- need to figure out how to do the decals and push it to K&K
-   6.  Fully automate release preparation
-   7.  Add .version to output per guidance: https://github.com/KSP-CKAN/NetKAN/pull/7147
+   5.  Fully automate release preparation
+   6.  Add .version to output per guidance: https://github.com/KSP-CKAN/NetKAN/pull/7147
        ^-- added the version file, but CKAN doesn't know about it yet.  Fix it at the next version update.
-   8.  Maybe allow some warnings to show a "Don't care" button (Particularly the storage ones)
+   7.  Maybe allow some warnings to show a "Don't care" button (Particularly the storage ones)
+   8.  (DOA) Make a "K&K Storage [KIS]" that works with B9 -- need to figure out how to do the decals and push it to K&K
+       Mod author has other ideas.
 3. Things that don't seem worth doing
    1.  Integrate with Kerbal Alarm Clock?
    2.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
