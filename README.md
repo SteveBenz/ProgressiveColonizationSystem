@@ -16,7 +16,7 @@ for the full story.
    3.  If there's more than one manned base, it should ask you where you want to look for crushins
    4.  Something seems to reset the dialog box to center from time to time
    5.  Maybe it's not consuming the crushins out of the ground.
-   6.  K&K Workshop part is not in the PKS tab
+   6.  (fixed) K&K Workshop part is not in the PKS tab
    7.  Messy text when kerbals run out of food
    8.  No message outside of cupcake dialog when kerbals first run out of food
    9.  (fixed) Doesn't tell you that your ship has no food when you have parts that require kerbals and no kerbals
@@ -24,6 +24,8 @@ for the full story.
    11. (fixed) Crew dialog is busted in the SPH -- thinks all the parts are disabled and doesn't show any crew
    12. (fixed) Complains about a lack of fertilizer when T4 fertilizer is present and there's a Hydroponics producer
    13. Crew dialog does not update when kerbals are added in the Editor
+   14. (fixed) On Progression pane, "Production" comes up twice at Mun Base 1
+   15. (fixed) Tooltips apparently don't get line-wrapperd.
 2. Rounding things out
    1.  Create or hijack a part for storing Snacks - just snacks
    2.  Write PDF help and or create a github wiki
