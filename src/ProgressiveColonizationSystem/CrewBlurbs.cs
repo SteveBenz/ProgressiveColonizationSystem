@@ -75,7 +75,7 @@ namespace ProgressiveColonizationSystem
             message = message.Replace("[victims]", GetGroupDescription(crewDescriptors, false));
             message = message.Replace("[crew]", GetGroupDescription(crewDescriptors));
             message = message.Replace("[resource_name]", GetMessage("LOC_KPBS_RANDOM_MINERAL"));
-            message = message.Replace("[body]", FlightGlobals.ActiveVessel.mainBody.bodyDisplayName);
+            message = message.Replace("[body]", FlightGlobals.ActiveVessel.mainBody.name);
             return message;
         }
 
