@@ -664,7 +664,7 @@ namespace ProgressiveColonizationSystem
                 var progressLimits = tieredProducers
                     .Where(tp => !tp.IsResearchEnabled)
                     .Where(tp => !positiveProgress.Any(p => p.Category == tp.Output.ResearchCategory.DisplayName))
-                    .GroupBy(tp => tp.Output)
+                    .GroupBy(tp => tp.Output.ResearchCategory)
                     .Select(group => group.First())
                     .Select(tp => new ResearchData
                     {
