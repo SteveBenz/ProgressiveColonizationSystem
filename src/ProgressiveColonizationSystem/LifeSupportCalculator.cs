@@ -32,6 +32,7 @@ namespace ProgressiveColonizationSystem
 
         private string productionInfo = "";
         private string consumptionInfo = "";
+        private string productionLimitedBy = "";
 
         public void Start()
         {
@@ -148,7 +149,10 @@ namespace ProgressiveColonizationSystem
                 new DialogGUILabel(() => this.productionInfo),
                 new DialogGUISpace(3),
                 new DialogGUILabel("<b>Consumption:</b>"),
-                new DialogGUILabel(() => this.consumptionInfo));
+                new DialogGUILabel(() => this.consumptionInfo),
+                new DialogGUISpace(3),
+                new DialogGUILabel(() => string.IsNullOrEmpty(this.productionLimitedBy) ? "" : TextEffects.Yellow("<b>Production Limited By:</b>")),
+                new DialogGUILabel(() => this.productionLimitedBy));
         }
 
         private string OnInputText(string text)
@@ -207,6 +211,7 @@ namespace ProgressiveColonizationSystem
             {
                 this.consumptionInfo = "-";
                 this.productionInfo = "-";
+                this.productionLimitedBy = string.Join(", ", limitingResources.ToArray());
                 return;
             }
 
@@ -254,6 +259,7 @@ namespace ProgressiveColonizationSystem
                 production.AppendLine($"{amountPerDay:N1} {name}/day - {availableBlurb}");
             }
             this.productionInfo = production.ToString();
+            this.productionLimitedBy = string.Join(", ", limitingResources.ToArray());
         }
 
 
