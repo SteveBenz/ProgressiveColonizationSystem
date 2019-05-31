@@ -16,13 +16,14 @@ Because I can't be bothered with GitHub issues.
    10. (fixed) If you just set the body without setting the tier, it sets the parts to Tier 4
    11. (fixed) Crew dialog is busted in the SPH -- thinks all the parts are disabled and doesn't show any crew
    12. (fixed) Complains about a lack of fertilizer when T4 fertilizer is present and there's a Hydroponics producer
-   13. Crew dialog does not update when kerbals are added in the Editor
+   13. (fixed) Crew dialog does not update when kerbals are added in the Editor
    14. (fixed) On Progression pane, "Production" comes up twice at Mun Base 1
    15. (fixed) Tooltips apparently don't get line-wrapped.
    16. (fixed) Scan for Loose Crushins shouldn't be visible below T2
    17. If there's no Complex Parts, it doesn't list that as a limiter in the in-flight production tab.
    18. If there's no complex parts, it doesn't list that as a problem in the editor warnings tab.
-   19. Doesn't show rocket parts production at all in the production window even if complex parts are present.
+       ^-- both of these might be due to it not showing any indicator if you don't have storage for the output.
+   19. (norepro) Doesn't show rocket parts production at all in the production window even if complex parts are present.
    20. (fixed) Stuff Scanner part is showing up under Science tab
 2. Rounding things out
    1.  Create or hijack a part for storing Snacks - just snacks

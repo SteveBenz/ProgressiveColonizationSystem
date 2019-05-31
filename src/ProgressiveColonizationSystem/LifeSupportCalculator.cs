@@ -27,6 +27,7 @@ namespace ProgressiveColonizationSystem
         private bool isShowingPartsInCrewWindow = false;
 
         private int warningsHash = 0;
+        private int lastCrewHash = -1;
 
         private int plannedMissionDuration = 100;
 
@@ -322,6 +323,13 @@ namespace ProgressiveColonizationSystem
 
             this.CalculateWarnings();
             this.RecalculateResults();
+
+            int lastCrewHash = FindCrew().Aggregate<ProtoCrewMember, int>(0, (accumulator, crew) => accumulator ^ crew.GetHashCode());
+            if (this.lastCrewHash != lastCrewHash)
+            {
+                this.lastCrewHash = lastCrewHash;
+                this.Redraw();
+            }
         }
 
         private void CalculateWarnings()
