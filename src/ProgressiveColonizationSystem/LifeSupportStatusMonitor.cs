@@ -518,7 +518,6 @@ namespace ProgressiveColonizationSystem
             if (timePassed == 0)
             {
                 var introMessageBuilder = new StringBuilder();
-                introMessageBuilder.Append(TextEffects.Red("There aren't enough supplies or producers here to feed any kerbals."));
 
                 if (!activeSnackConsumption.IsAtHome)
                 {
@@ -548,7 +547,7 @@ namespace ProgressiveColonizationSystem
                         LifeSupportScenario.Instance.TryGetStatus(crewInBucket[0], out double daysSinceMeal, out double daysToGrouchy, out bool isGrouchy);
                         if (isGrouchy)
                         {
-                            introMessageBuilder.AppendLine(CrewBlurbs.StarvingKerbals(crewInBucket));
+                            introMessageBuilder.AppendLine(TextEffects.Red(CrewBlurbs.StarvingKerbals(crewInBucket)));
                         }
                         else if (daysToGrouchy < 2)
                         {
@@ -558,6 +557,12 @@ namespace ProgressiveColonizationSystem
                         {
                             introMessageBuilder.AppendLine(CrewBlurbs.HungryKerbals(crewInBucket, daysToGrouchy, tieredProducers.Any()));
                         }
+                    }
+
+                    if (tieredProducers.Any())
+                    {
+                        introMessageBuilder.AppendLine();
+                        introMessageBuilder.AppendLine("Nothing can be produced at this base until the snack situation gets fixed.");
                     }
                 }
 

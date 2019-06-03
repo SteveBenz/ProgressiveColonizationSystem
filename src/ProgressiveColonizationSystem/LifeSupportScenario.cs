@@ -98,8 +98,6 @@ namespace ProgressiveColonizationSystem
                     duration: 15f,
                     style: ScreenMessageStyle.UPPER_CENTER);
             }
-
-            // ScreenMessages.PostScreenMessage($"{crew.name}'s tummy is growling too loudly to get any work done.", 5f, ScreenMessageStyle.UPPER_CENTER);
         }
 
         public bool TryGetStatus(ProtoCrewMember crew, out double daysSinceMeal, out double daysToGrouchy, out bool isGrouchy)
