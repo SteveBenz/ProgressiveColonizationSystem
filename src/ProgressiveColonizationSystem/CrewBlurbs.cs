@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using static LingoonaGrammarExtensions;
 
@@ -53,6 +54,9 @@ namespace ProgressiveColonizationSystem
             return TextEffects.Red($"{GetGroupDescription(crewInBucket)} {isare(crewInBucket)} refusing to do any more work and {isare(crewInBucket)} contemplating legal action against KSP!  Get {himherthem(crewInBucket)} home or get some food out here right away!");
         }
 
+        //  /* RegexOptions.Compiled /* | RegexOptions.CultureInvariant */
+        private static readonly Regex replacement = new Regex(@"\[\w+\]");
+
         public static string CreateMessage(string baseMessageTag, List<ProtoCrewMember> crew, IEnumerable<string> experienceEffects, TechTier tier)
         {
             HashSet<string> possibleTraits = new HashSet<string>(
@@ -60,24 +64,53 @@ namespace ProgressiveColonizationSystem
                     .ExperienceConfigs
                     .GetTraitsWithEffect(effect)));
             var crewDescriptors = crew.Select(c => FromKsp(c, protocrew => possibleTraits.Contains(protocrew.trait))).ToList();
-            var perp = ChoosePerpetrator(crewDescriptors);
-            var victim = ChooseVictim(crewDescriptors);
+            CrewDescriptor perp = null;
+            CrewDescriptor victim = null;
 
-            string message = GetMessage(baseMessageTag);
-            message = message.Replace("[tier]", tier.DisplayName());
-            message = message.Replace("[perp_name]", perp.Name);
-            message = message.Replace("[victim_name]", victim.Name);
-            message = message.Replace("[perp_heshe]", perp.heshe);
-            message = message.Replace("[perp_himher]", perp.himher);
-            message = message.Replace("[perp_hisher]", perp.hisher);
-            message = message.Replace("[victim_hisher]", victim.hisher);
-            message = message.Replace("[perps]", GetGroupDescription(crewDescriptors, true));
-            message = message.Replace("[victims]", GetGroupDescription(crewDescriptors, false));
-            message = message.Replace("[victims_hashave]", crewDescriptors.hashave());
-            message = message.Replace("[victims_hishertheir]", crewDescriptors.hishertheir());
-            message = message.Replace("[crew]", GetGroupDescription(crewDescriptors));
-            message = message.Replace("[resource_name]", GetMessage("LOC_KPBS_RANDOM_MINERAL"));
-            message = message.Replace("[body]", FlightGlobals.ActiveVessel.mainBody.name);
+            string Replacer(Match match)
+            {
+                switch (match.Value)
+                {
+                    case "[tier]":
+                        return tier.DisplayName();
+                    case "[perp_name]":
+                        perp = perp ?? ChoosePerpetrator(crewDescriptors);
+                        return perp.Name;
+                    case "[victim_name]":
+                        victim = victim ?? ChooseVictim(crewDescriptors);
+                        return victim.Name;
+                    case "[perp_heshe]":
+                        perp = perp ?? ChoosePerpetrator(crewDescriptors);
+                        return perp.heshe;
+                    case "[perp_himher]":
+                        perp = perp ?? ChoosePerpetrator(crewDescriptors);
+                        return perp.himher;
+                    case "[perp_hisher]":
+                        perp = perp ?? ChoosePerpetrator(crewDescriptors);
+                        return perp.hisher;
+                    case "[victim_hisher]":
+                        victim = victim ?? ChooseVictim(crewDescriptors);
+                        return victim.hisher;
+                    case "[perps]":
+                        return GetGroupDescription(crewDescriptors, true);
+                    case "[victims]":
+                        return GetGroupDescription(crewDescriptors, false);
+                    case "[victims_hashave]":
+                        return crewDescriptors.hashave();
+                    case "[victims_hishertheir]":
+                        return crewDescriptors.hishertheir();
+                    case "[crew]":
+                        return GetGroupDescription(crewDescriptors);
+                    case "[resource_name]":
+                        return GetMessage("LOC_KPBS_RANDOM_MINERAL");
+                    case "[body]":
+                        return FlightGlobals.ActiveVessel.mainBody.name;
+                    default:
+                        return $"?Unknown Substitution: {match.Value}?";
+                }
+            }
+
+            string message = replacement.Replace(GetMessage(baseMessageTag), Replacer);
             return message;
         }
 

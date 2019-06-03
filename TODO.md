@@ -10,8 +10,8 @@ Because I can't be bothered with GitHub issues.
    4.  Something seems to reset the dialog box to center from time to time
    5.  Maybe it's not consuming the crushins out of the ground.
    6.  (fixed) K&K Workshop part is not in the PKS tab
-   7.  Messy text when kerbals run out of food
-   8.  No message outside of cupcake dialog when kerbals first run out of food
+   7.  (fixed) Messy text when kerbals run out of food
+   8.  (fixed) No message outside of cupcake dialog when kerbals first run out of food
    9.  (fixed) Doesn't tell you that your ship has no food when you have parts that require kerbals and no kerbals
    10. (fixed) If you just set the body without setting the tier, it sets the parts to Tier 4
    11. (fixed) Crew dialog is busted in the SPH -- thinks all the parts are disabled and doesn't show any crew
