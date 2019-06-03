@@ -73,16 +73,11 @@ namespace ProgressiveColonizationSystem
             message = message.Replace("[victim_hisher]", victim.hisher);
             message = message.Replace("[perps]", GetGroupDescription(crewDescriptors, true));
             message = message.Replace("[victims]", GetGroupDescription(crewDescriptors, false));
+            message = message.Replace("[victims_hashave]", crewDescriptors.hashave());
+            message = message.Replace("[victims_hishertheir]", crewDescriptors.hishertheir());
             message = message.Replace("[crew]", GetGroupDescription(crewDescriptors));
             message = message.Replace("[resource_name]", GetMessage("LOC_KPBS_RANDOM_MINERAL"));
             message = message.Replace("[body]", FlightGlobals.ActiveVessel.mainBody.name);
-            return message;
-        }
-
-        public static string CreateMessageWithTechTier(string baseMessageTag, TechTier tier)
-        {
-            string message = GetMessage(baseMessageTag);
-            message = message.Replace("[tier]", tier.DisplayName());
             return message;
         }
 
@@ -195,6 +190,15 @@ namespace ProgressiveColonizationSystem
             return possibleMessages[CrewBlurbs.random.Next(i)];
         }
     }
+
+    public static class CrewBlurbExtensions
+    {
+        public static string hashave(this List<CrewDescriptor> crewDescriptors)
+            => crewDescriptors.Count > 1 ? "have" : "has";
+        public static string hishertheir(this List<CrewDescriptor> crewDescriptors)
+            => crewDescriptors.Count == 1 ? crewDescriptors[0].hisher : "their";
+    }
+
 
     public class CrewDescriptor
     {

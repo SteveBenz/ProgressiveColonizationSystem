@@ -75,10 +75,7 @@ namespace ProgressiveColonizationSystem
             {
                 // While actually on Kerbal, the Kerbals will order take-out rather than consuming
                 // what's in the ship.
-                foreach (var crewman in crew)
-                {
-                    LifeSupportScenario.Instance?.KerbalHasReachedHomeworld(crewman);
-                }
+                LifeSupportScenario.Instance?.KerbalsHaveReachedHomeworld(this.vessel);
             }
             else
             {
@@ -281,20 +278,13 @@ namespace ProgressiveColonizationSystem
             {
                 double lastMealTime = Planetarium.GetUniversalTime() - remainingTime;
                 // Somebody got something to eat - record that.
-                foreach (var crewMember in crew)
-                {
-                    LifeSupportScenario.Instance.KerbalHadASnack(crewMember, lastMealTime);
-                }
+                LifeSupportScenario.Instance.KerbalsHadASnack(this.vessel, lastMealTime);
             }
 
             if (remainingTime > ResourceUtilities.FLOAT_TOLERANCE)
             {
                 // We ran out of food
-                // TODO: Maybe we ought to have a single message for the whole crew?
-                foreach (var crewMember in crew)
-                {
-                    LifeSupportScenario.Instance.KerbalMissedAMeal(crewMember);
-                }
+                LifeSupportScenario.Instance.KerbalsMissedAMeal(this.vessel);
                 return deltaTime - remainingTime;
             }
             else

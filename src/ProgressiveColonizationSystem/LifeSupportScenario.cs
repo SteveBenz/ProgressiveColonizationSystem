@@ -16,6 +16,10 @@ namespace ProgressiveColonizationSystem
     {
         private Dictionary<string, LifeSupportStatus> knownKerbals = new Dictionary<string, LifeSupportStatus>();
 
+        private Vessel lastVesselComplainedAbout = null;
+        private List<ProtoCrewMember> hungryKerbals = new List<ProtoCrewMember>();
+        private List<ProtoCrewMember> incapacitatedKerbals = new List<ProtoCrewMember>();
+
         public static LifeSupportScenario Instance;
 
         public LifeSupportScenario()
@@ -23,33 +27,79 @@ namespace ProgressiveColonizationSystem
             Instance = this;
         }
 
-        // TODO: Configurable?
         public const int DaysBeforeKerbalStarves = 7;
         private const double secondsBeforeKerbalStarves = DaysBeforeKerbalStarves * 6 * 60 * 60; // 7 kerban days
 
-        public void KerbalMissedAMeal(ProtoCrewMember crew)
+        public void KerbalsMissedAMeal(Vessel vessel)
         {
-            if (this.knownKerbals.TryGetValue(crew.name, out LifeSupportStatus crewStatus))
+            if (vessel.isEVA)
             {
-                if (!crewStatus.IsGrouchy && Planetarium.GetUniversalTime() > crewStatus.LastMeal + secondsBeforeKerbalStarves)
+                return;
+            }
+
+            this.CheckForNewVessel(vessel);
+
+            List<ProtoCrewMember> crewThatBecameHungry = new List<ProtoCrewMember>();
+            List<ProtoCrewMember> crewThatBecameIncapacitated = new List<ProtoCrewMember>();
+
+            foreach (var crew in vessel.GetVesselCrew())
+            {
+                if (this.knownKerbals.TryGetValue(crew.name, out LifeSupportStatus crewStatus))
                 {
-                    crewStatus.IsGrouchy = true;
-                    crewStatus.OldTrait = crew.experienceTrait.Title;
-                    crew.type = ProtoCrewMember.KerbalType.Tourist;
-                    KerbalRoster.SetExperienceTrait(crew, "Tourist");
-                    ScreenMessages.PostScreenMessage($"{crew.name}'s tummy is growling too loudly to get any work done.", 5f, ScreenMessageStyle.UPPER_CENTER);
+                    if (!crewStatus.IsGrouchy && Planetarium.GetUniversalTime() > crewStatus.LastMeal + secondsBeforeKerbalStarves)
+                    {
+                        crewStatus.IsGrouchy = true;
+                        crewStatus.OldTrait = crew.experienceTrait.Title;
+                        crew.type = ProtoCrewMember.KerbalType.Tourist;
+                        KerbalRoster.SetExperienceTrait(crew, "Tourist");
+                    }
+                }
+                else
+                {
+                    crewStatus = new LifeSupportStatus
+                    {
+                        IsGrouchy = false,
+                        KerbalName = crew.name,
+                        LastMeal = Planetarium.GetUniversalTime(),
+                        OldTrait = null
+                    };
+                    this.knownKerbals.Add(crew.name, crewStatus);
+                }
+
+                if (crewStatus.IsGrouchy)
+                {
+                    if (!this.incapacitatedKerbals.Contains(crew))
+                    {
+                        crewThatBecameIncapacitated.Add(crew);
+                        this.incapacitatedKerbals.Add(crew);
+                    }
+                }
+                else
+                {
+                    if (!this.hungryKerbals.Contains(crew))
+                    {
+                        crewThatBecameHungry.Add(crew);
+                        this.hungryKerbals.Add(crew);
+                    }
                 }
             }
-            else
+
+            if (crewThatBecameIncapacitated.Any())
             {
-                this.knownKerbals.Add(crew.name, new LifeSupportStatus
-                {
-                    IsGrouchy = false,
-                    KerbalName = crew.name,
-                    LastMeal = Planetarium.GetUniversalTime(),
-                    OldTrait = null
-                });
+                ScreenMessages.PostScreenMessage(
+                    message: CrewBlurbs.CreateMessage("#LOC_KPBS_KERBAL_INCAPACITATED", crewThatBecameIncapacitated, new string[] { }, TechTier.Tier0),
+                    duration: 15f,
+                    style: ScreenMessageStyle.UPPER_CENTER);
             }
+            else if (crewThatBecameHungry.Any())
+            {
+                ScreenMessages.PostScreenMessage(
+                    message: CrewBlurbs.CreateMessage("#LOC_KPBS_KERBAL_HUNGRY", crewThatBecameHungry, new string[] { }, TechTier.Tier0),
+                    duration: 15f,
+                    style: ScreenMessageStyle.UPPER_CENTER);
+            }
+
+            // ScreenMessages.PostScreenMessage($"{crew.name}'s tummy is growling too loudly to get any work done.", 5f, ScreenMessageStyle.UPPER_CENTER);
         }
 
         public bool TryGetStatus(ProtoCrewMember crew, out double daysSinceMeal, out double daysToGrouchy, out bool isGrouchy)
@@ -71,41 +121,66 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        public void KerbalHasReachedHomeworld(ProtoCrewMember crew)
+        public void KerbalsHaveReachedHomeworld(Vessel vessel)
         {
-            if (this.knownKerbals.TryGetValue(crew.name, out LifeSupportStatus crewStatus))
+            // Perhaps we should do this when we recover the vessel like ShiniesReputationRewards does.
+            foreach (var crew in vessel.GetVesselCrew())
             {
-                if (crewStatus.IsGrouchy)
+                if (this.knownKerbals.TryGetValue(crew.name, out LifeSupportStatus crewStatus))
                 {
-                    crew.type = ProtoCrewMember.KerbalType.Crew;
-                    KerbalRoster.SetExperienceTrait(crew, crewStatus.OldTrait);
-                    ScreenMessages.PostScreenMessage($"{crew.name} is starving, but can gather the strength to ring for some take-out.", 5f, ScreenMessageStyle.UPPER_CENTER);
+                    if (crewStatus.IsGrouchy)
+                    {
+                        crew.type = ProtoCrewMember.KerbalType.Crew;
+                        KerbalRoster.SetExperienceTrait(crew, crewStatus.OldTrait);
+                    }
+                    this.knownKerbals.Remove(crew.name);
                 }
-                this.knownKerbals.Remove(crew.name);
             }
         }
 
-        public void KerbalHadASnack(ProtoCrewMember crew, double lastMealTime)
+        public void KerbalsHadASnack(Vessel vessel, double lastMealTime)
         {
-            if (this.knownKerbals.TryGetValue(crew.name, out LifeSupportStatus crewStatus))
+            this.CheckForNewVessel(vessel);
+
+            foreach (var crew in vessel.GetVesselCrew())
             {
-                if (crewStatus.IsGrouchy)
+                if (this.knownKerbals.TryGetValue(crew.name, out LifeSupportStatus crewStatus))
                 {
-                    crew.type = ProtoCrewMember.KerbalType.Crew;
-                    KerbalRoster.SetExperienceTrait(crew, crewStatus.OldTrait);
-                    ScreenMessages.PostScreenMessage($"{crew.name}'s tummy is full now.", 5f, ScreenMessageStyle.UPPER_CENTER);
+                    if (crewStatus.IsGrouchy)
+                    {
+                        crew.type = ProtoCrewMember.KerbalType.Crew;
+                        KerbalRoster.SetExperienceTrait(crew, crewStatus.OldTrait);
+                    }
+                    crewStatus.LastMeal = lastMealTime;
+                    crewStatus.IsGrouchy = false;
                 }
-                crewStatus.LastMeal = lastMealTime;
-                crewStatus.IsGrouchy = false;
+                else
+                {
+                    this.knownKerbals.Add(crew.name, new LifeSupportStatus
+                    {
+                        IsGrouchy = false,
+                        KerbalName = crew.name,
+                        LastMeal = Planetarium.GetUniversalTime(),
+                        OldTrait = null
+                    });
+                }
             }
-            else
+
+            if (this.incapacitatedKerbals.Any())
             {
-                this.knownKerbals.Add(crew.name, new LifeSupportStatus {
-                    IsGrouchy = false,
-                    KerbalName = crew.name,
-                    LastMeal = Planetarium.GetUniversalTime(),
-                    OldTrait = null
-                });
+                ScreenMessages.PostScreenMessage(
+                    message: CrewBlurbs.CreateMessage("#LOC_KPBS_KERBAL_NOT_INCAPACITATED", this.incapacitatedKerbals, new string[] { }, TechTier.Tier0),
+                    duration: 15f,
+                    style: ScreenMessageStyle.UPPER_CENTER);
+                this.incapacitatedKerbals.Clear();
+            }
+            if (this.hungryKerbals.Any())
+            {
+                ScreenMessages.PostScreenMessage(
+                    message: CrewBlurbs.CreateMessage("#LOC_KPBS_KERBAL_NOT_HUNGRY", this.incapacitatedKerbals, new string[] { }, TechTier.Tier0),
+                    duration: 15f,
+                    style: ScreenMessageStyle.UPPER_CENTER);
+                this.hungryKerbals.Clear();
             }
         }
 
@@ -148,6 +223,16 @@ namespace ProgressiveColonizationSystem
                 childNode.AddValue(nameof(status.LastMeal), status.LastMeal);
                 childNode.AddValue(nameof(status.OldTrait), status.OldTrait ?? "");
                 node.AddNode(childNode);
+            }
+        }
+
+        private void CheckForNewVessel(Vessel vessel)
+        {
+            if (vessel != this.lastVesselComplainedAbout)
+            {
+                this.lastVesselComplainedAbout = vessel;
+                this.hungryKerbals.Clear();
+                this.incapacitatedKerbals.Clear();
             }
         }
     }
