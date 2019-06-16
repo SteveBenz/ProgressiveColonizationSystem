@@ -117,7 +117,12 @@ namespace ProgressiveColonizationSystem
 
         private double ScannerNetQuality()
         {
-            var scansats = FlightGlobals.Vessels.Where(v => v.mainBody == this.vessel.mainBody && v.GetCrewCapacity() == 0 && v.situation == Vessel.Situations.ORBITING);
+            // you might think that situation==ORBITING would be the way to go, but sometimes vessels that
+            // are clearly well in orbit are marked as FLYING.
+            var scansats = FlightGlobals.Vessels
+                .Where(v => v.mainBody == this.vessel.mainBody
+                    && v.GetCrewCapacity() == 0 
+                    && (v.situation == Vessel.Situations.ORBITING || v.situation == Vessel.Situations.FLYING));
             scansats = scansats.ToArray();
             return scansats.Sum(v => (v.orbit.inclination > 80.0 && v.orbit.inclination  < 100.0) ? 1 : .3);
         }

@@ -193,7 +193,7 @@ namespace ProgressiveColonizationSystem
         /// <returns>The amount of <paramref name="deltaTime"/> in which food was supplied.</returns>
         private double ProduceAndConsume(List<ProtoCrewMember> crew, double deltaTime)
         {
-            var snackProducers = this.vessel.FindPartModulesImplementing<ITieredProducer>();
+            var tieredProducers = this.vessel.FindPartModulesImplementing<ITieredProducer>();
             var combiners = this.vessel.FindPartModulesImplementing<ITieredCombiner>();
             this.ResourceQuantities(out var availableResources, out var availableStorage);
             var crewPart = vessel.parts.FirstOrDefault(p => p.CrewCapacity > 0);
@@ -204,7 +204,7 @@ namespace ProgressiveColonizationSystem
                 TieredProduction.CalculateResourceUtilization(
                     crew.Count,
                     deltaTime,
-                    snackProducers,
+                    tieredProducers,
                     combiners,
                     ColonizationResearchScenario.Instance,
                     availableResources,
@@ -284,7 +284,8 @@ namespace ProgressiveColonizationSystem
             if (remainingTime > ResourceUtilities.FLOAT_TOLERANCE)
             {
                 // We ran out of food
-                LifeSupportScenario.Instance.KerbalsMissedAMeal(this.vessel);
+                LifeSupportScenario.Instance.KerbalsMissedAMeal(this.vessel,
+                    hasActiveProducers: tieredProducers.Any(p => p.IsProductionEnabled));
                 return deltaTime - remainingTime;
             }
             else

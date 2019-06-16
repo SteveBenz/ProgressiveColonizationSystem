@@ -30,7 +30,7 @@ namespace ProgressiveColonizationSystem
         public const int DaysBeforeKerbalStarves = 7;
         private const double secondsBeforeKerbalStarves = DaysBeforeKerbalStarves * 6 * 60 * 60; // 7 kerban days
 
-        public void KerbalsMissedAMeal(Vessel vessel)
+        public void KerbalsMissedAMeal(Vessel vessel, bool hasActiveProducers)
         {
             if (vessel.isEVA)
             {
@@ -41,6 +41,7 @@ namespace ProgressiveColonizationSystem
 
             List<ProtoCrewMember> crewThatBecameHungry = new List<ProtoCrewMember>();
             List<ProtoCrewMember> crewThatBecameIncapacitated = new List<ProtoCrewMember>();
+            List<ProtoCrewMember> crewThatAreBecomingAntsy = new List<ProtoCrewMember>();
 
             foreach (var crew in vessel.GetVesselCrew())
             {
@@ -52,6 +53,10 @@ namespace ProgressiveColonizationSystem
                         crewStatus.OldTrait = crew.experienceTrait.Title;
                         crew.type = ProtoCrewMember.KerbalType.Tourist;
                         KerbalRoster.SetExperienceTrait(crew, "Tourist");
+                    }
+                    else if (!crewStatus.IsGrouchy && Planetarium.GetUniversalTime() > crewStatus.LastMeal + secondsBeforeKerbalStarves/2)
+                    {
+                        crewThatAreBecomingAntsy.Add(crew);
                     }
                 }
                 else
@@ -91,7 +96,14 @@ namespace ProgressiveColonizationSystem
                     duration: 15f,
                     style: ScreenMessageStyle.UPPER_CENTER);
             }
-            else if (crewThatBecameHungry.Any())
+            else if (hasActiveProducers && crewThatBecameHungry.Any())
+            {
+                ScreenMessages.PostScreenMessage(
+                    message: CrewBlurbs.CreateMessage("#LOC_KPBS_KERBAL_HUNGRY_NO_PRODUCTION", crewThatBecameHungry, new string[] { }, TechTier.Tier0),
+                    duration: 15f,
+                    style: ScreenMessageStyle.UPPER_CENTER);
+            }
+            else if (!hasActiveProducers && crewThatAreBecomingAntsy.Any())
             {
                 ScreenMessages.PostScreenMessage(
                     message: CrewBlurbs.CreateMessage("#LOC_KPBS_KERBAL_HUNGRY", crewThatBecameHungry, new string[] { }, TechTier.Tier0),
