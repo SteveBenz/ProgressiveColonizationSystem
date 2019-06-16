@@ -41,51 +41,43 @@ namespace ProgressiveColonizationSystem
 
             List<ProtoCrewMember> crewThatBecameHungry = new List<ProtoCrewMember>();
             List<ProtoCrewMember> crewThatBecameIncapacitated = new List<ProtoCrewMember>();
-            List<ProtoCrewMember> crewThatAreBecomingAntsy = new List<ProtoCrewMember>();
+
+            double now = Planetarium.GetUniversalTime();
 
             foreach (var crew in vessel.GetVesselCrew())
             {
-                if (this.knownKerbals.TryGetValue(crew.name, out LifeSupportStatus crewStatus))
-                {
-                    if (!crewStatus.IsGrouchy && Planetarium.GetUniversalTime() > crewStatus.LastMeal + secondsBeforeKerbalStarves)
-                    {
-                        crewStatus.IsGrouchy = true;
-                        crewStatus.OldTrait = crew.experienceTrait.Title;
-                        crew.type = ProtoCrewMember.KerbalType.Tourist;
-                        KerbalRoster.SetExperienceTrait(crew, "Tourist");
-                    }
-                    else if (!crewStatus.IsGrouchy && Planetarium.GetUniversalTime() > crewStatus.LastMeal + secondsBeforeKerbalStarves/2)
-                    {
-                        crewThatAreBecomingAntsy.Add(crew);
-                    }
-                }
-                else
+                if (!this.knownKerbals.TryGetValue(crew.name, out LifeSupportStatus crewStatus))
                 {
                     crewStatus = new LifeSupportStatus
                     {
                         IsGrouchy = false,
                         KerbalName = crew.name,
-                        LastMeal = Planetarium.GetUniversalTime(),
+                        LastMeal = now,
                         OldTrait = null
                     };
                     this.knownKerbals.Add(crew.name, crewStatus);
                 }
 
-                if (crewStatus.IsGrouchy)
+                if (!crewStatus.IsGrouchy
+                 && now > crewStatus.LastMeal + secondsBeforeKerbalStarves)
                 {
-                    if (!this.incapacitatedKerbals.Contains(crew))
-                    {
-                        crewThatBecameIncapacitated.Add(crew);
-                        this.incapacitatedKerbals.Add(crew);
-                    }
+                    crewStatus.IsGrouchy = true;
+                    crewStatus.OldTrait = crew.experienceTrait.Title;
+                    crew.type = ProtoCrewMember.KerbalType.Tourist;
+                    KerbalRoster.SetExperienceTrait(crew, "Tourist");
                 }
-                else
+
+                if (crewStatus.IsGrouchy && !this.incapacitatedKerbals.Contains(crew))
                 {
-                    if (!this.hungryKerbals.Contains(crew))
-                    {
-                        crewThatBecameHungry.Add(crew);
-                        this.hungryKerbals.Add(crew);
-                    }
+                    crewThatBecameIncapacitated.Add(crew);
+                    this.incapacitatedKerbals.Add(crew);
+                }
+                else if (!crewStatus.IsGrouchy
+                      && (hasActiveProducers || now > crewStatus.LastMeal + .5 * secondsBeforeKerbalStarves)
+                      && !this.hungryKerbals.Contains(crew))
+                {
+                    crewThatBecameHungry.Add(crew);
+                    this.hungryKerbals.Add(crew);
                 }
             }
 
@@ -96,17 +88,14 @@ namespace ProgressiveColonizationSystem
                     duration: 15f,
                     style: ScreenMessageStyle.UPPER_CENTER);
             }
-            else if (hasActiveProducers && crewThatBecameHungry.Any())
+            else if (crewThatBecameHungry.Any())
             {
                 ScreenMessages.PostScreenMessage(
-                    message: CrewBlurbs.CreateMessage("#LOC_KPBS_KERBAL_HUNGRY_NO_PRODUCTION", crewThatBecameHungry, new string[] { }, TechTier.Tier0),
-                    duration: 15f,
-                    style: ScreenMessageStyle.UPPER_CENTER);
-            }
-            else if (!hasActiveProducers && crewThatAreBecomingAntsy.Any())
-            {
-                ScreenMessages.PostScreenMessage(
-                    message: CrewBlurbs.CreateMessage("#LOC_KPBS_KERBAL_HUNGRY", crewThatBecameHungry, new string[] { }, TechTier.Tier0),
+                    message: CrewBlurbs.CreateMessage(
+                        (hasActiveProducers ? "#LOC_KPBS_KERBAL_HUNGRY_NO_PRODUCTION" : "#LOC_KPBS_KERBAL_HUNGRY"),
+                        crewThatBecameHungry,
+                        new string[] { },
+                        TechTier.Tier0),
                     duration: 15f,
                     style: ScreenMessageStyle.UPPER_CENTER);
             }
@@ -193,7 +182,6 @@ namespace ProgressiveColonizationSystem
                 this.hungryKerbals.Clear();
             }
         }
-
 
         public override void OnLoad(ConfigNode node)
         {
