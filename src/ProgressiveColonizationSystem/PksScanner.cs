@@ -54,13 +54,6 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
-            Vessel onPlanetBase = TryFindBase();
-            if (onPlanetBase == null)
-            {
-                ScreenMessages.PostScreenMessage($"There doesn't seem to be a base on {targetBody}");
-                return;
-            }
-
             var crewRequirement = this.part.FindModuleImplementing<PksCrewRequirement>();
             if (crewRequirement != null && !crewRequirement.IsRunning)
             {
@@ -74,7 +67,7 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
-            ResourceLodeScenario.Instance.GetOrCreateResourceLoad(this.vessel, onPlanetBase, tier, this.ScannerNetQuality());
+            AskUserToPickbase(tier);
         }
 
         private void GetTargetInfo(out TechTier tier, out string targetBody)
@@ -90,29 +83,103 @@ namespace ProgressiveColonizationSystem
             targetBody = scanner.Body;
         }
 
-        /// <summary>
-        ///   Attempts to locate a base on the surface of the body the current vessel is on.
-        ///   It first looks for any vessel at all that's landed.  It fines down that list to
-        ///   the list of vessels that are marked as a "Base" - unless there are none and then it
-        ///   does nothing.  Then it fines it down to vessels that have crew.  Then it picks
-        ///   one (effectively) at random.
-        /// </summary>
-        private Vessel TryFindBase()
+        private void AskUserToPickbase(TechTier scannerTier)
         {
-            var candidates = FlightGlobals.Vessels.Where(v => v.mainBody == this.vessel.mainBody && v.situation == Vessel.Situations.LANDED || v.situation == Vessel.Situations.SPLASHED).ToArray();
-            var baseCandidates = candidates.Where(v => v.vesselType == VesselType.Base).ToArray();
-            if (baseCandidates.Length > 0)
+            var stuffResource = ColonizationResearchScenario.Instance.AllResourcesTypes.FirstOrDefault(r => r.MadeFrom((TechTier)this.minimumTier) == ColonizationResearchScenario.Instance.CrushInsResource);
+
+            var baseChoices = new List<DialogGUIButton>();
+            double scannerNetQuality = this.ScannerNetQuality();
+            Action onlyPossibleChoiceAction = null;
+            foreach (var candidate in FlightGlobals.Vessels)
             {
-                candidates = baseCandidates;
+                // Only look at vessels that are on the body of the scanner and are not marked as debris
+                if (candidate.mainBody != this.vessel.mainBody
+                 || (candidate.situation != Vessel.Situations.LANDED && candidate.situation != Vessel.Situations.SPLASHED)
+                 || candidate.vesselType == VesselType.Debris)
+                {
+                    continue;
+                }
+
+                // Look for a scrounger part
+                if (TryFindScrounger(scannerTier, candidate, stuffResource, out TechTier maxTierScrounger))
+                {
+                    void onSelect() => ResourceLodeScenario.Instance.GetOrCreateResourceLoad(this.vessel, candidate, maxTierScrounger, scannerNetQuality);
+                    onlyPossibleChoiceAction = onSelect;
+
+                    DialogGUIButton choice = new DialogGUIButton(candidate.vesselName, onSelect, dismissOnSelect: true);
+                    baseChoices.Add(choice);
+                }
             }
 
-            var crewedCandidates = candidates.Where(v => v.GetCrewCount() > 0).ToArray();
-            if (crewedCandidates.Length > 0)
+            if (baseChoices.Count == 0)
             {
-                candidates = crewedCandidates;
+                ScreenMessages.PostScreenMessage("There doesn't seem to be a base down there");
+            }
+            else if (baseChoices.Count == 1)
+            {
+                onlyPossibleChoiceAction();
+            }
+            else
+            {
+                PopupDialog.SpawnPopupDialog(
+                    new MultiOptionDialog(
+                        "Whatsthisdoeven",
+                        "", // This actually shows up on the screen as a sort of a wierd-looking subtitle
+                        "Which base shall we Look near?",
+                        HighLogic.UISkin,
+                        new DialogGUIVerticalLayout(baseChoices.ToArray())),
+                    persistAcrossScenes: false,
+                    skin: HighLogic.UISkin,
+                    isModal: true,
+                    titleExtra: "TITLE EXTRA!");
+            }
+        }
+
+        private static bool TryFindScrounger(TechTier scannerTier, Vessel candidate, TieredResource stuffResource, out TechTier highestScroungerTier)
+        {
+            highestScroungerTier = TechTier.Tier0;
+
+            // Don't trust KSP to actually always have these things populated;
+            if (candidate.protoVessel == null || candidate.protoVessel.protoPartSnapshots == null)
+            {
+                return false;
             }
 
-            return candidates.FirstOrDefault();
+            bool hasScrounger = false;
+            foreach (var protoPart in candidate.protoVessel.protoPartSnapshots)
+            {
+                if (protoPart.modules == null)
+                {
+                    continue;
+                }
+
+                // Unloaded vessels have modules, but they're not truly populated - that is, the class for
+                // the module is created, but the members have their default values...  So we can find the
+                // stuff that's coded in the part description (in this case) the "output" field here:
+                if (protoPart.partPrefab.Modules.OfType<PksTieredResourceConverter>().Any(c => c.Output == stuffResource))
+                {
+                    hasScrounger = true;
+
+                    // ...But to get hold of the this that are set in the VAB (like the tier), you have
+                    // to parse it out of the config nodes.
+                    foreach (var protoModule in protoPart.modules.Where(m => m.moduleName == nameof(PksTieredResourceConverter)))
+                    {
+                        TechTier tier = PksTieredResourceConverter.GetTechTierFromConfig(protoModule.moduleValues);
+                        if (tier > scannerTier)
+                        {
+                            // There's no practical use of finding stuff near this base - even if it has lower
+                            // tier scroungers somewhere, the higher tier ones should be taking priority.
+                            return false;
+                        }
+                        else if (tier > highestScroungerTier)
+                        {
+                            highestScroungerTier = tier;
+                        }
+                    }
+                }
+            }
+
+            return hasScrounger && stuffResource.MadeFrom(highestScroungerTier) != null;
         }
 
         private double ScannerNetQuality()

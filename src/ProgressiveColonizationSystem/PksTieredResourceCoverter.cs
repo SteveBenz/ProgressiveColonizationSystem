@@ -143,6 +143,13 @@ namespace ProgressiveColonizationSystem
             this.OnFixedUpdate();
         }
 
+        internal static TechTier GetTechTierFromConfig(ConfigNode moduleValues)
+        {
+            int tierInt = 0;
+            moduleValues.TryGetValue(nameof(tier), ref tierInt);
+            return (TechTier)tierInt;
+        }
+
         private void SetupFromDefault()
         {
             if (DefaultPartSetFor == null || !EditorLogic.fetch.ship.Parts.Contains(DefaultPartSetFor))

@@ -6,7 +6,7 @@ Because I can't be bothered with GitHub issues.
    1.  Resource transfer seems not to work for some ships -- perhaps because of staging
    2.  (fixed) Can bring CrushIns from Kerbin or other bodies and fake out the resource auto-collection mechanic.  It should be happy
        to take the crushins, but disallow it as an auto-collector.
-   3.  If there's more than one manned base, it should ask you where you want to look for crushins
+   3.  (fixed) If there's more than one manned base, it should ask you where you want to look for crushins
    4.  Something seems to reset the dialog box to center from time to time
    5.  (fixed) Maybe it's not consuming the crushins out of the ground.
    6.  (fixed) K&K Workshop part is not in the PKS tab
