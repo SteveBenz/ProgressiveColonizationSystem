@@ -37,7 +37,7 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
-            this.CheckForNewVessel(vessel);
+            this.CheckForNewLoadedVesselSet();
 
             List<ProtoCrewMember> crewThatBecameHungry = new List<ProtoCrewMember>();
             List<ProtoCrewMember> crewThatBecameIncapacitated = new List<ProtoCrewMember>();
@@ -139,8 +139,10 @@ namespace ProgressiveColonizationSystem
 
         public void KerbalsHadASnack(Vessel vessel, double lastMealTime)
         {
-            this.CheckForNewVessel(vessel);
+            this.CheckForNewLoadedVesselSet();
 
+            var ungrounchedKerbals = new List<ProtoCrewMember>();
+            var unhungryKerbals = new List<ProtoCrewMember>();
             foreach (var crew in vessel.GetVesselCrew())
             {
                 if (this.knownKerbals.TryGetValue(crew.name, out LifeSupportStatus crewStatus))
@@ -149,9 +151,11 @@ namespace ProgressiveColonizationSystem
                     {
                         crew.type = ProtoCrewMember.KerbalType.Crew;
                         KerbalRoster.SetExperienceTrait(crew, crewStatus.OldTrait);
+                        ungrounchedKerbals.Add(crew);
                     }
                     crewStatus.LastMeal = lastMealTime;
                     crewStatus.IsGrouchy = false;
+                    this.incapacitatedKerbals.Remove(crew);
                 }
                 else
                 {
@@ -162,24 +166,27 @@ namespace ProgressiveColonizationSystem
                         LastMeal = Planetarium.GetUniversalTime(),
                         OldTrait = null
                     });
+
+                    if (this.hungryKerbals.Remove(crew))
+                    {
+                        unhungryKerbals.Add(crew);
+                    }
                 }
             }
 
-            if (this.incapacitatedKerbals.Any())
+            if (ungrounchedKerbals.Any())
             {
                 ScreenMessages.PostScreenMessage(
-                    message: CrewBlurbs.CreateMessage("#LOC_KPBS_KERBAL_NOT_INCAPACITATED", this.incapacitatedKerbals, new string[] { }, TechTier.Tier0),
+                    message: CrewBlurbs.CreateMessage("#LOC_KPBS_KERBAL_NOT_INCAPACITATED", ungrounchedKerbals, new string[] { }, TechTier.Tier0),
                     duration: 15f,
                     style: ScreenMessageStyle.UPPER_CENTER);
-                this.incapacitatedKerbals.Clear();
             }
-            if (this.hungryKerbals.Any())
+            if (unhungryKerbals.Any())
             {
                 ScreenMessages.PostScreenMessage(
-                    message: CrewBlurbs.CreateMessage("#LOC_KPBS_KERBAL_NOT_HUNGRY", this.incapacitatedKerbals, new string[] { }, TechTier.Tier0),
+                    message: CrewBlurbs.CreateMessage("#LOC_KPBS_KERBAL_NOT_HUNGRY", unhungryKerbals, new string[] { }, TechTier.Tier0),
                     duration: 15f,
                     style: ScreenMessageStyle.UPPER_CENTER);
-                this.hungryKerbals.Clear();
             }
         }
 
@@ -224,11 +231,15 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        private void CheckForNewVessel(Vessel vessel)
+        private void CheckForNewLoadedVesselSet()
         {
-            if (vessel != this.lastVesselComplainedAbout)
+            // What we want to ensure is that if we swap from a vessel with hungry kerbals aboard in the same scene,
+            // we don't complain.  But if we switch to another vessel that's far away, then come back, we get a fresh
+            // set of complaints.
+            if (FlightGlobals.ActiveVessel != this.lastVesselComplainedAbout
+                && (this.lastVesselComplainedAbout == null || !this.lastVesselComplainedAbout.loaded))
             {
-                this.lastVesselComplainedAbout = vessel;
+                this.lastVesselComplainedAbout = FlightGlobals.ActiveVessel;
                 this.hungryKerbals.Clear();
                 this.incapacitatedKerbals.Clear();
             }
