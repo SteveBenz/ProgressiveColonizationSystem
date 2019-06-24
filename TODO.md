@@ -20,11 +20,11 @@ Because I can't be bothered with GitHub issues.
    14. (fixed) On Progression pane, "Production" comes up twice at Mun Base 1
    15. (fixed) Tooltips apparently don't get line-wrapped.
    16. (fixed) Scan for Loose Crushins shouldn't be visible below T2
-   17. If there's no Complex Parts, it doesn't list that as a limiter in the in-flight production tab. (nocompwrng)
-   18. If there's no complex parts, it doesn't list that as a problem in the editor warnings tab.
+   17. (fixed) If there's no Complex Parts, it doesn't list that as a limiter in the in-flight production tab. (nocompwrng)
+   18. (fixed) If there's no complex parts, it doesn't list that as a problem in the editor warnings tab.
        ^-- both of these might be due to it not showing any indicator if you don't have storage for the output. <<-- true dat
    19. (fixed) Stuff Scanner part is showing up under Science tab
-   20. If a Rocket part can't produce because of no storage, it doesn't get shown
+   20. (fixed) If a Rocket part can't produce because of no storage, it doesn't get shown
    21. Transfer sending & receiving T4 snacks  (probably should just never send T4 snacks to a base that
        can produce it) (t4snackbug)
    22. (fixed) If a kerban runs out of food, it continuously spans "Valentina don't has have enough to eat!  ..."
@@ -33,6 +33,9 @@ Because I can't be bothered with GitHub issues.
    23. (fixed) Sometimes it doesn't detect that you have scansats
    24. Looks like if it runs out of food, it makes the kerbals complain, but only start to think about going kerbal
        at warp-in time
+   25. If a thing can't be produced (either because of lack of input or output space), then it just doesn't show up
+       in the production tab - it should say "production blocked" or something. (nocompwrng - then add rocket part
+       storage on gilly t1 base)
 2. Rounding things out
    1.  Create or hijack a part for storing Snacks - just snacks
    2.  (complete) Write PDF help and or create a github wiki

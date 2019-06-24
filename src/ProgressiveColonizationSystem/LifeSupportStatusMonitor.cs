@@ -653,6 +653,19 @@ namespace ProgressiveColonizationSystem
                     shortfalls.Add("disabled parts");
                 }
                 shortfalls.AddRange(limitingResources);
+                shortfalls.AddRange(tieredCombiners
+                    .Where(tc => tc.IsProductionEnabled)
+                    .Select(tc => tc.NonTieredOutputResourceName)
+                    .Where(resourceName => !storage.ContainsKey(resourceName))
+                    .Distinct()
+                    .Select(resourceName => $"storage for {resourceName}"));
+                shortfalls.AddRange(tieredProducers
+                    .Where(tp => tp.IsProductionEnabled && tp.Output.CanBeStored)
+                    .Select(tp => tp.Output.TieredName(tp.Tier))
+                    .Where(resourceName => !storage.ContainsKey(resourceName))
+                    .Distinct()
+                    .Select(resourceName => $"storage for {resourceName}"));
+
                 limitedByMessage = shortfalls.Count == 0 ? null : string.Join(", ", shortfalls.ToArray());
 
                 var positiveProgress = researchSink.Data
