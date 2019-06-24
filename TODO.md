@@ -25,7 +25,7 @@ Because I can't be bothered with GitHub issues.
        ^-- both of these might be due to it not showing any indicator if you don't have storage for the output. <<-- true dat
    19. (fixed) Stuff Scanner part is showing up under Science tab
    20. (fixed) If a Rocket part can't produce because of no storage, it doesn't get shown
-   21. Transfer sending & receiving T4 snacks  (probably should just never send T4 snacks to a base that
+   21. (fixed) Transfer sending & receiving T4 snacks  (probably should just never send T4 snacks to a base that
        can produce it) (t4snackbug)
    22. (fixed) If a kerban runs out of food, it continuously spans "Valentina don't has have enough to eat!  ..."
        (Note the outstanding grammar.)  Still broke - (foodspam) - regression was only in the case where more than

@@ -216,6 +216,8 @@ namespace ProgressiveColonizationSystem
 
             List<PksTieredResourceConverter> otherVesselProducers = otherVessel.FindPartModulesImplementing<PksTieredResourceConverter>();
 
+            // Refactor me!  Way too much "if other vessel has quality, then send, else if this vessel has that quality, receive."
+
             toSend = new Dictionary<string, double>();
             toReceive = new Dictionary<string, double>();
             if (otherVessel.GetCrewCount() == 0 && otherVesselProducers.Count > 0)
@@ -292,18 +294,22 @@ namespace ProgressiveColonizationSystem
             }
 
             // Send snacks?
-            if (thisShipCanSupply.ContainsKey("Snacks-Tier4")
-             && otherShipCanStore.ContainsKey("Snacks-Tier4")
-             && ( thisShipsProducts.Contains("Snacks-Tier4")   // Always send if we produce it
-               || snackDirectionBasedOnVesselType == SnacksDirection.Send))
+            if ( thisShipsProducts.Contains("Snacks-Tier4")   // Always send if we produce it
+              || ( !otherShipsProducts.Contains("Snacks-Tier4")
+                && thisShipCanSupply.ContainsKey("Snacks-Tier4")
+                && otherShipCanStore.ContainsKey("Snacks-Tier4")
+                && snackDirectionBasedOnVesselType == SnacksDirection.Send))
             {
+                toReceive.Remove("Snacks-Tier4");
                 toSend["Snacks-Tier4"] = Math.Min(thisShipCanSupply["Snacks-Tier4"], otherShipCanStore["Snacks-Tier4"]);
             }
-            else if (otherShipCanSupply.ContainsKey("Snacks-Tier4")
-             && thisShipCanStore.ContainsKey("Snacks-Tier4")
-             && (otherShipsProducts.Contains("Snacks-Tier4")   // Always take if the other guy produces it
-               || snackDirectionBasedOnVesselType == SnacksDirection.Receive))
+            else if (otherShipsProducts.Contains("Snacks-Tier4")   // Always take if the other guy produces
+                  || (!thisShipsProducts.Contains("Snacks-Tier4")
+                   && otherShipCanSupply.ContainsKey("Snacks-Tier4")
+                   && thisShipCanStore.ContainsKey("Snacks-Tier4")
+                   && snackDirectionBasedOnVesselType == SnacksDirection.Receive))
             {
+                toSend.Remove("Snacks-Tier4");
                 toReceive["Snacks-Tier4"] = Math.Min(thisShipCanStore["Snacks-Tier4"], otherShipCanSupply["Snacks-Tier4"]);
             }
 
