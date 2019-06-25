@@ -187,7 +187,9 @@ namespace ProgressiveColonizationSystem
             vertical.AddChild(
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
                         new DialogGUIButton("Start", resourceTransfer.StartTransfer, () => resourceTransfer.TargetVessel != null && !resourceTransfer.IsTransferUnderway, dismissOnSelect: false),
-                        new DialogGUISlider(() => (float)resourceTransfer.TransferPercent, 0, 1, false, 100, 20, (f) => { })));
+                        new DialogGUISlider(() => (float)resourceTransfer.TransferPercent, 0, 1, false, 100, 20, (f) => { }),
+                        new DialogGUIButton("Refresh", resourceTransfer.Reset, () => resourceTransfer.TargetVessel != null && !resourceTransfer.IsTransferUnderway, dismissOnSelect: false)
+                ));
             vertical.AddChild(new DialogGUILabel(() => this.transferringMessage));
 
             return vertical;
@@ -694,6 +696,20 @@ namespace ProgressiveColonizationSystem
                     })
                     .ToArray();
                 positiveProgress.AddRange(progressLimits);
+                positiveProgress.AddRange(
+                        tieredProducers
+                            .Where(tp => tp.IsProductionEnabled && tp.IsResearchEnabled)
+                            .Select(tp => tp.Output.ResearchCategory)
+                            .Distinct()
+                            .Where(rc => !positiveProgress.Any(pp => rc.DisplayName == pp.Category))
+                            .Select(rc => new ResearchData
+                            {
+                                Category = rc.DisplayName,
+                                NextTier = double.PositiveInfinity,
+                                AccumulatedProgress = 0, // Not true - okay now because we don't display it.
+                                ProgressPerDay = 0,
+                                WhyBlocked = "Production blocked"
+                            }));
 
                 progress = positiveProgress;
             }

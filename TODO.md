@@ -7,7 +7,7 @@ Because I can't be bothered with GitHub issues.
    2.  (fixed) Can bring CrushIns from Kerbin or other bodies and fake out the resource auto-collection mechanic.  It should be happy
        to take the crushins, but disallow it as an auto-collector.
    3.  (fixed) If there's more than one manned base, it should ask you where you want to look for crushins
-   4.  Something seems to reset the dialog box to center from time to time
+   4.  (no-repro) Something seems to reset the dialog box to center from time to time
    5.  (fixed) Maybe it's not consuming the crushins out of the ground.
    6.  (fixed) K&K Workshop part is not in the PKS tab
    7.  (fixed) Messy text when kerbals run out of food
@@ -31,11 +31,12 @@ Because I can't be bothered with GitHub issues.
        (Note the outstanding grammar.)  Still broke - (foodspam) - regression was only in the case where more than
        one vessel was in the scene.
    23. (fixed) Sometimes it doesn't detect that you have scansats
-   24. Looks like if it runs out of food, it makes the kerbals complain, but only start to think about going kerbal
+   24. Looks like if it runs out of food, it makes the kerbals complain, but only start to think about going tourist
        at warp-in time
-   25. If a thing can't be produced (either because of lack of input or output space), then it just doesn't show up
-       in the production tab - it should say "production blocked" or something. (nocompwrng - then add rocket part
+   25. (fixed) If a thing can't be produced (either because of lack of input or output space), then it just doesn't show up
+       in the progress tab - it should say "production blocked" or something. (nocompwrng - then add rocket part
        storage on gilly t1 base)
+   26. (fixed) Could stand to have a 'refresh' button in the Transfer window.
 2. Rounding things out
    1.  Create or hijack a part for storing Snacks - just snacks
    2.  (complete) Write PDF help and or create a github wiki
