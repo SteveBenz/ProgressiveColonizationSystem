@@ -186,9 +186,17 @@ namespace ProgressiveColonizationSystem
 
             vertical.AddChild(
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
-                        new DialogGUIButton("Start", resourceTransfer.StartTransfer, () => resourceTransfer.TargetVessel != null && !resourceTransfer.IsTransferUnderway, dismissOnSelect: false),
+                        new DialogGUIButton(
+                            "Start",
+                            resourceTransfer.StartTransfer,
+                            () => resourceTransfer.TargetVessel != null && !resourceTransfer.IsTransferUnderway,
+                            dismissOnSelect: false),
                         new DialogGUISlider(() => (float)resourceTransfer.TransferPercent, 0, 1, false, 100, 20, (f) => { }),
-                        new DialogGUIButton("Refresh", resourceTransfer.Reset, () => resourceTransfer.TargetVessel != null && !resourceTransfer.IsTransferUnderway, dismissOnSelect: false)
+                        new DialogGUIButton(
+                            "Refresh",
+                            this.OnTargetChanged,
+                            () => resourceTransfer.TargetVessel != null && (resourceTransfer.IsTransferComplete || !resourceTransfer.IsTransferUnderway),
+                            dismissOnSelect: false)
                 ));
             vertical.AddChild(new DialogGUILabel(() => this.transferringMessage));
 

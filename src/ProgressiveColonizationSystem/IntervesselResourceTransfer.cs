@@ -196,9 +196,6 @@ namespace ProgressiveColonizationSystem
             return consumers;
         }
 
-        private bool HasStuffToTrade(Vessel otherVessel)
-            => TryFindResourceToTransfer(FlightGlobals.ActiveVessel, otherVessel, out _, out _);
-
         private enum SnacksDirection
         {
             Send,

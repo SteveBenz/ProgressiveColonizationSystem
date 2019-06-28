@@ -191,7 +191,7 @@ namespace ProgressiveColonizationSystem
         /// <param name="crew">The crew</param>
         /// <param name="deltaTime">The amount of time (in seconds) since the last calculation was done</param>
         /// <returns>The amount of <paramref name="deltaTime"/> in which food was supplied.</returns>
-        private double ProduceAndConsume(List<ProtoCrewMember> crew, double deltaTime)
+        private void ProduceAndConsume(List<ProtoCrewMember> crew, double deltaTime)
         {
             var tieredProducers = this.vessel.FindPartModulesImplementing<ITieredProducer>();
             var combiners = this.vessel.FindPartModulesImplementing<ITieredCombiner>();
@@ -203,7 +203,7 @@ namespace ProgressiveColonizationSystem
             {
                 TieredProduction.CalculateResourceUtilization(
                     crew.Count,
-                    deltaTime,
+                    remainingTime,
                     tieredProducers,
                     combiners,
                     ColonizationResearchScenario.Instance,
@@ -217,6 +217,8 @@ namespace ProgressiveColonizationSystem
 
                 if (elapsedTime == 0)
                 {
+                    LifeSupportScenario.Instance.KerbalsMissedAMeal(this.vessel,
+                        hasActiveProducers: tieredProducers.Any(p => p.IsProductionEnabled));
                     break;
                 }
 
@@ -227,6 +229,16 @@ namespace ProgressiveColonizationSystem
                     {
                         foreach (var pair in resourceConsumptionPerSecond)
                         {
+                            double newAmount = availableResources[pair.Key] - pair.Value * elapsedTime;
+                            if (newAmount < ResourceUtilities.FLOAT_TOLERANCE)
+                            {
+                                availableResources.Remove(pair.Key);
+                            }
+                            else
+                            {
+                                availableResources[pair.Key] = newAmount;
+                            }
+
                             ColonizationResearchScenario.Instance.TryParseTieredResourceName(pair.Key, out var consumedResource, out var consumedResourceTier);
                             if (consumedResource == ColonizationResearchScenario.LodeResource &&
                                 ResourceLodeScenario.Instance.TryFindResourceLodeInRange(vessel, consumedResourceTier, out var resourceLode))
@@ -247,6 +259,19 @@ namespace ProgressiveColonizationSystem
                     }
                     if (resourceProductionPerSecond != null)
                     {
+                        foreach (var pair in resourceProductionPerSecond)
+                        {
+                            double newAmount = availableStorage[pair.Key] - elapsedTime * pair.Value;
+                            if (newAmount < ResourceUtilities.FLOAT_TOLERANCE)
+                            {
+                                availableStorage.Remove(pair.Key);
+                            }
+                            else
+                            {
+                                availableStorage[pair.Key] = newAmount;
+                            }
+                        }
+
                         consumptionRecipe.Outputs.AddRange(
                             resourceProductionPerSecond.Select(pair => new ResourceRatio()
                             {
@@ -256,7 +281,7 @@ namespace ProgressiveColonizationSystem
                                 FlowMode = ResourceFlowMode.ALL_VESSEL
                             }));
                     }
-                    Debug.Assert(elapsedTime > 0);
+
                     var consumptionResult = this.ResConverter.ProcessRecipe(elapsedTime, consumptionRecipe, crewPart, null, 1f);
                     Debug.Assert(Math.Abs(consumptionResult.TimeFactor - elapsedTime) < ResourceUtilities.FLOAT_TOLERANCE,
                         "ProgressiveColonizationSystem.SnackConsumption.CalculateSnackFlow is busted - it somehow got the consumption recipe wrong.");
@@ -272,25 +297,9 @@ namespace ProgressiveColonizationSystem
                 }
 
                 remainingTime -= elapsedTime;
-            }
 
-            if (remainingTime != deltaTime)
-            {
                 double lastMealTime = Planetarium.GetUniversalTime() - remainingTime;
-                // Somebody got something to eat - record that.
                 LifeSupportScenario.Instance.KerbalsHadASnack(this.vessel, lastMealTime);
-            }
-
-            if (remainingTime > ResourceUtilities.FLOAT_TOLERANCE)
-            {
-                // We ran out of food
-                LifeSupportScenario.Instance.KerbalsMissedAMeal(this.vessel,
-                    hasActiveProducers: tieredProducers.Any(p => p.IsProductionEnabled));
-                return deltaTime - remainingTime;
-            }
-            else
-            {
-                return 0;
             }
         }
 
@@ -361,10 +370,10 @@ namespace ProgressiveColonizationSystem
                 return -1;
             }
 
-            double maxDeltaTime = ResourceUtilities.GetMaxDeltaTime();
-            double deltaTime = Math.Min(Planetarium.GetUniversalTime() - LastUpdateTime, maxDeltaTime);
+            double now = Planetarium.GetUniversalTime();
+            double deltaTime = now - LastUpdateTime;
 
-            LastUpdateTime += deltaTime;
+            LastUpdateTime = now;
             return deltaTime;
         }
     }
