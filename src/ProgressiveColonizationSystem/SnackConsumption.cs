@@ -196,6 +196,15 @@ namespace ProgressiveColonizationSystem
             var tieredProducers = this.vessel.FindPartModulesImplementing<ITieredProducer>();
             var combiners = this.vessel.FindPartModulesImplementing<ITieredCombiner>();
             this.ResourceQuantities(out var availableResources, out var availableStorage);
+
+            // Create a mock producer for the CrushIns which we're auto-supplying.  Also remove it
+            // from the list of available storage, else the algorithm will attempt to fill it.
+            foreach (var resourceName in availableResources.Keys.Where(resourceName => this.ResourceIsAutosupplied(resourceName)))
+            {
+                tieredProducers.Add(new AutoMinerProducer(resourceName));
+                availableStorage.Remove(resourceName);
+            }
+
             var crewPart = vessel.parts.FirstOrDefault(p => p.CrewCapacity > 0);
             double remainingTime = deltaTime;
 
@@ -229,24 +238,24 @@ namespace ProgressiveColonizationSystem
                     {
                         foreach (var pair in resourceConsumptionPerSecond)
                         {
-                            double newAmount = availableResources[pair.Key] - pair.Value * elapsedTime;
-                            if (newAmount < ResourceUtilities.FLOAT_TOLERANCE)
-                            {
-                                availableResources.Remove(pair.Key);
-                            }
-                            else
-                            {
-                                availableResources[pair.Key] = newAmount;
-                            }
-
                             ColonizationResearchScenario.Instance.TryParseTieredResourceName(pair.Key, out var consumedResource, out var consumedResourceTier);
                             if (consumedResource == ColonizationResearchScenario.LodeResource &&
                                 ResourceLodeScenario.Instance.TryFindResourceLodeInRange(vessel, consumedResourceTier, out var resourceLode))
                             {
                                 ResourceLodeScenario.Instance.TryConsume(resourceLode, pair.Value * elapsedTime, out _);
                             }
-                            else if (!ResourceIsAutosupplied(pair.Key))
+                            else
                             {
+                                double newAmount = availableResources[pair.Key] - pair.Value * elapsedTime;
+                                if (newAmount < ResourceUtilities.FLOAT_TOLERANCE)
+                                {
+                                    availableResources.Remove(pair.Key);
+                                }
+                                else
+                                {
+                                    availableResources[pair.Key] = newAmount;
+                                }
+
                                 consumptionRecipe.Inputs.Add(new ResourceRatio()
                                 {
                                     ResourceName = pair.Key,

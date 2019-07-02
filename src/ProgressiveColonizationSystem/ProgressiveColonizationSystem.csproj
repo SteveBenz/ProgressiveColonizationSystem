@@ -60,6 +60,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoMinerProducer.cs" />
     <Compile Include="ExperienceEffects\PksFarmingSkill.cs" />
     <Compile Include="ExperienceEffects\PksHydroponicsSkill.cs" />
     <Compile Include="ExperienceEffects\PksConstructionSkill.cs" />
