@@ -19,6 +19,9 @@ namespace ProgressiveColonizationSystem
         private static Part DefaultPartSetFor = null;
         private static TechTier LastTierSelected;
 
+        private bool isResearchEnabled;
+        private bool isProductionEnabled;
+
         [KSPField(advancedTweakable = false, category = "Nermables", guiActive = true, guiName = "Tier", isPersistant = true, guiActiveEditor = true)]
         public int tier;
 
@@ -202,7 +205,11 @@ namespace ProgressiveColonizationSystem
         public override void OnFixedUpdate()
         {
             base.OnFixedUpdate();
+            this.Setup();
+        }
 
+        private void Setup()
+        {
             // somehow, if this is called from OnAwake, like it sensibly should be, it breaks
             // the part so that FixedUpdate never gets called.
             if (!isInitialized)
@@ -227,8 +234,8 @@ namespace ProgressiveColonizationSystem
 
             if (!HighLogic.LoadedSceneIsFlight)
             {
-                this.IsProductionEnabled = true;
-                this.IsResearchEnabled = true;
+                this.isProductionEnabled = true;
+                this.isResearchEnabled = true;
                 return;
             }
 
@@ -264,22 +271,22 @@ namespace ProgressiveColonizationSystem
 
             if (isEnableable && this.CanDoProduction(resourceConverter, out reasonWhyNotMessage))
             {
-                this.IsProductionEnabled = true;
+                this.isProductionEnabled = true;
 
                 if (this.tier < (int)this.MaxTechTierResearched)
                 {
                     this.ReasonWhyResearchIsDisabled = "Not cutting edge gear";
-                    this.IsResearchEnabled = false;
+                    this.isResearchEnabled = false;
                 }
                 else if (!this.Output.ResearchCategory.CanDoResearch(this.vessel, this.Tier, out var reason))
                 {
                     this.ReasonWhyResearchIsDisabled = reason;
-                    this.IsResearchEnabled = false;
+                    this.isResearchEnabled = false;
                 }
                 else
                 {
                     this.ReasonWhyResearchIsDisabled = null;
-                    this.IsResearchEnabled = true;
+                    this.isResearchEnabled = true;
                 }
             }
             else
@@ -291,8 +298,8 @@ namespace ProgressiveColonizationSystem
                 //ScreenMessages.PostScreenMessage($"{this.name} is shutting down:  {reasonWhyNotMessage}", 10.0f);
                 //resourceConverter.StopResourceConverter();
                 //}
-                this.IsProductionEnabled = false;
-                this.IsResearchEnabled = false;
+                this.isProductionEnabled = false;
+                this.isResearchEnabled = false;
                 this.ReasonWhyResearchIsDisabled = "Production disabled";
             }
         }
@@ -358,11 +365,33 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        public bool IsResearchEnabled { get; private set; }
+        public bool IsResearchEnabled
+        {
+            get
+            {
+                if (!this.isInitialized)
+                {
+                    this.Setup();
+                }
+
+                return this.isResearchEnabled;
+            }
+        }
 
         public string ReasonWhyResearchIsDisabled { get; private set; }
 
-        public bool IsProductionEnabled { get; private set; }
+        public bool IsProductionEnabled
+        {
+            get
+            {
+                if (!isInitialized)
+                {
+                    this.Setup();
+                }
+
+                return this.isProductionEnabled;
+            }
+        }
 
         public double ProductionRate => this.capacity;
 
