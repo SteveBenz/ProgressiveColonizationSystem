@@ -275,7 +275,7 @@ namespace ProgressiveColonizationSystem
 
                 if (this.tier < (int)this.MaxTechTierResearched)
                 {
-                    this.ReasonWhyResearchIsDisabled = "Not cutting edge gear";
+                    this.ReasonWhyResearchIsDisabled = $"{this.Tier.DisplayName()} research complete";
                     this.isResearchEnabled = false;
                 }
                 else if (!this.Output.ResearchCategory.CanDoResearch(this.vessel, this.Tier, out var reason))

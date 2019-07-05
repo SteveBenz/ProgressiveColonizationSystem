@@ -165,7 +165,7 @@ namespace ProgressiveColonizationSystem
             return this.GetMaxUnlockedTier(ColonizationResearchScenario.resources["ScanningData"], atBody);
         }
 
-        public void GetResearchProgress(TieredResource forResource, string atBody, out double accumulatedKerbalDays, out double requiredKerbalDays)
+        internal ResearchData GetResearchProgress(TieredResource forResource, string atBody)
         {
             double kerbalSecondsSoFar = 0;
             TechTier currentTier = TechTier.Tier0;
@@ -179,8 +179,7 @@ namespace ProgressiveColonizationSystem
                 }
             }
 
-            accumulatedKerbalDays = KerbalSecondsToDays(kerbalSecondsSoFar);
-            requiredKerbalDays = KerbalYearsToDays(forResource.ResearchCategory.KerbalYearsToNextTier(currentTier));
+            return new ResearchData(forResource.ResearchCategory, currentTier, KerbalSecondsToDays(kerbalSecondsSoFar), KerbalYearsToDays(forResource.ResearchCategory.KerbalYearsToNextTier(currentTier)));
         }
         
         public override void OnLoad(ConfigNode node)

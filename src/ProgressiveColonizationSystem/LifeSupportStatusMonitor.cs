@@ -38,16 +38,6 @@ namespace ProgressiveColonizationSystem
 
         private string transferringMessage;
 
-        internal class ResearchData
-        {
-            public string Category;
-            public TechTier Tier;
-            public double ProgressPerDay;
-            public double AccumulatedProgress;
-            public double NextTier;
-            public string WhyBlocked;
-        }
-
         private IntervesselResourceTransfer resourceTransfer = new IntervesselResourceTransfer();
 
         public LifeSupportStatusMonitor()
@@ -113,30 +103,27 @@ namespace ProgressiveColonizationSystem
 
             DialogGUIBase[] rows = new DialogGUIBase[this.progress.Count + 1];
             rows[0] = new DialogGUIHorizontalLayout(
-                    new DialogGUILabel(TextEffects.DialogHeading("Field:"), 170),
+                    new DialogGUILabel(TextEffects.DialogHeading("Field:"), 160),
                     new DialogGUILabel(TextEffects.DialogHeading("Progress:"), 70),
-                    new DialogGUILabel(TextEffects.DialogHeading("Days To Go:"), 70)
+                    new DialogGUILabel(TextEffects.DialogHeading("Notes:"), 120)
                 );
             
             for (int i = 0; i < this.progress.Count; ++i)
             {
                 var field = this.progress[i];
 
-                if (field.WhyBlocked == null)
-                {
-                    double progress = field.AccumulatedProgress / field.NextTier;
-                    double daysToGo = (field.NextTier - field.AccumulatedProgress) / field.ProgressPerDay;
-                    rows[i + 1] = new DialogGUIHorizontalLayout(
-                        new DialogGUILabel(field.Category, 170),
-                        new DialogGUILabel($"{100 * progress:N}%", 70),
-                        new DialogGUILabel(daysToGo.ToString("N"), 70));
-                }
-                else
-                {
-                    rows[i + 1] = new DialogGUIHorizontalLayout(
-                        new DialogGUILabel(field.Category, 170),
-                        new DialogGUILabel(TextEffects.Red("Blocked: " + field.WhyBlocked)));
-                }
+                string fieldName = field.IsAtMaxTier
+                    ? field.Category.DisplayName
+                    : $"{field.Category.DisplayName}({field.TierBeingResearched.DisplayName()})";
+                string progressText = field.HasProgress ? $"{100 * field.AccumulatedKerbalDays / field.KerbalDaysRequired:N}%" : "-";
+                string notes = field.KerbalDaysContributedPerDay > 0
+                    ? $"{(field.KerbalDaysRequired - field.AccumulatedKerbalDays) / field.KerbalDaysContributedPerDay:N} days to go"
+                    : field.WhyBlocked;
+
+                rows[i + 1] = new DialogGUIHorizontalLayout(
+                    new DialogGUILabel(fieldName, 160),
+                    new DialogGUILabel(progressText, 70),
+                    new DialogGUILabel(notes, 120));
             }
 
             return new DialogGUIVerticalLayout(rows);
@@ -678,48 +665,29 @@ namespace ProgressiveColonizationSystem
 
                 limitedByMessage = shortfalls.Count == 0 ? null : string.Join(", ", shortfalls.ToArray());
 
-                var positiveProgress = researchSink.Data
-                    .Select(pair => new ResearchData
+                var allResearchEntries = researchSink.Data.Values.ToList();
+                foreach (var group in tieredProducers
+                    .Where(tp => !researchSink.Data.ContainsKey(tp.Output.ResearchCategory))
+                    .GroupBy(tp => tp.Output.ResearchCategory))
+                {
+                    ITieredProducer exampleProducer = group.FirstOrDefault(tp => tp.IsResearchEnabled && tp.IsProductionEnabled);
+                    // We're looking for the best example of why research isn't enabled - maxtier is the top
+                    exampleProducer = group.FirstOrDefault(tp => tp.Tier == TechTier.Tier4);
+                    if (exampleProducer == null)
                     {
-                        Category = pair.Key.DisplayName,
-                        NextTier = pair.Value.KerbalDaysRequired,
-                        AccumulatedProgress = pair.Value.AccumulatedKerbalDays,
-                        ProgressPerDay = pair.Value.KerbalDaysContributedPerDay,
-                        WhyBlocked = null
-                    })
-                    .ToList();
-
-                var progressLimits = tieredProducers
-                    .Where(tp => !tp.IsResearchEnabled)
-                    .Where(tp => !positiveProgress.Any(p => p.Category == tp.Output.ResearchCategory.DisplayName))
-                    .GroupBy(tp => tp.Output.ResearchCategory)
-                    .Select(group => group.First())
-                    .Select(tp => new ResearchData
+                        exampleProducer = group.FirstOrDefault(tp => tp.IsProductionEnabled);
+                    }
+                    else
                     {
-                        Category = tp.Output.ResearchCategory.DisplayName,
-                        NextTier = double.PositiveInfinity,
-                        AccumulatedProgress = 0, // Not true - okay now because we don't display it.
-                        ProgressPerDay = 0,
-                        WhyBlocked = tp.ReasonWhyResearchIsDisabled
-                    })
-                    .ToArray();
-                positiveProgress.AddRange(progressLimits);
-                positiveProgress.AddRange(
-                        tieredProducers
-                            .Where(tp => tp.IsProductionEnabled && tp.IsResearchEnabled)
-                            .Select(tp => tp.Output.ResearchCategory)
-                            .Distinct()
-                            .Where(rc => !positiveProgress.Any(pp => rc.DisplayName == pp.Category))
-                            .Select(rc => new ResearchData
-                            {
-                                Category = rc.DisplayName,
-                                NextTier = double.PositiveInfinity,
-                                AccumulatedProgress = 0, // Not true - okay now because we don't display it.
-                                ProgressPerDay = 0,
-                                WhyBlocked = "Production blocked"
-                            }));
+                        exampleProducer = group.First();
+                    }
 
-                progress = positiveProgress;
+                    var researchEntry = ColonizationResearchScenario.Instance.GetResearchProgress(exampleProducer.Output, exampleProducer.Body);
+                    researchEntry.WhyBlocked = exampleProducer.IsResearchEnabled ? "Production Blocked" : exampleProducer.ReasonWhyResearchIsDisabled;
+                    allResearchEntries.Add(researchEntry);
+                }
+
+                progress = allResearchEntries;
             }
         }
 
