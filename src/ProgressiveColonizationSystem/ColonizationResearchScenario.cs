@@ -181,7 +181,28 @@ namespace ProgressiveColonizationSystem
 
             return new ResearchData(forResource.ResearchCategory, currentTier, KerbalSecondsToDays(kerbalSecondsSoFar), KerbalYearsToDays(forResource.ResearchCategory.KerbalYearsToNextTier(currentTier)));
         }
-        
+
+        internal ResearchData GetResearchProgress(TieredResource forResource, string atBody, TechTier tier, string whyBlocked)
+        {
+            double kerbalSecondsSoFar = 0;
+            TechTier currentTier = TechTier.Tier0;
+            if (this.categoryToBodyToProgressMap.TryGetValue(forResource.ResearchCategory, out Dictionary<string, TechProgress> bodyToProgressMap))
+            {
+                string bodyName = forResource.ProductionRestriction == ProductionRestriction.Space ? "" : atBody;
+                if (bodyToProgressMap.TryGetValue(bodyName, out TechProgress progress))
+                {
+                    currentTier = progress.Tier;
+                    kerbalSecondsSoFar = progress.ProgressInKerbalSeconds;
+                }
+            }
+
+            var result = (currentTier == tier)
+                ? new ResearchData(forResource.ResearchCategory, tier, KerbalSecondsToDays(kerbalSecondsSoFar), KerbalYearsToDays(forResource.ResearchCategory.KerbalYearsToNextTier(currentTier)))
+                : new ResearchData(forResource.ResearchCategory, tier, 0, 0);
+            result.WhyBlocked = whyBlocked;
+            return result;
+        }
+
         public override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);

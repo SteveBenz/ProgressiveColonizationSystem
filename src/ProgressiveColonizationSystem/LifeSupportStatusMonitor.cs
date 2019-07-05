@@ -103,9 +103,9 @@ namespace ProgressiveColonizationSystem
 
             DialogGUIBase[] rows = new DialogGUIBase[this.progress.Count + 1];
             rows[0] = new DialogGUIHorizontalLayout(
-                    new DialogGUILabel(TextEffects.DialogHeading("Field:"), 160),
+                    new DialogGUILabel(TextEffects.DialogHeading("Researching:"), 160),
                     new DialogGUILabel(TextEffects.DialogHeading("Progress:"), 70),
-                    new DialogGUILabel(TextEffects.DialogHeading("Notes:"), 120)
+                    new DialogGUILabel(TextEffects.DialogHeading("Notes:"), 140)
                 );
             
             for (int i = 0; i < this.progress.Count; ++i)
@@ -114,7 +114,7 @@ namespace ProgressiveColonizationSystem
 
                 string fieldName = field.IsAtMaxTier
                     ? field.Category.DisplayName
-                    : $"{field.Category.DisplayName}({field.TierBeingResearched.DisplayName()})";
+                    : $"{field.TierBeingResearched.DisplayName()} {field.Category.DisplayName}";
                 string progressText = field.HasProgress ? $"{100 * field.AccumulatedKerbalDays / field.KerbalDaysRequired:N}%" : "-";
                 string notes = field.KerbalDaysContributedPerDay > 0
                     ? $"{(field.KerbalDaysRequired - field.AccumulatedKerbalDays) / field.KerbalDaysContributedPerDay:N} days to go"
@@ -123,7 +123,7 @@ namespace ProgressiveColonizationSystem
                 rows[i + 1] = new DialogGUIHorizontalLayout(
                     new DialogGUILabel(fieldName, 160),
                     new DialogGUILabel(progressText, 70),
-                    new DialogGUILabel(notes, 120));
+                    new DialogGUILabel(notes, 140));
             }
 
             return new DialogGUIVerticalLayout(rows);
@@ -670,20 +670,24 @@ namespace ProgressiveColonizationSystem
                     .Where(tp => !researchSink.Data.ContainsKey(tp.Output.ResearchCategory))
                     .GroupBy(tp => tp.Output.ResearchCategory))
                 {
+                    var maxTier = group.Max(tp => tp.Tier);
+                    var topTierProducers = group.Where(tp => tp.Tier == maxTier).ToArray();
+
                     ITieredProducer exampleProducer = group.FirstOrDefault(tp => tp.IsResearchEnabled && tp.IsProductionEnabled);
                     // We're looking for the best example of why research isn't enabled - maxtier is the top
-                    exampleProducer = group.FirstOrDefault(tp => tp.Tier == TechTier.Tier4);
+                    exampleProducer = topTierProducers.FirstOrDefault(tp => tp.Tier == TechTier.Tier4);
                     if (exampleProducer == null)
                     {
-                        exampleProducer = group.FirstOrDefault(tp => tp.IsProductionEnabled);
+                        exampleProducer = topTierProducers.FirstOrDefault(tp => tp.IsProductionEnabled);
                     }
                     else
                     {
-                        exampleProducer = group.First();
+                        exampleProducer = topTierProducers.First();
                     }
 
-                    var researchEntry = ColonizationResearchScenario.Instance.GetResearchProgress(exampleProducer.Output, exampleProducer.Body);
-                    researchEntry.WhyBlocked = exampleProducer.IsResearchEnabled ? "Production Blocked" : exampleProducer.ReasonWhyResearchIsDisabled;
+                    var researchEntry = ColonizationResearchScenario.Instance.GetResearchProgress(
+                        exampleProducer.Output, exampleProducer.Body, exampleProducer.Tier,
+                        exampleProducer.IsResearchEnabled ? "Production Blocked" : exampleProducer.ReasonWhyResearchIsDisabled);
                     allResearchEntries.Add(researchEntry);
                 }
 

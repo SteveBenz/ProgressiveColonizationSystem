@@ -19,12 +19,6 @@ namespace ProgressiveColonizationSystem
             this.currentTier = currentTier;
         }
 
-        public ResearchData(ResearchCategory category, string whyBlocked)
-        {
-            this.Category = category;
-            this.WhyBlocked = WhyBlocked;
-        }
-
         public bool HasProgress => this.AccumulatedKerbalDays > 0;
         public bool IsAtMaxTier => this.currentTier == TechTier.Tier4;
 
