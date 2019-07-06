@@ -37,9 +37,9 @@ Because I can't be bothered with GitHub issues.
        in the progress tab - it should say "production blocked" or something. (nocompwrng - then add rocket part
        storage on gilly t1 base)
    26. (fixed) Could stand to have a 'refresh' button in the Transfer window.
-   27. When at a base with disabled parts and parts that are limited by not being at the final tier, it says
+   27. (fixed) When at a base with disabled parts and parts that are limited by not being at the final tier, it says
        research is limited by the disabled parts
-   28. When research is limited by "not cutting edge parts", it's a bit overblown.  Maybe "Tier-4 research complete"
+   28. (fixed) When research is limited by "not cutting edge parts", it's a bit overblown.  Maybe "Tier-4 research complete"
        in a gentler color.
 2. Rounding things out
    1.  Create or hijack a part for storing Snacks - just snacks
