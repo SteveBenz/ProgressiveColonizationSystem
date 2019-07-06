@@ -97,6 +97,8 @@ namespace ProgressiveColonizationSystem
                         return GetGroupDescription(crewDescriptors, false);
                     case "[victims_hashave]":
                         return crewDescriptors.hashave();
+                    case "[victims_isare]":
+                        return crewDescriptors.isare();
                     case "[victims_hishertheir]":
                         return crewDescriptors.hishertheir();
                     case "[crew]":
@@ -228,6 +230,8 @@ namespace ProgressiveColonizationSystem
     {
         public static string hashave(this List<CrewDescriptor> crewDescriptors)
             => crewDescriptors.Count > 1 ? "have" : "has";
+        public static string isare(this List<CrewDescriptor> crewDescriptors)
+            => crewDescriptors.Count > 1 ? "are" : "is";
         public static string hishertheir(this List<CrewDescriptor> crewDescriptors)
             => crewDescriptors.Count == 1 ? crewDescriptors[0].hisher : "their";
     }
