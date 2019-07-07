@@ -73,6 +73,8 @@
     <Compile Include="PartSetupDialog.cs" />
     <Compile Include="PksTabbedDialog.cs" />
     <Compile Include="PksTieredCombiner.cs" />
+    <Compile Include="PksUpgradablePart.cs" />
+    <Compile Include="PksUpgradeVesselModule.cs" />
     <Compile Include="ProductionChain\AmalgamatedCombiners.cs" />
     <Compile Include="ITieredCombiner.cs" />
     <Compile Include="PksCrewRequirement.cs" />

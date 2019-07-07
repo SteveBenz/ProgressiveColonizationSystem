@@ -73,6 +73,16 @@ namespace ProgressiveColonizationSystem
         protected virtual TechTier MaxTechTierResearched
             => ColonizationResearchScenario.Instance.GetMaxUnlockedTier(this.Output, this.body);
 
+        private PksUpgradablePart upgradablePartCache;
+        private PksUpgradablePart UpgradablePart
+        {
+            get
+            {
+                this.upgradablePartCache = this.upgradablePartCache ?? this.vessel.FindPartModuleImplementing<PksUpgradablePart>();
+                return this.upgradablePartCache;
+            }
+        }
+
         public string Body
         {
             get => this.body == NotSet ? null : this.body;
@@ -105,6 +115,12 @@ namespace ProgressiveColonizationSystem
              && this.vessel.situation != Vessel.Situations.ESCAPING)
             {
                 reasonWhyNotMessage = $"Not in space";
+                return false;
+            }
+
+            if (this.UpgradablePart != null && this.UpgradablePart.IsUpgrading)
+            {
+                reasonWhyNotMessage = "Under construction";
                 return false;
             }
 
@@ -242,6 +258,7 @@ namespace ProgressiveColonizationSystem
             ModuleResourceConverter resourceConverter = this.GetComponent<ModuleResourceConverter>();
 
             bool isEnableable = this.IsSituationCorrect(out string reasonWhyNotMessage);
+
             // remember resourceConverterIsEnabled is a 3-way -- true, false, and null for I haven't done anything yet.
             // It's important to not call EnableModule every time through FixedUpdate, as it's very slow.
             if (isEnableable && this.resourceConverterIsEnabled != true)

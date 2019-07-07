@@ -31,19 +31,37 @@ namespace ProgressiveColonizationSystem
         private PksTieredResourceConverter tieredResourceConverter = null;
         private BaseConverter resourceConverter = null;
 
+        [KSPField(isPersistant = true)]
+        private string requiredEffectOverride = "";
+        [KSPField(isPersistant = true)]
+        private float requiredCrewOverride;
+        [KSPField(isPersistant = true)]
+        private int requiredCrewLevelOverride;
+
         public override string GetModuleDisplayName()
         {
             return "Crew Requirements";
         }
 
-        public string RequiredEffect => this.requiredEffect;
+        public string RequiredEffect => this.requiredEffectOverride == "" ? this.requiredEffect : this.requiredEffectOverride;
 
         public int RequiredLevel
         {
             get
             {
                 this.Initialize();
-                return this.tieredResourceConverter == null ? 0 : ((int)this.tieredResourceConverter.Tier + 1);
+                if (this.requiredEffectOverride == "")
+                {
+                    return this.requiredCrewLevelOverride;
+                }
+                else if (this.tieredResourceConverter == null)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return (int)this.tieredResourceConverter.Tier + 1;
+                }
             }
         }
 
@@ -62,23 +80,36 @@ namespace ProgressiveColonizationSystem
             {
                 info.Append($"{tier}: ");
 
-                for (int i = 0; i < careers.Count; ++i)
-                {
-                    ExperienceEffectConfig effectConfig = careers[i].Effects.First(effect => effect.Name == this.requiredEffect);
-                    int numStars = 1 + (int)tier - int.Parse(effectConfig.Config.GetValue("level"));
-
-                    if (i == careers.Count - 1)
-                    {
-                        info.Append(" or a ");
-                    }
-                    else if (i > 0)
-                    {
-                        info.Append(", ");
-                    }
-
-                    info.Append(DescribeKerbalTrait(numStars, careers[i].Title));
-                }
+                info.Append(DescribeKerbalsWithEffect(this.requiredEffect, tier));
                 info.AppendLine();
+            }
+            return info.ToString();
+        }
+
+        public static string DescribeKerbalsWithEffect(string experienceEffect, TechTier tier)
+        {
+            List<ExperienceTraitConfig> careers = GameDatabase.Instance.ExperienceConfigs
+                .GetTraitsWithEffect(experienceEffect)
+                .Select(name => GameDatabase.Instance.ExperienceConfigs.GetExperienceTraitConfig(name))
+                .ToList();
+
+            StringBuilder info = new StringBuilder();
+
+            for (int i = 0; i < careers.Count; ++i)
+            {
+                ExperienceEffectConfig effectConfig = careers[i].Effects.First(effect => effect.Name == experienceEffect);
+                int numStars = 1 + (int)tier - int.Parse(effectConfig.Config.GetValue("level"));
+
+                if (i == careers.Count - 1)
+                {
+                    info.Append(" or a ");
+                }
+                else if (i > 0)
+                {
+                    info.Append(", ");
+                }
+
+                info.Append(DescribeKerbalTrait(numStars, careers[i].Title));
             }
             return info.ToString();
         }
@@ -101,6 +132,20 @@ namespace ProgressiveColonizationSystem
                 this.Initialize();
                 return this.resourceConverter;
             }
+        }
+
+        internal void OverrideRequirement(string requiredEffect, TechTier techTier, float numCrewRequired)
+        {
+            this.requiredEffectOverride = requiredEffect;
+            this.requiredCrewOverride = numCrewRequired;
+            this.requiredCrewLevelOverride = (int)techTier;
+        }
+
+        internal void CancelOverride()
+        {
+            this.requiredEffectOverride = "";
+            this.requiredCrewOverride = 0;
+            this.requiredCrewLevelOverride = 0;
         }
 
         public bool IsRunning =>
@@ -132,7 +177,7 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        public float CapacityRequired => this.requiredCrew;
+        public float CapacityRequired => this.requiredEffectOverride == "" ? this.requiredCrew : this.requiredCrewOverride;
 
         private void Initialize()
         {
