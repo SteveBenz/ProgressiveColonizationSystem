@@ -680,7 +680,8 @@ namespace ProgressiveColonizationSystem
                     {
                         exampleProducer = topTierProducers.FirstOrDefault(tp => tp.IsProductionEnabled);
                     }
-                    else
+                    
+                    if (exampleProducer == null)
                     {
                         exampleProducer = topTierProducers.First();
                     }
