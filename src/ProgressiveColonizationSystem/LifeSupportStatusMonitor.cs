@@ -176,13 +176,13 @@ namespace ProgressiveColonizationSystem
                         new DialogGUIButton(
                             "Start",
                             resourceTransfer.StartTransfer,
-                            () => resourceTransfer.TargetVessel != null && !resourceTransfer.IsTransferUnderway,
+                            () => this.resourceTransfer.TargetVessel != null && !this.resourceTransfer.IsTransferUnderway,
                             dismissOnSelect: false),
-                        new DialogGUISlider(() => (float)resourceTransfer.TransferPercent, 0, 1, false, 100, 20, (f) => { }),
+                        new DialogGUISlider(() => (float)this.resourceTransfer.TransferPercent, 0, 1, false, 100, 20, (f) => { }),
                         new DialogGUIButton(
                             "Refresh",
-                            this.OnTargetChanged,
-                            () => resourceTransfer.TargetVessel != null && (resourceTransfer.IsTransferComplete || !resourceTransfer.IsTransferUnderway),
+                            () => { this.OnTargetChanged(); this.resourceTransfer.Reset(); },
+                            () => this.resourceTransfer.TargetVessel != null && (this.resourceTransfer.IsTransferComplete || !this.resourceTransfer.IsTransferUnderway),
                             dismissOnSelect: false)
                 ));
             vertical.AddChild(new DialogGUILabel(() => this.transferringMessage));

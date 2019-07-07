@@ -41,6 +41,8 @@ Because I can't be bothered with GitHub issues.
        research is limited by the disabled parts
    28. (fixed) When research is limited by "not cutting edge parts", it's a bit overblown.  Maybe "Tier-4 research complete"
        in a gentler color.
+   29. (fixed) "Refresh" button recalculates what needs to be sent, but the "Start" button doesn't light back up again
+       and the slider is still at 100%
 2. Rounding things out
    1.  Create or hijack a part for storing Snacks - just snacks
    2.  (complete) Write PDF help and or create a github wiki
@@ -52,6 +54,7 @@ Because I can't be bothered with GitHub issues.
    7.  Maybe allow some warnings to show a "Don't care" button (Particularly the storage ones)
    8.  (DOA) Make a "K&K Storage [KIS]" that works with B9 -- need to figure out how to do the decals and push it to K&K
        Mod author has other ideas.
+   9.  Make it possible to use EPL to upgrade parts in the station.
 3. Things that don't seem worth doing
    1.  Integrate with Kerbal Alarm Clock?
    2.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
