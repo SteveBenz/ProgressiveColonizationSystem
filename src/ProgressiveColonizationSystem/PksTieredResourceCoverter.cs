@@ -78,7 +78,7 @@ namespace ProgressiveColonizationSystem
         {
             get
             {
-                this.upgradablePartCache = this.upgradablePartCache ?? this.vessel.FindPartModuleImplementing<PksUpgradablePart>();
+                this.upgradablePartCache = this.upgradablePartCache ?? this.part.FindModuleImplementing<PksUpgradablePart>();
                 return this.upgradablePartCache;
             }
         }

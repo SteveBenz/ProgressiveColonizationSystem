@@ -170,7 +170,7 @@ namespace ProgressiveColonizationSystem
             {
                 this.Events[nameof(this.OnUpgrade)].guiActive = false;
                 this.Fields[nameof(this.remainingWorkAsPercentage)].guiActive = true;
-                this.remainingWorkAsPercentage = 100.0f * this.remainingWork / this.upgradeCost;
+                this.remainingWorkAsPercentage = 100.0f * (this.upgradeCost - this.remainingWork) / this.upgradeCost;
             }
             else
             {

@@ -50,7 +50,7 @@ namespace ProgressiveColonizationSystem
             get
             {
                 this.Initialize();
-                if (this.requiredEffectOverride == "")
+                if (this.requiredEffectOverride != "")
                 {
                     return this.requiredCrewLevelOverride;
                 }
@@ -148,10 +148,16 @@ namespace ProgressiveColonizationSystem
             this.requiredCrewLevelOverride = 0;
         }
 
+        /// <summary>
+        ///   A part is considered 'running' (which means it requires crew) if we're in the editor (so that
+        ///   calculators can work), or there's no resource converter to turn it on and off, or there's a
+        ///   resource converter and it's turned on, or we're upgrading the part.
+        /// </summary>
         public bool IsRunning =>
             HighLogic.LoadedSceneIsEditor
             || this.ResourceConverter == null
-            || this.ResourceConverter.IsActivated;
+            || this.ResourceConverter.IsActivated
+            || this.requiredEffectOverride != "";
 
         public bool IsStaffed
         {

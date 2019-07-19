@@ -54,7 +54,12 @@ Because I can't be bothered with GitHub issues.
    7.  Maybe allow some warnings to show a "Don't care" button (Particularly the storage ones)
    8.  (DOA) Make a "K&K Storage [KIS]" that works with B9 -- need to figure out how to do the decals and push it to K&K
        Mod author has other ideas.
-   9.  Make it possible to use EPL to upgrade parts in the station.
+   9.  (mostly done) Make it possible to use EPL to upgrade parts in the station.
+       1.  Decide what to do about auto-miners (validate that they have current parts?  Re-do the scan?)
+       2.  Make it show a message about completed upgrades?
+       3.  Make it verify that all precursor chains are satisfied before allowing a start?
+       4.  Bug: Parts that are undergoing upgrades are considered 'disabled' and so don't actually validate their staffing requirement.
+       5.  Disable upgrades until you've built at least one of the new parts?  Disable upgrades up to T2?
 3. Things that don't seem worth doing
    1.  Integrate with Kerbal Alarm Clock?
    2.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.

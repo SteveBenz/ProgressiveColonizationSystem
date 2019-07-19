@@ -55,7 +55,7 @@ namespace ProgressiveColonizationSystem
             }
 
             var crewRequirement = this.part.FindModuleImplementing<PksCrewRequirement>();
-            if (crewRequirement != null && !crewRequirement.IsRunning)
+            if (crewRequirement != null && !crewRequirement.IsRunning) // what about if updating?
             {
                 ScreenMessages.PostScreenMessage($"Finding resources with this scanner is proving really difficult.  Maybe we should turn it on?");
                 return;

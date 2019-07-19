@@ -13,6 +13,11 @@ namespace ProgressiveColonizationSystem
 
         public void FixedUpdate()
         {
+            if (!HighLogic.LoadedSceneIsFlight || this.vessel == null || !this.vessel.loaded)
+            {
+                return;
+            }
+
             double now = Planetarium.GetUniversalTime();
             var upgradingParts = this.GetUpgradingParts();
             if (!upgradingParts.Any())
