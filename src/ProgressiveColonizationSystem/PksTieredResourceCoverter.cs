@@ -45,7 +45,7 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        [KSPField(guiActive = false, guiActiveEditor = false, isPersistant = false, guiName = "status")]
+        [KSPField(guiActive = false, guiActiveEditor = false, isPersistant = false, guiName = "Status")]
         public string reasonWhyDisabled;
 
         // Apparently, the 'bool enabled' field on the resource converter itself is not to be trusted...
