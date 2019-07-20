@@ -20,13 +20,13 @@ namespace ProgressiveColonizationSystem
 
             double now = Planetarium.GetUniversalTime();
             var upgradingParts = this.GetUpgradingParts();
-            if (!upgradingParts.Any())
+            int numStaffedUpgrades = upgradingParts.Count(p => p.CrewRequirement.IsStaffed);
+            if (numStaffedUpgrades == 0)
             {
                 this.lastTimeCheck = now;
                 return;
             }
 
-            int numStaffedUpgrades = upgradingParts.Count(p => p.CrewRequirement.IsStaffed);
             PartResourceDefinition rocketPartsResourceDefinition = PartResourceLibrary.Instance.GetDefinition("RocketParts");
             vessel.GetConnectedResourceTotals(rocketPartsResourceDefinition.id, out double availableRocketParts, out double _);
 
@@ -37,7 +37,7 @@ namespace ProgressiveColonizationSystem
                 var workingOnParts = upgradingParts.Where(up => up.CrewRequirement.IsStaffed).ToList();
                 if (workingOnParts.Count < numStaffedUpgrades)
                 {
-                    int others = workingOnParts.Count - numStaffedUpgrades;
+                    int others = numStaffedUpgrades - workingOnParts.Count;
                     workingOnParts.AddRange(
                         upgradingParts
                             .Where(up => !up.CrewRequirement.IsStaffed)
