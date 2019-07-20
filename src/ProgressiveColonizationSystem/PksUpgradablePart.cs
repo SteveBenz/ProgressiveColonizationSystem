@@ -103,7 +103,10 @@ namespace ProgressiveColonizationSystem
         private void StartUpgrade()
         {
             this.remainingWork = this.upgradeCost;
-            this.CrewRequirement.OverrideRequirement(requiredEffect, this.TieredConverter.Tier + 1, 1.0f);
+            // Tier+2 because:
+            //  +1 because it's converting from "tier" to "stars"
+            //  +1 more because we want to ask for an equivolent engineer to what it would take to run it at the next tier.
+            this.CrewRequirement.OverrideRequirement(requiredEffect, this.TieredConverter.Tier + 2, 1.0f);
             this.UpdateFields();
         }
 
