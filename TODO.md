@@ -58,7 +58,7 @@ Because I can't be bothered with GitHub issues.
        1.  Decide what to do about auto-miners (validate that they have current parts?  Re-do the scan?)
        2.  Make it show a message about completed upgrades?
        3.  Make it verify that all precursor chains are satisfied before allowing a start?
-       4.  Bug: Parts that are undergoing upgrades are considered 'disabled' and so don't actually validate their staffing requirement.
+       4.  (fixed) Bug: Parts that are undergoing upgrades are considered 'disabled' and so don't actually validate their staffing requirement.
        5.  Disable upgrades until you've built at least one of the new parts?  Disable upgrades up to T2?
 3. Things that don't seem worth doing
    1.  Integrate with Kerbal Alarm Clock?

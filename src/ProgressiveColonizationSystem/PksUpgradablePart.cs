@@ -142,7 +142,7 @@ namespace ProgressiveColonizationSystem
             {
                 if (this.crewRequirementCache == null)
                 {
-                    this.crewRequirementCache = this.vessel.FindPartModuleImplementing<PksCrewRequirement>();
+                    this.crewRequirementCache = this.part.FindModuleImplementing<PksCrewRequirement>();
                 }
 
                 return this.crewRequirementCache;

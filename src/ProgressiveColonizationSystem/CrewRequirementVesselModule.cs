@@ -21,14 +21,15 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
-            List<IPksCrewRequirement> activatedParts = this.vessel
-                .FindPartModulesImplementing<IPksCrewRequirement>()
+            List<IPksCrewRequirement> allCrewableParts = this.vessel
+                .FindPartModulesImplementing<IPksCrewRequirement>();
+            List<IPksCrewRequirement> activatedParts = allCrewableParts
                 .Where(p => p.IsRunning)
                 .ToList();
             List<ProtoCrewMember> kspCrew = this.vessel.GetVesselCrew();
             var crew = kspCrew.Select(c => new SkilledCrewman(c)).ToList();
 
-            int hash = activatedParts.Aggregate(0, (accumulator, part) => accumulator ^ part.GetHashCode());
+            int hash = activatedParts.Aggregate(0, (accumulator, part) => accumulator ^ part.RequiredEffect.GetHashCode() ^ part.RequiredLevel.GetHashCode());
             hash = kspCrew.Aggregate(hash, (accumulator, kerbal) => accumulator ^ kerbal.GetHashCode());
 
             if (hash == this.hashAtLastCheck)
