@@ -59,7 +59,8 @@ Because I can't be bothered with GitHub issues.
        2.  Make it show a message about completed upgrades?
        3.  Make it verify that all precursor chains are satisfied before allowing a start?
        4.  (fixed) Bug: Parts that are undergoing upgrades are considered 'disabled' and so don't actually validate their staffing requirement.
-       5.  Disable upgrades until you've built at least one of the new parts?  Disable upgrades up to T2?
+       5.  (done) Disable upgrades up to T2
+       6.  Update documentation
 3. Things that don't seem worth doing
    1.  Integrate with Kerbal Alarm Clock?
    2.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.

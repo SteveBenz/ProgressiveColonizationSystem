@@ -30,6 +30,12 @@ namespace ProgressiveColonizationSystem
         public float upgradeTimeInKerbalDays;
 
         /// <summary>
+        ///   Parts that are below this tier won't be upgradeable.
+        /// </summary>
+        [KSPField]
+        public int minimumUpgradeableTier;
+
+        /// <summary>
         ///   If greater than zero, then an upgrade is in progress and remainingWork is how
         ///   many rocket parts need to be placed.
         /// </summary>
@@ -169,7 +175,11 @@ namespace ProgressiveColonizationSystem
 
         private void UpdateFields()
         {
-            if (this.IsUpgrading)
+            if (this.TieredConverter.Tier < (TechTier)this.minimumUpgradeableTier)
+            {
+                this.Events[nameof(this.OnUpgrade)].guiActive = false;
+            }
+            else if (this.IsUpgrading)
             {
                 this.Events[nameof(this.OnUpgrade)].guiActive = false;
                 this.Fields[nameof(this.remainingWorkAsPercentage)].guiActive = true;
