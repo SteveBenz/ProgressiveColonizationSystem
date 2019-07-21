@@ -291,20 +291,20 @@ namespace ProgressiveColonizationSystem
             }
 
             // Send snacks?
-            if ( thisShipsProducts.Contains("Snacks-Tier4")   // Always send if we produce it
-              || ( !otherShipsProducts.Contains("Snacks-Tier4")
-                && thisShipCanSupply.ContainsKey("Snacks-Tier4")
-                && otherShipCanStore.ContainsKey("Snacks-Tier4")
-                && snackDirectionBasedOnVesselType == SnacksDirection.Send))
+            if (otherShipCanStore.ContainsKey("Snacks-Tier4")
+             && thisShipCanSupply.ContainsKey("Snacks-Tier4")
+             && (thisShipsProducts.Contains("Snacks-Tier4")   // Always send if we produce it
+              || (!otherShipsProducts.Contains("Snacks-Tier4") // Don't send if the other guy produces
+               && snackDirectionBasedOnVesselType == SnacksDirection.Send)))
             {
                 toReceive.Remove("Snacks-Tier4");
                 toSend["Snacks-Tier4"] = Math.Min(thisShipCanSupply["Snacks-Tier4"], otherShipCanStore["Snacks-Tier4"]);
             }
-            else if (otherShipsProducts.Contains("Snacks-Tier4")   // Always take if the other guy produces
-                  || (!thisShipsProducts.Contains("Snacks-Tier4")
-                   && otherShipCanSupply.ContainsKey("Snacks-Tier4")
-                   && thisShipCanStore.ContainsKey("Snacks-Tier4")
-                   && snackDirectionBasedOnVesselType == SnacksDirection.Receive))
+            else if (thisShipCanStore.ContainsKey("Snacks-Tier4")
+                  && otherShipCanSupply.ContainsKey("Snacks-Tier4")
+                  && (otherShipsProducts.Contains("Snacks-Tier4")   // Always take if the other guy produces
+                   || (!thisShipsProducts.Contains("Snacks-Tier4")  // Don't take if we produce it
+                    && snackDirectionBasedOnVesselType == SnacksDirection.Receive)))
             {
                 toSend.Remove("Snacks-Tier4");
                 toReceive["Snacks-Tier4"] = Math.Min(thisShipCanStore["Snacks-Tier4"], otherShipCanSupply["Snacks-Tier4"]);
