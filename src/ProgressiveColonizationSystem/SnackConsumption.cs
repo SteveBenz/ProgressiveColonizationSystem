@@ -142,6 +142,19 @@ namespace ProgressiveColonizationSystem
             message = $"{minerVessel.vesselName} is automatically fetching Crush-Ins for this base.";
         }
 
+        /// <summary>
+        ///   Sets whatever miner was seen as the automatic-miner for a base to be just the last miner to
+        ///   deliver to the base, forcing the player to fetch another load.
+        /// </summary>
+        /// <remarks>
+        ///   This is used during the upgrade process, after upgrading a drill to the next level.
+        /// </remarks>
+        public void DemoteMiner()
+        {
+            this.lastMinerToDepositCraftId = this.supplierMinerCraftId;
+            this.supplierMinerCraftId = "";
+        }
+
         internal void MiningMissionFinished(Vessel sourceVessel, double amountSent)
         {
             if (sourceVessel.GetCrewCapacity() < 2)

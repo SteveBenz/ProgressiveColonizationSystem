@@ -56,8 +56,12 @@ Because I can't be bothered with GitHub issues.
        Mod author has other ideas.
    9.  (mostly done) Make it possible to use EPL to upgrade parts in the station.
        1.  Decide what to do about auto-miners (validate that they have current parts?  Re-do the scan?)
+           a)  Maybe make it so that if you upgrade a part, we check to see if another vessel has the modified vessel
+               as an auto-miner and, if so, clear it and report the deed to the player?
+           ?   But do we really need to put the user through the mining rigmarole again?
+           ?   Could we do it such that we just have to fetch one load?
        2.  Make it show a message about completed upgrades?
-       3.  Make it verify that all precursor chains are satisfied before allowing a start?
+       3.  (meh) Make it verify that all precursor chains are satisfied before allowing a start?
        4.  (fixed) Bug: Parts that are undergoing upgrades are considered 'disabled' and so don't actually validate their staffing requirement.
        5.  (done) Disable upgrades up to T2
        6.  Update documentation

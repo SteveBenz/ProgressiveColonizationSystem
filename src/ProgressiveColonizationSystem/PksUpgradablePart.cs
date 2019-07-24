@@ -123,8 +123,37 @@ namespace ProgressiveColonizationSystem
             {
                 this.CrewRequirement.CancelOverride();
                 ++this.TieredConverter.tier;
+                this.UpdateAutoMining();
             }
             this.UpdateFields();
+        }
+
+        private void UpdateAutoMining()
+        {
+            // If this is a drill...
+            if (this.TieredConverter.Input != null
+             && this.TieredConverter.Input.IsHarvestedLocally)
+            {
+                // Have we collected some of this stuff already?
+                PartResourceDefinition locallyMinedResource = PartResourceLibrary.Instance.GetDefinition(
+                    this.TieredConverter.Input.TieredName(this.TieredConverter.Tier));
+                this.vessel.GetConnectedResourceTotals(locallyMinedResource.id, out double amount, out var _);
+                if (amount > 0)
+                {
+                    // Either this is not the first drill that the user has upgraded or the user has
+                    // somehow done the job proactively. Whatever, if that's been done, then call it good.
+                    return;
+                }
+
+                var snackConsumption = this.vessel.vesselModules.OfType<SnackConsumption>().First();
+                snackConsumption.DemoteMiner();
+
+                // Then tell the user to go get some
+                PopupMessageWithKerbal.ShowPopup(
+                    "More Mining!",
+                    $"Wewt!  The drill has been upgraded!  But we're going to need some fresh {locallyMinedResource.displayName}.",
+                    "I can dig it");
+            }
         }
 
         public double PartsUseRateInRocketPartsPerSecond => this.upgradeCost / ColonizationResearchScenario.KerbalDaysToSeconds(this.upgradeTimeInKerbalDays);
@@ -208,7 +237,6 @@ namespace ProgressiveColonizationSystem
                     return false;
                 }
 
-                // TODO: Validate that rest of the resource chain is available at this tier
                 return true;
             }
         }
