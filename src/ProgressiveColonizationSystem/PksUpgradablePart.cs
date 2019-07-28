@@ -102,7 +102,7 @@ namespace ProgressiveColonizationSystem
         private int NumberOfUpgraders()
         {
             List<ProtoCrewMember> kspCrew = this.vessel.GetVesselCrew();
-            return kspCrew.Select(c => new SkilledCrewman(c)).Count(c => c.CanRunPart(requiredEffect, (int)this.TieredConverter.Tier + 1));
+            return kspCrew.Select(c => new SkilledCrewman(c)).Count(c => c.CanRunPart(requiredEffect, (int)this.TieredConverter.Tier + 2));
         }
 
 

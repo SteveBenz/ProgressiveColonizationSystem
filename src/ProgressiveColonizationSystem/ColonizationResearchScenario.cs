@@ -117,12 +117,22 @@ namespace ProgressiveColonizationSystem
             {
                 progress.ProgressInKerbalSeconds = 0;
                 ++progress.Tier;
+                if (progress.Tier == TechTier.Tier1 && this.EligibleToSkipTier1(source.ResearchCategory))
+                {
+                    ++progress.Tier;
+                }
                 return true;
             }
             else
             {
                 return false;
             }
+        }
+
+        private bool EligibleToSkipTier1(ResearchCategory researchCategory)
+        {
+            // If we've researched Tier3 on 2 or more worlds, allow user to skip T1 for this category.
+            return this.categoryToBodyToProgressMap[researchCategory].Values.Count(v => v.Tier > TechTier.Tier3) >= 2;
         }
 
         public IEnumerable<TieredResource> AllResourcesTypes
