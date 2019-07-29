@@ -101,6 +101,7 @@ namespace ProgressiveColonizationSystem
             ScenarioCustomWaypoints.AddWaypoint(waypoint);
             return waypoint;
         }
+
         /// <summary>
         ///   Calculates a straight-line distance between a vessel and a waypoint - only really accurate at short-range
         ///   or when the waypoint is on another body.
@@ -114,6 +115,23 @@ namespace ProgressiveColonizationSystem
         public static double StraightLineDistanceInMeters(Vessel vessel, Vessel otherVessel)
         {
             return Vector3.Distance(otherVessel.transform.position, vessel.transform.position);
+        }
+
+        /// <summary>
+        ///   Calculates a straight-line distance between a vessel and a position
+        /// </summary>
+        public static double StraightLineDistanceInMeters(Vessel vessel, double latitude, double longitude)
+        {
+            return StraightLineDistanceInMeters(vessel, latitude, longitude, TerrainHeight(latitude, longitude, vessel.orbit.referenceBody));
+        }
+
+        /// <summary>
+        ///   Calculates a straight-line distance between a vessel and a position
+        /// </summary>
+        public static double StraightLineDistanceInMeters(Vessel vessel, double latitude, double longitude, double height)
+        {
+            Vector3 wpPosition = vessel.orbit.referenceBody.GetWorldSurfacePosition(latitude, longitude, height);
+            return Vector3.Distance(wpPosition, vessel.transform.position);
         }
 
         private static double WaypointHeight(Waypoint w)

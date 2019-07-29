@@ -74,13 +74,8 @@ namespace ProgressiveColonizationSystem
                 .Where(resourceLode => resourceLode.bodyName == vessel.mainBody.name)
                 .Where(resourceLode =>
                 {
-                    // Ensure that there's a waypoint
-                    if (!Waypoints.TryFindWaypointById(resourceLode.Identifier, out Waypoint waypoint))
-                    {
-                        waypoint = Waypoints.CreateWaypointAt("Resource Lode", vessel.mainBody, resourceLode.Latitude, resourceLode.Longitude);
-                        resourceLode.WaypointRecreated(waypoint);
-                    }
-                    return Waypoints.StraightLineDistanceInMeters(vessel, waypoint) < 150.0;
+                    double distance = Waypoints.StraightLineDistanceInMeters(vessel, resourceLode.Latitude, resourceLode.Longitude);
+                    return distance < 150.0;
                 });
         }
 
