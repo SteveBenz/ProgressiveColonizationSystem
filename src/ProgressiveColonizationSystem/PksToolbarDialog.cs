@@ -68,7 +68,7 @@ namespace ProgressiveColonizationSystem
         {
             Texture2D appLauncherTexture = new Texture2D(36, 36, TextureFormat.ARGB32, false);
             // Prior to 1.8 this was appLauncherTexture.LoadImage
-            appLauncherTexture.LoadRawTextureData(Properties.Resources.AppLauncherIcon);
+            ImageConversion.LoadImage(appLauncherTexture, Properties.Resources.AppLauncherIcon);
             return appLauncherTexture;
         }
 

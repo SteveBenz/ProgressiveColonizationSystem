@@ -132,7 +132,5 @@ namespace ProgressiveColonizationSystem.UnitTests
             var parts = partsAndCrew.OfType<IPksCrewRequirement>().ToList();
             return CrewRequirement.FindUnstaffableParts(parts, crew);
         }
-
-        public List<T> NewList<T>(params T[] args) => args.ToList();
     }
 }

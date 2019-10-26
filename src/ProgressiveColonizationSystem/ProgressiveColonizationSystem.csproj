@@ -58,6 +58,9 @@
     <Reference Include="UnityEngine">
       <HintPath>$(KspInstallationDir)\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>$(KspInstallationDir)\KSP_x64_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>$(KspInstallationDir)\KSP_x64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
@@ -257,8 +260,8 @@
   <PropertyGroup>
     <PostBuildEvent>
 if $(ConfigurationName) == Debug (
-  echo "$(Pdb2MdbExe)" "$(TargetPath)"
-  "$(Pdb2MdbExe)" "$(TargetPath)"
+  echo "$(MonoExe)" "$(Pdb2MdbExe)" "$(TargetPath)"
+  "$(MonoExe)" "$(Pdb2MdbExe)" "$(TargetPath)"
 )
 
 mkdir "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" 2&gt;nul
