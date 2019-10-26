@@ -43,8 +43,15 @@ Because I can't be bothered with GitHub issues.
        in a gentler color.
    29. (fixed) "Refresh" button recalculates what needs to be sent, but the "Start" button doesn't light back up again
        and the slider is still at 100%
+   30. Make the production page show how many resources are required to count as an auto-mining trip.
+   31. In some unknown circumstances, the transfer thing doesn't detect that it's transferred everything and keeps on
+       pulling stuff until the storage on the target craft fills up.
 2. Rounding things out
    1.  Create or hijack a part for storing Snacks - just snacks
+       a) Create an inline 1.25m part
+       b) Create an inline 2.5m part
+       c) Create a surface-mount part
+       d) Create a surface-mount part for Fert-4
    2.  (complete) Write PDF help and or create a github wiki
    3.  (complete) Make the shinies boost your rep on landing - remember to add checks to make sure Shinies don't actually come from Kerbin
    4.  Get a better scanner part
@@ -54,17 +61,13 @@ Because I can't be bothered with GitHub issues.
    7.  Maybe allow some warnings to show a "Don't care" button (Particularly the storage ones)
    8.  (DOA) Make a "K&K Storage [KIS]" that works with B9 -- need to figure out how to do the decals and push it to K&K
        Mod author has other ideas.
-   9.  (mostly done) Make it possible to use EPL to upgrade parts in the station.
-       1.  Decide what to do about auto-miners (validate that they have current parts?  Re-do the scan?)
-           a)  Maybe make it so that if you upgrade a part, we check to see if another vessel has the modified vessel
-               as an auto-miner and, if so, clear it and report the deed to the player?
-           ?   But do we really need to put the user through the mining rigmarole again?
-           ?   Could we do it such that we just have to fetch one load?
-       2.  Make it show a message about completed upgrades?
+   9.  (done) Make it possible to use EPL to upgrade parts in the station.
+       1.  (done) Decide what to do about auto-miners (validate that they have current parts?  Re-do the scan?)
+       2.  (meh) Make it show a message about completed upgrades?
        3.  (meh) Make it verify that all precursor chains are satisfied before allowing a start?
        4.  (fixed) Bug: Parts that are undergoing upgrades are considered 'disabled' and so don't actually validate their staffing requirement.
        5.  (done) Disable upgrades up to T2
-       6.  Update documentation
+       6.  (done) Update documentation
 3. Things that don't seem worth doing
    1.  Integrate with Kerbal Alarm Clock?
    2.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.

@@ -138,6 +138,7 @@
     <Content Include="GameData\ProgressiveColonizationSystem\KKAOS.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\small snacks can.png" />
     <Content Include="GameData\ProgressiveColonizationSystem\Resources.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -229,6 +230,10 @@
     <Content Include="GameData\ProgressiveColonizationSystem\CCK.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GameData\ProgressiveColonizationSystem\Parts\Small_Snacks_Can.cfg" />
+    <None Include="GameData\ProgressiveColonizationSystem\Parts\Small_Snacks_Can.mu" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">
