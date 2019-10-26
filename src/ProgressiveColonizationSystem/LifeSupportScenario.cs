@@ -106,15 +106,15 @@ namespace ProgressiveColonizationSystem
             double now = Planetarium.GetUniversalTime();
             if (this.knownKerbals.TryGetValue(crew.name, out LifeSupportStatus lifeSupportStatus))
             {
-                daysSinceMeal = ColonizationResearchScenario.SecondsToKerbalDays(now - lifeSupportStatus.LastMeal);
+                daysSinceMeal = KerbalTime.SecondsToKerbalDays(now - lifeSupportStatus.LastMeal);
                 isGrouchy = lifeSupportStatus.IsGrouchy;
-                daysToGrouchy = ColonizationResearchScenario.SecondsToKerbalDays(lifeSupportStatus.LastMeal + secondsBeforeKerbalStarves - now);
+                daysToGrouchy = KerbalTime.SecondsToKerbalDays(lifeSupportStatus.LastMeal + secondsBeforeKerbalStarves - now);
                 return true;
             }
             else
             {
                 daysSinceMeal = 0;
-                daysToGrouchy = ColonizationResearchScenario.SecondsToKerbalDays(secondsBeforeKerbalStarves);
+                daysToGrouchy = KerbalTime.SecondsToKerbalDays(secondsBeforeKerbalStarves);
                 isGrouchy = false;
                 return false;
             }

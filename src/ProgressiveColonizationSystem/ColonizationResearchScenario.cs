@@ -113,7 +113,7 @@ namespace ProgressiveColonizationSystem
             }
 
             progress.ProgressInKerbalSeconds += timespentInKerbalSeconds;
-            if (progress.ProgressInKerbalSeconds > KerbalYearsToSeconds(source.ResearchCategory.KerbalYearsToNextTier(progress.Tier)))
+            if (progress.ProgressInKerbalSeconds > KerbalTime.KerbalYearsToSeconds(source.ResearchCategory.KerbalYearsToNextTier(progress.Tier)))
             {
                 progress.ProgressInKerbalSeconds = 0;
                 ++progress.Tier;
@@ -146,12 +146,6 @@ namespace ProgressiveColonizationSystem
                 return ColonizationResearchScenario.resources.Values;
             }
         }
-
-        public static double KerbalYearsToSeconds(double years) => KerbalDaysToSeconds(years * 426.0);
-        public static double KerbalYearsToDays(double years) => years * 426.0;
-        public static double SecondsToKerbalDays(double seconds) => seconds / (6.0 * 60.0 * 60.0);
-        public static double KerbalDaysToSeconds(double days) => days * (6.0 * 60.0 * 60.0);
-        public static double KerbalSecondsToDays(double days) => days / (6.0 * 60.0 * 60.0);
 
         public TechTier GetMaxUnlockedTier(TieredResource forResource, string atBody)
         {
@@ -189,7 +183,7 @@ namespace ProgressiveColonizationSystem
                 }
             }
 
-            return new ResearchData(forResource.ResearchCategory, currentTier, KerbalSecondsToDays(kerbalSecondsSoFar), KerbalYearsToDays(forResource.ResearchCategory.KerbalYearsToNextTier(currentTier)));
+            return new ResearchData(forResource.ResearchCategory, currentTier, KerbalTime.KerbalSecondsToDays(kerbalSecondsSoFar), KerbalTime.KerbalYearsToDays(forResource.ResearchCategory.KerbalYearsToNextTier(currentTier)));
         }
 
         internal ResearchData GetResearchProgress(TieredResource forResource, string atBody, TechTier tier, string whyBlocked)
@@ -207,7 +201,7 @@ namespace ProgressiveColonizationSystem
             }
 
             var result = (currentTier == tier)
-                ? new ResearchData(forResource.ResearchCategory, tier, KerbalSecondsToDays(kerbalSecondsSoFar), KerbalYearsToDays(forResource.ResearchCategory.KerbalYearsToNextTier(currentTier)))
+                ? new ResearchData(forResource.ResearchCategory, tier, KerbalTime.KerbalSecondsToDays(kerbalSecondsSoFar), KerbalTime.KerbalYearsToDays(forResource.ResearchCategory.KerbalYearsToNextTier(currentTier)))
                 : new ResearchData(forResource.ResearchCategory, tier, 0, 0);
             result.WhyBlocked = whyBlocked;
             return result;

@@ -67,7 +67,8 @@ namespace ProgressiveColonizationSystem
         protected virtual Texture2D GetButtonTexture()
         {
             Texture2D appLauncherTexture = new Texture2D(36, 36, TextureFormat.ARGB32, false);
-            appLauncherTexture.LoadImage(Properties.Resources.AppLauncherIcon);
+            // Prior to 1.8 this was appLauncherTexture.LoadImage
+            appLauncherTexture.LoadRawTextureData(Properties.Resources.AppLauncherIcon);
             return appLauncherTexture;
         }
 

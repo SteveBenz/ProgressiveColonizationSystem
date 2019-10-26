@@ -156,7 +156,7 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        public double PartsUseRateInRocketPartsPerSecond => this.upgradeCost / ColonizationResearchScenario.KerbalDaysToSeconds(this.upgradeTimeInKerbalDays);
+        public double PartsUseRateInRocketPartsPerSecond => this.upgradeCost / KerbalTime.KerbalDaysToSeconds(this.upgradeTimeInKerbalDays);
 
         private PksTieredResourceConverter TieredConverter
         {

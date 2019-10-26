@@ -109,7 +109,7 @@ namespace ProgressiveColonizationSystem.UnitTests
             if (source.ResearchCategory == hydroponicResearchCategory)
             {
                 this.AgroponicResearchProgress += timespentInKerbalSeconds;
-                if (this.AgroponicResearchProgress > ColonizationResearchScenario.KerbalYearsToSeconds(source.ResearchCategory.KerbalYearsToNextTier(this.AgroponicsMaxTier)))
+                if (this.AgroponicResearchProgress > KerbalTime.KerbalYearsToSeconds(source.ResearchCategory.KerbalYearsToNextTier(this.AgroponicsMaxTier)))
                 {
                     this.AgroponicResearchProgress = 0;
                     ++this.AgroponicsMaxTier;

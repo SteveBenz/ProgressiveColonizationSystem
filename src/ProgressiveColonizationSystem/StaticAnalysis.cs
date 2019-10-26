@@ -370,7 +370,7 @@ namespace ProgressiveColonizationSystem
 
         internal static IEnumerable<WarningMessage> CheckHasProperCrew(List<IPksCrewRequirement> parts, List<SkilledCrewman> crew)
         {
-            List<IPksCrewRequirement> unstaffedParts = CrewRequirementVesselModule.FindUnderstaffedParts(parts, crew).ToList();
+            List<IPksCrewRequirement> unstaffedParts = CrewRequirement.FindUnderstaffedParts(parts, crew).ToList();
             if (unstaffedParts.Count > 0)
             {
                 string list = string.Join(", ", unstaffedParts
