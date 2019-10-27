@@ -83,6 +83,9 @@
     <Compile Include="ExperienceEffects\PksScroungingSkill.cs" />
     <Compile Include="ExperienceEffects\PksManufacturingSkill.cs" />
     <Compile Include="ExperienceEffects\PksScanningSkill.cs" />
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\2.5m Snacks Tank.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="GameData\ProgressiveColonizationSystem\Parts\KKOAS_B9_TankLarge.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -258,6 +261,14 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ProgressiveColonizationSystem\Parts\Small_Snacks_Can.mu">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\Big_Snacks_Can.mu">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\Big_Snacks_Can.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
