@@ -158,6 +158,12 @@
     <Content Include="GameData\ProgressiveColonizationSystem\KKAOS.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\Lunchbox-uv.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\Lunchbox.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="GameData\ProgressiveColonizationSystem\Parts\small snacks can.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -268,9 +274,17 @@
     <Content Include="GameData\ProgressiveColonizationSystem\Parts\Big_Snacks_Can.mu">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="GameData\ProgressiveColonizationSystem\Parts\Big_Snacks_Can.cfg">
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\Lunchbox.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\Lunchbox.mu">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GameData\ProgressiveColonizationSystem\Parts\Big_Snacks_Can.cfg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">
