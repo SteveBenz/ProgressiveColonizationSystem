@@ -47,7 +47,7 @@ Because I can't be bothered with GitHub issues.
    31. In some unknown circumstances, the transfer thing doesn't detect that it's transferred everything and keeps on
        pulling stuff until the storage on the target craft fills up.
 2. Rounding things out
-   1.  Create or hijack a part for storing Snacks - just snacks
+   1.  (complete) Create or hijack a part for storing Snacks - just snacks
        a) Create an inline 1.25m part
        b) Create an inline 2.5m part
        c) Create a surface-mount part
