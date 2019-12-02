@@ -32,6 +32,121 @@ namespace ProgressiveColonizationSystem
         [KSPField]
         int minimumTier = 2;
 
+        [KSPField]
+        string animationName = "open";
+
+        [KSPAction("Deploy Module")]
+        public void DeployAction(KSPActionParam param)
+        {
+            DeployModule();
+        }
+
+        bool isDeployed = false;
+        bool isSpinning = false;
+
+        private double signalStrength = -.19;
+
+        [KSPEvent(guiName = "Deploy", guiActive = true, externalToEVAOnly = true, guiActiveEditor = true,
+            active = true, guiActiveUnfocused = true, unfocusedRange = 3.0f)]
+        public void DeployModule()
+        {
+            SetLightLevel(signalStrength);
+            SetActivatedLight(signalStrength < 0 ? ActivatedLightStates.OffColor :
+                (signalStrength > .2 ? ActivatedLightStates.ErrorColor : ActivatedLightStates.WorkingColor));
+
+            signalStrength += .2;
+            if (signalStrength > 1.0)
+            {
+                signalStrength = -.19;
+            }
+
+            //PlayDeployAnimation(isDeployed ? "close" : "open");
+            isDeployed = !isDeployed;
+            // PlayDeployAnimator();
+        }
+
+        private readonly Color litColor = new Color(0, 75, 0);
+        private readonly Color darkColor = new Color(0, 0, 0);
+
+        private void SetLightLevel(double brightnessZeroToOne)
+        {
+            var rs = part.FindModelComponents<Renderer>()
+                .Where(r => r.material.HasProperty("_EmissiveColor") && r.name.StartsWith("Bar"))
+                .ToList();
+            rs.Sort((left, right) => left.name.CompareTo(right.name));
+            for (int i = 0; i < rs.Count; ++i)
+            {
+                bool lightIt = brightnessZeroToOne * rs.Count > i;
+                rs[i].material.SetColor("_EmissiveColor", lightIt ? litColor : darkColor);
+            }
+        }
+
+        private static class ActivatedLightStates
+        {
+            public static readonly Color OffColor = new Color(0, 0, 0);
+            public static readonly Color WorkingColor = new Color(0, 127, 0);
+            public static readonly Color ErrorColor = new Color(127, 0, 0);
+        }
+
+        private void SetActivatedLight(Color color)
+        {
+            Renderer blinkenLight = part.FindModelComponent<Renderer>("Blinkenlight");
+            if (blinkenLight != null)
+            {
+                blinkenLight.material.SetColor("_EmissiveColor", color);
+            }
+        }
+
+        [KSPEvent(guiName = "Spin", guiActive = true, externalToEVAOnly = true, guiActiveEditor = true,
+                active = true, guiActiveUnfocused = true, unfocusedRange = 3.0f)]
+        public void Spin()
+        {
+            Animation[] animations = part.FindModelAnimators("spin");
+            Animation deployAnimation = animations[0];
+            AnimationState subDeployAnimation = deployAnimation["spin"];
+            subDeployAnimation.wrapMode = WrapMode.Loop;
+            if (this.isSpinning)
+            {
+                deployAnimation.Play("spin");
+            }
+            else
+            {
+                deployAnimation.Play("spin", PlayMode.StopAll);
+            }
+            this.isSpinning = !this.isSpinning;
+        }
+
+
+        private void PlayDeployAnimator()
+        {
+            var animator = this.part.GetComponent<Animator>();
+            animator.Play("pulsate");
+        }
+
+        private void PlayDeployAnimation(string name, int speed = 1)
+        {
+            Animation[] animations = part.FindModelAnimators(name);
+            Animation deployAnimation = animations[0];
+            AnimationState subDeployAnimation = deployAnimation[name];
+            if (subDeployAnimation != null)
+            {
+                subDeployAnimation.speed = speed;
+            }
+            subDeployAnimation.wrapMode = WrapMode.Once;
+            deployAnimation.Play(name);
+        }
+
+        public Animation DeployAnimation
+        {
+            get
+            {
+                Animation[] animations = part.FindModelAnimators(animationName);
+                return animations[0];
+            }
+        }
+
+
+
         [KSPEvent(guiActive = true, guiName = "Find Loose Crush-Ins")]
         public void FindResource()
         {
@@ -196,6 +311,7 @@ namespace ProgressiveColonizationSystem
 
         public void FixedUpdate()
         {
+            // If 
             base.OnFixedUpdate();
             GetTargetInfo(out TechTier tier, out string targetBody);
             if (tier < (TechTier)minimumTier || this.vessel.mainBody.name != targetBody)
