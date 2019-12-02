@@ -55,9 +55,11 @@ Because I can't be bothered with GitHub issues.
    2.  (complete) Write PDF help and or create a github wiki
    3.  (complete) Make the shinies boost your rep on landing - remember to add checks to make sure Shinies don't actually come from Kerbin
    4.  Get a better scanner part
+       a) It should disable Scan For Stuff when the shield is closed
+       b) It should disable close shield when scanning
+       c) Number of Antennae should affect connection quality
    5.  Fully automate release preparation
-   6.  Add .version to output per guidance: https://github.com/KSP-CKAN/NetKAN/pull/7147
-       ^-- added the version file, but CKAN doesn't know about it yet.  Fix it at the next version update.
+   6.  (complete) Add .version to output per guidance: https://github.com/KSP-CKAN/NetKAN/pull/7147
    7.  Maybe allow some warnings to show a "Don't care" button (Particularly the storage ones)
    8.  (DOA) Make a "K&K Storage [KIS]" that works with B9 -- need to figure out how to do the decals and push it to K&K
        Mod author has other ideas.

@@ -50,7 +50,7 @@ namespace ProgressiveColonizationSystem
 
         // Apparently, the 'bool enabled' field on the resource converter itself is not to be trusted...
         // we'll keep our own record of what was done.
-        bool? resourceConverterIsEnabled = null;
+        private bool? resourceConverterIsEnabled = null;
 
         [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Show PKS UI")]
         public void ShowDialog()

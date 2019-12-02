@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using FinePrint;
 using UnityEngine;
 
 namespace ProgressiveColonizationSystem
@@ -25,45 +23,19 @@ namespace ProgressiveColonizationSystem
         /// </summary>
         public const double BadScannerNetQualityThreshold = 1.0;
 
+        private double? scannerNetQuality = null;
+
         /// <summary>
         ///   The minimum tier where grabbing crushins is required.  See also <see cref="PksTieredResourceConverter.inputRequirementStartingTier"/>
         ///   which is set for drills
         /// </summary>
         [KSPField]
-        int minimumTier = 2;
+        private int minimumTier = 2;
 
         [KSPField]
-        string animationName = "open";
-
-        [KSPAction("Deploy Module")]
-        public void DeployAction(KSPActionParam param)
-        {
-            DeployModule();
-        }
-
-        bool isDeployed = false;
-        bool isSpinning = false;
-
-        private double signalStrength = -.19;
-
-        [KSPEvent(guiName = "Deploy", guiActive = true, externalToEVAOnly = true, guiActiveEditor = true,
-            active = true, guiActiveUnfocused = true, unfocusedRange = 3.0f)]
-        public void DeployModule()
-        {
-            SetLightLevel(signalStrength);
-            SetActivatedLight(signalStrength < 0 ? ActivatedLightStates.OffColor :
-                (signalStrength > .2 ? ActivatedLightStates.ErrorColor : ActivatedLightStates.WorkingColor));
-
-            signalStrength += .2;
-            if (signalStrength > 1.0)
-            {
-                signalStrength = -.19;
-            }
-
-            //PlayDeployAnimation(isDeployed ? "close" : "open");
-            isDeployed = !isDeployed;
-            // PlayDeployAnimator();
-        }
+#pragma warning disable IDE0044 // Add readonly modifier
+        private bool supportsFindingCrushins = false;
+#pragma warning restore IDE0044 // Add readonly modifier
 
         private readonly Color litColor = new Color(0, 75, 0);
         private readonly Color darkColor = new Color(0, 0, 0);
@@ -74,10 +46,14 @@ namespace ProgressiveColonizationSystem
                 .Where(r => r.material.HasProperty("_EmissiveColor") && r.name.StartsWith("Bar"))
                 .ToList();
             rs.Sort((left, right) => left.name.CompareTo(right.name));
+
+            // We never get a value of 0, so we'll light one bar all the time.  We can get values
+            // in excess of 1, let's let that be 5 bars.  (That'd equate to 5 sats in polar orbit, which
+            // is pretty vast).
+            int numToLight = 1 + (int)(brightnessZeroToOne / (rs.Count - 1));
             for (int i = 0; i < rs.Count; ++i)
             {
-                bool lightIt = brightnessZeroToOne * rs.Count > i;
-                rs[i].material.SetColor("_EmissiveColor", lightIt ? litColor : darkColor);
+                rs[i].material.SetColor("_EmissiveColor", i < numToLight ? litColor : darkColor);
             }
         }
 
@@ -97,54 +73,32 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        [KSPEvent(guiName = "Spin", guiActive = true, externalToEVAOnly = true, guiActiveEditor = true,
-                active = true, guiActiveUnfocused = true, unfocusedRange = 3.0f)]
-        public void Spin()
+        private bool isSpinning = false;
+
+        private void SetSpin(bool spinningValue)
         {
-            Animation[] animations = part.FindModelAnimators("spin");
-            Animation deployAnimation = animations[0];
-            AnimationState subDeployAnimation = deployAnimation["spin"];
-            subDeployAnimation.wrapMode = WrapMode.Loop;
-            if (this.isSpinning)
+            const string spinAnimationName = "spin";
+            if (spinningValue == this.isSpinning)
             {
-                deployAnimation.Play("spin");
+                return;
             }
-            else
+
+            Animation[] animations = part.FindModelAnimators(spinAnimationName);
+            if (animations.Length > 0)
             {
-                deployAnimation.Play("spin", PlayMode.StopAll);
+                Animation deployAnimation = animations[0];
+                if (spinningValue)
+                {
+                    deployAnimation.Play(spinAnimationName);
+                }
+                else
+                {
+                    deployAnimation.Stop(spinAnimationName);
+                }
             }
-            this.isSpinning = !this.isSpinning;
+
+            this.isSpinning = spinningValue;
         }
-
-
-        private void PlayDeployAnimator()
-        {
-            var animator = this.part.GetComponent<Animator>();
-            animator.Play("pulsate");
-        }
-
-        private void PlayDeployAnimation(string name, int speed = 1)
-        {
-            Animation[] animations = part.FindModelAnimators(name);
-            Animation deployAnimation = animations[0];
-            AnimationState subDeployAnimation = deployAnimation[name];
-            if (subDeployAnimation != null)
-            {
-                subDeployAnimation.speed = speed;
-            }
-            subDeployAnimation.wrapMode = WrapMode.Once;
-            deployAnimation.Play(name);
-        }
-
-        public Animation DeployAnimation
-        {
-            get
-            {
-                Animation[] animations = part.FindModelAnimators(animationName);
-                return animations[0];
-            }
-        }
-
 
 
         [KSPEvent(guiActive = true, guiName = "Find Loose Crush-Ins")]
@@ -203,7 +157,7 @@ namespace ProgressiveColonizationSystem
             var stuffResource = ColonizationResearchScenario.Instance.AllResourcesTypes.FirstOrDefault(r => r.MadeFrom((TechTier)this.minimumTier) == ColonizationResearchScenario.Instance.CrushInsResource);
 
             var baseChoices = new List<DialogGUIButton>();
-            double scannerNetQuality = this.ScannerNetQuality();
+            double scannerNetQuality = this.CalculateScannerNetQuality();
             Action onlyPossibleChoiceAction = null;
             foreach (var candidate in FlightGlobals.Vessels)
             {
@@ -297,27 +251,79 @@ namespace ProgressiveColonizationSystem
             return hasScrounger && stuffResource.MadeFrom(highestScroungerTier) != null;
         }
 
-        private double ScannerNetQuality()
+        private double CalculateScannerNetQuality()
         {
-            // you might think that situation==ORBITING would be the way to go, but sometimes vessels that
-            // are clearly well in orbit are marked as FLYING.
-            var scansats = FlightGlobals.Vessels
-                .Where(v => v.mainBody == this.vessel.mainBody
-                    && v.GetCrewCapacity() == 0 
-                    && (v.situation == Vessel.Situations.ORBITING || v.situation == Vessel.Situations.FLYING));
-            scansats = scansats.ToArray();
-            return scansats.Sum(v => (v.orbit.inclination > 80.0 && v.orbit.inclination  < 100.0) ? 1 : .3);
+            if (!this.scannerNetQuality.HasValue)
+            {
+                // you might think that situation==ORBITING would be the way to go, but sometimes vessels that
+                // are clearly well in orbit are marked as FLYING.
+                var scansats = FlightGlobals.Vessels
+                    .Where(v => v.mainBody == this.vessel.mainBody
+                        && v.GetCrewCapacity() == 0
+                        && (v.situation == Vessel.Situations.ORBITING || v.situation == Vessel.Situations.FLYING));
+                scansats = scansats.ToArray();
+                this.scannerNetQuality = scansats.Sum(v => (v.orbit.inclination > 80.0 && v.orbit.inclination < 100.0) ? 1 : .3);
+                // TODO: Factor in antennae count.
+            }
+
+            return this.scannerNetQuality.Value;
+        }
+
+        private bool isDeployed()
+        {
+            var modules = this.part.FindModulesImplementing<ModuleAnimateGeneric>();
+            return modules.All(m => m.aniState == ModuleAnimateGeneric.animationStates.LOCKED);
+        }
+
+        private void Deploy()
+        {
+            var module = this.part.FindModuleImplementing<ModuleAnimateGeneric>();
+            if (module)
+            {
+                module.Toggle();
+            }
         }
 
         public void FixedUpdate()
         {
-            // If 
             base.OnFixedUpdate();
-            GetTargetInfo(out TechTier tier, out string targetBody);
-            if (tier < (TechTier)minimumTier || this.vessel.mainBody.name != targetBody)
+
+            if (!HighLogic.LoadedSceneIsFlight)
             {
-                Events["FindResource"].guiActive = false;
+                return;
             }
+
+            bool canFindCrushins = this.supportsFindingCrushins;
+            if (canFindCrushins)
+            {
+                GetTargetInfo(out TechTier tier, out string targetBody);
+                canFindCrushins = tier >= (TechTier)this.minimumTier && this.vessel.mainBody.name == targetBody;
+            }
+
+            Events["FindResource"].guiActive = canFindCrushins;
+
+            var converter = this.part.FindModuleImplementing<PksTieredResourceConverter>();
+
+            // If we haven't set up the animations yet...
+            if (!this.scannerNetQuality.HasValue)
+            {
+                double quality = this.CalculateScannerNetQuality();
+                this.SetLightLevel(quality / 5.0);
+            }
+
+            // TODO: Factor in whether it's set as enabled but is uncrewed
+            this.SetActivatedLight(converter.IsProductionEnabled ? ActivatedLightStates.WorkingColor : ActivatedLightStates.OffColor);
+            this.SetSpin(converter.IsProductionEnabled);
+
+            //if (converter.IsProductionEnabled && !this.isDeployed())
+            //{
+            //    this.Deploy();
+            //}
+            //else if (!converter.IsProductionEnabled)
+            //{
+            //    ModuleResourceConverter resourceConverter = this.GetComponent<ModuleResourceConverter>();
+            //    resourceConverter.DisableModule();
+            //}
         }
     }
 }
