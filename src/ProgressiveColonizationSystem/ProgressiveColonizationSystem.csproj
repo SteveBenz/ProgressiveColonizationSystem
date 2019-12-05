@@ -296,7 +296,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="GameData\ProgressiveColonizationSystem\Parts\BigScanner.cfg">
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\PKS_BigScanner.cfg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ProgressiveColonizationSystem\Parts\BigScanner.mu">

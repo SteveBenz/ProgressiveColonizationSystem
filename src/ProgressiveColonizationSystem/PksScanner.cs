@@ -269,21 +269,6 @@ namespace ProgressiveColonizationSystem
             return this.scannerNetQuality.Value;
         }
 
-        private bool isDeployed()
-        {
-            var modules = this.part.FindModulesImplementing<ModuleAnimateGeneric>();
-            return modules.All(m => m.aniState == ModuleAnimateGeneric.animationStates.LOCKED);
-        }
-
-        private void Deploy()
-        {
-            var module = this.part.FindModuleImplementing<ModuleAnimateGeneric>();
-            if (module)
-            {
-                module.Toggle();
-            }
-        }
-
         public void FixedUpdate()
         {
             base.OnFixedUpdate();
