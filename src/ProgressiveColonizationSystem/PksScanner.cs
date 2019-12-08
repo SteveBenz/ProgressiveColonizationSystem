@@ -50,7 +50,7 @@ namespace ProgressiveColonizationSystem
             // We never get a value of 0, so we'll light one bar all the time.  We can get values
             // in excess of 1, let's let that be 5 bars.  (That'd equate to 5 sats in polar orbit, which
             // is pretty vast).
-            int numToLight = 1 + (int)(brightnessZeroToOne / (rs.Count - 1));
+            int numToLight = 1 + (int)(brightnessZeroToOne * (rs.Count - 1));
             for (int i = 0; i < rs.Count; ++i)
             {
                 rs[i].material.SetColor("_EmissiveColor", i < numToLight ? litColor : darkColor);
