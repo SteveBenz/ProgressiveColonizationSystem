@@ -253,6 +253,16 @@ namespace ProgressiveColonizationSystem
                 }
             }
 
+            double now = Planetarium.GetUniversalTime();
+            if (now < lastDeployTime + 1)
+            {
+                // There can be a delay between the time we start a deployment and the time the fields get
+                // updated, so return the deployment state as unknown for the first second or so after
+                // we've triggered a deploy
+                return null;
+            }
+
+
             // Try the KPBS module first - there might be modules with the planetary module and some
             // other generic animation, and there's no way to say for sure if an animation is the deployment
             // one or something completely different.
@@ -305,10 +315,10 @@ namespace ProgressiveColonizationSystem
             Deploy();
         }
 
+        private double lastDeployTime;
+
         private void Deploy()
         {
-            // This method assumes that isDeployed()==false
-
             if (this.planetaryModule != null)
             {
                 BaseAction action = this.planetaryModule.Actions["deployAction"];
@@ -323,6 +333,8 @@ namespace ProgressiveColonizationSystem
                 // [KspEvent]
                 this.genericDeploymentAnimation.Toggle();
             }
+
+            this.lastDeployTime = Planetarium.GetUniversalTime();
         }
 
         public override void OnFixedUpdate()

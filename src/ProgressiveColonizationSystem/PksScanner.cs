@@ -262,8 +262,12 @@ namespace ProgressiveColonizationSystem
                         && v.GetCrewCapacity() == 0
                         && (v.situation == Vessel.Situations.ORBITING || v.situation == Vessel.Situations.FLYING));
                 scansats = scansats.ToArray();
-                this.scannerNetQuality = scansats.Sum(v => (v.orbit.inclination > 80.0 && v.orbit.inclination < 100.0) ? 1 : .3);
-                // TODO: Factor in antennae count.
+                int numAntennae = this.vessel.FindPartModulesImplementing<ModuleDataTransmitter>().Count;
+
+                // Take the lower of
+                //   # of antennae *.7 (figuring that there are lots of pods with antennas that don't really look cool)
+                //   sum of # of satellites in polar orbit + .3* # of satellites not in polar orbit
+                this.scannerNetQuality = Math.Min(numAntennae * .7, scansats.Sum(v => (v.orbit.inclination > 80.0 && v.orbit.inclination < 100.0) ? 1.0 : .3));
             }
 
             return this.scannerNetQuality.Value;
