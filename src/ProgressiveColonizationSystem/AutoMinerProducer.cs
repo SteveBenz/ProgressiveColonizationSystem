@@ -12,6 +12,8 @@ namespace ProgressiveColonizationSystem
 
         public TechTier Tier { get => this.tier; set => throw new NotImplementedException(); }
 
+        public TechTier MaximumTier => TechTier.Tier4;
+
         public double ProductionRate => 100000; // An insensibly big number
 
         public bool IsResearchEnabled => false;

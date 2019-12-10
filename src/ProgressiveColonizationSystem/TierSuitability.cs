@@ -31,5 +31,10 @@
         ///   No target body has been selected
         /// </summary>
         BodyNotSelected,
+
+        /// <summary>
+        ///   The part does not support the tech tier selected
+        /// </summary>
+        PartDoesntSupportTier,
     }
 }

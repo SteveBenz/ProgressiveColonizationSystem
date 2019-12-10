@@ -32,9 +32,12 @@ namespace ProgressiveColonizationSystem
         [KSPField]
         public bool animationStartsOpen;
 
+        [KSPField]
+        public int maximumTier = (int)TechTier.Tier4;
+
         [KSPEvent(guiActive = false, guiActiveEditor = true, guiName = "Change Setup")]
         public void ChangeTier()
-            => PartSetupDialog.Show(this.outputAsTieredResource, this.Body, this.Tier, this.OnSetupSelected);
+            => PartSetupDialog.Show(this.outputAsTieredResource, this.Body, this.Tier, this.MaximumTier, this.OnSetupSelected);
 
         public void OnSetupSelected(PartSetupDialog dialog)
         {
@@ -86,6 +89,8 @@ namespace ProgressiveColonizationSystem
                 return this.upgradablePartCache;
             }
         }
+
+        public TechTier MaximumTier => (TechTier)this.maximumTier;
 
         public string Body
         {
@@ -199,7 +204,7 @@ namespace ProgressiveColonizationSystem
             for (TechTier tier = (RiskTolerance == TierSuitability.UnderTier ? LastTierSelected : TechTier.Tier4)
                 ; tier >= TechTier.Tier0; --tier)
             {
-                var suitability = StaticAnalysis.GetTierSuitability(ColonizationResearchScenario.Instance, this.outputAsTieredResource, tier, body);
+                var suitability = StaticAnalysis.GetTierSuitability(ColonizationResearchScenario.Instance, this.outputAsTieredResource, tier, this.MaximumTier, body);
                 if (suitability <= RiskTolerance)
                 {
                     this.tier = (int)tier;

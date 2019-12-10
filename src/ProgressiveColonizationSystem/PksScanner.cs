@@ -30,12 +30,7 @@ namespace ProgressiveColonizationSystem
         ///   which is set for drills
         /// </summary>
         [KSPField]
-        private int minimumTier = 2;
-
-        [KSPField]
-#pragma warning disable IDE0044 // Add readonly modifier
-        private bool supportsFindingCrushins = false;
-#pragma warning restore IDE0044 // Add readonly modifier
+        public int minimumTier = 2;
 
         private readonly Color litColor = new Color(0, 75, 0);
         private readonly Color darkColor = new Color(0, 0, 0);
@@ -282,12 +277,8 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
-            bool canFindCrushins = this.supportsFindingCrushins;
-            if (canFindCrushins)
-            {
-                GetTargetInfo(out TechTier tier, out string targetBody);
-                canFindCrushins = tier >= (TechTier)this.minimumTier && this.vessel.mainBody.name == targetBody;
-            }
+            GetTargetInfo(out TechTier tier, out string targetBody);
+            bool canFindCrushins = tier >= (TechTier)this.minimumTier && this.vessel.mainBody.name == targetBody;
 
             Events["FindResource"].guiActive = canFindCrushins;
 

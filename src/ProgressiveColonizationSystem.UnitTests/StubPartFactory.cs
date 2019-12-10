@@ -12,6 +12,7 @@ namespace ProgressiveColonizationSystem.UnitTests
         public const double DefaultProductionRate = 2.0;
 
         public TechTier Tier { get; set; } = TechTier.Tier0;
+        public TechTier MaximumTier { get; set; } = TechTier.Tier4;
         public double ProductionRate { get; set; } = DefaultProductionRate;
         public bool IsResearchEnabled { get; set; } = true;
         public string ReasonWhyResearchIsDisabled { get; } = null;

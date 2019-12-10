@@ -10,6 +10,7 @@ namespace ProgressiveColonizationSystem.UnitTests
         : ITieredProducer
     {
         public TechTier Tier { get; set; }
+        public TechTier MaximumTier { get; set; } = TechTier.Tier4;
         public double ProductionRate { get; set; }
         public bool IsResearchEnabled { get; set; }
         public string ReasonWhyResearchIsDisabled { get; set; }
