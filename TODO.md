@@ -43,24 +43,19 @@ Because I can't be bothered with GitHub issues.
        in a gentler color.
    29. (fixed) "Refresh" button recalculates what needs to be sent, but the "Start" button doesn't light back up again
        and the slider is still at 100%
-   30. Make the production page show how many resources are required to count as an auto-mining trip.
+   30. It's hard to predict how big a resource-gatherer you need or how many resources to get.
+       a. Make the production page show how many resources are required to count as an auto-mining trip.
    31. In some unknown circumstances, the transfer thing doesn't detect that it's transferred everything and keeps on
        pulling stuff until the storage on the target craft fills up.
 2. Rounding things out
    1.  (complete) Create or hijack a part for storing Snacks - just snacks
-       a) Create an inline 1.25m part
-       b) Create an inline 2.5m part
-       c) Create a surface-mount part
-       d) Create a surface-mount part for Fert-4
    2.  (complete) Write PDF help and or create a github wiki
    3.  (complete) Make the shinies boost your rep on landing - remember to add checks to make sure Shinies don't actually come from Kerbin
-   4.  Get a better scanner part
-       a) It should disable Scan For Stuff when the shield is closed
-       b) It should disable close shield when scanning
+   4.  (complete) Get a better scanner part
+       a) (complete) It should disable Scan For Stuff when the shield is closed
        c) Number of Antennae should affect connection quality
    5.  Fully automate release preparation
    6.  (complete) Add .version to output per guidance: https://github.com/KSP-CKAN/NetKAN/pull/7147
-   7.  Maybe allow some warnings to show a "Don't care" button (Particularly the storage ones)
    8.  (DOA) Make a "K&K Storage [KIS]" that works with B9 -- need to figure out how to do the decals and push it to K&K
        Mod author has other ideas.
    9.  (done) Make it possible to use EPL to upgrade parts in the station.
@@ -70,8 +65,10 @@ Because I can't be bothered with GitHub issues.
        4.  (fixed) Bug: Parts that are undergoing upgrades are considered 'disabled' and so don't actually validate their staffing requirement.
        5.  (done) Disable upgrades up to T2
        6.  (done) Update documentation
+   10. Make decals for cargo loadouts
 3. Things that don't seem worth doing
    1.  Integrate with Kerbal Alarm Clock?
    2.  IDEA: Make it so that having achieved Tier-X farming on one world makes Tier-X-1 easier to achieve on a new world.
    3.  Delete the parts supporting EL's production chain
+   4.  Maybe allow some warnings to show a "Don't care" button (Particularly the storage ones)
      

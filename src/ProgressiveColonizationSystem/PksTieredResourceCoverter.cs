@@ -23,6 +23,8 @@ namespace ProgressiveColonizationSystem
         private bool isResearchEnabled;
         private bool isProductionEnabled;
 
+        private double lastDeployTime;
+
         [KSPField(advancedTweakable = false, category = "Nermables", guiActive = true, guiName = "Tier", isPersistant = true, guiActiveEditor = true)]
         public int tier;
 
@@ -32,9 +34,12 @@ namespace ProgressiveColonizationSystem
         [KSPField]
         public bool animationStartsOpen;
 
+        [KSPField]
+        public int maximumTier = (int)TechTier.Tier4;
+
         [KSPEvent(guiActive = false, guiActiveEditor = true, guiName = "Change Setup")]
         public void ChangeTier()
-            => PartSetupDialog.Show(this.outputAsTieredResource, this.Body, this.Tier, this.OnSetupSelected);
+            => PartSetupDialog.Show(this.outputAsTieredResource, this.Body, this.Tier, this.MaximumTier, this.OnSetupSelected);
 
         public void OnSetupSelected(PartSetupDialog dialog)
         {
@@ -86,6 +91,8 @@ namespace ProgressiveColonizationSystem
                 return this.upgradablePartCache;
             }
         }
+
+        public TechTier MaximumTier => (TechTier)this.maximumTier;
 
         public string Body
         {
@@ -199,7 +206,7 @@ namespace ProgressiveColonizationSystem
             for (TechTier tier = (RiskTolerance == TierSuitability.UnderTier ? LastTierSelected : TechTier.Tier4)
                 ; tier >= TechTier.Tier0; --tier)
             {
-                var suitability = StaticAnalysis.GetTierSuitability(ColonizationResearchScenario.Instance, this.outputAsTieredResource, tier, body);
+                var suitability = StaticAnalysis.GetTierSuitability(ColonizationResearchScenario.Instance, this.outputAsTieredResource, tier, this.MaximumTier, body);
                 if (suitability <= RiskTolerance)
                 {
                     this.tier = (int)tier;
@@ -253,6 +260,16 @@ namespace ProgressiveColonizationSystem
                 }
             }
 
+            double now = Planetarium.GetUniversalTime();
+            if (now < lastDeployTime + 1)
+            {
+                // There can be a delay between the time we start a deployment and the time the fields get
+                // updated, so return the deployment state as unknown for the first second or so after
+                // we've triggered a deploy
+                return null;
+            }
+
+
             // Try the KPBS module first - there might be modules with the planetary module and some
             // other generic animation, and there's no way to say for sure if an animation is the deployment
             // one or something completely different.
@@ -298,17 +315,8 @@ namespace ProgressiveColonizationSystem
             return null;
         }
 
-        [KSPEvent(guiActive = true, guiActiveEditor = true, guiName = "Test Deployment Stuff")]
-        public void Test()
-        {
-            var b = isDeployed();
-            Deploy();
-        }
-
         private void Deploy()
         {
-            // This method assumes that isDeployed()==false
-
             if (this.planetaryModule != null)
             {
                 BaseAction action = this.planetaryModule.Actions["deployAction"];
@@ -323,6 +331,8 @@ namespace ProgressiveColonizationSystem
                 // [KspEvent]
                 this.genericDeploymentAnimation.Toggle();
             }
+
+            this.lastDeployTime = Planetarium.GetUniversalTime();
         }
 
         public override void OnFixedUpdate()

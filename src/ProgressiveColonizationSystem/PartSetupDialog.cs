@@ -11,12 +11,13 @@ namespace ProgressiveColonizationSystem
         private string[] tierLabels = new string[1 + (int)TechTier.Tier4];
         private DialogGUIToggle[] tierToggles = new DialogGUIToggle[1 + (int)TechTier.Tier4];
 
-        private PartSetupDialog(TieredResource product, string body, TechTier tier)
+        private PartSetupDialog(TieredResource product, string body, TechTier tier, TechTier maxTierForPart)
         {
             this.Body = body;
             this.Tier = tier;
             this.Product = product;
-            this.RiskLevel = StaticAnalysis.GetTierSuitability(ColonizationResearchScenario.Instance, this.Product, tier, this.Body);
+            this.MaxTierForPart = maxTierForPart;
+            this.RiskLevel = StaticAnalysis.GetTierSuitability(ColonizationResearchScenario.Instance, this.Product, tier, maxTierForPart, this.Body);
         }
 
         public enum DecisionImpact
@@ -26,7 +27,7 @@ namespace ProgressiveColonizationSystem
             AllParts,
         }
 
-        public static void Show(TieredResource product, string body, TechTier tier, Action<PartSetupDialog> onSet)
+        public static void Show(TieredResource product, string body, TechTier tier, TechTier maxTierForPart, Action<PartSetupDialog> onSet)
         {
             if (product.ResearchCategory.Type == ProductionRestriction.LandedOnBody && !ColonizationResearchScenario.Instance.UnlockedBodies.Any())
             {
@@ -34,7 +35,7 @@ namespace ProgressiveColonizationSystem
             }
             else
             {
-                new PartSetupDialog(product, body, tier).Show(onSet);
+                new PartSetupDialog(product, body, tier, maxTierForPart).Show(onSet);
             }
         }
 
@@ -92,6 +93,8 @@ namespace ProgressiveColonizationSystem
 
         public TechTier Tier { get; private set; }
 
+        public TechTier MaxTierForPart { get; private set; }
+
         public DecisionImpact Applicability { get; private set; }
 
         public TierSuitability RiskLevel { get; private set; }
@@ -100,7 +103,7 @@ namespace ProgressiveColonizationSystem
         {
             for (TechTier tier = TechTier.Tier0; tier <= TechTier.Tier4; ++tier)
             {
-                var suitability = StaticAnalysis.GetTierSuitability(ColonizationResearchScenario.Instance, this.Product, tier, this.Body);
+                var suitability = StaticAnalysis.GetTierSuitability(ColonizationResearchScenario.Instance, this.Product, tier, this.MaxTierForPart, this.Body);
                 bool isEnabled;
                 Func<string, string> transform;
                 string toolTipTag;
@@ -140,6 +143,11 @@ namespace ProgressiveColonizationSystem
                     case TierSuitability.BodyNotSelected:
                         transform = s => s;
                         toolTipTag = "#LOC_KPBS_CHOOSE_A_BODY_FIRST";
+                        isEnabled = false;
+                        break;
+                    case TierSuitability.PartDoesntSupportTier:
+                        transform = s => s;
+                        toolTipTag = "#LOC_KPBS_PART_DOES_NOT_SUPPORT_TIER";
                         isEnabled = false;
                         break;
                 }

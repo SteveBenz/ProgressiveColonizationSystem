@@ -30,12 +30,7 @@ namespace ProgressiveColonizationSystem
         ///   which is set for drills
         /// </summary>
         [KSPField]
-        private int minimumTier = 2;
-
-        [KSPField]
-#pragma warning disable IDE0044 // Add readonly modifier
-        private bool supportsFindingCrushins = false;
-#pragma warning restore IDE0044 // Add readonly modifier
+        public int minimumTier = 2;
 
         private readonly Color litColor = new Color(0, 75, 0);
         private readonly Color darkColor = new Color(0, 0, 0);
@@ -50,7 +45,7 @@ namespace ProgressiveColonizationSystem
             // We never get a value of 0, so we'll light one bar all the time.  We can get values
             // in excess of 1, let's let that be 5 bars.  (That'd equate to 5 sats in polar orbit, which
             // is pretty vast).
-            int numToLight = 1 + (int)(brightnessZeroToOne / (rs.Count - 1));
+            int numToLight = 1 + (int)(brightnessZeroToOne * (rs.Count - 1));
             for (int i = 0; i < rs.Count; ++i)
             {
                 rs[i].material.SetColor("_EmissiveColor", i < numToLight ? litColor : darkColor);
@@ -262,8 +257,12 @@ namespace ProgressiveColonizationSystem
                         && v.GetCrewCapacity() == 0
                         && (v.situation == Vessel.Situations.ORBITING || v.situation == Vessel.Situations.FLYING));
                 scansats = scansats.ToArray();
-                this.scannerNetQuality = scansats.Sum(v => (v.orbit.inclination > 80.0 && v.orbit.inclination < 100.0) ? 1 : .3);
-                // TODO: Factor in antennae count.
+                int numAntennae = this.vessel.FindPartModulesImplementing<ModuleDataTransmitter>().Count;
+
+                // Take the lower of
+                //   # of antennae *.7 (figuring that there are lots of pods with antennas that don't really look cool)
+                //   sum of # of satellites in polar orbit + .3* # of satellites not in polar orbit
+                this.scannerNetQuality = Math.Min(numAntennae * .7, scansats.Sum(v => (v.orbit.inclination > 80.0 && v.orbit.inclination < 100.0) ? 1.0 : .3));
             }
 
             return this.scannerNetQuality.Value;
@@ -278,12 +277,8 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
-            bool canFindCrushins = this.supportsFindingCrushins;
-            if (canFindCrushins)
-            {
-                GetTargetInfo(out TechTier tier, out string targetBody);
-                canFindCrushins = tier >= (TechTier)this.minimumTier && this.vessel.mainBody.name == targetBody;
-            }
+            GetTargetInfo(out TechTier tier, out string targetBody);
+            bool canFindCrushins = tier >= (TechTier)this.minimumTier && this.vessel.mainBody.name == targetBody;
 
             Events["FindResource"].guiActive = canFindCrushins;
 

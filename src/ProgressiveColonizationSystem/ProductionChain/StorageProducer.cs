@@ -14,6 +14,8 @@ namespace ProgressiveColonizationSystem.ProductionChain
 
         public TechTier Tier { get; set; }
 
+        public TechTier MaximumTier => TechTier.Tier4;
+
         public double ProductionRate => double.MaxValue;
 
         public bool IsResearchEnabled => false;
