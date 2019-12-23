@@ -23,6 +23,8 @@ namespace ProgressiveColonizationSystem
         private bool isResearchEnabled;
         private bool isProductionEnabled;
 
+        private double lastDeployTime;
+
         [KSPField(advancedTweakable = false, category = "Nermables", guiActive = true, guiName = "Tier", isPersistant = true, guiActiveEditor = true)]
         public int tier;
 
@@ -312,15 +314,6 @@ namespace ProgressiveColonizationSystem
 
             return null;
         }
-
-        [KSPEvent(guiActive = true, guiActiveEditor = true, guiName = "Test Deployment Stuff")]
-        public void Test()
-        {
-            var b = isDeployed();
-            Deploy();
-        }
-
-        private double lastDeployTime;
 
         private void Deploy()
         {
