@@ -226,7 +226,8 @@ namespace ProgressiveColonizationSystem
 
             toSend = new Dictionary<string, double>();
             toReceive = new Dictionary<string, double>();
-            if (otherVessel.GetCrewCount() == 0 && otherVesselProducers.Count > 0)
+            if ((otherVessel.GetCrewCount() == 0 && otherVesselProducers.Count > 0)
+                || otherVessel.vesselType == VesselType.Debris)
             {
                 // The player's trying to abandon the base so we'll take everything and give nothing.
                 foreach (var otherShipPair in otherShipCanSupply)
@@ -291,6 +292,14 @@ namespace ProgressiveColonizationSystem
             }
             else if (otherVessel.vesselType == VesselType.Ship && (sourceVessel.vesselType == VesselType.Base || sourceVessel.vesselType == VesselType.Rover || sourceVessel.vesselType == VesselType.Lander)
                   || otherVessel.vesselType == VesselType.Base && (sourceVessel.vesselType == VesselType.Rover || sourceVessel.vesselType == VesselType.Lander))
+            {
+                snackDirectionBasedOnVesselType = SnacksDirection.Receive;
+            }
+            else if (otherVessel.GetCrewCount() > 0 && sourceVessel.GetCrewCount() == 0)
+            {
+                snackDirectionBasedOnVesselType = SnacksDirection.Send;
+            }
+            else if (otherVessel.GetCrewCount() == 0 && sourceVessel.GetCrewCount() > 0)
             {
                 snackDirectionBasedOnVesselType = SnacksDirection.Receive;
             }
