@@ -192,7 +192,12 @@ namespace ProgressiveColonizationSystem
             string body = null;
             if (this.outputAsTieredResource.ResearchCategory.Type != ProductionRestriction.Space)
             {
-                body = DefaultPartSetFor == null ? null : EditorLogic.fetch.ship.Parts
+                if (DefaultPartSetFor != null)
+                {
+                    body = DefaultPartSetFor.FindModuleImplementing<PksTieredResourceConverter>()?.body;
+                }
+
+                body = body ?? EditorLogic.fetch.ship.Parts
                     .Select(p => p.FindModuleImplementing<PksTieredResourceConverter>())
                     .Select(trc => trc?.body)
                     .FirstOrDefault(b => b != null && b != "" && b != NotSet);

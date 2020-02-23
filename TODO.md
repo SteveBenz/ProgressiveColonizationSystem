@@ -46,7 +46,10 @@ Because I can't be bothered with GitHub issues.
    30. It's hard to predict how big a resource-gatherer you need or how many resources to get.
        a. Make the production page show how many resources are required to count as an auto-mining trip.
    31. In some unknown circumstances, the transfer thing doesn't detect that it's transferred everything and keeps on
-       pulling stuff until the storage on the target craft fills up.
+       pulling stuff until the storage on the target craft fills up.   
+   32. If you ask for Crushins for a T2 base where there's a drill under construction, it still gives you T2 crushins
+   33. If you transfer T3 Crushins to a base where there's a T2 drill under construction, it doesn't count the run.
+   34. (fixed) In VAB, setup all parts doesn't work when original is for Mun/T3 and target is Duna/T0
 2. Rounding things out
    1.  (complete) Create or hijack a part for storing Snacks - just snacks
    2.  (complete) Write PDF help and or create a github wiki
