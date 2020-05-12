@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using FinePrint;
 using UnityEngine;
 
 namespace ProgressiveColonizationSystem
@@ -25,12 +23,78 @@ namespace ProgressiveColonizationSystem
         /// </summary>
         public const double BadScannerNetQualityThreshold = 1.0;
 
+        private double? scannerNetQuality = null;
+
         /// <summary>
         ///   The minimum tier where grabbing crushins is required.  See also <see cref="PksTieredResourceConverter.inputRequirementStartingTier"/>
         ///   which is set for drills
         /// </summary>
         [KSPField]
-        int minimumTier = 2;
+        public int minimumTier = 2;
+
+        private readonly Color litColor = new Color(0, 75, 0);
+        private readonly Color darkColor = new Color(0, 0, 0);
+
+        private void SetLightLevel(double brightnessZeroToOne)
+        {
+            var rs = part.FindModelComponents<Renderer>()
+                .Where(r => r.material.HasProperty("_EmissiveColor") && r.name.StartsWith("Bar"))
+                .ToList();
+            rs.Sort((left, right) => left.name.CompareTo(right.name));
+
+            // We never get a value of 0, so we'll light one bar all the time.  We can get values
+            // in excess of 1, let's let that be 5 bars.  (That'd equate to 5 sats in polar orbit, which
+            // is pretty vast).
+            int numToLight = 1 + (int)(brightnessZeroToOne * (rs.Count - 1));
+            for (int i = 0; i < rs.Count; ++i)
+            {
+                rs[i].material.SetColor("_EmissiveColor", i < numToLight ? litColor : darkColor);
+            }
+        }
+
+        private static class ActivatedLightStates
+        {
+            public static readonly Color OffColor = new Color(0, 0, 0);
+            public static readonly Color WorkingColor = new Color(0, 127, 0);
+            public static readonly Color ErrorColor = new Color(127, 0, 0);
+        }
+
+        private void SetActivatedLight(Color color)
+        {
+            Renderer blinkenLight = part.FindModelComponent<Renderer>("Blinkenlight");
+            if (blinkenLight != null)
+            {
+                blinkenLight.material.SetColor("_EmissiveColor", color);
+            }
+        }
+
+        private bool isSpinning = false;
+
+        private void SetSpin(bool spinningValue)
+        {
+            const string spinAnimationName = "spin";
+            if (spinningValue == this.isSpinning)
+            {
+                return;
+            }
+
+            Animation[] animations = part.FindModelAnimators(spinAnimationName);
+            if (animations.Length > 0)
+            {
+                Animation deployAnimation = animations[0];
+                if (spinningValue)
+                {
+                    deployAnimation.Play(spinAnimationName);
+                }
+                else
+                {
+                    deployAnimation.Stop(spinAnimationName);
+                }
+            }
+
+            this.isSpinning = spinningValue;
+        }
+
 
         [KSPEvent(guiActive = true, guiName = "Find Loose Crush-Ins")]
         public void FindResource()
@@ -88,7 +152,7 @@ namespace ProgressiveColonizationSystem
             var stuffResource = ColonizationResearchScenario.Instance.AllResourcesTypes.FirstOrDefault(r => r.MadeFrom((TechTier)this.minimumTier) == ColonizationResearchScenario.Instance.CrushInsResource);
 
             var baseChoices = new List<DialogGUIButton>();
-            double scannerNetQuality = this.ScannerNetQuality();
+            double scannerNetQuality = this.CalculateScannerNetQuality();
             Action onlyPossibleChoiceAction = null;
             foreach (var candidate in FlightGlobals.Vessels)
             {
@@ -182,26 +246,64 @@ namespace ProgressiveColonizationSystem
             return hasScrounger && stuffResource.MadeFrom(highestScroungerTier) != null;
         }
 
-        private double ScannerNetQuality()
+        private double CalculateScannerNetQuality()
         {
-            // you might think that situation==ORBITING would be the way to go, but sometimes vessels that
-            // are clearly well in orbit are marked as FLYING.
-            var scansats = FlightGlobals.Vessels
-                .Where(v => v.mainBody == this.vessel.mainBody
-                    && v.GetCrewCapacity() == 0 
-                    && (v.situation == Vessel.Situations.ORBITING || v.situation == Vessel.Situations.FLYING));
-            scansats = scansats.ToArray();
-            return scansats.Sum(v => (v.orbit.inclination > 80.0 && v.orbit.inclination  < 100.0) ? 1 : .3);
+            if (!this.scannerNetQuality.HasValue)
+            {
+                // you might think that situation==ORBITING would be the way to go, but sometimes vessels that
+                // are clearly well in orbit are marked as FLYING.
+                var scansats = FlightGlobals.Vessels
+                    .Where(v => v.mainBody == this.vessel.mainBody
+                        && v.GetCrewCapacity() == 0
+                        && (v.situation == Vessel.Situations.ORBITING || v.situation == Vessel.Situations.FLYING));
+                scansats = scansats.ToArray();
+                int numAntennae = this.vessel.FindPartModulesImplementing<ModuleDataTransmitter>().Count;
+
+                // Take the lower of
+                //   # of antennae *.7 (figuring that there are lots of pods with antennas that don't really look cool)
+                //   sum of # of satellites in polar orbit + .3* # of satellites not in polar orbit
+                this.scannerNetQuality = Math.Min(numAntennae * .7, scansats.Sum(v => (v.orbit.inclination > 80.0 && v.orbit.inclination < 100.0) ? 1.0 : .3));
+            }
+
+            return this.scannerNetQuality.Value;
         }
 
         public void FixedUpdate()
         {
             base.OnFixedUpdate();
-            GetTargetInfo(out TechTier tier, out string targetBody);
-            if (tier < (TechTier)minimumTier || this.vessel.mainBody.name != targetBody)
+
+            if (!HighLogic.LoadedSceneIsFlight)
             {
-                Events["FindResource"].guiActive = false;
+                return;
             }
+
+            GetTargetInfo(out TechTier tier, out string targetBody);
+            bool canFindCrushins = tier >= (TechTier)this.minimumTier && this.vessel.mainBody.name == targetBody;
+
+            Events["FindResource"].guiActive = canFindCrushins;
+
+            var converter = this.part.FindModuleImplementing<PksTieredResourceConverter>();
+
+            // If we haven't set up the animations yet...
+            if (!this.scannerNetQuality.HasValue)
+            {
+                double quality = this.CalculateScannerNetQuality();
+                this.SetLightLevel(quality / 5.0);
+            }
+
+            // TODO: Factor in whether it's set as enabled but is uncrewed
+            this.SetActivatedLight(converter.IsProductionEnabled ? ActivatedLightStates.WorkingColor : ActivatedLightStates.OffColor);
+            this.SetSpin(converter.IsProductionEnabled);
+
+            //if (converter.IsProductionEnabled && !this.isDeployed())
+            //{
+            //    this.Deploy();
+            //}
+            //else if (!converter.IsProductionEnabled)
+            //{
+            //    ModuleResourceConverter resourceConverter = this.GetComponent<ModuleResourceConverter>();
+            //    resourceConverter.DisableModule();
+            //}
         }
     }
 }

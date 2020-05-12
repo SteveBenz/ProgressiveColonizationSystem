@@ -8,6 +8,7 @@ namespace ProgressiveColonizationSystem
     public interface ITieredProducer
     {
         TechTier Tier { get; set; }
+        TechTier MaximumTier { get; }
         double ProductionRate { get; }
         bool IsResearchEnabled { get; }
         bool IsProductionEnabled { get; }

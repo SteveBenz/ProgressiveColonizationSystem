@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 using static ProgressiveColonizationSystem.TextEffects;
@@ -22,15 +23,23 @@ namespace ProgressiveColonizationSystem
         private bool isResearchEnabled;
         private bool isProductionEnabled;
 
+        private double lastDeployTime;
+
         [KSPField(advancedTweakable = false, category = "Nermables", guiActive = true, guiName = "Tier", isPersistant = true, guiActiveEditor = true)]
         public int tier;
 
         [KSPField(advancedTweakable = false, category = "Nermables", guiName = "Target Body", isPersistant = true, guiActiveEditor = true)]
         public string body = NotSet;
 
+        [KSPField]
+        public bool animationStartsOpen;
+
+        [KSPField]
+        public int maximumTier = (int)TechTier.Tier4;
+
         [KSPEvent(guiActive = false, guiActiveEditor = true, guiName = "Change Setup")]
         public void ChangeTier()
-            => PartSetupDialog.Show(this.outputAsTieredResource, this.Body, this.Tier, this.OnSetupSelected);
+            => PartSetupDialog.Show(this.outputAsTieredResource, this.Body, this.Tier, this.MaximumTier, this.OnSetupSelected);
 
         public void OnSetupSelected(PartSetupDialog dialog)
         {
@@ -50,7 +59,7 @@ namespace ProgressiveColonizationSystem
 
         // Apparently, the 'bool enabled' field on the resource converter itself is not to be trusted...
         // we'll keep our own record of what was done.
-        bool? resourceConverterIsEnabled = null;
+        private bool? resourceConverterIsEnabled = null;
 
         [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Show PKS UI")]
         public void ShowDialog()
@@ -82,6 +91,8 @@ namespace ProgressiveColonizationSystem
                 return this.upgradablePartCache;
             }
         }
+
+        public TechTier MaximumTier => (TechTier)this.maximumTier;
 
         public string Body
         {
@@ -181,7 +192,12 @@ namespace ProgressiveColonizationSystem
             string body = null;
             if (this.outputAsTieredResource.ResearchCategory.Type != ProductionRestriction.Space)
             {
-                body = DefaultPartSetFor == null ? null : EditorLogic.fetch.ship.Parts
+                if (DefaultPartSetFor != null)
+                {
+                    body = DefaultPartSetFor.FindModuleImplementing<PksTieredResourceConverter>()?.body;
+                }
+
+                body = body ?? EditorLogic.fetch.ship.Parts
                     .Select(p => p.FindModuleImplementing<PksTieredResourceConverter>())
                     .Select(trc => trc?.body)
                     .FirstOrDefault(b => b != null && b != "" && b != NotSet);
@@ -195,7 +211,7 @@ namespace ProgressiveColonizationSystem
             for (TechTier tier = (RiskTolerance == TierSuitability.UnderTier ? LastTierSelected : TechTier.Tier4)
                 ; tier >= TechTier.Tier0; --tier)
             {
-                var suitability = StaticAnalysis.GetTierSuitability(ColonizationResearchScenario.Instance, this.outputAsTieredResource, tier, body);
+                var suitability = StaticAnalysis.GetTierSuitability(ColonizationResearchScenario.Instance, this.outputAsTieredResource, tier, this.MaximumTier, body);
                 if (suitability <= RiskTolerance)
                 {
                     this.tier = (int)tier;
@@ -216,6 +232,112 @@ namespace ProgressiveColonizationSystem
                     module.SetupFromDefault();
                 }
             }
+        }
+
+        private bool deploymentModulesFound = false;
+        private ModuleAnimateGeneric genericDeploymentAnimation; // Used by the PKS
+        private PartModule planetaryModule; // From Planetary Base Systems (KPBS, KKAOS)
+        private FieldInfo deploymentField;
+
+        /// <summary>
+        ///  If the module is deployable, it returns true or false, depending on the state of the module.
+        ///  If it's not deployable, it returns null.
+        /// </summary>
+        /// <returns></returns>
+        private bool? isDeployed()
+        {
+            if (!deploymentModulesFound)
+            {
+                this.genericDeploymentAnimation = this.part.FindModuleImplementing<ModuleAnimateGeneric>();
+
+                foreach (var p in this.part.Modules)
+                {
+                    if (p.ClassName == "PlanetaryModule")
+                    {
+                        FieldInfo moduleStatusField = p.GetType().GetField("moduleStatus");
+                        if (moduleStatusField != null)
+                        {
+                            this.planetaryModule = p;
+                            this.deploymentField = moduleStatusField;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            double now = Planetarium.GetUniversalTime();
+            if (now < lastDeployTime + 1)
+            {
+                // There can be a delay between the time we start a deployment and the time the fields get
+                // updated, so return the deployment state as unknown for the first second or so after
+                // we've triggered a deploy
+                return null;
+            }
+
+
+            // Try the KPBS module first - there might be modules with the planetary module and some
+            // other generic animation, and there's no way to say for sure if an animation is the deployment
+            // one or something completely different.
+            if (this.planetaryModule != null)
+            {
+                // It'd be better if there was a [Field] we could key off of, but the only one is a string,
+                // which could be localized.  Instead we rely on a public property that's an enumeration.
+                // This is fragile because the enumeration values could change without warning, so we return
+                // null if we see something surprising.
+                switch (this.deploymentField.GetValue(this.planetaryModule).ToString())
+                {
+                    case "Deployed":
+                        return true;
+                    case "Retracted":
+                        return false;
+                    default:
+                        return null;
+                }
+            }
+
+            if (this.genericDeploymentAnimation != null)
+            {
+                // There are several fields that all seem to vary from 0-1 as the animation progresses:
+                //  GetScalar, animTime and Progress.  There might be more than that.
+                if (this.genericDeploymentAnimation.aniState == ModuleAnimateGeneric.animationStates.MOVING)
+                {
+                    return null;
+                }
+                else if (this.genericDeploymentAnimation.GetScalar == 1.0)
+                {
+                    return !this.animationStartsOpen;
+                }
+                else if (this.genericDeploymentAnimation.GetScalar == 0.0)
+                {
+                    return this.animationStartsOpen;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            return null;
+        }
+
+        private void Deploy()
+        {
+            if (this.planetaryModule != null)
+            {
+                BaseAction action = this.planetaryModule.Actions["deployAction"];
+                if (action != null)
+                {
+                    action.Invoke(new KSPActionParam(KSPActionGroup.None, KSPActionType.Activate));
+                }
+            }
+            else
+            {
+                // We chose this method (even though it'll flake if it's not deployed) just because it's a
+                // [KspEvent]
+                this.genericDeploymentAnimation.Toggle();
+            }
+
+            this.lastDeployTime = Planetarium.GetUniversalTime();
         }
 
         public override void OnFixedUpdate()
@@ -319,6 +441,13 @@ namespace ProgressiveColonizationSystem
                 this.isResearchEnabled = false;
                 this.ReasonWhyResearchIsDisabled = "Production disabled";
             }
+
+            if (this.isProductionEnabled && this.isDeployed() == false)
+            {
+                this.Deploy();
+            }
+            // As a consequence of the above, if a part is enabled, you can't retract it.
+            // TODO: If the part is enabled, disable the retract action
         }
 
         protected virtual bool IsCrewed()

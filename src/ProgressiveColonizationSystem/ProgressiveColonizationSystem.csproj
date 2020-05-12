@@ -86,6 +86,12 @@
     <Content Include="GameData\ProgressiveColonizationSystem\Parts\2.5m Snacks Tank.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\BigScanner.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\BigScanner_normal.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="GameData\ProgressiveColonizationSystem\Parts\KKOAS_B9_TankLarge.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -163,6 +169,12 @@
     </Content>
     <Content Include="GameData\ProgressiveColonizationSystem\Parts\Lunchbox.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\ScannerHubJr-bump.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\ScannerHubJr.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ProgressiveColonizationSystem\Parts\small snacks can.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -284,9 +296,18 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\PKS_BigScanner.cfg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\BigScanner.mu">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="GameData\ProgressiveColonizationSystem\Parts\Big_Snacks_Can.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\ScannerHubJr.mu">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">

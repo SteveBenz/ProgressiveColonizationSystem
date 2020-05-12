@@ -194,6 +194,11 @@ namespace ProgressiveColonizationSystem
 
         public void FixedUpdate()
         {
+            if (!HighLogic.LoadedSceneIsFlight)
+            {
+                return;
+            }
+
             double now = Planetarium.GetUniversalTime();
             if (now > this.lastCanUpgradeCheck + SecondsBetweenCanUpgradeChecks)
             {
@@ -204,7 +209,8 @@ namespace ProgressiveColonizationSystem
 
         private void UpdateFields()
         {
-            if (this.TieredConverter.Tier < (TechTier)this.minimumUpgradeableTier)
+            if (this.TieredConverter.Tier < (TechTier)this.minimumUpgradeableTier
+             || this.TieredConverter.Tier >= this.TieredConverter.MaximumTier)
             {
                 this.Events[nameof(this.OnUpgrade)].guiActive = false;
             }

@@ -18,11 +18,17 @@ namespace ProgressiveColonizationSystem
             IColonizationResearchScenario colonizationResearchScenario,
             TieredResource tieredResource,
             TechTier tier,
+            TechTier partMaxTier,
             string body)
         {
             if (body == null && tieredResource.ResearchCategory.Type != ProductionRestriction.Space)
             {
                 return TierSuitability.BodyNotSelected;
+            }
+
+            if (tier > partMaxTier)
+            {
+                return TierSuitability.PartDoesntSupportTier;
             }
 
             var maxTier = colonizationResearchScenario.GetMaxUnlockedTier(tieredResource, body);
@@ -115,7 +121,7 @@ namespace ProgressiveColonizationSystem
         {
             for (TechTier tier = TechTier.Tier4; tier >= TechTier.Tier0; --tier)
             {
-                var suitability = StaticAnalysis.GetTierSuitability(colonizationResearch, producer.Output, tier, producer.Body);
+                var suitability = StaticAnalysis.GetTierSuitability(colonizationResearch, producer.Output, tier, producer.MaximumTier, producer.Body);
                 if (suitability == TierSuitability.Ideal)
                 {
                     producer.Tier = tier;
@@ -140,7 +146,7 @@ namespace ProgressiveColonizationSystem
 
             foreach (var producer in producers)
             {
-                var suitability = StaticAnalysis.GetTierSuitability(colonizationResearch, producer.Output, producer.Tier, producer.Body);
+                var suitability = StaticAnalysis.GetTierSuitability(colonizationResearch, producer.Output, producer.Tier, producer.MaximumTier, producer.Body);
                 switch (suitability)
                 {
                     case TierSuitability.LacksScanner:
