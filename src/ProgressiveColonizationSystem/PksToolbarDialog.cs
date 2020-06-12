@@ -18,8 +18,10 @@ namespace ProgressiveColonizationSystem
     public abstract class PksToolbarDialog
         : ScenarioModule
     {
+#if false
         private ApplicationLauncherButton toolbarButton = null;
-        private PopupDialog dialog = null;
+#endif
+        internal PopupDialog dialog = null;
         private bool toolbarStateMatchedToIsVisible;
 
         [KSPField(isPersistant = true)]
@@ -29,13 +31,20 @@ namespace ProgressiveColonizationSystem
         [KSPField(isPersistant = true)]
         public float yPosition = .5f; // .5 => the middle
 
-        private static PksToolbarDialog instance;
+        internal static PksToolbarDialog instance;
 
-        public static void Show()
+        public static void Show(bool fromShowDialog = false)
         {
             if (instance != null)
             {
+                Debug.Log("PksToolbarDialog.Show");
+#if false
                 instance.toolbarButton.toggleButton.Value = true;
+#else
+                PksToolbarControllerDialog.instance.SetTexture("ProgressiveColonizationSystem/Textures/icon_filter_s-38",
+                    "ProgressiveColonizationSystem/Textures/icon_filter_s-24");
+#endif
+                if (!fromShowDialog)
                 instance.ShowDialog();
             }
         }
@@ -52,6 +61,7 @@ namespace ProgressiveColonizationSystem
 
         private void AttachToToolbar()
         {
+#if false
             if (this.toolbarButton != null)
             {
                 // defensive
@@ -61,9 +71,11 @@ namespace ProgressiveColonizationSystem
             Debug.Assert(ApplicationLauncher.Ready, "ApplicationLauncher is not ready - can't add the toolbar button.  Is this possible, really?  If so maybe we could do it later?");
             this.toolbarButton = ApplicationLauncher.Instance.AddModApplication(ShowDialog, HideDialog, null, null, null, null,
                 this.VisibleInScenes, this.GetButtonTexture());
+#endif
             this.toolbarStateMatchedToIsVisible = false;
         }
 
+#if false
         protected virtual Texture2D GetButtonTexture()
         {
             Texture2D appLauncherTexture = new Texture2D(36, 36, TextureFormat.ARGB32, false);
@@ -71,12 +83,14 @@ namespace ProgressiveColonizationSystem
             ImageConversion.LoadImage(appLauncherTexture, Properties.Resources.AppLauncherIcon);
             return appLauncherTexture;
         }
+#endif
 
-        protected abstract MultiOptionDialog DrawDialog(Rect rect);
+        internal abstract MultiOptionDialog DrawDialog(Rect rect);
 
         private void ShowDialog()
         {
             isVisible = true;
+            Show(true);
             if (this.dialog == null)
             {
                 this.dialog = PopupDialog.SpawnPopupDialog(
@@ -104,8 +118,13 @@ namespace ProgressiveColonizationSystem
             isVisible = false;
             this.dialog?.Dismiss();
             this.dialog = null;
+
+            PksToolbarControllerDialog.instance.SetTexture("ProgressiveColonizationSystem/Textures/icon_filter_n-38",
+                "ProgressiveColonizationSystem/Textures/icon_filter_n-24");
+
         }
 
+#if false
         private void OnDestroy()
         {
             if (this.toolbarButton != null)
@@ -117,6 +136,7 @@ namespace ProgressiveColonizationSystem
                 this.toolbarButton = null;
             }
         }
+#endif
 
         protected virtual bool IsRelevant { get; } = true;
 
@@ -130,16 +150,29 @@ namespace ProgressiveColonizationSystem
                     this.dialog = null;
                     // But leave isVisible set, as that's the persistent view.
                 }
+#if false
                 this.toolbarButton.Disable();
+#else
+                //PksToolbarControllerDialog.instance.toolbarControl.Enabled = false;
+#endif
                 return;
             }
 
+#if false
             this.toolbarButton.Enable();
+#else
+            //PksToolbarControllerDialog.instance.toolbarControl.Enabled = true;
+#endif
+
 
             // Shenanigans!  This gets around the apparent fact that you can't tell the toolbar what state to start in.
             if (!this.toolbarStateMatchedToIsVisible)
             {
+#if false
                 this.toolbarButton.toggleButton.Value = this.isVisible;
+#else
+                //PksToolbarControllerDialog.instance.toolbarControl.SetTrue(this.isVisible);
+#endif
                 this.toolbarStateMatchedToIsVisible = true;
             }
 
