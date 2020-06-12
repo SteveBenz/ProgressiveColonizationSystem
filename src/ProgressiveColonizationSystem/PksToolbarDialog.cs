@@ -18,9 +18,6 @@ namespace ProgressiveColonizationSystem
     public abstract class PksToolbarDialog
         : ScenarioModule
     {
-#if false
-        private ApplicationLauncherButton toolbarButton = null;
-#endif
         internal PopupDialog dialog = null;
         private bool toolbarStateMatchedToIsVisible;
 
@@ -38,12 +35,8 @@ namespace ProgressiveColonizationSystem
             if (instance != null)
             {
                 Debug.Log("PksToolbarDialog.Show");
-#if false
-                instance.toolbarButton.toggleButton.Value = true;
-#else
                 PksToolbarControllerDialog.instance.SetTexture("ProgressiveColonizationSystem/Textures/icon_filter_s-38",
                     "ProgressiveColonizationSystem/Textures/icon_filter_s-24");
-#endif
                 if (!fromShowDialog)
                 instance.ShowDialog();
             }
@@ -61,29 +54,9 @@ namespace ProgressiveColonizationSystem
 
         private void AttachToToolbar()
         {
-#if false
-            if (this.toolbarButton != null)
-            {
-                // defensive
-                return;
-            }
-
-            Debug.Assert(ApplicationLauncher.Ready, "ApplicationLauncher is not ready - can't add the toolbar button.  Is this possible, really?  If so maybe we could do it later?");
-            this.toolbarButton = ApplicationLauncher.Instance.AddModApplication(ShowDialog, HideDialog, null, null, null, null,
-                this.VisibleInScenes, this.GetButtonTexture());
-#endif
             this.toolbarStateMatchedToIsVisible = false;
         }
 
-#if false
-        protected virtual Texture2D GetButtonTexture()
-        {
-            Texture2D appLauncherTexture = new Texture2D(36, 36, TextureFormat.ARGB32, false);
-            // Prior to 1.8 this was appLauncherTexture.LoadImage
-            ImageConversion.LoadImage(appLauncherTexture, Properties.Resources.AppLauncherIcon);
-            return appLauncherTexture;
-        }
-#endif
 
         internal abstract MultiOptionDialog DrawDialog(Rect rect);
 
@@ -124,20 +97,6 @@ namespace ProgressiveColonizationSystem
 
         }
 
-#if false
-        private void OnDestroy()
-        {
-            if (this.toolbarButton != null)
-            {
-                if (ApplicationLauncher.Instance != null)
-                {
-                    ApplicationLauncher.Instance.RemoveModApplication(this.toolbarButton);
-                }
-                this.toolbarButton = null;
-            }
-        }
-#endif
-
         protected virtual bool IsRelevant { get; } = true;
 
         private void FixedUpdate()
@@ -150,29 +109,19 @@ namespace ProgressiveColonizationSystem
                     this.dialog = null;
                     // But leave isVisible set, as that's the persistent view.
                 }
-#if false
-                this.toolbarButton.Disable();
-#else
                 //PksToolbarControllerDialog.instance.toolbarControl.Enabled = false;
-#endif
+
                 return;
             }
 
-#if false
-            this.toolbarButton.Enable();
-#else
             //PksToolbarControllerDialog.instance.toolbarControl.Enabled = true;
-#endif
+
 
 
             // Shenanigans!  This gets around the apparent fact that you can't tell the toolbar what state to start in.
             if (!this.toolbarStateMatchedToIsVisible)
             {
-#if false
-                this.toolbarButton.toggleButton.Value = this.isVisible;
-#else
                 //PksToolbarControllerDialog.instance.toolbarControl.SetTrue(this.isVisible);
-#endif
                 this.toolbarStateMatchedToIsVisible = true;
             }
 
