@@ -244,19 +244,19 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="GameData\ProgressiveColonizationSystem\Textures\icon_filter_n-24.png">
+    <Content Include="GameData\ProgressiveColonizationSystem\Textures\cupcake-n-24.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="GameData\ProgressiveColonizationSystem\Textures\icon_filter_n-38.png">
+    <Content Include="GameData\ProgressiveColonizationSystem\Textures\cupcake-n-38.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ProgressiveColonizationSystem\Textures\cupcake-s-24.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ProgressiveColonizationSystem\Textures\cupcake-s-38.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ProgressiveColonizationSystem\Textures\icon_filter_n.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="GameData\ProgressiveColonizationSystem\Textures\icon_filter_s-24.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="GameData\ProgressiveColonizationSystem\Textures\icon_filter_s-38.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ProgressiveColonizationSystem\Textures\icon_filter_s.png">

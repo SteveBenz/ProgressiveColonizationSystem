@@ -37,10 +37,10 @@ namespace ProgressiveColonizationSystem
                 ApplicationLauncher.AppScenes.MAPVIEW,
                 MODID,
                 "pksButton",
-                "ProgressiveColonizationSystem/Textures/icon_filter_n-38",
-                "ProgressiveColonizationSystem/Textures/icon_filter_n-24",
-                "ProgressiveColonizationSystem/Textures/icon_filter_s-38",
-                "ProgressiveColonizationSystem/Textures/icon_filter_s-24",
+                "ProgressiveColonizationSystem/Textures/cupcake-n-38",
+                "ProgressiveColonizationSystem/Textures/cupcake-n-24",
+                "ProgressiveColonizationSystem/Textures/cupcake-s-38",
+                "ProgressiveColonizationSystem/Textures/cupcake-s-24",
                 MODNAME
             );
         }
@@ -49,8 +49,8 @@ namespace ProgressiveColonizationSystem
         {
             Debug.Log("PksToolbarControllerDialog.ShowDialog");
             if (!PksToolbarDialog.instance) return;
-            PksToolbarControllerDialog.instance.SetTexture("ProgressiveColonizationSystem/Textures/icon_filter_s-38",
-                                                            "ProgressiveColonizationSystem/Textures/icon_filter_s-24");
+            PksToolbarControllerDialog.instance.SetTexture("ProgressiveColonizationSystem/Textures/cupcake-s-38",
+                                                           "ProgressiveColonizationSystem/Textures/cupcake-s-24");
 
             PksToolbarDialog.instance.isVisible = true;
             if (PksToolbarDialog.instance.dialog == null)
@@ -73,9 +73,8 @@ namespace ProgressiveColonizationSystem
             PksToolbarDialog.instance.dialog?.Dismiss();
             PksToolbarDialog.instance.dialog = null;
 
-            PksToolbarControllerDialog.instance.SetTexture("ProgressiveColonizationSystem/Textures/icon_filter_n-38",
-                                                            "ProgressiveColonizationSystem/Textures/icon_filter_n-24");
-
+            PksToolbarControllerDialog.instance.SetTexture("ProgressiveColonizationSystem/Textures/cupcake-n-38",
+                                                           "ProgressiveColonizationSystem/Textures/cupcake-n-24");
         }
 
         public void SetTexture(string large, string small)
@@ -83,10 +82,7 @@ namespace ProgressiveColonizationSystem
             if (toolbarControl != null)
                 toolbarControl.SetTexture(large, small);
         }
-
     }
-
-
 
     [KSPAddon(KSPAddon.Startup.MainMenu, true)]
     public class RegisterToolbar : MonoBehaviour
@@ -96,5 +92,4 @@ namespace ProgressiveColonizationSystem
             ToolbarControl.RegisterMod(PksToolbarControllerDialog.MODID, PksToolbarControllerDialog.MODNAME);
         }
     }
-
 }

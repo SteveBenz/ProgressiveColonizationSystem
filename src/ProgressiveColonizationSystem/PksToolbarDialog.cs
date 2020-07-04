@@ -35,8 +35,8 @@ namespace ProgressiveColonizationSystem
             if (instance != null)
             {
                 Debug.Log("PksToolbarDialog.Show");
-                PksToolbarControllerDialog.instance.SetTexture("ProgressiveColonizationSystem/Textures/icon_filter_s-38",
-                    "ProgressiveColonizationSystem/Textures/icon_filter_s-24");
+                PksToolbarControllerDialog.instance.SetTexture("ProgressiveColonizationSystem/Textures/cupcake-s-38",
+                    "ProgressiveColonizationSystem/Textures/cupcake-s-24");
                 if (!fromShowDialog)
                 instance.ShowDialog();
             }
@@ -91,9 +91,8 @@ namespace ProgressiveColonizationSystem
             this.dialog?.Dismiss();
             this.dialog = null;
 
-            PksToolbarControllerDialog.instance.SetTexture("ProgressiveColonizationSystem/Textures/icon_filter_n-38",
-                "ProgressiveColonizationSystem/Textures/icon_filter_n-24");
-
+            PksToolbarControllerDialog.instance.SetTexture("ProgressiveColonizationSystem/Textures/cupcake-n-38",
+                "ProgressiveColonizationSystem/Textures/cupcake-n-24");
         }
 
         protected virtual bool IsRelevant { get; } = true;
