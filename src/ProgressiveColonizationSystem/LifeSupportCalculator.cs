@@ -19,7 +19,7 @@ namespace ProgressiveColonizationSystem
     {
         private List<StaticAnalysis.WarningMessage> lastWarningList;
 
-        protected override MultiOptionDialog DrawDialog(Rect rect)
+        internal override MultiOptionDialog DrawDialog(Rect rect)
         {
             return new MultiOptionDialog("LifeSupportCalculator", "", "Life Support Calculator", HighLogic.UISkin, rect, this.DrawTabbedDialog());
         }

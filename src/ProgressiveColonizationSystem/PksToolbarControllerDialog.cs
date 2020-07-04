@@ -26,6 +26,7 @@ namespace ProgressiveColonizationSystem
             SetUpToolbarIcon();
             DontDestroyOnLoad(this);
         }
+
         private void SetUpToolbarIcon()
         {
             toolbarControl = gameObject.AddComponent<ToolbarControl>();

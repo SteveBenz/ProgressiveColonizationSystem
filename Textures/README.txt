@@ -1,1 +1,0 @@
-Add these icons to the Textures directory in your release

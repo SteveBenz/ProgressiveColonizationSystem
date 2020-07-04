@@ -47,15 +47,15 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="$(KSPDIR)\KSP_x64_Data\Managed\Assembly*.dll">
+    <Reference Include="$(KspInstallationDir)\KSP_x64_Data\Managed\Assembly*.dll">
       <Private>False</Private>
     </Reference>
-    <Reference Include="$(KSPDIR)\KSP_x64_Data\Managed\UnityEngine*.dll">
+    <Reference Include="$(KspInstallationDir)\KSP_x64_Data\Managed\UnityEngine*.dll">
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="ToolbarControl">
-      <HintPath>R:\KSP_1.8.1_dev\GameData\001_ToolbarControl\Plugins\ToolbarControl.dll</HintPath>
+      <HintPath>$(KspInstallationDir)\GameData\001_ToolbarControl\Plugins\ToolbarControl.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -244,7 +244,19 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="GameData\ProgressiveColonizationSystem\Textures\icon_filter_n-24.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ProgressiveColonizationSystem\Textures\icon_filter_n-38.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="GameData\ProgressiveColonizationSystem\Textures\icon_filter_n.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ProgressiveColonizationSystem\Textures\icon_filter_s-24.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ProgressiveColonizationSystem\Textures\icon_filter_s-38.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ProgressiveColonizationSystem\Textures\icon_filter_s.png">
@@ -299,12 +311,30 @@
     <Error Condition="!Exists('..\..\ksplocations.props')" Text="You need to copy ksplocations_example.props to ksplocations.props and edit it with paths to a couple things on your machine" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>if $(ConfigurationName) == Debug (
+  echo "$(MonoExe)" "$(Pdb2MdbExe)" "$(TargetPath)"
+  "$(MonoExe)" "$(Pdb2MdbExe)" "$(TargetPath)"
+)
+
+mkdir "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" 2&gt;nul
+copy "$(TargetPath)" "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" &gt;nul
+if $(ConfigurationName) == Debug (
+  copy "$(TargetPath).mdb" "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" &gt;nul
+  echo robocopy /e /mir /mt:8 /njh /njs /ndl /nc /ns /nfl /np "$(TargetDir)GameData\ProgressiveColonizationSystem" "$(KspInstallationDir)\GameData\ProgressiveColonizationSystem"
+  robocopy /e /mir /mt:8 /njh /njs /ndl /nc /ns /nfl  /np "$(TargetDir)GameData\ProgressiveColonizationSystem" "$(KspInstallationDir)\GameData\ProgressiveColonizationSystem"
+  if errorlevel 8 exit /b 1
+)
+
+if $(ConfigurationName) == Release (
+  $(ProjectDir)\..\CreateRelease\bin\$(ConfigurationName)\CreateRelease.exe "$(TargetDir)."
+  if errorlevel 1 exit /b 1
+  echo "$(TargetDir)ProgressiveColonizationSystem.zip is ready for release"
+)
+
+exit /b 0</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
+    <PreBuildEvent>"$(TextTransformExe)" "$(ProjectDir)AssemblyVersion.tt"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

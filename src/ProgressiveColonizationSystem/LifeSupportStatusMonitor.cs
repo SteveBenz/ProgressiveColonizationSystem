@@ -408,7 +408,7 @@ namespace ProgressiveColonizationSystem
         private static string MakePartAndCountString(int count, string partName)
             => count == 1 ? partName : $"{count}x{partName}";
 
-        protected override MultiOptionDialog DrawDialog(Rect rect)
+        internal override MultiOptionDialog DrawDialog(Rect rect)
         {
             // FYI, if you want to override a style, here'd be a way to do it:
             // var myStyle = new UIStyle(UISkinManager.defaultSkin.label) { wordWrap = false};

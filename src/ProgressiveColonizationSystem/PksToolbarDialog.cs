@@ -57,7 +57,6 @@ namespace ProgressiveColonizationSystem
             this.toolbarStateMatchedToIsVisible = false;
         }
 
-
         internal abstract MultiOptionDialog DrawDialog(Rect rect);
 
         private void ShowDialog()
