@@ -32,6 +32,18 @@ namespace ProgressiveColonizationSystem
 
         protected abstract MultiOptionDialog DrawDialog(Rect rect);
 
+        public void ToggleVisibility()
+        {
+            if (this.isVisible)
+            {
+                this.Hide();
+            }
+            else
+            {
+                this.Show();
+            }
+        }
+
         public void Show()
         {
             isVisible = true;

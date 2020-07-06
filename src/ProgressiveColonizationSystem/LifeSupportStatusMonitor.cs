@@ -51,16 +51,15 @@ namespace ProgressiveColonizationSystem
             instance = this;
         }
 
+        public static void ToggleDialogVisibility()
+        {
+            instance?.ToggleVisibility();
+        }
+
         public static void ShowDialog()
         {
             instance?.Show();
         }
-
-        public static void DismissDialog()
-        {
-            instance?.Hide();
-        }
-
 
         protected override DialogGUIBase DrawTab(string tab)
         {

@@ -4,6 +4,7 @@ using ProgressiveColonizationSystem.ProductionChain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
@@ -33,14 +34,9 @@ namespace ProgressiveColonizationSystem
 
         private static LifeSupportCalculator instance;
 
-        public static void ShowDialog()
+        public static void ToggleDialogVisibility()
         {
-            instance?.Show();
-        }
-
-        public static void DismissDialog()
-        {
-            instance?.Hide();
+            instance?.ToggleVisibility();
         }
 
         public void Start()
