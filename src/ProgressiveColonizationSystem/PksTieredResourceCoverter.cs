@@ -104,6 +104,46 @@ namespace ProgressiveColonizationSystem
             }
         }
 
+        /// <summary>
+        // This is used for orbital stuff to test and see if the vessel is in a proper orbit
+        // and, if so, the CelestialBody it is working on.
+        /// </summary>
+        /// <returns>The celestial body or null if the vessel is not in the proper position</returns>
+        public CelestialBody TryGetCelestialBodyIfInProperOrbit()
+        {
+            if (this.vessel.situation != Vessel.Situations.ORBITING)
+            {
+                return null;
+            }
+
+            if (this.vessel.mainBody.name == this.body)
+            {
+                return vessel.mainBody;
+            }
+
+            if (this.vessel.mainBody.referenceBody == null)
+            {
+                // we're in orbit of the sun - so obviously not in a planetary system.
+                return null;
+            }
+
+            CelestialBody result = this.vessel.mainBody.orbitingBodies.FirstOrDefault(b => b.name == this.body);
+            if (result != null)
+            {
+                // we're in orbit of the main planet in the system we're targeting
+                return result;
+            }
+
+            if (this.vessel.mainBody.referenceBody.referenceBody == null)
+            {
+                // we're not in orbit of a moon
+                return null;
+            }
+
+            // Else we are in orbit of a moon and maybe the body refers to one of the other moons
+            return vessel.mainBody.referenceBody.orbitingBodies.FirstOrDefault(b => b.name == this.body);
+        }
+
         private bool IsSituationCorrect(out string reasonWhyNotMessage)
         {
             if (this.Output.ProductionRestriction == ProductionRestriction.LandedOnBody
@@ -114,9 +154,9 @@ namespace ProgressiveColonizationSystem
             }
 
             if (this.Output.ProductionRestriction == ProductionRestriction.OrbitOfBody
-             && (this.vessel.situation != Vessel.Situations.ORBITING || this.body != this.vessel.mainBody.name))
+             && (this.vessel.situation != Vessel.Situations.ORBITING || TryGetCelestialBodyIfInProperOrbit() == null))
             {
-                reasonWhyNotMessage = $"Not orbiting {this.body}";
+                reasonWhyNotMessage = $"Not in same planetary system as {this.body}";
                 return false;
             }
 

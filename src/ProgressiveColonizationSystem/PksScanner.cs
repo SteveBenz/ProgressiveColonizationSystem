@@ -105,10 +105,10 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
-            GetTargetInfo(out TechTier tier, out string targetBody);
-            if (this.vessel.mainBody.name != targetBody)
+            GetTargetInfo(out TechTier tier, out string targetBodyName, out CelestialBody targetBody);
+            if (targetBody == null)
             {
-                ScreenMessages.PostScreenMessage($"The vessel is not in a stable orbit around {targetBody}");
+                ScreenMessages.PostScreenMessage($"The vessel is not in the same planetary system as {targetBodyName}");
                 return;
             }
 
@@ -131,10 +131,10 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
-            AskUserToPickbase(tier);
+            AskUserToPickbase(tier, targetBody);
         }
 
-        private void GetTargetInfo(out TechTier tier, out string targetBody)
+        private void GetTargetInfo(out TechTier tier, out string targetBodyName, out CelestialBody targetBody)
         {
             var scanner = this.part.GetComponent<PksTieredResourceConverter>();
             Debug.Assert(scanner != null, "GetTargetInfo couldn't find a PksTieredResourceConverter - probably the part is misconfigured");
@@ -144,20 +144,21 @@ namespace ProgressiveColonizationSystem
             }
 
             tier = scanner.Tier;
-            targetBody = scanner.Body;
+            targetBodyName = scanner.Body;
+            targetBody = scanner.TryGetCelestialBodyIfInProperOrbit();
         }
 
-        private void AskUserToPickbase(TechTier scannerTier)
+        private void AskUserToPickbase(TechTier scannerTier, CelestialBody targetBody)
         {
             var stuffResource = ColonizationResearchScenario.Instance.AllResourcesTypes.FirstOrDefault(r => r.MadeFrom((TechTier)this.minimumTier) == ColonizationResearchScenario.Instance.CrushInsResource);
 
             var baseChoices = new List<DialogGUIButton>();
-            double scannerNetQuality = this.CalculateScannerNetQuality();
+            double scannerNetQuality = this.CalculateScannerNetQuality(targetBody);
             Action onlyPossibleChoiceAction = null;
             foreach (var candidate in FlightGlobals.Vessels)
             {
                 // Only look at vessels that are on the body of the scanner and are not marked as debris
-                if (candidate.mainBody != this.vessel.mainBody
+                if (candidate.mainBody != targetBody
                  || (candidate.situation != Vessel.Situations.LANDED && candidate.situation != Vessel.Situations.SPLASHED)
                  || candidate.vesselType == VesselType.Debris)
                 {
@@ -246,14 +247,14 @@ namespace ProgressiveColonizationSystem
             return hasScrounger && stuffResource.MadeFrom(highestScroungerTier) != null;
         }
 
-        private double CalculateScannerNetQuality()
+        private double CalculateScannerNetQuality(CelestialBody targetBody)
         {
             if (!this.scannerNetQuality.HasValue)
             {
                 // you might think that situation==ORBITING would be the way to go, but sometimes vessels that
                 // are clearly well in orbit are marked as FLYING.
                 var scansats = FlightGlobals.Vessels
-                    .Where(v => v.mainBody == this.vessel.mainBody
+                    .Where(v => v.mainBody == targetBody
                         && v.GetCrewCapacity() == 0
                         && (v.situation == Vessel.Situations.ORBITING || v.situation == Vessel.Situations.FLYING));
                 scansats = scansats.ToArray();
@@ -277,8 +278,8 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
-            GetTargetInfo(out TechTier tier, out string targetBody);
-            bool canFindCrushins = tier >= (TechTier)this.minimumTier && this.vessel.mainBody.name == targetBody;
+            GetTargetInfo(out TechTier tier, out string targetBody, out CelestialBody vettedTargetBody);
+            bool canFindCrushins = tier >= (TechTier)this.minimumTier && vettedTargetBody != null;
 
             Events["FindResource"].guiActive = canFindCrushins;
 
@@ -287,7 +288,7 @@ namespace ProgressiveColonizationSystem
             // If we haven't set up the animations yet...
             if (!this.scannerNetQuality.HasValue)
             {
-                double quality = this.CalculateScannerNetQuality();
+                double quality = this.CalculateScannerNetQuality(vettedTargetBody);
                 this.SetLightLevel(quality / 5.0);
             }
 
