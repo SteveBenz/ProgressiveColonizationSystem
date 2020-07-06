@@ -64,9 +64,8 @@ namespace ProgressiveColonizationSystem
         [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Show PKS UI")]
         public void ShowDialog()
         {
-            PksToolbarDialog.Show();
+            LifeSupportStatusMonitor.ShowDialog();
         }
-
 
         /// <summary>
         ///   The name of the output resource (as a Tier4 resource)

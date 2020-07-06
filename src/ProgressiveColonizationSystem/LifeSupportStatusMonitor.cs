@@ -40,10 +40,27 @@ namespace ProgressiveColonizationSystem
 
         private IntervesselResourceTransfer resourceTransfer = new IntervesselResourceTransfer();
 
+        /// <summary>
+        ///   Published in order that we can cooperate with <see cref="PksToolbar"/>
+        /// </summary>
+        private static LifeSupportStatusMonitor instance;
+
         public LifeSupportStatusMonitor()
             : base(new string[] { ProductionTab, ProgressionTab, TransferTab, CrewTab })
         {
+            instance = this;
         }
+
+        public static void ShowDialog()
+        {
+            instance?.Show();
+        }
+
+        public static void DismissDialog()
+        {
+            instance?.Hide();
+        }
+
 
         protected override DialogGUIBase DrawTab(string tab)
         {
@@ -61,7 +78,9 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        protected override bool IsRelevant =>
+        protected override bool IsRelevant => LifeSupportStatusMonitor.IsRelevant_static;
+
+        public static bool IsRelevant_static =>
                !FlightGlobals.ActiveVessel.isEVA
                && (FlightGlobals.ActiveVessel.situation == Vessel.Situations.LANDED
                 || FlightGlobals.ActiveVessel.situation == Vessel.Situations.SPLASHED
@@ -408,7 +427,7 @@ namespace ProgressiveColonizationSystem
         private static string MakePartAndCountString(int count, string partName)
             => count == 1 ? partName : $"{count}x{partName}";
 
-        internal override MultiOptionDialog DrawDialog(Rect rect)
+        protected override MultiOptionDialog DrawDialog(Rect rect)
         {
             // FYI, if you want to override a style, here'd be a way to do it:
             // var myStyle = new UIStyle(UISkinManager.defaultSkin.label) { wordWrap = false};

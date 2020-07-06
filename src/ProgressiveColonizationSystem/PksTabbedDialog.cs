@@ -13,7 +13,7 @@ namespace ProgressiveColonizationSystem
     ///   This class maintains tabbed dialogs.
     /// </summary>
     public abstract class PksTabbedDialog
-        : PksToolbarDialog
+        : PksPersistentDialog
     {
         private string selectedTabTitle;
         private string[] allTabTitles;

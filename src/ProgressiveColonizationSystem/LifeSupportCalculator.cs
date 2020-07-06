@@ -1,4 +1,5 @@
 ﻿using KSP.UI.Screens;
+using KSP.UI.Screens.DebugToolbar.Screens.Debug;
 using ProgressiveColonizationSystem.ProductionChain;
 using System;
 using System.Collections.Generic;
@@ -19,11 +20,6 @@ namespace ProgressiveColonizationSystem
     {
         private List<StaticAnalysis.WarningMessage> lastWarningList;
 
-        internal override MultiOptionDialog DrawDialog(Rect rect)
-        {
-            return new MultiOptionDialog("LifeSupportCalculator", "", "Life Support Calculator", HighLogic.UISkin, rect, this.DrawTabbedDialog());
-        }
-
         private bool isShowingPartsInCrewWindow = false;
 
         private int warningsHash = 0;
@@ -35,10 +31,25 @@ namespace ProgressiveColonizationSystem
         private string consumptionInfo = "";
         private string productionLimitedBy = "";
 
+        private static LifeSupportCalculator instance;
+
+        public static void ShowDialog()
+        {
+            instance?.Show();
+        }
+
+        public static void DismissDialog()
+        {
+            instance?.Hide();
+        }
+
         public void Start()
         {
+            // Intercept the launch button logic.  Note that this only works well if we're the only
+            // mod that's attempting to intervene before launch.
             EditorLogic.fetch.launchBtn.onClick.RemoveListener(EditorLogic.fetch.launchVessel);
             EditorLogic.fetch.launchBtn.onClick.AddListener(OnLaunchClicked);
+            instance = this;
         }
 
         public void OnLaunchClicked()
@@ -78,6 +89,11 @@ namespace ProgressiveColonizationSystem
                 case "Crew":
                     return DrawCrewDialog();
             }
+        }
+
+        protected override MultiOptionDialog DrawDialog(Rect rect)
+        {
+            return new MultiOptionDialog("LifeSupportCalculator", "", "Life Support Calculator", HighLogic.UISkin, rect, this.DrawTabbedDialog());
         }
 
         private static string ColorRed(string message)

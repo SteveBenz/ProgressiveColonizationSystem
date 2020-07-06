@@ -1,8 +1,4 @@
 ﻿using KSP.UI.Screens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 // Bon Voyage has a good example of how to make these dialogs.
@@ -13,13 +9,12 @@ using UnityEngine;
 namespace ProgressiveColonizationSystem
 {
     /// <summary>
-    ///   This class maintains a toolbar button and a GUI display that has a persistent display status and position
+    ///   This class maintains a GUI display that has a persistent display status and position
     /// </summary>
-    public abstract class PksToolbarDialog
+    public abstract class PksPersistentDialog
         : ScenarioModule
     {
         internal PopupDialog dialog = null;
-        private bool toolbarStateMatchedToIsVisible;
 
         [KSPField(isPersistant = true)]
         public bool isVisible = false;
@@ -28,41 +23,18 @@ namespace ProgressiveColonizationSystem
         [KSPField(isPersistant = true)]
         public float yPosition = .5f; // .5 => the middle
 
-        internal static PksToolbarDialog instance;
-
-        public static void Show(bool fromShowDialog = false)
-        {
-            if (instance != null)
-            {
-                Debug.Log("PksToolbarDialog.Show");
-                PksToolbarControllerDialog.instance.SetTexture("ProgressiveColonizationSystem/Textures/cupcake-s-38",
-                    "ProgressiveColonizationSystem/Textures/cupcake-s-24");
-                if (!fromShowDialog)
-                instance.ShowDialog();
-            }
-        }
-
         public override void OnAwake()
         {
             base.OnAwake();
-
-            AttachToToolbar();
-            instance = this;
         }
 
         protected abstract ApplicationLauncher.AppScenes VisibleInScenes { get; }
 
-        private void AttachToToolbar()
-        {
-            this.toolbarStateMatchedToIsVisible = false;
-        }
+        protected abstract MultiOptionDialog DrawDialog(Rect rect);
 
-        internal abstract MultiOptionDialog DrawDialog(Rect rect);
-
-        private void ShowDialog()
+        public void Show()
         {
             isVisible = true;
-            Show(true);
             if (this.dialog == null)
             {
                 this.dialog = PopupDialog.SpawnPopupDialog(
@@ -76,6 +48,13 @@ namespace ProgressiveColonizationSystem
             }
         }
 
+        public void Hide()
+        {
+            this.isVisible = false;
+            this.dialog?.Dismiss();
+            this.dialog = null;
+        }
+
         protected void Redraw()
         {
             if (this.dialog != null)
@@ -83,16 +62,6 @@ namespace ProgressiveColonizationSystem
                 this.dialog.Dismiss();
                 this.dialog = null;
             }
-        }
-
-        private void HideDialog()
-        {
-            isVisible = false;
-            this.dialog?.Dismiss();
-            this.dialog = null;
-
-            PksToolbarControllerDialog.instance.SetTexture("ProgressiveColonizationSystem/Textures/cupcake-n-38",
-                "ProgressiveColonizationSystem/Textures/cupcake-n-24");
         }
 
         protected virtual bool IsRelevant { get; } = true;
@@ -107,20 +76,7 @@ namespace ProgressiveColonizationSystem
                     this.dialog = null;
                     // But leave isVisible set, as that's the persistent view.
                 }
-                //PksToolbarControllerDialog.instance.toolbarControl.Enabled = false;
-
                 return;
-            }
-
-            //PksToolbarControllerDialog.instance.toolbarControl.Enabled = true;
-
-
-
-            // Shenanigans!  This gets around the apparent fact that you can't tell the toolbar what state to start in.
-            if (!this.toolbarStateMatchedToIsVisible)
-            {
-                //PksToolbarControllerDialog.instance.toolbarControl.SetTrue(this.isVisible);
-                this.toolbarStateMatchedToIsVisible = true;
             }
 
             this.OnFixedUpdate();
@@ -134,7 +90,7 @@ namespace ProgressiveColonizationSystem
 
             if (this.isVisible && this.dialog == null)
             {
-                this.ShowDialog();
+                this.Show();
             }
         }
 
