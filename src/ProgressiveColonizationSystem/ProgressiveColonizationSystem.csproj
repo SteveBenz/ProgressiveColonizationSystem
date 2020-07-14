@@ -47,31 +47,15 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>$(KspInstallationDir)\KSP_x64_Data\Managed\Assembly-CSharp.dll</HintPath>
+    <Reference Include="$(KspInstallationDir)\KSP_x64_Data\Managed\Assembly*.dll">
+      <Private>False</Private>
     </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>$(KspInstallationDir)\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    <Reference Include="$(KspInstallationDir)\KSP_x64_Data\Managed\UnityEngine*.dll">
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="UnityEngine">
-      <HintPath>$(KspInstallationDir)\KSP_x64_Data\Managed\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>$(KspInstallationDir)\KSP_x64_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(KspInstallationDir)\KSP_x64_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AnimationModule">
-      <HintPath>$(KspInstallationDir)\KSP_x64_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>$(KspInstallationDir)\KSP_x64_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>$(KspInstallationDir)\KSP_x64_Data\Managed\UnityEngine.UI.dll</HintPath>
+    <Reference Include="ToolbarControl">
+      <HintPath>$(KspInstallationDir)\GameData\001_ToolbarControl\Plugins\ToolbarControl.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -99,6 +83,7 @@
     <Compile Include="PartSetupDialog.cs" />
     <Compile Include="PksTabbedDialog.cs" />
     <Compile Include="PksTieredCombiner.cs" />
+    <Compile Include="PksToolbar.cs" />
     <Compile Include="PksUpgradablePart.cs" />
     <Compile Include="PksUpgradeVesselModule.cs" />
     <Compile Include="ProductionChain\AmalgamatedCombiners.cs" />
@@ -109,7 +94,7 @@
     <Compile Include="IntervesselResourceTransfer.cs" />
     <Compile Include="PksScanner.cs" />
     <Compile Include="PksCrushInsScrounger.cs" />
-    <Compile Include="PksToolbarDialog.cs" />
+    <Compile Include="PksPersistentDialog.cs" />
     <Compile Include="LifeSupportCalculator.cs" />
     <Compile Include="PopupMessageWithKerbal.cs" />
     <Compile Include="ColonizationResearchScenario.cs" />
@@ -259,6 +244,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="GameData\ProgressiveColonizationSystem\Textures\cupcake-24.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ProgressiveColonizationSystem\Textures\cupcake-38.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="GameData\ProgressiveColonizationSystem\Textures\icon_filter_n.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -314,8 +305,7 @@
     <Error Condition="!Exists('..\..\ksplocations.props')" Text="You need to copy ksplocations_example.props to ksplocations.props and edit it with paths to a couple things on your machine" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>
-if $(ConfigurationName) == Debug (
+    <PostBuildEvent>if $(ConfigurationName) == Debug (
   echo "$(MonoExe)" "$(Pdb2MdbExe)" "$(TargetPath)"
   "$(MonoExe)" "$(Pdb2MdbExe)" "$(TargetPath)"
 )

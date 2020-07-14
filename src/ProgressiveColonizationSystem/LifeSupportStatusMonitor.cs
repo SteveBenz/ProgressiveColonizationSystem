@@ -40,9 +40,25 @@ namespace ProgressiveColonizationSystem
 
         private IntervesselResourceTransfer resourceTransfer = new IntervesselResourceTransfer();
 
+        /// <summary>
+        ///   Published in order that we can cooperate with <see cref="PksToolbar"/>
+        /// </summary>
+        private static LifeSupportStatusMonitor instance;
+
         public LifeSupportStatusMonitor()
             : base(new string[] { ProductionTab, ProgressionTab, TransferTab, CrewTab })
         {
+            instance = this;
+        }
+
+        public static void ToggleDialogVisibility()
+        {
+            instance?.ToggleVisibility();
+        }
+
+        public static void ShowDialog()
+        {
+            instance?.Show();
         }
 
         protected override DialogGUIBase DrawTab(string tab)
@@ -61,7 +77,9 @@ namespace ProgressiveColonizationSystem
             }
         }
 
-        protected override bool IsRelevant =>
+        protected override bool IsRelevant => LifeSupportStatusMonitor.IsRelevant_static;
+
+        public static bool IsRelevant_static =>
                !FlightGlobals.ActiveVessel.isEVA
                && (FlightGlobals.ActiveVessel.situation == Vessel.Situations.LANDED
                 || FlightGlobals.ActiveVessel.situation == Vessel.Situations.SPLASHED

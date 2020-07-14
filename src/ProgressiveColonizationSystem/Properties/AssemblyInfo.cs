@@ -23,3 +23,4 @@ using System.Runtime.InteropServices;
 [assembly: Guid("3484df36-cb74-45a2-9997-66669fb1a22a")]
 
 [assembly: InternalsVisibleTo("ProgressiveColonizationSystem.UnitTests")]
+[assembly: KSPAssemblyDependency("ToolbarController", 1, 0)]
