@@ -34,6 +34,8 @@ namespace ProgressiveColonizationSystem
 
         private static LifeSupportCalculator instance;
 
+        int btnId;
+
         public static void ToggleDialogVisibility()
         {
             instance?.ToggleVisibility();
@@ -41,10 +43,14 @@ namespace ProgressiveColonizationSystem
 
         public void Start()
         {
-            // Intercept the launch button logic.  Note that this only works well if we're the only
-            // mod that's attempting to intervene before launch.
-            EditorLogic.fetch.launchBtn.onClick.RemoveListener(EditorLogic.fetch.launchVessel);
-            EditorLogic.fetch.launchBtn.onClick.AddListener(OnLaunchClicked);
+            // Add this mod to the ButtonManager.  The ButtonManager will control the access to the 
+            // specified button (in this case, the launch button), and at the end of the chain, will
+            // actually call the launch event
+
+            ButtonManager.BtnManager.InitializeListener(EditorLogic.fetch.launchBtn, EditorLogic.fetch.launchVessel, "ProgressiveColonization");
+
+            btnId = ButtonManager.BtnManager.AddListener(EditorLogic.fetch.launchBtn, OnLaunchClicked, "ProgressiveColonization", "Progressive-Colonization");
+;
             instance = this;
         }
 
@@ -59,12 +65,12 @@ namespace ProgressiveColonizationSystem
                 PopupMessageWithKerbal.ShowOkayCancel("You sure, boss?", message, "Don't worry, I have a plan!", "Good point", () =>
                 {
                     StaticAnalysis.FixBannedCargos();
-                    EditorLogic.fetch.launchVessel();
+                    ButtonManager.BtnManager.InvokeNextDelegate(btnId, "ProgressiveColonization.LifeSupportCalculator");
                 });
             }
             else
             {
-                EditorLogic.fetch.launchVessel();
+                ButtonManager.BtnManager.InvokeNextDelegate(btnId, "ProgressiveColonization.LifeSupportCalculator");
             }
         }
 
