@@ -53,6 +53,10 @@
     <Reference Include="$(KspInstallationDir)\KSP_x64_Data\Managed\UnityEngine*.dll">
       <Private>False</Private>
     </Reference>
+    <Reference Include="ButtonManager, Version=0.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(KspInstallationDir)\GameData\SpaceTuxLibrary\Plugins\ButtonManager.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="ToolbarControl">
       <HintPath>$(KspInstallationDir)\GameData\001_ToolbarControl\Plugins\ToolbarControl.dll</HintPath>
