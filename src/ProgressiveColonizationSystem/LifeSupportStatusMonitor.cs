@@ -133,6 +133,11 @@ namespace ProgressiveColonizationSystem
                 string fieldName = field.IsAtMaxTier
                     ? field.Category.DisplayName
                     : $"{field.TierBeingResearched.DisplayName()} {field.Category.DisplayName}";
+                if (this.progress.Any(p => p != field && p.Category == field.Category))
+                {
+                    fieldName += $"({field.AtBody})";
+                }
+
                 string progressText = field.HasProgress ? $"{100 * field.AccumulatedKerbalDays / field.KerbalDaysRequired:N}%" : "-";
                 string notes = field.KerbalDaysContributedPerDay > 0
                     ? $"{(field.KerbalDaysRequired - field.AccumulatedKerbalDays) / field.KerbalDaysContributedPerDay:N} days to go"
@@ -683,31 +688,49 @@ namespace ProgressiveColonizationSystem
 
                 limitedByMessage = shortfalls.Count == 0 ? null : string.Join(", ", shortfalls.ToArray());
 
-                var allResearchEntries = researchSink.Data.Values.ToList();
-                foreach (var group in tieredProducers
-                    .Where(tp => !researchSink.Data.ContainsKey(tp.Output.ResearchCategory))
+                var allResearchEntries = researchSink.ResearchData;
+                // allResearchEntries now contains all the research that's actively going on.
+                // The next block adds any research categories that are not represented here because
+                // they are in non-functioning modules.
+                foreach (var producersByCategory in tieredProducers
+                    // Only look at producers that are properly set up...
+                    .Where(tp => tp.Output.ProductionRestriction != ProductionRestriction.Space || tp.Body != null)
+                    // ...and aren't accounted for already
+                    .Where(tp => !researchSink.ResearchData.Any(rc => tp.Output.ResearchCategory == rc.Category && tp.Body == rc.AtBody))
                     .GroupBy(tp => tp.Output.ResearchCategory))
                 {
-                    var maxTier = group.Max(tp => tp.Tier);
-                    var topTierProducers = group.Where(tp => tp.Tier == maxTier).ToArray();
-
-                    ITieredProducer exampleProducer = group.FirstOrDefault(tp => tp.IsResearchEnabled && tp.IsProductionEnabled);
-                    // We're looking for the best example of why research isn't enabled - maxtier is the top
-                    exampleProducer = topTierProducers.FirstOrDefault(tp => tp.Tier == TechTier.Tier4);
-                    if (exampleProducer == null)
+                    // Scanning is unique in that one vessel can research scanning for more than one
+                    // body, thus this code looks to see if the resulting group can be further subdivided
+                    // by body.
+                    var producersByPlanet = producersByCategory.GroupBy(p => p.Body).ToArray();
+                    foreach (var group in producersByPlanet)
                     {
-                        exampleProducer = topTierProducers.FirstOrDefault(tp => tp.IsProductionEnabled);
-                    }
-                    
-                    if (exampleProducer == null)
-                    {
-                        exampleProducer = topTierProducers.First();
-                    }
+                        var maxTier = group.Max(tp => tp.Tier);
+                        var topTierProducers = group.Where(tp => tp.Tier == maxTier).ToArray();
 
-                    var researchEntry = ColonizationResearchScenario.Instance.GetResearchProgress(
-                        exampleProducer.Output, exampleProducer.Body, exampleProducer.Tier,
-                        exampleProducer.IsResearchEnabled ? "Production Blocked" : exampleProducer.ReasonWhyResearchIsDisabled);
-                    allResearchEntries.Add(researchEntry);
+                        ITieredProducer exampleProducer = group.FirstOrDefault(tp => tp.IsResearchEnabled && tp.IsProductionEnabled);
+                        // We're looking for the best example of why research isn't enabled - maxtier is the top
+                        exampleProducer = topTierProducers.FirstOrDefault(tp => tp.Tier == TechTier.Tier4);
+                        if (exampleProducer == null)
+                        {
+                            exampleProducer = topTierProducers.FirstOrDefault(tp => tp.IsProductionEnabled);
+                        }
+
+                        if (exampleProducer == null)
+                        {
+                            exampleProducer = topTierProducers.First();
+                        }
+
+                        if (exampleProducer.Output.ProductionRestriction != ProductionRestriction.Space && exampleProducer.Body == null)
+                        {
+                            continue;
+                        }
+
+                        var researchEntry = ColonizationResearchScenario.Instance.GetResearchProgress(
+                            exampleProducer.Output, exampleProducer.Body, exampleProducer.Tier,
+                            exampleProducer.IsResearchEnabled ? "Production Blocked" : exampleProducer.ReasonWhyResearchIsDisabled);
+                        allResearchEntries.Add(researchEntry);
+                    }
                 }
 
                 progress = allResearchEntries;

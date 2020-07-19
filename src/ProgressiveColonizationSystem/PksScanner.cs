@@ -18,6 +18,8 @@ namespace ProgressiveColonizationSystem
     public class PksScanner
         : PartModule
     {
+        // ISSUE: Scanner's Tweakable menu doesn't say which body it's for.
+
         /// <summary>
         ///  The number below which it's safe to say the user doesn't know how to create a scanner network.
         /// </summary>

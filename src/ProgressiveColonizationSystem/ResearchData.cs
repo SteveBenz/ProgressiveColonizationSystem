@@ -10,8 +10,9 @@ namespace ProgressiveColonizationSystem
     {
         private readonly TechTier currentTier;
 
-        public ResearchData(ResearchCategory category, TechTier currentTier, double accumulatedKerbalDays, double kerbalDaysRequired)
+        public ResearchData(ResearchCategory category, string atBody, TechTier currentTier, double accumulatedKerbalDays, double kerbalDaysRequired)
         {
+            this.AtBody = atBody;
             this.Category = category;
             this.AccumulatedKerbalDays = accumulatedKerbalDays;
             this.KerbalDaysRequired = kerbalDaysRequired;
@@ -21,6 +22,7 @@ namespace ProgressiveColonizationSystem
 
         public bool HasProgress => this.AccumulatedKerbalDays > 0;
         public bool IsAtMaxTier => this.currentTier == TechTier.Tier4;
+        public string AtBody { get; }
 
         public ResearchCategory Category { get; }
         public TechTier TierBeingResearched => (TechTier)(this.currentTier + 1);

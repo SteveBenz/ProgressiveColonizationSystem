@@ -183,7 +183,7 @@ namespace ProgressiveColonizationSystem
                 }
             }
 
-            return new ResearchData(forResource.ResearchCategory, currentTier, KerbalTime.KerbalSecondsToDays(kerbalSecondsSoFar), KerbalTime.KerbalYearsToDays(forResource.ResearchCategory.KerbalYearsToNextTier(currentTier)));
+            return new ResearchData(forResource.ResearchCategory, atBody, currentTier, KerbalTime.KerbalSecondsToDays(kerbalSecondsSoFar), KerbalTime.KerbalYearsToDays(forResource.ResearchCategory.KerbalYearsToNextTier(currentTier)));
         }
 
         internal ResearchData GetResearchProgress(TieredResource forResource, string atBody, TechTier tier, string whyBlocked)
@@ -201,8 +201,8 @@ namespace ProgressiveColonizationSystem
             }
 
             var result = (currentTier == tier)
-                ? new ResearchData(forResource.ResearchCategory, tier, KerbalTime.KerbalSecondsToDays(kerbalSecondsSoFar), KerbalTime.KerbalYearsToDays(forResource.ResearchCategory.KerbalYearsToNextTier(currentTier)))
-                : new ResearchData(forResource.ResearchCategory, tier, 0, 0);
+                ? new ResearchData(forResource.ResearchCategory, atBody, tier, KerbalTime.KerbalSecondsToDays(kerbalSecondsSoFar), KerbalTime.KerbalYearsToDays(forResource.ResearchCategory.KerbalYearsToNextTier(currentTier)))
+                : new ResearchData(forResource.ResearchCategory, atBody, tier, 0, 0);
             result.WhyBlocked = whyBlocked;
             return result;
         }

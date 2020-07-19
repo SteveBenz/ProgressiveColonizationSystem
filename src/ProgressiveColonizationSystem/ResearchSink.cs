@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace ProgressiveColonizationSystem
 {
@@ -9,7 +10,7 @@ namespace ProgressiveColonizationSystem
     internal class ResearchSink
         : IColonizationResearchScenario
     {
-        public Dictionary<ResearchCategory, ResearchData> Data { get; } = new Dictionary<ResearchCategory, ResearchData>();
+        private Dictionary<string, ResearchData> Data = new Dictionary<string, ResearchData>();
 
         IEnumerable<TieredResource> IColonizationResearchScenario.AllResourcesTypes => ColonizationResearchScenario.Instance.AllResourcesTypes;
 
@@ -17,18 +18,22 @@ namespace ProgressiveColonizationSystem
 
         bool IColonizationResearchScenario.ContributeResearch(TieredResource source, string atBody, double researchInKerbalsecondsPerSecond)
         {
+            string key = atBody == null ? source.ResearchCategory.Name : $"{source.ResearchCategory.Name}-{atBody.ToLowerInvariant()}";
             // KerbalDaysContributedPerDay is equal to Kerbals.
             // timeSpentInKerbalSeconds works out to be time spent in a kerbal second (because that's the timespan
             // we passed into the production engine), so it's really kerbalSecondsContributedPerKerbalSecond.
-            if (!this.Data.TryGetValue(source.ResearchCategory, out ResearchData data))
+            if (!this.Data.TryGetValue(key, out ResearchData data))
             {
                 data = ColonizationResearchScenario.Instance.GetResearchProgress(source, atBody);
-                this.Data.Add(source.ResearchCategory, data);
+                this.Data.Add(key, data);
             }
 
             data.KerbalDaysContributedPerDay += researchInKerbalsecondsPerSecond;
             return false;
         }
+
+        public List<ResearchData> ResearchData
+            => this.Data.Values.ToList();
 
         TechTier IColonizationResearchScenario.GetMaxUnlockedScanningTier(string atBody)
             => ColonizationResearchScenario.Instance.GetMaxUnlockedScanningTier(atBody);

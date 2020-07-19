@@ -261,9 +261,12 @@ namespace ProgressiveColonizationSystem.ProductionChain
             {
                 if (producer.IsProductionEnabled)
                 {
+                    // The "Body" clause is there for scanning data - it's the only one
+                    //  where one ship can do research for more than one body.
                     ProducerData data = productionPossibilities.FirstOrDefault(
                         pp => pp.SourceTemplate.GetType() == producer.GetType()
                            && pp.SourceTemplate.Tier == producer.Tier
+                           && pp.SourceTemplate.Body == producer.Body
                            && pp.SourceTemplate.Output == producer.Output);
 
                     if (data == null)
