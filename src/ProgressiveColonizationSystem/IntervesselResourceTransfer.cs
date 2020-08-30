@@ -208,15 +208,6 @@ namespace ProgressiveColonizationSystem
             SnackConsumption.ResourceQuantities(sourceVessel, 1, out Dictionary<string, double> thisShipCanSupply, out Dictionary<string, double> thisShipCanStore);
             SnackConsumption.ResourceQuantities(otherVessel, 1, out Dictionary<string, double> otherShipCanSupply, out Dictionary<string, double> otherShipCanStore);
 
-            string[] unpassableStuff = new string[] { "ElectricCharge", "StoredCharge" };
-            foreach (var stuff in unpassableStuff)
-            {
-                foreach (var dict in new[] { thisShipCanSupply, thisShipCanStore, otherShipCanStore, otherShipCanSupply })
-                {
-                    dict.Remove(stuff);
-                }
-            }
-
             List<string> couldSend = thisShipCanSupply.Keys.Intersect(otherShipCanStore.Keys).ToList();
             List<string> couldTake = otherShipCanSupply.Keys.Intersect(thisShipCanStore.Keys).ToList();
 

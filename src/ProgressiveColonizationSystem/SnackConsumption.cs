@@ -349,19 +349,19 @@ namespace ProgressiveColonizationSystem
             {
                 foreach (var resource in part.Resources)
                 {
-                    if (resource.resourceName == "ElectricCharge")
+                    if (resource.resourceName == "ElectricCharge" || !resource.flowState || resource.info.resourceFlowMode == ResourceFlowMode.NO_FLOW)
                     {
                         continue;
                     }
 
                     // Be careful that we treat nearly-zero as zero, as otherwise we can get into an infinite
                     // loop when the resource calculator decides the amount is too minute to rate more than 0 time.
-                    if (resource.flowState && resource.amount > minimumAmount)
+                    if (resource.amount > minimumAmount)
                     {
                         availableResources.TryGetValue(resource.resourceName, out double amount);
                         availableResources[resource.resourceName] = amount + resource.amount;
                     }
-                    if (resource.flowState && resource.maxAmount - resource.amount > minimumAmount)
+                    if (resource.maxAmount - resource.amount > minimumAmount)
                     {
                         availableStorage.TryGetValue(resource.resourceName, out double amount);
                         availableStorage[resource.resourceName] = amount + resource.maxAmount - resource.amount;
