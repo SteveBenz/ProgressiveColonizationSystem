@@ -32,6 +32,9 @@ namespace ProgressiveColonizationSystem
         [KSPField]
         public int minimumTier = 2;
 
+        [KSPField(guiActive = true, guiActiveEditor = false, guiName = "Scanner Target")]
+        public string targetBody;
+
         private readonly Color litColor = new Color(0, 75, 0);
         private readonly Color darkColor = new Color(0, 0, 0);
 
@@ -146,6 +149,7 @@ namespace ProgressiveColonizationSystem
             tier = scanner.Tier;
             targetBodyName = scanner.Body;
             targetBody = scanner.TryGetCelestialBodyIfInProperOrbit();
+            this.targetBody = targetBody.bodyName;
         }
 
         private void AskUserToPickbase(TechTier scannerTier, CelestialBody targetBody)
