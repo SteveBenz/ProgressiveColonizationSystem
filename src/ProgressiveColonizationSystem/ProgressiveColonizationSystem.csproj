@@ -135,6 +135,7 @@
     <Compile Include="ProductionChain\TieredProduction.cs" />
     <Compile Include="PksTieredResourceCoverter.cs" />
     <Compile Include="TierSuitability.cs" />
+    <Compile Include="TransferDirection.cs" />
     <Compile Include="Waypoints.cs" />
   </ItemGroup>
   <ItemGroup>

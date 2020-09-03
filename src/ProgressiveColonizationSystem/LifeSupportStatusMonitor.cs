@@ -36,7 +36,7 @@ namespace ProgressiveColonizationSystem
         private string unusedCapacityMessage;
         private string limitedByMessage;
 
-        private string transferringMessage;
+        private readonly Dictionary<string, TransferDirection> userOverrides = new Dictionary<string, TransferDirection>();
 
         private IntervesselResourceTransfer resourceTransfer = new IntervesselResourceTransfer();
 
@@ -198,7 +198,7 @@ namespace ProgressiveColonizationSystem
                 new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
                         new DialogGUIButton(
                             "Start",
-                            resourceTransfer.StartTransfer,
+                            () => resourceTransfer.StartTransfer(this.userOverrides),
                             () => this.resourceTransfer.TargetVessel != null && !this.resourceTransfer.IsTransferUnderway,
                             dismissOnSelect: false),
                         new DialogGUISlider(() => (float)this.resourceTransfer.TransferPercent, 0, 1, false, 100, 20, (f) => { }),
@@ -208,7 +208,78 @@ namespace ProgressiveColonizationSystem
                             () => this.resourceTransfer.TargetVessel != null && (this.resourceTransfer.IsTransferComplete || !this.resourceTransfer.IsTransferUnderway),
                             dismissOnSelect: false)
                 ));
-            vertical.AddChild(new DialogGUILabel(() => this.transferringMessage));
+
+            if (resourceTransfer.TargetVessel != null)
+            {
+                var toTransfer = IntervesselResourceTransfer.TryFindResourceToTransfer(FlightGlobals.ActiveVessel, resourceTransfer.TargetVessel);
+
+                if (!toTransfer.Any())
+                {
+                    vertical.AddChild(new DialogGUILabel("Nothing to transfer"));
+                }
+                else
+                {
+                    foreach (var item in toTransfer.OrderBy(i => i.ResourceName))
+                    {
+
+                        float getSettingAsFloat()
+                        {
+                            if (!this.userOverrides.TryGetValue(item.ResourceName, out var direction))
+                            {
+                                direction = item.SuggestedDirection;
+                            }
+                            switch (direction) {
+                                case TransferDirection.Receive:
+                                    return -1;
+                                case TransferDirection.Neither:
+                                default:
+                                    return 0;
+                                case TransferDirection.Send:
+                                    return 1;
+                            }
+                        }
+                        void setSetting(float value)
+                        {
+                            var direction = value < 0
+                                ? TransferDirection.Receive
+                                : (value > 0 ? TransferDirection.Send : TransferDirection.Neither);
+                            if (!((direction == TransferDirection.Receive && item.MaxCanReceive == 0)
+                                || (direction == TransferDirection.Send && item.MaxCanSend ==0)))
+                            {
+                                this.userOverrides[item.ResourceName] = direction;
+                            }
+                        }
+
+                        string getSettingAsString()
+                        {
+                            if (!this.userOverrides.TryGetValue(item.ResourceName, out var direction))
+                            {
+                                direction = item.SuggestedDirection;
+                            }
+                            switch (direction)
+                            {
+                                case TransferDirection.Receive:
+                                    return "Take";
+                                case TransferDirection.Neither:
+                                default:
+                                    return "Hold";
+                                case TransferDirection.Send:
+                                    return "Send";
+                            }
+                        }
+
+                        vertical.AddChild(
+                            new DialogGUIHorizontalLayout(TextAnchor.MiddleLeft,
+                                new DialogGUILabel(item.ResourceName + ":"),
+                                new DialogGUISlider(getSettingAsFloat, -1, 1, true, 100, 20, setSetting)
+                                {
+                                    OptionInteractableCondition = () => !resourceTransfer.IsTransferUnderway || resourceTransfer.IsTransferComplete
+                                },
+                                new DialogGUILabel(getSettingAsString)
+                            ));
+                    }
+                }
+            }
 
             return vertical;
         }
@@ -229,33 +300,8 @@ namespace ProgressiveColonizationSystem
 
         private void OnTargetChanged()
         {
-            IntervesselResourceTransfer.TryFindResourceToTransfer(
-                FlightGlobals.ActiveVessel,
-                resourceTransfer.TargetVessel,
-                out var toSend,
-                out var toRecieve);
-            if (!toSend.Any() && !toRecieve.Any())
-            {
-                this.transferringMessage = "Nothing to transfer";
-                return;
-            }
-
-            string text = "";
-            if (toSend.Any())
-            {
-                text = "<B>Sending:</B> " + string.Join(", ", toSend.Keys.OrderBy(k => k).ToArray());
-            }
-
-            if (toRecieve.Any())
-            {
-                if (text != "")
-                {
-                    text += "\r\n";
-                }
-                text += "<B>Receiving:</B> " + string.Join(", ", toRecieve.Keys.OrderBy(k => k).ToArray());
-            }
-
-            this.transferringMessage = text;
+            this.userOverrides.Clear();
+            this.Redraw();
         }
 
         const float NumberColumnWidth = 50;
