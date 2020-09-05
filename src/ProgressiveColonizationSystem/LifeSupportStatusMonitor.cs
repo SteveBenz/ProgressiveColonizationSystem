@@ -206,6 +206,11 @@ namespace ProgressiveColonizationSystem
                             "Refresh",
                             () => { this.OnTargetChanged(); this.resourceTransfer.Reset(); },
                             () => this.resourceTransfer.TargetVessel != null && (this.resourceTransfer.IsTransferComplete || !this.resourceTransfer.IsTransferUnderway),
+                            dismissOnSelect: false),
+                        new DialogGUIButton(
+                            "Abort",
+                            () => this.resourceTransfer.Reset(),
+                            () => this.resourceTransfer.TargetVessel != null && this.resourceTransfer.IsTransferUnderway && !this.resourceTransfer.IsTransferComplete,
                             dismissOnSelect: false)
                 ));
 
