@@ -85,6 +85,8 @@
     </Content>
     <Compile Include="KerbalTime.cs" />
     <Compile Include="PartSetupDialog.cs" />
+    <Compile Include="PksRetrainingEntry.cs" />
+    <Compile Include="PksRetrainingModule.cs" />
     <Compile Include="PksTabbedDialog.cs" />
     <Compile Include="PksTieredCombiner.cs" />
     <Compile Include="PksToolbar.cs" />
@@ -114,6 +116,7 @@
     <Compile Include="ResearchCategory.cs" />
     <Compile Include="ResearchSink.cs" />
     <Compile Include="ResourceLodeScenario.cs" />
+    <Compile Include="RetrainingDialog.cs" />
     <Compile Include="ShiniesReputationRewards.cs" />
     <Compile Include="StaticAnalysis.cs" />
     <Compile Include="TextEffects.cs" />
@@ -297,6 +300,9 @@
     </Content>
     <Content Include="GameData\ProgressiveColonizationSystem\Parts\BigScanner.mu">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ProgressiveColonizationSystem\Training.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="GameData\ProgressiveColonizationSystem\Parts\Big_Snacks_Can.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
