@@ -25,7 +25,11 @@ namespace ProgressiveColonizationSystem
         public string AtBody { get; }
 
         public ResearchCategory Category { get; }
-        public TechTier TierBeingResearched => (TechTier)(this.currentTier + 1);
+        public TechTier TierBeingResearched
+            => (this.currentTier == TechTier.Tier0 && true == ColonizationResearchScenario.Instance?.EligibleToSkipTier1(this.Category))
+            ?  TechTier.Tier2
+            : (TechTier)(this.currentTier + 1);
+
         public double AccumulatedKerbalDays { get; }
         public double KerbalDaysRequired { get; }
         public double KerbalDaysContributedPerDay { get; set; }
