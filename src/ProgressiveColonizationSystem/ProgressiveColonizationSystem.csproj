@@ -61,6 +61,9 @@
     <Reference Include="ToolbarControl">
       <HintPath>$(KspInstallationDir)\GameData\001_ToolbarControl\Plugins\ToolbarControl.dll</HintPath>
     </Reference>
+    <Reference Include="ContractConfigurator">
+      <HintPath>$(KspInstallationDir)\GameData\ContractConfigurator\ContractConfigurator.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoMinerProducer.cs" />
@@ -85,10 +88,12 @@
     </Content>
     <Compile Include="KerbalTime.cs" />
     <Compile Include="PartSetupDialog.cs" />
+    <Compile Include="PksOnStationParameterFactory.cs" />
     <Compile Include="PksRetrainingEntry.cs" />
     <Compile Include="PksRetrainingModule.cs" />
     <Compile Include="PksTabbedDialog.cs" />
     <Compile Include="PksTieredCombiner.cs" />
+    <Compile Include="PksTierRequirement.cs" />
     <Compile Include="PksToolbar.cs" />
     <Compile Include="PksUpgradablePart.cs" />
     <Compile Include="PksUpgradeVesselModule.cs" />
@@ -302,6 +307,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="GameData\ProgressiveColonizationSystem\Training.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GameData\ProgressiveColonizationSystem\Contracts\Rescues.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="GameData\ProgressiveColonizationSystem\Parts\Big_Snacks_Can.cfg">
