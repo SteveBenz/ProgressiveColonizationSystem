@@ -10,13 +10,13 @@ namespace ProgressiveColonizationSystem
 {
     public class PksTierRequirement : ContractRequirement
     {
-        private string body;
         private string researchCategory;
         private int tier;
 
         public override void OnSave(ConfigNode configNode)
         {
-            configNode.AddValue(nameof(body), this.body);
+            // Theory: After the contract gets generated, these things all get specific values
+
             configNode.AddValue(nameof(researchCategory), this.researchCategory);
             configNode.AddValue(nameof(tier), this.tier);
         }
@@ -28,35 +28,18 @@ namespace ProgressiveColonizationSystem
 
         protected override string RequirementText()
         {
-            return $"Must have reached tier-{this.tier} {this.researchCategory} on {this.body}";
+            return $"Must have reached tier-{this.tier} {this.researchCategory} on {this.targetBody.name}";
         }
 
         public override bool LoadFromConfig(ConfigNode configNode)
         {
-            if (!base.LoadFromConfig(configNode))
-            {
-                return false;
-            }
+            bool valid = base.LoadFromConfig(configNode);
 
-            if (!configNode.TryGetValue("body", ref this.body))
-            {
-                Debug.LogError($"{nameof(PksTierRequirement)} needs a '{nameof(body)}' for node: {configNode}");
-                return false;
-            }
+            // TODO: write a validator for researchCategory
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, nameof(researchCategory), x => researchCategory = x, this, null, Validation.NotNull);
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, nameof(tier), x => tier = x, this, -1, x => Validation.BetweenInclusive(x, 0, 4));
 
-            if (!configNode.TryGetValue("researchCategory", ref this.researchCategory))
-            {
-                Debug.LogError($"{nameof(PksTierRequirement)} needs a '{nameof(researchCategory)}' for node: {configNode}");
-                return false;
-            }
-
-            if (!configNode.TryGetValue("tier", ref this.tier))
-            {
-                Debug.LogError($"{nameof(PksTierRequirement)} needs a '{nameof(tier)}' for node: {configNode}");
-                return false;
-            }
-
-            return true;
+            return valid;
         }
 
         public override bool RequirementMet(ConfiguredContract contract)
@@ -66,9 +49,9 @@ namespace ProgressiveColonizationSystem
             {
                 Debug.LogError($"Misconfigured PksTierRequirement - unknown resource '{this.researchCategory}'");
                 return false;
-            }                               
+            }
 
-            TechTier tier = ColonizationResearchScenario.Instance.GetMaxUnlockedTier(resource, this.body);
+            TechTier tier = ColonizationResearchScenario.Instance.GetMaxUnlockedTier(resource, this.targetBody.name);
             return (int)tier > this.tier;
         }
     }

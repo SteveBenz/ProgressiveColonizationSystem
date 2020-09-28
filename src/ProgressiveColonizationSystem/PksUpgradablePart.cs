@@ -122,7 +122,7 @@ namespace ProgressiveColonizationSystem
             if (this.remainingWork == 0)
             {
                 this.CrewRequirement.CancelOverride();
-                ++this.TieredConverter.tier;
+                this.TieredConverter.Tier = this.TieredConverter.MaxTechTierResearched;
                 this.UpdateAutoMining();
             }
             this.UpdateFields();

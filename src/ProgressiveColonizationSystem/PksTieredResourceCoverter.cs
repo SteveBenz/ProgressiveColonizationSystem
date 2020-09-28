@@ -78,7 +78,7 @@ namespace ProgressiveColonizationSystem
 
         private bool isInitialized = false;
 
-        protected virtual TechTier MaxTechTierResearched
+        public virtual TechTier MaxTechTierResearched
             => ColonizationResearchScenario.Instance.GetMaxUnlockedTier(this.Output, this.body);
 
         private PksUpgradablePart upgradablePartCache;

@@ -16,43 +16,23 @@ namespace ProgressiveColonizationSystem
     public class PksOnStationParameterFactory
         : ParameterFactory
     {
-        private string body;
+        private CelestialBody body;
         private string researchCategory;
         private int tier;
-        private string kerbal;
+        private ContractConfigurator.Kerbal kerbal;
 
         public override bool Load(ConfigNode configNode)
         {
-            if (!base.Load(configNode))
-            {
-                return false;
-            }
+            bool valid = base.Load(configNode);
 
-            if (!configNode.TryGetValue(nameof(body), ref this.body))
-            {
-                Debug.LogError($"{nameof(PksOnStationParameter)} needs a '{nameof(body)}' for node: {configNode}");
-                return false;
-            }
+            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, nameof(body), x => body = x, this, null, Validation.NotNull);
 
-            if (!configNode.TryGetValue(nameof(researchCategory), ref this.researchCategory))
-            {
-                Debug.LogError($"{nameof(PksOnStationParameter)} needs a '{nameof(researchCategory)}' for node: {configNode}");
-                return false;
-            }
+            // TODO: write a validator for researchCategory
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, nameof(researchCategory), x => researchCategory = x, this, null, Validation.NotNull);
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, nameof(tier), x => tier = x, this, -1, x => Validation.BetweenInclusive(x, 0, 4));
+            valid &= ConfigNodeUtil.ParseValue<ContractConfigurator.Kerbal>(configNode, nameof(kerbal), x => kerbal = x, this, null, Validation.NotNull);
 
-            if (!configNode.TryGetValue(nameof(tier), ref this.tier))
-            {
-                Debug.LogError($"{nameof(PksOnStationParameter)} needs a '{nameof(tier)}' for node: {configNode}");
-                return false;
-            }
-
-            if (!configNode.TryGetValue(nameof(kerbal), ref this.kerbal))
-            {
-                Debug.LogError($"{nameof(PksOnStationParameter)} needs a '{nameof(kerbal)}' for node: {configNode}");
-                return false;
-            }
-
-            return true;
+            return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
@@ -64,23 +44,63 @@ namespace ProgressiveColonizationSystem
     internal class PksOnStationParameter
         : ContractParameter
     {
-        private readonly string rescuedKerbalName;
-        private readonly string body;
-        private readonly string researchCategory;
-        private readonly int tier;
+        private string rescuedKerbal;
+        private string body;
+        private string researchCategory;
+        private int tier;
 
-        public PksOnStationParameter(string body, string researchCategory, int tier, string kerbalName)
+        public PksOnStationParameter(CelestialBody body, string researchCategory, int tier, ContractConfigurator.Kerbal kerbal)
         {
-            this.body = body;
+            this.body = body.name;
             this.researchCategory = researchCategory;
             this.tier = tier;
-            this.rescuedKerbalName = kerbalName;
+            this.rescuedKerbal = kerbal.name;
+        }
+
+        public PksOnStationParameter()
+        {
+        }
+
+        protected override void OnSave(ConfigNode node)
+        {
+            node.AddValue(nameof(body), body);
+            node.AddValue(nameof(researchCategory), researchCategory);
+            node.AddValue(nameof(tier), tier);
+            node.AddValue(nameof(rescuedKerbal), rescuedKerbal);
+            base.OnSave(node);
+        }
+
+        protected override void OnLoad(ConfigNode node)
+        {
+            base.OnLoad(node);
+            if (!node.TryGetValue(nameof(body), ref this.body))
+            {
+                Debug.LogError($"PksOnStationParameter.OnLoad didn't find a '{nameof(body)}' node");
+            }
+            if (!node.TryGetValue(nameof(researchCategory), ref this.researchCategory))
+            {
+                Debug.LogError($"PksOnStationParameter.OnLoad didn't find a '{nameof(researchCategory)}' node");
+            }
+            if (!node.TryGetValue(nameof(tier), ref this.tier))
+            {
+                Debug.LogError($"PksOnStationParameter.OnLoad didn't find a '{nameof(tier)}' node");
+            }
+            if (!node.TryGetValue(nameof(rescuedKerbal), ref this.rescuedKerbal))
+            {
+                Debug.LogError($"PksOnStationParameter.OnLoad didn't find a '{nameof(rescuedKerbal)}' node");
+            }
         }
 
         protected override void OnUpdate()
         {
-            // Is this a vessel on the target world?
+            // Are we on any kind of a vessel?
             var activeVessel = FlightGlobals.ActiveVessel;
+            if (activeVessel == null || HighLogic.LoadedScene != GameScenes.FLIGHT)
+            {
+                return;
+            }
+
+            // Is this a vessel on the target world?
             if ( activeVessel.orbit?.referenceBody.name != this.body
                  || !(activeVessel.situation == Vessel.Situations.LANDED
                  || activeVessel.situation == Vessel.Situations.SPLASHED))
@@ -89,7 +109,7 @@ namespace ProgressiveColonizationSystem
             }
 
             // Does it have our kerbal on board?
-            if (!activeVessel.GetVesselCrew().Any(k => k.name == this.rescuedKerbalName))
+            if (!activeVessel.GetVesselCrew().Any(k => k.name == this.rescuedKerbal))
             {
                 return;
             }
