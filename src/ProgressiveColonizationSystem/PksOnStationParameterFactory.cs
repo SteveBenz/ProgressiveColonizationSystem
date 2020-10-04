@@ -1,4 +1,5 @@
 ﻿using ContractConfigurator;
+using ContractConfigurator.Parameters;
 using Contracts;
 using System;
 using System.Collections.Generic;
@@ -42,7 +43,7 @@ namespace ProgressiveColonizationSystem
     }
 
     internal class PksOnStationParameter
-        : ContractParameter
+        : ContractConfiguratorParameter
     {
         private string rescuedKerbal;
         private string body;
@@ -61,18 +62,23 @@ namespace ProgressiveColonizationSystem
         {
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override string GetParameterTitle()
+        {
+            return this.state == ParameterState.Complete
+                ? $"{this.rescuedKerbal} is at home on {this.body}"
+                : $"Bring {this.rescuedKerbal} to a station on {this.body}";
+        }
+
+        protected override void OnParameterSave(ConfigNode node)
         {
             node.AddValue(nameof(body), body);
             node.AddValue(nameof(researchCategory), researchCategory);
             node.AddValue(nameof(tier), tier);
             node.AddValue(nameof(rescuedKerbal), rescuedKerbal);
-            base.OnSave(node);
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
             if (!node.TryGetValue(nameof(body), ref this.body))
             {
                 Debug.LogError($"PksOnStationParameter.OnLoad didn't find a '{nameof(body)}' node");
@@ -121,7 +127,7 @@ namespace ProgressiveColonizationSystem
                 return;
             }
 
-            base.SetComplete();
+            base.SetState(ParameterState.Complete);
         }
     }
 }
