@@ -10,14 +10,14 @@ namespace ProgressiveColonizationSystem
 {
     internal class RetrainingDialog
     {
-        private readonly List<PksRetrainingEntry> currentStatus;
+        private readonly List<RetrainingEntry> currentStatus;
         private readonly IReadOnlyList<ProtoCrewMember> kerbalsInPart;
         private readonly double trainingCostInSeconds;
         private PopupDialog dialog;
         private static readonly Vector2 defaultPosition = new Vector2(.5f, .6f);
 
         private RetrainingDialog(
-            List<PksRetrainingEntry> currentStatus,
+            List<RetrainingEntry> currentStatus,
             IReadOnlyList<ProtoCrewMember> kerbalsInPart,
             double trainingCostInSeconds)
         {
@@ -28,7 +28,7 @@ namespace ProgressiveColonizationSystem
 
         // Shows the dialog for the indicated kerbals.  The 
         public static RetrainingDialog Show(
-            List<PksRetrainingEntry> currentStatus,
+            List<RetrainingEntry> currentStatus,
             IReadOnlyList<ProtoCrewMember> kerbalsInPart,
             double trainingCostInSeconds)
         {
@@ -40,6 +40,11 @@ namespace ProgressiveColonizationSystem
         private void Draw(Vector2 position)
         {
             DialogGUIVerticalLayout vertical = new DialogGUIVerticalLayout();
+
+            if (kerbalsInPart.Count == 0)
+            {
+                vertical.AddChild(new DialogGUILabel("No Kerbals are in the part."));
+            }
 
             foreach (var kerbal in kerbalsInPart.Where(k => k.trait != "Tourist").OrderBy(n => n.name))
             {
@@ -134,11 +139,11 @@ namespace ProgressiveColonizationSystem
             return $"{days}:{hours}:{minutes:D2}:{seconds:D2}";
         }
 
-        private void StartTraining(PksRetrainingEntry entry, ProtoCrewMember kerbal, ExperienceTraitConfig config, double actualTime)
+        private void StartTraining(RetrainingEntry entry, ProtoCrewMember kerbal, ExperienceTraitConfig config, double actualTime)
         {
             if (entry == null)
             {
-                this.currentStatus.Add(new PksRetrainingEntry(kerbal.name, actualTime, config.Name));
+                this.currentStatus.Add(new RetrainingEntry(kerbal.name, actualTime, config.Name));
                 Redraw();
             }
             else
@@ -148,7 +153,7 @@ namespace ProgressiveColonizationSystem
             KerbalRoster.SetExperienceTrait(kerbal, "Trainee");
         }
 
-        private void OnChangeClicked(PksRetrainingEntry entry, ProtoCrewMember kerbal)
+        private void OnChangeClicked(RetrainingEntry entry, ProtoCrewMember kerbal)
         {
             var leftColumn = new DialogGUIVerticalLayout();
             var rightColumn = new DialogGUIVerticalLayout();

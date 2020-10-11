@@ -2,9 +2,9 @@
 
 namespace ProgressiveColonizationSystem
 {
-    public class PksRetrainingEntry
+    public class RetrainingEntry
     {
-        public PksRetrainingEntry(string kerbalName, double remainingTrainingTime, string futureTrait)
+        public RetrainingEntry(string kerbalName, double remainingTrainingTime, string futureTrait)
         {
             this.KerbalName = kerbalName;
             this.RemainingTrainingTime = remainingTrainingTime;
@@ -25,7 +25,7 @@ namespace ProgressiveColonizationSystem
 
         public bool IsComplete => RemainingTrainingTime <= 0;
 
-        public static bool TryCreateFromNode(ConfigNode node, out PksRetrainingEntry entry)
+        public static bool TryCreateFromNode(ConfigNode node, out RetrainingEntry entry)
         {
             string kerbalName = "";
             string futureTrait = "";
@@ -35,7 +35,7 @@ namespace ProgressiveColonizationSystem
                 && node.TryGetValue("trait", ref futureTrait)
                 && node.TryGetValue("time", ref remainingTrainingTime))
             {
-                entry = new PksRetrainingEntry(kerbalName, remainingTrainingTime, futureTrait);
+                entry = new RetrainingEntry(kerbalName, remainingTrainingTime, futureTrait);
                 return true;
             }
             else

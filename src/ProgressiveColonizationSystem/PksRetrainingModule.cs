@@ -14,7 +14,7 @@ namespace ProgressiveColonizationSystem
     public class PksRetrainingModule
         : PartModule
     {
-        private readonly List<PksRetrainingEntry> trainingInfo = new List<PksRetrainingEntry>();
+        private readonly List<RetrainingEntry> trainingInfo = new List<RetrainingEntry>();
         private double lastUpdateTime = -1;
         private RetrainingDialog dialog;
 
@@ -50,7 +50,7 @@ namespace ProgressiveColonizationSystem
                 this.trainingInfo.Clear();
                 foreach (ConfigNode child in trainees.nodes)
                 {
-                    if (PksRetrainingEntry.TryCreateFromNode(child, out var childEntry))
+                    if (RetrainingEntry.TryCreateFromNode(child, out var childEntry))
                     {
                         this.trainingInfo.Add(childEntry);
                     }
