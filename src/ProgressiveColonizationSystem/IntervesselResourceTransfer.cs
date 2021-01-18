@@ -66,19 +66,20 @@ namespace ProgressiveColonizationSystem
                     anythingGoingOn = true;
                     double amountPerSecond = item.MaxCanSend / transferTimeInSeconds;
                     thisVesselConversionRecipe.Inputs
-                        .Add(new ResourceRatio(item.ResourceName, amountPerSecond, dumpExcess: false));
+                        .Add(new ResourceRatio(item.ResourceName, amountPerSecond, dumpExcess: false, ResourceFlowMode.ALL_VESSEL_BALANCE));
                     otherVesselConversionRecipe.Outputs
-                        .Add(new ResourceRatio(item.ResourceName, amountPerSecond, dumpExcess: false));
+                        .Add(new ResourceRatio(item.ResourceName, amountPerSecond, dumpExcess: false, ResourceFlowMode.ALL_VESSEL_BALANCE));
                 }
                 else if (direction == TransferDirection.Receive)
                 {
                     anythingGoingOn = true;
                     double amountPerSecond = item.MaxCanReceive / transferTimeInSeconds;
                     thisVesselConversionRecipe.Outputs
-                        .Add(new ResourceRatio(item.ResourceName, amountPerSecond, dumpExcess: false));
+                        .Add(new ResourceRatio(item.ResourceName, amountPerSecond, dumpExcess: false, ResourceFlowMode.ALL_VESSEL_BALANCE));
                     otherVesselConversionRecipe.Inputs
-                        .Add(new ResourceRatio(item.ResourceName, amountPerSecond, dumpExcess: false));
+                        .Add(new ResourceRatio(item.ResourceName, amountPerSecond, dumpExcess: false, ResourceFlowMode.ALL_VESSEL_BALANCE));
                 }
+
             }
 
             if (anythingGoingOn)
