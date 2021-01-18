@@ -70,7 +70,7 @@ namespace ProgressiveColonizationSystem
 
             ResourceConverter resourceConverter = new ResourceConverter();
             ConversionRecipe recipe = new ConversionRecipe();
-            recipe.Inputs.Add(new ResourceRatio("RocketParts", rocketPartsUsed, dumpExcess: false));
+            recipe.Inputs.Add(new ResourceRatio("RocketParts", rocketPartsUsed, dumpExcess: false, ResourceFlowMode.ALL_VESSEL));
             resourceConverter.ProcessRecipe(1, recipe, this.vessel.rootPart, resModule: null, efficiencyBonus: 1f);
             this.lastTimeCheck = now;
         }
