@@ -19,5 +19,13 @@
         { "name": "StationPartsExpansionRedux" },
         { "name": "ToolbarController" },
         { "name": "SpaceTuxLibrary" }
+    ],
+
+    "suggests": [
+        { "name": "BonVoyage" },
+        { "name": "ContractConfigurator" },
+        { "name": "ExtraplanetaryLaunchpads" },
+        { "name": "KSPRescuePodFix" },
+        { "name": "WaypointManager" }
     ]
 }

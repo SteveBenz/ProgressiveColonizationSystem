@@ -3,7 +3,7 @@
 Because I can't be bothered with GitHub issues.
 
 1. Bugs:
-   1.  Resource transfer seems not to work for some ships -- perhaps because of staging
+   1.  (fixed) Resource transfer seems not to work for some ships -- perhaps because of staging
    2.  (fixed) Can bring CrushIns from Kerbin or other bodies and fake out the resource auto-collection mechanic.  It should be happy
        to take the crushins, but disallow it as an auto-collector.
    3.  (fixed) If there's more than one manned base, it should ask you where you want to look for crushins
@@ -50,13 +50,14 @@ Because I can't be bothered with GitHub issues.
    32. If you ask for Crushins for a T2 base where there's a drill under construction, it still gives you T2 crushins
    33. If you transfer T3 Crushins to a base where there's a T2 drill under construction, it doesn't count the run.
    34. (fixed) In VAB, setup all parts doesn't work when original is for Mun/T3 and target is Duna/T0
+   35. (fixed) CKAN should suggest Boy Voyage, Launchpads, Contract Configurator, Contract Parser, Contracts Window +, KSP Rescue Pod Fix, Progress Parser,
 2. Rounding things out
    1.  (complete) Create or hijack a part for storing Snacks - just snacks
    2.  (complete) Write PDF help and or create a github wiki
    3.  (complete) Make the shinies boost your rep on landing - remember to add checks to make sure Shinies don't actually come from Kerbin
    4.  (complete) Get a better scanner part
        a) (complete) It should disable Scan For Stuff when the shield is closed
-       c) Number of Antennae should affect connection quality
+       c) (complete) Number of Antennae should affect connection quality
    5.  Fully automate release preparation
    6.  (complete) Add .version to output per guidance: https://github.com/KSP-CKAN/NetKAN/pull/7147
    8.  (DOA) Make a "K&K Storage [KIS]" that works with B9 -- need to figure out how to do the decals and push it to K&K
