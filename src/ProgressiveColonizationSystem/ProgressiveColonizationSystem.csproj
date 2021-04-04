@@ -304,18 +304,6 @@
     <Content Include="GameData\ProgressiveColonizationSystem\Training.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="GameData\ProgressiveColonizationSystem\Contracts\PksSurfaceRescue.cfg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="GameData\ProgressiveColonizationSystem\Contracts\RescueAtJool.cfg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="GameData\ProgressiveColonizationSystem\Contracts\PksRescueContractGroup.cfg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="GameData\ProgressiveColonizationSystem\Contracts\PksDunaOrbitalRescue.cfg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="GameData\ProgressiveColonizationSystem\Parts\Big_Snacks_Can.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -5,8 +5,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ProgressiveColonizationSystem")]
-[assembly: AssemblyDescription("Life Support and Colony Building Mod for KSP")]
+[assembly: AssemblyTitle("ProgressiveColonizationSystem.Contracts")]
+[assembly: AssemblyDescription("ConfigurableContracts for PKS")]
 [assembly: AssemblyConfiguration("PreRelease Build")]
 [assembly: AssemblyCompany("Nermables Unlimited")]
 [assembly: AssemblyProduct("ProgressiveColonizationSystem")]
@@ -23,4 +23,4 @@ using System.Runtime.InteropServices;
 [assembly: Guid("3484df36-cb74-45a2-9997-66669fb1a22a")]
 
 [assembly: InternalsVisibleTo("ProgressiveColonizationSystem.UnitTests")]
-[assembly: KSPAssemblyDependency("ToolbarController", 1, 0)]
+[assembly: KSPAssemblyDependency("ContractConfigurator", 1, 30)]

@@ -66,6 +66,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>AssemblyVersion.tt</DependentUpon>
     </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="AssemblyVersion.tt">
@@ -96,9 +97,7 @@
       <Name>ProgressiveColonizationSystem</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">
     <Error Condition="!Exists('..\..\ksplocations.props')" Text="You need to copy ksplocations_example.props to ksplocations.props and edit it with paths to a couple things on your machine" />
