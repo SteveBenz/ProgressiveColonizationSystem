@@ -28,7 +28,7 @@
     int i2 = 0;
     string s;
 
-    string versionfile =  @"..\..\GameData\ProgressiveColonizationSystem\ProgressiveColonizationSystem.version";
+    string versionfile =  @"..\..\..\ProgressiveColonizationSystem\GameData\ProgressiveColonizationSystem\ProgressiveColonizationSystem.version";
     if (!File.Exists(versionfile))
     {
         Write("CWD: " + Environment.CurrentDirectory);
