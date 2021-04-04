@@ -61,9 +61,6 @@
     <Reference Include="ToolbarControl">
       <HintPath>$(KspInstallationDir)\GameData\001_ToolbarControl\Plugins\ToolbarControl.dll</HintPath>
     </Reference>
-    <Reference Include="ContractConfigurator">
-      <HintPath>$(KspInstallationDir)\GameData\ContractConfigurator\ContractConfigurator.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoMinerProducer.cs" />
@@ -88,12 +85,10 @@
     </Content>
     <Compile Include="KerbalTime.cs" />
     <Compile Include="PartSetupDialog.cs" />
-    <Compile Include="PksOnStationParameterFactory.cs" />
     <Compile Include="RetrainingEntry.cs" />
     <Compile Include="PksRetrainingModule.cs" />
     <Compile Include="PksTabbedDialog.cs" />
     <Compile Include="PksTieredCombiner.cs" />
-    <Compile Include="PksTierRequirement.cs" />
     <Compile Include="PksToolbar.cs" />
     <Compile Include="PksUpgradablePart.cs" />
     <Compile Include="PksUpgradeVesselModule.cs" />
@@ -321,9 +316,9 @@
     <Content Include="GameData\ProgressiveColonizationSystem\Contracts\PksDunaOrbitalRescue.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="GameData\ProgressiveColonizationSystem\Parts\Big_Snacks_Can.cfg">
+    <Content Include="GameData\ProgressiveColonizationSystem\Parts\Big_Snacks_Can.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
     <Content Include="GameData\ProgressiveColonizationSystem\Parts\ScannerHubJr.mu">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -333,27 +328,8 @@
     <Error Condition="!Exists('..\..\ksplocations.props')" Text="You need to copy ksplocations_example.props to ksplocations.props and edit it with paths to a couple things on your machine" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>if $(ConfigurationName) == Debug (
-  echo "$(MonoExe)" "$(Pdb2MdbExe)" "$(TargetPath)"
-  "$(MonoExe)" "$(Pdb2MdbExe)" "$(TargetPath)"
-)
-
-mkdir "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" 2&gt;nul
-copy "$(TargetPath)" "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" &gt;nul
-if $(ConfigurationName) == Debug (
-  copy "$(TargetPath).mdb" "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" &gt;nul
-  echo robocopy /e /mir /mt:8 /njh /njs /ndl /nc /ns /nfl /np "$(TargetDir)GameData\ProgressiveColonizationSystem" "$(KspInstallationDir)\GameData\ProgressiveColonizationSystem"
-  robocopy /e /mir /mt:8 /njh /njs /ndl /nc /ns /nfl  /np "$(TargetDir)GameData\ProgressiveColonizationSystem" "$(KspInstallationDir)\GameData\ProgressiveColonizationSystem"
-  if errorlevel 8 exit /b 1
-)
-
-if $(ConfigurationName) == Release (
-  $(ProjectDir)\..\CreateRelease\bin\$(ConfigurationName)\CreateRelease.exe "$(TargetDir)."
-  if errorlevel 1 exit /b 1
-  echo "$(TargetDir)ProgressiveColonizationSystem.zip is ready for release"
-)
-
-exit /b 0</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>"$(TextTransformExe)" "$(ProjectDir)AssemblyVersion.tt"</PreBuildEvent>
