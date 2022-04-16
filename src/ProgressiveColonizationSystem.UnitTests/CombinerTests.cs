@@ -9,9 +9,7 @@ namespace ProgressiveColonizationSystem.UnitTests
     [TestClass]
     public class CombinerTests
     {
-        public const double SecondsPerKerbanDay = 6.0 * 60.0 * 60.0;
-
-        public const double TestTolerance = .01 / SecondsPerKerbanDay;
+        public double TestTolerance => KerbalTime.KerbalDaysToSeconds(.01);
 
         public const double PlentifulAmount = 1000.0; // Wildly larger than our tests use
 
@@ -51,10 +49,10 @@ namespace ProgressiveColonizationSystem.UnitTests
             Assert.AreEqual(false, breakthroughs.Any());
             Assert.IsNotNull(consumptionPerSecond);
             Assert.AreEqual(2, consumptionPerSecond.Count);
-            Assert.AreEqual(5 / SecondsPerKerbanDay, consumptionPerSecond["Snacks-Tier4"], TestTolerance);
-            Assert.AreEqual(5.0 * (1.0 - StubRocketPartCombiner.ExpectedTier0Ratio) / SecondsPerKerbanDay, consumptionPerSecond[StubRocketPartCombiner.ExpectedInputResource], TestTolerance);
+            Assert.AreEqual(KerbalTime.UnitsPerDayToUnitsPerSecond(5), consumptionPerSecond["Snacks-Tier4"], TestTolerance);
+            Assert.AreEqual(KerbalTime.UnitsPerDayToUnitsPerSecond(5.0 * (1.0 - StubRocketPartCombiner.ExpectedTier0Ratio)), consumptionPerSecond[StubRocketPartCombiner.ExpectedInputResource], TestTolerance);
             Assert.AreEqual(1, productionPerSecond.Count);
-            Assert.AreEqual(5.0 / SecondsPerKerbanDay, productionPerSecond[StubRocketPartCombiner.ExpectedOutputResource], TestTolerance);
+            Assert.AreEqual(KerbalTime.UnitsPerDayToUnitsPerSecond(5.0), productionPerSecond[StubRocketPartCombiner.ExpectedOutputResource], TestTolerance);
             Assert.IsFalse(limitingResources.Any());
             Assert.AreEqual(2, unusedProduction.Count);
             Assert.AreEqual(2.0, unusedProduction["LocalParts-Tier0"], TestTolerance);
@@ -191,7 +189,7 @@ namespace ProgressiveColonizationSystem.UnitTests
             Assert.IsFalse(limitingResources.Any());
 
             // Limit by the input resource
-            available[StubRocketPartCombiner.ExpectedInputResource] =  .25 * (1 - StubRocketPartCombiner.ExpectedTier1Ratio)/SecondsPerKerbanDay;
+            available[StubRocketPartCombiner.ExpectedInputResource] =  KerbalTime.UnitsPerDayToUnitsPerSecond(.25 * (1 - StubRocketPartCombiner.ExpectedTier1Ratio));
             TieredProduction.CalculateResourceUtilization(
                 5 /* kerbals */, 1.0 /* seconds*/, producers, combiners,
                 colonizationResearchScenario, available, storage,
@@ -205,7 +203,7 @@ namespace ProgressiveColonizationSystem.UnitTests
             Assert.IsFalse(limitingResources.Any());
 
             // Limit by storage
-            storage[StubRocketPartCombiner.ExpectedOutputResource] = .25 / SecondsPerKerbanDay;
+            storage[StubRocketPartCombiner.ExpectedOutputResource] = KerbalTime.UnitsPerDayToUnitsPerSecond(.25);
             TieredProduction.CalculateResourceUtilization(
                 5 /* kerbals */, 1.0 /* seconds*/, producers, combiners,
                 colonizationResearchScenario, available, storage,
@@ -233,6 +231,6 @@ namespace ProgressiveColonizationSystem.UnitTests
         }
 
         private static Dictionary<string, double> ConvertToPerDay(Dictionary<string, double> unitsPerSecond)
-            => unitsPerSecond.ToDictionary(pair => pair.Key, pair => pair.Value * SecondsPerKerbanDay);
+            => unitsPerSecond.ToDictionary(pair => pair.Key, pair => KerbalTime.UnitsPerSecondToUnitsPerDay(pair.Value));
     }
 }

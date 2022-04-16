@@ -669,7 +669,7 @@ namespace ProgressiveColonizationSystem
                     {
                         if (!isAutoMining || !IsCrushinResource(researchSink, resourceName))
                         {
-                            double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(resourcesConsumed[resourceName]);
+                            double perDay = KerbalTime.UnitsPerSecondToUnitsPerDay(resourcesConsumed[resourceName]);
                             double daysLeft = resources[resourceName] / perDay;
                             consumptionBuilder.AppendLine($"{perDay:N1} {resourceName} per day ({daysLeft:N1} days left)");
                         }
@@ -687,7 +687,7 @@ namespace ProgressiveColonizationSystem
                     var productionMessageBuilder = new StringBuilder();
                     foreach (var resourceName in resourcesProduced.Keys.OrderBy(n => n))
                     {
-                        double perDay = TieredProduction.UnitsPerSecondToUnitsPerDay(resourcesProduced[resourceName]);
+                        double perDay = KerbalTime.UnitsPerSecondToUnitsPerDay(resourcesProduced[resourceName]);
                         productionMessageBuilder.AppendLine($"{perDay:N1} {resourceName}");
                     }
 

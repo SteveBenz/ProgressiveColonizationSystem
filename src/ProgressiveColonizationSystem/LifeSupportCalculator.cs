@@ -238,7 +238,7 @@ namespace ProgressiveColonizationSystem
             foreach (var pair in resourcesConsumedPerSecond.OrderBy(pair => pair.Key))
             {
                 var name = pair.Key;
-                var amountPerDay = TieredProduction.UnitsPerSecondToUnitsPerDay(pair.Value);
+                var amountPerDay = KerbalTime.UnitsPerSecondToUnitsPerDay(pair.Value);
                 consumption.Append($"{amountPerDay:N1} {name}/day");
 
                 if (ColonizationResearchScenario.Instance.TryParseTieredResourceName(name, out TieredResource resource, out TechTier tier)
@@ -266,7 +266,7 @@ namespace ProgressiveColonizationSystem
             foreach (var pair in resourcesProducedPerSecond.OrderBy(pair => pair.Key))
             {
                 var name = pair.Key;
-                var amountPerDay = TieredProduction.UnitsPerSecondToUnitsPerDay(pair.Value);
+                var amountPerDay = KerbalTime.UnitsPerSecondToUnitsPerDay(pair.Value);
 
                 double available = 0;
                 storageAvailable.TryGetValue(name, out available);

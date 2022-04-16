@@ -7,14 +7,6 @@ namespace ProgressiveColonizationSystem.ProductionChain
     public static class TieredProduction
     {
         /// <summary>
-        ///   Our math is based on per-day calculations e.g. each kerbal eats one supply per day.
-        ///   Each agroponic thing can eat up to one fertilizer per day and create one supply per day.
-        ///   One unit of fertilizer, however, might weigh a whole lot less than a unit of supplies.
-        /// </summary>
-        public static double UnitsPerDayToUnitsPerSecond(double x) => x / KerbalTime.KerbalDaysToSeconds(1);
-        public static double UnitsPerSecondToUnitsPerDay(double x) => x * KerbalTime.KerbalDaysToSeconds(1);
-
-        /// <summary>
         ///   Calculates production and snack consumption, using the production capacity available
         ///   on the vessel.  It takes in <paramref name="fullTimespanInSeconds"/>, but it actually
         ///   calculates only up until the first resource runs out (e.g. either fertilizer or
@@ -136,8 +128,8 @@ namespace ProgressiveColonizationSystem.ProductionChain
                         combiner.RequiredMixins += usedResourcesRate;
                         double producedResourcesRate = (applicableConverterCapacity / suppliesWanted) * combiner.ProductionRate;
 
-                        AddTo(resourceProductionPerSecond, combiner.NonTieredOutputResourceName, UnitsPerDayToUnitsPerSecond(producedResourcesRate));
-                        AddTo(resourceConsumptionPerSecond, combiner.NonTieredInputResourceName, UnitsPerDayToUnitsPerSecond(usedResourcesRate));
+                        AddTo(resourceProductionPerSecond, combiner.NonTieredOutputResourceName, KerbalTime.UnitsPerDayToUnitsPerSecond(producedResourcesRate));
+                        AddTo(resourceConsumptionPerSecond, combiner.NonTieredInputResourceName, KerbalTime.UnitsPerDayToUnitsPerSecond(usedResourcesRate));
                     }
                     else
                     {
@@ -153,7 +145,7 @@ namespace ProgressiveColonizationSystem.ProductionChain
                 if (availableStorage.ContainsKey(resourceName) && !(producerData.SourceTemplate is StorageProducer))
                 {
                     double stockpiledPerDay = producerData.TryToProduce(double.MaxValue, limitMap);
-                    double stockpiledPerSecond = UnitsPerDayToUnitsPerSecond(stockpiledPerDay);
+                    double stockpiledPerSecond = KerbalTime.UnitsPerDayToUnitsPerSecond(stockpiledPerDay);
                     AddTo(resourceProductionPerSecond, resourceName, stockpiledPerSecond);
                 }
                 else if (producerData.SourceTemplate.Output.ExcessProductionCountsTowardsResearch)
@@ -172,7 +164,7 @@ namespace ProgressiveColonizationSystem.ProductionChain
                 {
                     // producerData.AllottedCapacity  is the amount consumed per day under our plan
                     // storage.Amount  is what we have on-hand
-                    double amountUsedPerSecond = UnitsPerDayToUnitsPerSecond(producerData.AllottedCapacity);
+                    double amountUsedPerSecond = KerbalTime.UnitsPerDayToUnitsPerSecond(producerData.AllottedCapacity);
                     if (amountUsedPerSecond > 0)
                     {
                         AddTo(resourceConsumptionPerSecond, storage.Output.TieredName(storage.Tier), amountUsedPerSecond);
