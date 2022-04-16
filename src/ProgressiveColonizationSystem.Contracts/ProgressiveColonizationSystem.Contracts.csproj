@@ -116,8 +116,8 @@ copy "$(TargetDir)\ProgressiveColonizationSystem.Contracts.dll" "$(TargetDir)Gam
 if $(ConfigurationName) == Debug (
   copy "$(TargetDir)\ProgressiveColonizationSystem.mdb" "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" &gt;nul
   copy "$(TargetDir)\ProgressiveColonizationSystem.Contracts.mdb" "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" &gt;nul
-  echo robocopy /e /mir /mt:8 /njh /njs /ndl /nc /ns /nfl /np "$(TargetDir)GameData\ProgressiveColonizationSystem" "$(KspInstallationDir)\GameData\ProgressiveColonizationSystem"
-  robocopy /e /mir /mt:8 /njh /njs /ndl /nc /ns /nfl  /np "$(TargetDir)GameData\ProgressiveColonizationSystem" "$(KspInstallationDir)\GameData\ProgressiveColonizationSystem"
+  echo robocopy /e /mir /njh /njs /ndl /nc /ns /nfl /np "$(TargetDir)GameData\ProgressiveColonizationSystem" "$(KspInstallationDir)\GameData\ProgressiveColonizationSystem"
+  robocopy /e /mir /njh /njs /ndl /nc /ns /nfl  /np "$(TargetDir)GameData\ProgressiveColonizationSystem" "$(KspInstallationDir)\GameData\ProgressiveColonizationSystem"
   if errorlevel 8 exit /b 1
 )
 
