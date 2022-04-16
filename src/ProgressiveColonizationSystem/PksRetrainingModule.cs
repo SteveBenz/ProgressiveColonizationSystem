@@ -18,17 +18,14 @@ namespace ProgressiveColonizationSystem
         private double lastUpdateTime = -1;
         private RetrainingDialog dialog;
 
-        /// <summary>
-        ///   This is the base training cost - the actual cost is this cost * (1 + stupidity)
-        /// </summary>
-        private const double BaseTrainingCostInSeconds = 60 * 6 * 60 * 60;
-
         [KSPEvent(guiActive = true, guiActiveEditor = false, guiName = "Crew Training")]
         public void ShowTrainingUi()
         {
+            // This is the base training cost - the actual cost is this cost * (1 + stupidity)
+            double baseTrainingCostInSeconds = KerbalTime.KerbalDaysToSeconds(60);
             if (dialog == null)
             {
-                this.dialog = RetrainingDialog.Show(trainingInfo, this.part.protoModuleCrew, BaseTrainingCostInSeconds);
+                this.dialog = RetrainingDialog.Show(trainingInfo, this.part.protoModuleCrew, baseTrainingCostInSeconds);
             }
             else
             {

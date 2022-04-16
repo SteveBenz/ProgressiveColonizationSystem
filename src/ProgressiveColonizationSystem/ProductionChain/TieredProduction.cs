@@ -11,8 +11,8 @@ namespace ProgressiveColonizationSystem.ProductionChain
         ///   Each agroponic thing can eat up to one fertilizer per day and create one supply per day.
         ///   One unit of fertilizer, however, might weigh a whole lot less than a unit of supplies.
         /// </summary>
-        public static double UnitsPerDayToUnitsPerSecond(double x) => x / (6.0 * 60.0 * 60.0);
-        public static double UnitsPerSecondToUnitsPerDay(double x) => x * (6.0 * 60.0 * 60.0);
+        public static double UnitsPerDayToUnitsPerSecond(double x) => x / KerbalTime.KerbalDaysToSeconds(1);
+        public static double UnitsPerSecondToUnitsPerDay(double x) => x * KerbalTime.KerbalDaysToSeconds(1);
 
         /// <summary>
         ///   Calculates production and snack consumption, using the production capacity available

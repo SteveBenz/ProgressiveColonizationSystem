@@ -28,7 +28,6 @@ namespace ProgressiveColonizationSystem
         }
 
         public const int DaysBeforeKerbalStarves = 7;
-        private const double secondsBeforeKerbalStarves = DaysBeforeKerbalStarves * 6 * 60 * 60; // 7 kerban days
 
         public void KerbalsMissedAMeal(Vessel vessel, bool hasActiveProducers)
         {
@@ -59,7 +58,7 @@ namespace ProgressiveColonizationSystem
                 }
 
                 if (!crewStatus.IsGrouchy
-                 && now > crewStatus.LastMeal + secondsBeforeKerbalStarves)
+                 && now > crewStatus.LastMeal + SecondsBeforeKerbalStarves)
                 {
                     crewStatus.IsGrouchy = true;
                     crewStatus.OldTrait = crew.experienceTrait.Title;
@@ -73,7 +72,7 @@ namespace ProgressiveColonizationSystem
                     this.incapacitatedKerbals.Add(crew);
                 }
                 else if (!crewStatus.IsGrouchy
-                      && (hasActiveProducers || now > crewStatus.LastMeal + .5 * secondsBeforeKerbalStarves)
+                      && (hasActiveProducers || now > crewStatus.LastMeal + .5 * SecondsBeforeKerbalStarves)
                       && !this.hungryKerbals.Contains(crew))
                 {
                     crewThatBecameHungry.Add(crew);
@@ -108,13 +107,13 @@ namespace ProgressiveColonizationSystem
             {
                 daysSinceMeal = KerbalTime.SecondsToKerbalDays(now - lifeSupportStatus.LastMeal);
                 isGrouchy = lifeSupportStatus.IsGrouchy;
-                daysToGrouchy = KerbalTime.SecondsToKerbalDays(lifeSupportStatus.LastMeal + secondsBeforeKerbalStarves - now);
+                daysToGrouchy = KerbalTime.SecondsToKerbalDays(lifeSupportStatus.LastMeal + SecondsBeforeKerbalStarves - now);
                 return true;
             }
             else
             {
                 daysSinceMeal = 0;
-                daysToGrouchy = KerbalTime.SecondsToKerbalDays(secondsBeforeKerbalStarves);
+                daysToGrouchy = KerbalTime.SecondsToKerbalDays(SecondsBeforeKerbalStarves);
                 isGrouchy = false;
                 return false;
             }
@@ -244,5 +243,7 @@ namespace ProgressiveColonizationSystem
                 this.incapacitatedKerbals.Clear();
             }
         }
+
+        private double SecondsBeforeKerbalStarves => KerbalTime.KerbalDaysToSeconds(DaysBeforeKerbalStarves);
     }
 }

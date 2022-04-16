@@ -128,15 +128,16 @@ namespace ProgressiveColonizationSystem
 
         private static string BuildTimeString(double totalSeconds)
         {
-            int t = (int)totalSeconds;
-            int seconds = t % 60;
-            t = t / 60;
-            int minutes = t % 60;
-            t = t / 60;
-            int hours = t % 6;
-            t = t / 6;
-            int days = t;
-            return $"{days}:{hours}:{minutes:D2}:{seconds:D2}";
+            return KSPUtil.dateTimeFormatter.PrintDateDeltaCompact(totalSeconds, includeTime: true, includeSeconds: true, useAbs: true);
+            //int t = (int)totalSeconds;
+            //int seconds = t % 60;
+            //t = t / 60;
+            //int minutes = t % 60;
+            //t = t / 60;
+            //int hours = t % 6;
+            //t = t / 6;
+            //int days = t;
+            //return $"{days}:{hours}:{minutes:D2}:{seconds:D2}";
         }
 
         private void StartTraining(RetrainingEntry entry, ProtoCrewMember kerbal, ExperienceTraitConfig config, double actualTime)
