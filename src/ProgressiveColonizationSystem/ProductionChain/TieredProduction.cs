@@ -42,7 +42,7 @@ namespace ProgressiveColonizationSystem.ProductionChain
             Dictionary<string, double> availableResources,
             Dictionary<string, double> availableStorage,
             out double timePassedInSeconds,
-            out List<TieredResource> breakthroughs,
+            out List<ITieredProducer> breakthroughs,
             out Dictionary<string, double> resourceConsumptionPerSecond,
             out Dictionary<string, double> resourceProductionPerSecond,
             out IEnumerable<string> limitingFactors,
@@ -189,7 +189,7 @@ namespace ProgressiveColonizationSystem.ProductionChain
             }
 
             // Okay, finally now we can apply the work done towards research
-            breakthroughs = new List<TieredResource>();
+            breakthroughs = new List<ITieredProducer>();
             foreach (ProducerData producerData in producerInfos)
             {
                 double contributionInKerbals = Math.Min(producerData.AllottedCapacity, producerData.ProductionContributingToResearch);
@@ -202,7 +202,10 @@ namespace ProgressiveColonizationSystem.ProductionChain
                         colonizationResearch,
                         timePassedInSeconds * contributionInKerbals /* convert to kerbal-seconds */))
                     {
-                        breakthroughs.Add(producerData.SourceTemplate.Output);
+                        // TODO: Probably add this to the data - or maybe we should push the
+                        // SourceTemplate itself?
+                        //   producerData.SourceTemplate.Body
+                        breakthroughs.Add(producerData.SourceTemplate);
                     }
                 }
             }

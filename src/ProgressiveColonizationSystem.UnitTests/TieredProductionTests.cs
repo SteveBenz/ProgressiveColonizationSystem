@@ -29,11 +29,11 @@ namespace ProgressiveColonizationSystem.UnitTests
             TieredProduction.CalculateResourceUtilization(
                 5 /* kerbals */, 1.0 /* seconds*/, new List<ITieredProducer>(),
                 new List<ITieredCombiner>(), colonizationResearchScenario, available, noStorage,
-                out double timePassedInSeconds, out List<TieredResource> breakthroughs,
-                out Dictionary<string, double> consumptionPerSecond,
-                out Dictionary<string, double> productionPerSecond,
-                out IEnumerable<string> limitingResources,
-                out Dictionary<string, double> unusedProduction);
+                out double timePassedInSeconds, out var breakthroughs,
+                out var consumptionPerSecond,
+                out var productionPerSecond,
+                out var limitingResources,
+                out var unusedProduction);
             Assert.AreEqual(timePassedInSeconds, 1.0);
             Assert.AreEqual(false, breakthroughs.Any());
             Assert.IsNotNull(consumptionPerSecond);
@@ -116,11 +116,11 @@ namespace ProgressiveColonizationSystem.UnitTests
             TieredProduction.CalculateResourceUtilization(
                 5 /* kerbals */, 1.0 /* seconds*/, agroponicModules, new List<ITieredCombiner>(),
                 colonizationResearchScenario, available, noStorage,
-                out double timePassedInSeconds, out List<TieredResource> breakthroughs,
-                out Dictionary<string, double> consumptionPerSecond,
-                out Dictionary<string, double> productionPerSecond,
-                out IEnumerable<string> limitingResources,
-                out Dictionary<string, double> unusedProduction);
+                out double timePassedInSeconds, out var breakthroughs,
+                out var consumptionPerSecond,
+                out var productionPerSecond,
+                out var limitingResources,
+                out var unusedProduction);
             Assert.AreEqual(timePassedInSeconds, 1.0);
             Assert.AreEqual(false, breakthroughs.Any());
             Assert.IsNotNull(consumptionPerSecond);
@@ -232,11 +232,11 @@ namespace ProgressiveColonizationSystem.UnitTests
             TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, landedModules, new List<ITieredCombiner>(),
                 colonizationResearchScenario, inStorage, storageSpace,
-                out double timePassedInSeconds, out List<TieredResource> breakthroughs,
-                out Dictionary<string, double> consumptionPerSecond,
-                out Dictionary<string, double> productionPerSecond,
-                out IEnumerable<string> limitingResources,
-                out Dictionary<string,double> unusedProduction);
+                out double timePassedInSeconds, out var breakthroughs,
+                out var consumptionPerSecond,
+                out var productionPerSecond,
+                out var limitingResources,
+                out var unusedProduction);
             Assert.AreEqual(timePassedInSeconds, 1.0);
             Assert.AreEqual(4 * (1 - Tier0AgricultureMaxDietRatio), KerbalTime.UnitsPerSecondToUnitsPerDay(consumptionPerSecond["Snacks-Tier4"]), TestTolerance);
             Assert.AreEqual(5.0 /* 2*10-15 */, KerbalTime.UnitsPerSecondToUnitsPerDay(consumptionPerSecond["Fertilizer-Tier4"]), TestTolerance);
@@ -356,11 +356,11 @@ namespace ProgressiveColonizationSystem.UnitTests
             TieredProduction.CalculateResourceUtilization(
                 1 /* kerbals */, 1.0 /* seconds*/, landedModules, new List<ITieredCombiner>(),
                 colonizationResearchScenario, inStorage, storageSpace,
-                out double timePassedInSeconds, out List<TieredResource> breakthroughs,
-                out Dictionary<string, double> consumptionPerSecond,
-                out Dictionary<string, double> productionPerSecond,
-                out IEnumerable<string> limitingResources,
-                out Dictionary<string,double> unusedProduction);
+                out double timePassedInSeconds, out var breakthroughs,
+                out var consumptionPerSecond,
+                out var productionPerSecond,
+                out var limitingResources,
+                out var unusedProduction);
             Assert.AreEqual(timePassedInSeconds, 1.0);
             Assert.AreEqual(2, productionPerSecond.Keys.Count);
             // Tier2 is 95% edible, so remainder is .05
@@ -408,11 +408,11 @@ namespace ProgressiveColonizationSystem.UnitTests
             TieredProduction.CalculateResourceUtilization(
                 4 /* kerbals */, 1.0 /* seconds*/, enRouteModules, new List<ITieredCombiner>(),
                 colonizationResearchScenario, available, noStorage,
-                out double timePassedInSeconds, out List<TieredResource> breakthroughs,
-                out Dictionary<string, double> consumptionPerSecond,
-                out Dictionary<string, double> productionPerSecond,
-                out IEnumerable<string> limitingResources,
-                out Dictionary<string, double> unusedProduction);
+                out double timePassedInSeconds, out var breakthroughs,
+                out var consumptionPerSecond,
+                out var productionPerSecond,
+                out var limitingResources,
+                out var unusedProduction);
             Assert.AreEqual(timePassedInSeconds, 1.0);
             Assert.AreEqual(false, breakthroughs.Any());
             Assert.AreEqual(4 * (1 - Tier2AgroponicMaxDietRatio), KerbalTime.UnitsPerSecondToUnitsPerDay(consumptionPerSecond["Snacks-Tier4"]), TestTolerance);

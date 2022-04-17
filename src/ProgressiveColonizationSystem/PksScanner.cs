@@ -102,6 +102,8 @@ namespace ProgressiveColonizationSystem
         [KSPEvent(guiActive = true, guiName = "Find Loose Crush-Ins")]
         public void FindResource()
         {
+            // This is part 1 of a 3 part series of connected functions.  This method determines
+            // if scanning is possible.  It returns if not and continues on to part 2,AskUserToPickbase, if not
             if (this.vessel.situation != Vessel.Situations.ORBITING)
             {
                 ScreenMessages.PostScreenMessage("The vessel is not in a stable orbit");
@@ -154,6 +156,9 @@ namespace ProgressiveColonizationSystem
 
         private void AskUserToPickbase(TechTier scannerTier, CelestialBody targetBody)
         {
+            // This is part 2 of a 3 part series of connected functions.  It's called by FindResource
+            // and continues on with ResourceLodeScenario.Instance.GetOrCreateResourceLoad after
+            // selecting (possibly through a dialog) the right base.
             var stuffResource = ColonizationResearchScenario.Instance.AllResourcesTypes.FirstOrDefault(r => r.MadeFrom((TechTier)this.minimumTier) == ColonizationResearchScenario.Instance.CrushInsResource);
 
             var baseChoices = new List<DialogGUIButton>();
@@ -182,7 +187,7 @@ namespace ProgressiveColonizationSystem
 
             if (baseChoices.Count == 0)
             {
-                ScreenMessages.PostScreenMessage("There doesn't seem to be a base down there");
+                ScreenMessages.PostScreenMessage("There doesn't seem to be a base with the right tier of scroungers down there");
             }
             else if (baseChoices.Count == 1)
             {

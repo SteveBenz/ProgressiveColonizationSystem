@@ -14,6 +14,8 @@ namespace ProgressiveColonizationSystem
 
         private readonly List<ResourceLode> activeLodes = new List<ResourceLode>();
 
+        private const double DaysBetweenScans = 3;
+
         public ResourceLodeScenario()
         {
             Instance = this;
@@ -27,41 +29,60 @@ namespace ProgressiveColonizationSystem
 
             if (lode != null)
             {
-                // Ensure that there's a waypoint
-                if (Waypoints.TryFindWaypointById(lode.Identifier, out _))
-                {
-                    ScreenMessages.PostScreenMessage("A lode has already been identified - look for a waypoint on the surface");
-                }
-                else
+                // If the waypoint associated with the lode doesn't exist, we'll assume that 
+                // the user accidentally deleted it or the kraken ate it.
+                if (!Waypoints.TryFindWaypointById(lode.Identifier, out _))
                 {
                     Waypoints.CreateWaypointAt($"Loose Crushins ({tier.DisplayName()})", nearVessel.mainBody, lode.Latitude, lode.Longitude);
-                    ScreenMessages.PostScreenMessage("A lode has already been identified - the waypoint was recreated");
+                    ScreenMessages.PostScreenMessage(
+                        "A lode has already been identified - the waypoint was recreated.\r\n"
+                        + $"If you want to try to find a new location, you can do so {DaysBetweenScans} after the node was discovered.",
+                        duration: 7.0f);
+                    return lode;
                 }
-            }
-            else
-            {
-                var waypoint = Waypoints.CreateWaypointNear(
-                    $"Loose Crushins ({tier.DisplayName()})", nearVessel, 10000, 500000, 
-                    scannerNetQuality, nearVessel.situation == Vessel.Situations.SPLASHED);
-                lode = new ResourceLode(waypoint, tier);
-                activeLodes.Add(lode);
 
-                PopupMessageWithKerbal.ShowPopup(
-                    "Lookie What I Found!",
-                    CrewBlurbs.CreateMessage(
-                        scannerNetQuality < PksScanner.BadScannerNetQualityThreshold ? "#LOC_KPBS_SCANNER_FIND_NOSATS" : "#LOC_KPBS_SCANNER_FIND_SATS",
-                        scannerVessel.GetVesselCrew(),
-                        new string[] { nameof(PksScanningSkill) }, tier),
-                    "A waypoint has been created - you need to land a ship or drive a rover with a portable digger "
-                    + "to within 150m of the waypoint, deploy the drill, fill your tanks with CrushIns, haul the "
-                    + "load back to the base and unload it using the resource-transfer mechanism on the colony "
-                    + "status screen (the cupcake button).  After you've dumped two loads with the same craft, "
-                    + "the crew at the base will be able to automatically gather resources in the future."
-                    + "\r\n\r\n"
-                    + "The more scanner satellites you have in polar orbit, the more likely you are to get a location "
-                    + "near your base.",
-                    "On it");
+                var age = Planetarium.GetUniversalTime() - lode.DiscoveryTime;
+                if (age < KerbalTime.KerbalDaysToSeconds(DaysBetweenScans))
+                {
+                    var timeToNextScan =
+                        KSPUtil.dateTimeFormatter.PrintDateDelta(
+                            KerbalTime.KerbalDaysToSeconds(DaysBetweenScans) - age,
+                            includeTime: true, includeSeconds: false, useAbs: true);
+                    ScreenMessages.PostScreenMessage(
+                        "A lode has already been identified - look for a waypoint on the surface."
+                        + "\r\n\r\n"
+                        + $"If this location is inaccessible, you can scan again in {timeToNextScan}."
+                        + " Remember that you can mine the node anywhere withing 150m of the location.",
+                        duration: 7.0f);
+                    return lode;
+                }
+
+                // Otherwise we're just gonna assume the user tried and failed to access it.
+                Waypoints.RemoveWaypoint(lode.Identifier);
+                this.activeLodes.Remove(lode);
             }
+
+            var waypoint = Waypoints.CreateWaypointNear(
+                $"Loose Crushins ({tier.DisplayName()})", nearVessel, 10000, 500000, 
+                scannerNetQuality, nearVessel.situation == Vessel.Situations.SPLASHED);
+            lode = new ResourceLode(waypoint, tier);
+            activeLodes.Add(lode);
+
+            PopupMessageWithKerbal.ShowPopup(
+                "Lookie What I Found!",
+                CrewBlurbs.CreateMessage(
+                    scannerNetQuality < PksScanner.BadScannerNetQualityThreshold ? "#LOC_KPBS_SCANNER_FIND_NOSATS" : "#LOC_KPBS_SCANNER_FIND_SATS",
+                    scannerVessel.GetVesselCrew(),
+                    new string[] { nameof(PksScanningSkill) }, tier),
+                "A waypoint has been created - you need to land a ship or drive a rover with a portable digger "
+                + "to within 150m of the waypoint, deploy the drill, fill your tanks with CrushIns, haul the "
+                + "load back to the base and unload it using the resource-transfer mechanism on the colony "
+                + "status screen (the cupcake button).  After you've dumped two loads with the same craft, "
+                + "the crew at the base will be able to automatically gather resources in the future."
+                + "\r\n\r\n"
+                + "The more scanner satellites you have in polar orbit, the more likely you are to get a location "
+                + "near your base.",
+                "On it");
 
             return lode;
         }
@@ -73,10 +94,7 @@ namespace ProgressiveColonizationSystem
             return this.activeLodes
                 .Where(resourceLode => resourceLode.bodyName == vessel.mainBody.name)
                 .Where(resourceLode =>
-                {
-                    double distance = Waypoints.StraightLineDistanceInMeters(vessel, resourceLode.Latitude, resourceLode.Longitude);
-                    return distance < 150.0;
-                });
+                    150.0 > Waypoints.StraightLineDistanceInMeters(vessel, resourceLode.Latitude, resourceLode.Longitude));
         }
 
         public bool TryFindResourceLodeInRange(Vessel vessel, TechTier tier, out ResourceLode resourceLode)
@@ -149,7 +167,7 @@ namespace ProgressiveColonizationSystem
                 this.bodyName = waypoint.celestialBody.name;
                 this.Identifier = waypoint.navigationId.ToString();
                 this.DiscoveryTime = Planetarium.GetUniversalTime();
-                this.Quantity = 500;
+                this.Quantity = 1200;
                 this.Tier = tier;
             }
 

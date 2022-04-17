@@ -232,7 +232,7 @@ namespace ProgressiveColonizationSystem
                     availableResources,
                     availableStorage,
                     out double elapsedTime,
-                    out List<TieredResource> breakthroughCategories,
+                    out List<ITieredProducer> breakthroughCategories,
                     out Dictionary<string,double> resourceConsumptionPerSecond,
                     out Dictionary<string,double> resourceProductionPerSecond,
                     out var _, out var _);
@@ -309,12 +309,12 @@ namespace ProgressiveColonizationSystem
                         "ProgressiveColonizationSystem.SnackConsumption.CalculateSnackFlow is busted - it somehow got the consumption recipe wrong.");
                 }
 
-                foreach (TieredResource resource in breakthroughCategories)
+                foreach (var resource in breakthroughCategories)
                 {
-                    TechTier newTier = ColonizationResearchScenario.Instance.GetMaxUnlockedTier(resource, this.vessel.lastBody.name);
-                    string title = $"{resource.ResearchCategory.DisplayName} has progressed to {newTier.DisplayName()}!";
-                    string message = resource.ResearchCategory.BreakthroughMessage(crew, newTier);
-                    string boringMessage = resource.ResearchCategory.BoringBreakthroughMessage(crew, newTier);
+                    TechTier newTier = ColonizationResearchScenario.Instance.GetMaxUnlockedTier(resource.Output, resource.Body);
+                    string title = $"{resource.Output.ResearchCategory.DisplayName} has progressed to {newTier.DisplayName()}!";
+                    string message = resource.Output.ResearchCategory.BreakthroughMessage(crew, newTier);
+                    string boringMessage = resource.Output.ResearchCategory.BoringBreakthroughMessage(crew, newTier);
                     PopupMessageWithKerbal.ShowPopup(title, message, boringMessage, "That's Just Swell");
                 }
 

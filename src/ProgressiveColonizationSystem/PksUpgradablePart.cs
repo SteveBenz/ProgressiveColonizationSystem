@@ -213,6 +213,7 @@ namespace ProgressiveColonizationSystem
              || this.TieredConverter.Tier >= this.TieredConverter.MaximumTier)
             {
                 this.Events[nameof(this.OnUpgrade)].guiActive = false;
+                this.Fields[nameof(this.remainingWorkAsPercentage)].guiActive = false;
             }
             else if (this.IsUpgrading)
             {
