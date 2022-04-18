@@ -16,7 +16,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+    <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\debug</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
@@ -103,19 +103,13 @@
     <Error Condition="!Exists('..\..\ksplocations.props')" Text="You need to copy ksplocations_example.props to ksplocations.props and edit it with paths to a couple things on your machine" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>if $(ConfigurationName) == Debug (
-  echo "$(MonoExe)" "$(Pdb2MdbExe)" "$(TargetDir)\ProgressiveColonizationSystem.dll"
-  "$(MonoExe)" "$(Pdb2MdbExe)" "$(TargetDir)\ProgressiveColonizationSystem.dll"
-  echo "$(MonoExe)" "$(Pdb2MdbExe)" "$(TargetDir)\ProgressiveColonizationSystem.Contracts.dll"
-  "$(MonoExe)" "$(Pdb2MdbExe)" "$(TargetDir)\ProgressiveColonizationSystem.Contracts.dll"
-)
-
+    <PostBuildEvent>
 mkdir "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" 2&gt;nul
 copy "$(TargetDir)\ProgressiveColonizationSystem.dll" "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" &gt;nul
 copy "$(TargetDir)\ProgressiveColonizationSystem.Contracts.dll" "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" &gt;nul
 if $(ConfigurationName) == Debug (
-  copy "$(TargetDir)\ProgressiveColonizationSystem.mdb" "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" &gt;nul
-  copy "$(TargetDir)\ProgressiveColonizationSystem.Contracts.mdb" "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" &gt;nul
+  copy "$(TargetDir)\ProgressiveColonizationSystem.pdb" "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" &gt;nul
+  copy "$(TargetDir)\ProgressiveColonizationSystem.Contracts.pdb" "$(TargetDir)GameData\ProgressiveColonizationSystem\Plugins" &gt;nul
   echo robocopy /e /mir /njh /njs /ndl /nc /ns /nfl /np "$(TargetDir)GameData\ProgressiveColonizationSystem" "$(KspInstallationDir)\GameData\ProgressiveColonizationSystem"
   robocopy /e /mir /njh /njs /ndl /nc /ns /nfl  /np "$(TargetDir)GameData\ProgressiveColonizationSystem" "$(KspInstallationDir)\GameData\ProgressiveColonizationSystem"
   if errorlevel 8 exit /b 1
