@@ -132,7 +132,8 @@ namespace ProgressiveColonizationSystem
         public bool EligibleToSkipTier1(ResearchCategory researchCategory)
         {
             // If we've researched Tier3 on 2 or more worlds, allow user to skip T1 for this category.
-            return this.categoryToBodyToProgressMap[researchCategory].Values.Count(v => v.Tier > TechTier.Tier3) >= 2;
+            return this.categoryToBodyToProgressMap.TryGetValue(researchCategory, out var progress)
+                && progress.Values.Count(v => v.Tier > TechTier.Tier3) >= 2;
         }
 
         public IEnumerable<TieredResource> AllResourcesTypes
